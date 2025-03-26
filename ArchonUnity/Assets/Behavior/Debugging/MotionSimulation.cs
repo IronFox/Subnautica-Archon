@@ -34,7 +34,7 @@ public class MotionSimulation : MonoBehaviour
             {
                 return;
             }
-            var forwardAccel = control.forwardAxis * 800;
+            var forwardAccel = control.forwardAxis * 30;
 
             try
             {
@@ -49,12 +49,12 @@ public class MotionSimulation : MonoBehaviour
         }
         if (control.outOfWater)
         {
-            rb.drag = 0.1f;
+            rb.drag = 0.01f;
             rb.useGravity = true;
         }
         else
         {
-            rb.drag = 10f;
+            rb.drag = 0.1f;
             rb.useGravity = false;
         }
     }

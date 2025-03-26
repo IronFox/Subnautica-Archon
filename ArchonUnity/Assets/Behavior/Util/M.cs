@@ -106,7 +106,23 @@ public static class M
 
     public static Vector2 V2(float v) => new Vector2(v, v);
 
+    public static Vector3 Pow(Vector3 v, float exp)
+    {
+        return V3(
+            Mathf.Pow(v.x, exp),
+            Mathf.Pow(v.y, exp),
+            Mathf.Pow(v.z, exp)
+            );
+    }
 
+    internal static Vector3 Scale(Vector3 v, Vector3 w)
+    {
+        return V3(
+            v.x * w.x,
+            v.y * w.y,
+            v.z * w.z
+            );
+    }
 }
 
 

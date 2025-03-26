@@ -17,8 +17,9 @@ public class PositionCamera : MonoBehaviour
     public bool positionBelowTarget;
     public Collider shipCollider;
 
-    private float firstPersonRadius = 3.15f;
-    public bool isFirstPerson = true;
+    
+    //private float firstPersonRadius = 3.15f;
+    public bool isFirstPerson = false;
     private bool wasFirstPerson;
 
     public float defaultThirdPersonDistance = 10.12f;
@@ -53,7 +54,11 @@ public class PositionCamera : MonoBehaviour
         if (isFirstPerson)
         {
             wasFirstPerson = true;
-            transform.position = target.position + transform.forward * firstPersonRadius;
+
+            var local = subRoot.transform.InverseTransformDirection(transform.forward);
+
+            float forwardRadius = (M.Abs(local.x) * referenceBoundingBox.size.x + M.Abs(local.y) * referenceBoundingBox.size.y + M.Abs(local.z) * referenceBoundingBox.size.z*1.1f) * 0.5f;
+            transform.position = target.position + transform.forward * forwardRadius;
             if (zoomAxis > 0)
             {
                 isFirstPerson = false;
