@@ -64,6 +64,7 @@ public class ArchonControl : MonoBehaviour
     private FallOrientation fallOrientation;
 
     private DirectAt look;
+    private RudderControl[] rudders;
     private Rigidbody rb;
     private bool currentlyBoarded;
 
@@ -191,6 +192,7 @@ public class ArchonControl : MonoBehaviour
         nonCameraOrientation = GetComponent<NonCameraOrientation>();
         rb = GetComponent<Rigidbody>();
         look = GetComponent<DirectAt>();
+        rudders = GetComponentsInChildren<RudderControl>();
         rotateCamera = trailSpace.GetComponent<RotateCamera>();
         positionCamera = trailSpace.GetComponent<PositionCamera>();
         fallOrientation = GetComponent<FallOrientation>();
@@ -287,6 +289,10 @@ public class ArchonControl : MonoBehaviour
             firstPersonMarkers.overdriveActive = false;
 
             ProcessUpgradeCover();
+
+            var projection = look.Intention.TranslateBy(rb.velocity);
+            foreach (var rudder in rudders)
+                rudder.UpdateIntention(projection);
 
 
             statusConsole.Set(StatusProperty.EnergyLevel, currentEnergy);

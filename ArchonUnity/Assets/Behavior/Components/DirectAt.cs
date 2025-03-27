@@ -20,6 +20,8 @@ public class DirectAt : MonoBehaviour
         rb = GetComponent<Rigidbody>();
     }
 
+    public ProjectedMotionSpace Intention { get; private set; }
+
 
     private Vector2 Flat(Vector3 source) => M.FlatNormalized(source);
 
@@ -42,6 +44,7 @@ public class DirectAt : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        Intention = new ProjectedMotionSpace(transform.position);
         rotX = RotateHorizontal();
         //RotateDirect();
         RotateZ(rb, Mathf.Clamp( -rotX*3,-45,45), targetOrientation.ZImpact);
@@ -71,7 +74,7 @@ public class DirectAt : MonoBehaviour
         while (delta > 180)
             delta -= 360;
 
-        var (accel, _) = Adjust(-delta, M.RadToDeg(-M.Dot(rb.angularVelocity, axis)));
+        var (accel, _) = Adjust(delta, M.RadToDeg(M.Dot(rb.angularVelocity, axis)),axis);
 
         //float wantTurn = -delta * 1.5f;
         //if (Mathf.Abs(delta) < 0.1f)
@@ -82,22 +85,27 @@ public class DirectAt : MonoBehaviour
         //float accel = error * 10 * 0.02f;
 
         //SignedMin((wantTurn - haveTurn)*10, 10);
-        rb.AddTorque(axis * -accel, ForceMode.Acceleration);
+        //rb.AddTorque(axis * -accel, ForceMode.Acceleration);
 
     }
 
-    private (float Acceleration, float AngleError) Adjust(float angleError, float haveTurn)
+    private (float Acceleration, float AngleError) Adjust(float angleError, float haveTurn, Vector3 axis)
     {
         float wantTurn = M.SignedMin(angleError/10, 1) * rotationSpeed;
-        //if (Mathf.Abs(wantTurn) < 1f)
-        //{
-        //    wantTurn = 0;
-        //    angleError = 0;
-        //}
+        if (Mathf.Abs(wantTurn) < 1f)
+        {
+            wantTurn = 0;
+            angleError = 0;
+        }
         float error = (wantTurn - haveTurn) * targetOrientation.Impact;
 
 
         float accel = M.SignedMin( error * 0.1f, 10f);
+
+        Intention.RotateThisBy(axis, wantTurn);
+
+        rb.AddTorque(axis * accel, ForceMode.Acceleration);
+
 
         return (accel, angleError);
     }
@@ -111,9 +119,8 @@ public class DirectAt : MonoBehaviour
         float want = UpAngle(targetOrientation.Forward, Flat(targetOrientation.Right));
 
         var delta = Mathf.DeltaAngle(have, want);
-        var (accel, _) = Adjust(delta, M.RadToDeg( M.Dot(rb.angularVelocity, axis)));
+        var (accel, _) = Adjust(delta, M.RadToDeg( M.Dot(rb.angularVelocity, axis)),axis);
 
-        rb.AddTorque(axis * accel, ForceMode.Acceleration);
 
     }
 
@@ -134,10 +141,7 @@ public class DirectAt : MonoBehaviour
         var delta = delta1;
         float accel;
         float have = /*rb.angularVelocity.y*/M.RadToDeg(M.Dot(rb.angularVelocity, transform.up));
-        (accel, delta) = Adjust(delta, have);
-        
-
-        rb.AddTorque(0, accel, 0, ForceMode.Acceleration);
+        (accel, delta) = Adjust(delta, have, Vector3.up);
         return delta;
 
     }
