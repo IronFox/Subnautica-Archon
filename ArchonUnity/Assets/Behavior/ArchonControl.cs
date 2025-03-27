@@ -290,6 +290,7 @@ public class ArchonControl : MonoBehaviour
 
             ProcessUpgradeCover();
 
+            look.rotateZ = !outOfWater;
             var projection = look.Intention.TranslateBy(rb.velocity);
             foreach (var rudder in rudders)
                 rudder.UpdateIntention(projection);

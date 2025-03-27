@@ -11,7 +11,9 @@ public class DirectAt : MonoBehaviour
 
     float rotX = 0;
 
+    
     public bool rotateUpDown = true;
+    public bool rotateZ = true;
     private const float rotationSpeed = 30f;
 
     // Start is called before the first frame update
@@ -47,7 +49,8 @@ public class DirectAt : MonoBehaviour
         Intention = new ProjectedMotionSpace(transform.position);
         rotX = RotateHorizontal();
         //RotateDirect();
-        RotateZ(rb, Mathf.Clamp( -rotX*3,-45,45), targetOrientation.ZImpact);
+        if (rotateZ)
+            RotateZ(rb, Mathf.Clamp( -rotX*3,-45,45), targetOrientation.ZImpact);
         if (rotateUpDown)
             RotateUpDown();
 
@@ -62,6 +65,8 @@ public class DirectAt : MonoBehaviour
 
     public void RotateZ(Rigidbody rb, float targetZ, float targetImpact)
     {
+        if (M.Dot(transform.forward, rb.velocity) < 0)
+            targetZ = -targetZ;
         var axis = rb.transform.forward;
         //var correct = -Vector3.Dot(rb.angularVelocity, axis);
         //rb.AddTorque(axis * correct, ForceMode.VelocityChange);
@@ -74,7 +79,7 @@ public class DirectAt : MonoBehaviour
         while (delta > 180)
             delta -= 360;
 
-        var (accel, _) = Adjust(delta, M.RadToDeg(M.Dot(rb.angularVelocity, axis)),axis);
+        var (accel, _) = Adjust(delta, M.RadToDeg(M.Dot(rb.angularVelocity, axis)),axis, isZ: true);
 
         //float wantTurn = -delta * 1.5f;
         //if (Mathf.Abs(delta) < 0.1f)
@@ -89,9 +94,11 @@ public class DirectAt : MonoBehaviour
 
     }
 
-    private (float Acceleration, float AngleError) Adjust(float angleError, float haveTurn, Vector3 axis)
+    private (float Acceleration, float AngleError) Adjust(float angleError, float haveTurn, Vector3 axis, bool isZ = false)
     {
         float wantTurn = M.SignedMin(angleError/10, 1) * rotationSpeed;
+        if (isZ)
+            wantTurn *= 2;
         if (Mathf.Abs(wantTurn) < 1f)
         {
             wantTurn = 0;
