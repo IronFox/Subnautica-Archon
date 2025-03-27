@@ -7,11 +7,13 @@ public class MotionSimulation : MonoBehaviour
 {
     private ArchonControl control;
     private Rigidbody rb;
+    private DirectionalDrag drag;
     // Start is called before the first frame update
     void Start()
     {
         control = GetComponent<ArchonControl>();
         rb = GetComponent<Rigidbody>();
+        drag = GetComponent<DirectionalDrag>();
     }
 
     // Update is called once per frame
@@ -34,7 +36,7 @@ public class MotionSimulation : MonoBehaviour
             {
                 return;
             }
-            var forwardAccel = control.forwardAxis * 30;
+            var forwardAccel = control.forwardAxis * 50;
 
             try
             {
@@ -49,13 +51,15 @@ public class MotionSimulation : MonoBehaviour
         }
         if (control.outOfWater)
         {
-            rb.drag = 0.01f;
+            rb.drag = 0;
             rb.useGravity = true;
+            drag.density = 0.01f;
         }
         else
         {
-            rb.drag = 0.1f;
+            rb.drag = 0;
             rb.useGravity = false;
+            drag.density = 0.5f;
         }
     }
 }

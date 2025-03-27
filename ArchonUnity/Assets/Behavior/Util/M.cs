@@ -105,6 +105,7 @@ public static class M
     }
 
     public static Vector2 V2(float v) => new Vector2(v, v);
+    public static Vector2 V2(float x, float y) => new Vector2(x, y);
 
     public static Vector3 Pow(Vector3 v, float exp)
     {
@@ -115,13 +116,34 @@ public static class M
             );
     }
 
-    internal static Vector3 Scale(Vector3 v, Vector3 w)
+    public static Vector3 Mult(Vector3 v, Vector3 w)
     {
         return V3(
             v.x * w.x,
             v.y * w.y,
             v.z * w.z
             );
+    }
+    public static Vector3 Mult(Vector3 u, Vector3 v, Vector3 w)
+    {
+        return V3(
+            u.x * v.x * w.x,
+            u.y * v.y * w.y,
+            u.z * v.z * w.z
+            );
+    }
+    public static Vector3 Mult(Vector3 u, Vector3 v, Vector3 w, Vector3 x)
+    {
+        return V3(
+            u.x * v.x * w.x * x.x,
+            u.y * v.y * w.y * x.y,
+            u.z * v.z * w.z * x.z
+            );
+    }
+
+    public static float SignedMin(float signedValue, float limit)
+    {
+        return Mathf.Sign(signedValue) * Mathf.Min(Mathf.Abs(signedValue), limit);
     }
 }
 

@@ -663,7 +663,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2ec93ea97c623643ae08b9303414753, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  remainingVelocityAfterOneSecond: {x: 0.4, y: 0.4, z: 0.92}
+  entireBoundingBox: {fileID: 22877489032065188}
+  density: 0.1
 --- !u!114 &7197353428443423573
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -757,8 +758,8 @@ Rigidbody:
   m_GameObject: {fileID: 2489802767637445617}
   serializedVersion: 2
   m_Mass: 10000
-  m_Drag: 0.000001
-  m_AngularDrag: 0.1
+  m_Drag: 1
+  m_AngularDrag: 1
   m_UseGravity: 0
   m_IsKinematic: 0
   m_Interpolate: 1
@@ -3387,6 +3388,11 @@ PrefabInstance:
       propertyPath: m_LocalPosition.z
       value: 43.87
       objectReference: {fileID: 0}
+    - target: {fileID: 8361606584308783674, guid: 60d7352ccf6d53440ac33b1237ec8a1c,
+        type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 16171d467cea7914085b1556d2c8ffde, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 60d7352ccf6d53440ac33b1237ec8a1c, type: 3}
 --- !u!4 &8536346865379775173 stripped

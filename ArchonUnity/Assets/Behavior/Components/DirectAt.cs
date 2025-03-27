@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
 
 public class DirectAt : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class DirectAt : MonoBehaviour
     float rotX = 0;
 
     public bool rotateUpDown = true;
-    private const float rotationSpeed = 0.5f;
+    private const float rotationSpeed = 30f;
 
     // Start is called before the first frame update
     void Start()
@@ -56,7 +57,7 @@ public class DirectAt : MonoBehaviour
 
     //}
 
-    public static void RotateZ(Rigidbody rb, float targetZ, float targetImpact)
+    public void RotateZ(Rigidbody rb, float targetZ, float targetImpact)
     {
         var axis = rb.transform.forward;
         //var correct = -Vector3.Dot(rb.angularVelocity, axis);
@@ -69,17 +70,36 @@ public class DirectAt : MonoBehaviour
             delta += 360;
         while (delta > 180)
             delta -= 360;
-        float wantTurn = -delta * 1.5f;
-        if (Mathf.Abs(delta) < 0.1f)
-            wantTurn = 0;
-        //SignedMin(delta * horizontalRotationAcceleration, maxHorizontalRotationSpeed);
-        float haveTurn = -Vector3.Dot(rb.angularVelocity, axis) * 180 / Mathf.PI;
-        float error = (wantTurn - haveTurn) * targetImpact;
-        float accel = error * 10 * 0.02f;
+
+        var (accel, _) = Adjust(-delta, M.RadToDeg(-M.Dot(rb.angularVelocity, axis)));
+
+        //float wantTurn = -delta * 1.5f;
+        //if (Mathf.Abs(delta) < 0.1f)
+        //    wantTurn = 0;
+        ////SignedMin(delta * horizontalRotationAcceleration, maxHorizontalRotationSpeed);
+        //float haveTurn = -Vector3.Dot(rb.angularVelocity, axis) * 180 / Mathf.PI;
+        //float error = (wantTurn - haveTurn) * targetImpact;
+        //float accel = error * 10 * 0.02f;
 
         //SignedMin((wantTurn - haveTurn)*10, 10);
         rb.AddTorque(axis * -accel, ForceMode.Acceleration);
 
+    }
+
+    private (float Acceleration, float AngleError) Adjust(float angleError, float haveTurn)
+    {
+        float wantTurn = M.SignedMin(angleError/10, 1) * rotationSpeed;
+        //if (Mathf.Abs(wantTurn) < 1f)
+        //{
+        //    wantTurn = 0;
+        //    angleError = 0;
+        //}
+        float error = (wantTurn - haveTurn) * targetOrientation.Impact;
+
+
+        float accel = M.SignedMin( error * 0.1f, 10f);
+
+        return (accel, angleError);
     }
 
     private void RotateUpDown()
@@ -91,20 +111,8 @@ public class DirectAt : MonoBehaviour
         float want = UpAngle(targetOrientation.Forward, Flat(targetOrientation.Right));
 
         var delta = Mathf.DeltaAngle(have, want);
-        float wantTurn = delta * rotationSpeed;
-        if (Mathf.Abs(delta) < 0.1f)
-            wantTurn = 0;
-        //SignedMin(delta * horizontalRotationAcceleration, maxHorizontalRotationSpeed);
-        float haveTurn = Vector3.Dot( rb.angularVelocity, axis) * 180 / Mathf.PI;
-        float error = (wantTurn - haveTurn) * targetOrientation.Impact;
-        
+        var (accel, _) = Adjust(delta, M.RadToDeg( M.Dot(rb.angularVelocity, axis)));
 
-        float accel = error * 10 * 0.02f;
-
-        //if (rb.transform.eulerAngles.x > 45f && haveTurn < 0)
-          //  rb.AddTorque(axis * -haveTurn * Time.fixedDeltaTime, ForceMode.VelocityChange);
-        //else
-        //SignedMin((wantTurn - haveTurn)*10, 10);
         rb.AddTorque(axis * accel, ForceMode.Acceleration);
 
     }
@@ -124,20 +132,12 @@ public class DirectAt : MonoBehaviour
         var delta1 = Vector2.SignedAngle(Flat(targetOrientation.Forward), directForward);
         //var delta2 = Vector2.SignedAngle(Flat(targetOrientation.forward), normalForward);
         var delta = delta1;
-        //if (Mathf.Abs(delta) > Mathf.Abs(delta2))
-        //    delta = delta2;
-        float wantTurn = delta * rotationSpeed;
-        if (Mathf.Abs(wantTurn) < 0.1f)
-            wantTurn = 0;
-        //SignedMin(delta * horizontalRotationAcceleration, maxHorizontalRotationSpeed);
-        //float haveTurn = -Vector3.Dot(rb.angularVelocity, axis) * 180 / Mathf.PI;
-        float haveTurn = rb.angularVelocity.y * 180 / Mathf.PI;
-        float error = (wantTurn - haveTurn) * targetOrientation.Impact;
-        float accel = error * 10 * 0.02f;
+        float accel;
+        float have = /*rb.angularVelocity.y*/M.RadToDeg(M.Dot(rb.angularVelocity, transform.up));
+        (accel, delta) = Adjust(delta, have);
+        
 
-        //SignedMin((wantTurn - haveTurn)*10, 10);
         rb.AddTorque(0, accel, 0, ForceMode.Acceleration);
-
         return delta;
 
     }
