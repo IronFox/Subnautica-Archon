@@ -36,8 +36,8 @@ public class RudderControl : MonoBehaviour
             var local = t.InverseTransformDirection(velocity);
             //Debug.Log(local);
             var angle = M.RadToDeg(Mathf.Atan2(local.x, local.z));
-            //if (local.z < 0)
-            //    angle = -angle;
+            if (local.z < 0)
+                angle = 180-angle;
             var s = local.magnitude;
             //if (s < 1f)
             //    angle = M.Interpolate(0, angle, s);
