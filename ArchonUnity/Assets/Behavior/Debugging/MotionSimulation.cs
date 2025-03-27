@@ -8,6 +8,7 @@ public class MotionSimulation : MonoBehaviour
     private ArchonControl control;
     private Rigidbody rb;
     private DirectionalDrag drag;
+    public Transform oceanSurface;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,6 +31,10 @@ public class MotionSimulation : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (oceanSurface != null)
+            control.outOfWater = control.transform.position.y >= oceanSurface.position.y;
+
+
         if (control.isBoarded && !control.outOfWater)
         {
             if (rb == null)
