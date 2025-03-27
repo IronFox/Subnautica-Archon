@@ -17,6 +17,7 @@
 
         Pass
         {
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -35,7 +36,6 @@
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
                 float2 projected : TEXCOORD4;
                 float3 v: TEXCOORD1;
@@ -57,7 +57,6 @@
                 o.v = v.vertex.xyz*0.1;
                 o.uv =v.uv;
                 o.n = v.normal;
-                UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
