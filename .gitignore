@@ -73,3 +73,5 @@ crashlytics-build.properties
 /ArchonUnity/[Aa]ssets/[Ss]treamingAssets/aa.meta
 /ArchonUnity/[Aa]ssets/[Ss]treamingAssets/aa/*
 
+/ArchonPlugin/bin/
+/ArchonPlugin/obj/
