@@ -15,7 +15,7 @@ RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
   m_Fog: 1
-  m_FogColor: {r: 0.4292453, g: 0.56517303, b: 0.8584906, a: 1}
+  m_FogColor: {r: 0.22745098, g: 0.33333334, b: 0.6156863, a: 1}
   m_FogMode: 1
   m_FogDensity: 0.01
   m_LinearFogStart: 100
@@ -586,6 +586,7 @@ MonoBehaviour:
   boardKey: 98
   centerKey: 99
   outOfWaterKey: 102
+  bayOpenKey: 111
 --- !u!81 &536681199
 AudioListener:
   m_ObjectHideFlags: 0

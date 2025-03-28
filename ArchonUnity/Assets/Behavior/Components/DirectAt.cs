@@ -98,7 +98,7 @@ public class DirectAt : MonoBehaviour
     {
         float wantTurn = M.SignedMin(angleError/10, 1) * rotationSpeed;
         if (isZ)
-            wantTurn *= 2;
+            wantTurn *= 1.5f;
         if (Mathf.Abs(wantTurn) < 1f)
         {
             wantTurn = 0;
@@ -108,6 +108,8 @@ public class DirectAt : MonoBehaviour
 
 
         float accel = M.SignedMin( error * 0.1f, 10f);
+        if (isZ)
+            accel *= 1.5f;
 
         Intention.RotateThisBy(axis, wantTurn);
 

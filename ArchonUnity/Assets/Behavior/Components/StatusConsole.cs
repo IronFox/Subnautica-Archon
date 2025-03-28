@@ -126,5 +126,6 @@ public enum StatusProperty
     OnboardingCooldown,
     OpenUpgradeCover,
     IsFirstPerson,
+    OpenBay,
 }
 

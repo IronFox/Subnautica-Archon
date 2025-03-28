@@ -16,6 +16,7 @@ public class BoardTest : MonoBehaviour
     public KeyCode boardKey = KeyCode.B;
     public KeyCode centerKey = KeyCode.C;
     public KeyCode outOfWaterKey = KeyCode.F;
+    public KeyCode bayOpenKey = KeyCode.O;
     // Start is called before the first frame update
     void Start()
     {
@@ -45,6 +46,11 @@ public class BoardTest : MonoBehaviour
         if (Input.GetKeyDown(centerKey))
         {
             subControl.cameraCenterIsCockpit = !subControl.cameraCenterIsCockpit;
+        }
+
+        if (Input.GetKeyDown(bayOpenKey))
+        {
+            subControl.openBay = !subControl.openBay;
         }
 
         if (Input.GetKeyDown(boardKey))
