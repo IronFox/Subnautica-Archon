@@ -8,7 +8,7 @@ namespace Subnautica_Archon
 
     public static class Log
     {
-        private static readonly LogConfig log = LogConfig.Default;
+        private static readonly LogConfig log = new LogConfig(true, null, true, true);
         public static string PathOf(Transform t)
         {
             var parts = new List<string>();
@@ -47,6 +47,10 @@ namespace Subnautica_Archon
         public static void Write(string message)
         {
             log.LogMessage(message);
+        }
+        public static void Error(string message)
+        {
+            log.LogError(message);
         }
 
         public static void Write(Exception ex)
@@ -101,6 +105,10 @@ namespace Subnautica_Archon
         public void Write(string msg)
         {
             Log.Write(Log.PathOf(Owner) + $": {msg}");
+        }
+        public void Error(string msg)
+        {
+            Log.Error(Log.PathOf(Owner) + $": {msg}");
         }
     }
 

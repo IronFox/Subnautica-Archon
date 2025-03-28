@@ -29,15 +29,15 @@ namespace Subnautica_Archon
         private bool wasDead;
         private bool destroyed;
         private float deathAge;
-        private MyLogger LogOut { get; }
+        //private MyLogger Log { get; }
         private MassDrive engine;
         private AutoPilot autopilot;
         private EnergyInterface energyInterface;
         private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
         public Archon()
         {
-            LogOut = new MyLogger(this);
-            LogOut.Write($"Constructed");
+            //Log = new MyLogger(this);
+            Log.Write($"Constructed");
             MaterialFixer = new MaterialFixer(this, LogConfig.Verbose);
         }
 
@@ -46,10 +46,10 @@ namespace Subnautica_Archon
         public override void OnFinishedLoading()
         {
             base.OnFinishedLoading();
-            Debug.Log($"Comparing colors {baseColor} and {stripeColor}");
+            Log.Write($"Comparing colors {baseColor} and {stripeColor}");
             if (baseColor == Color.white && stripeColor == Color.white)
             {
-                Debug.Log($"Resetting white {VehicleName}");
+                Log.Write($"Resetting white {VehicleName}");
                 SetBaseColor(Vector3.zero, defaultBaseColor);
                 SetStripeColor(Vector3.zero, defaultStripeColor);
             }
@@ -140,12 +140,12 @@ namespace Subnautica_Archon
             var existing = GetComponent<VFEngine>();
             if (existing != null)
             {
-                LogOut.Write($"Removing existing vfEngine {existing}");
+                Log.Write($"Removing existing vfEngine {existing}");
                 //HierarchyAnalyzer analyzer = new HierarchyAnalyzer();
                 Destroy(existing);
             }
             VFEngine = Engine = engine = gameObject.AddComponent<MassDrive>();
-            LogOut.Write($"Assigned new engine");
+            Log.Write($"Assigned new engine");
 
 
 
@@ -153,7 +153,7 @@ namespace Subnautica_Archon
             var cameraController = gameObject.GetComponentInChildren<VehicleFramework.VehicleComponents.MVCameraController>();
             if (cameraController != null)
             {
-                LogOut.Write($"Destroying camera controller {cameraController}");
+                Log.Write($"Destroying camera controller {cameraController}");
                 Destroy(cameraController);
             }
 
@@ -167,7 +167,7 @@ namespace Subnautica_Archon
         {
             if (!isInitialized)
             {
-                LogOut.Write($"LocalInit() first time");
+                Log.Write($"LocalInit() first time");
                 isInitialized = true;
                 try
                 {
@@ -198,20 +198,20 @@ namespace Subnautica_Archon
 
                     if (control != null)
                     {
-                        LogOut.Write("Found control");
+                        Log.Write("Found control");
                     }
                     else
                     {
                         if (transform == null)
-                            LogOut.Write($"Do not have a transform");
+                            Log.Write($"Do not have a transform");
                         else
                         {
-                            LogOut.Write($"This is {transform.name}");
-                            LogOut.Write("This has components: " + Helper.NamesS(Helper.AllComponents(transform)));
-                            LogOut.Write("This has children: " + Helper.NamesS(Helper.Children(transform)));
+                            Log.Write($"This is {transform.name}");
+                            Log.Write("This has components: " + Helper.NamesS(Helper.AllComponents(transform)));
+                            Log.Write("This has children: " + Helper.NamesS(Helper.Children(transform)));
                         }
                     }
-                    LogOut.Write($"LocalInit() done");
+                    Log.Write($"LocalInit() done");
 
                 }
                 catch (Exception e)
@@ -225,7 +225,7 @@ namespace Subnautica_Archon
 
         public override void SetBaseColor(Vector3 hsb, Color color)
         {
-            Debug.Log($"Updating sub base color to {color}");
+            Log.Write($"Updating sub base color to {color}");
             base.SetBaseColor(hsb, color);
 
             var listeners = GetComponentsInChildren<IColorListener>();
@@ -236,7 +236,7 @@ namespace Subnautica_Archon
 
         public override void SetStripeColor(Vector3 hsb, Color color)
         {
-            Debug.Log($"Updating sub stripe color to {color}");
+            Log.Write($"Updating sub stripe color to {color}");
             base.SetStripeColor(hsb, color);
 
             var listeners = GetComponentsInChildren<IColorListener>();
@@ -249,13 +249,13 @@ namespace Subnautica_Archon
         {
             try
             {
-                LogOut.Write(nameof(Start));
+                Log.Write(nameof(Start));
 
 
                 LocalInit();
 
                 base.Start();
-                LogOut.Write(nameof(Start)+" done");
+                Log.Write(nameof(Start)+" done");
 
             }
             catch (Exception ex)
@@ -291,7 +291,7 @@ namespace Subnautica_Archon
                     return;
                 }
 
-                LogOut.Write(nameof(BeginPiloting));
+                Log.Write(nameof(BeginPiloting));
                 LocalInit();
 
                 base.BeginPiloting();
@@ -312,14 +312,14 @@ namespace Subnautica_Archon
         {
             try
             {
-                LogOut.Write(nameof(StopPiloting));
+                Log.Write(nameof(StopPiloting));
                 LocalInit();
                 control.ExitControl();
                 base.StopPiloting();
 
                 foreach (MonoBehaviour behavior in reenableOnExit)
                 {
-                    LogOut.Write($"Reenabling {behavior.name}");
+                    Log.Write($"Reenabling {behavior.name}");
                     behavior.enabled = true;
                 }
 
@@ -555,7 +555,7 @@ namespace Subnautica_Archon
                     //    a.LogToJson(Player.main.currentMountedVehicle.transform, $@"C:\temp\vehicle.json");
                     //}
 
-                    Debug.Log($"Reapplying materials");
+                    Log.Write($"Reapplying materials");
                     MaterialFixer.ReApply();
                 }
 
@@ -568,12 +568,12 @@ namespace Subnautica_Archon
                     deathAge += Time.deltaTime;
                     if (deathAge > 1.5f)
                     {
-                        Debug.Log($"Emitting pseudo self destruct");
+                        Log.Write($"Emitting pseudo self destruct");
                         control.SelfDestruct(true);
-                        Debug.Log($"Calling OnSalvage");
+                        Log.Write($"Calling OnSalvage");
                         OnSalvage();
                         enabled = false;
-                        Debug.Log($"Done?");
+                        Log.Write($"Done?");
                         return;
                     }
                 }
@@ -703,21 +703,21 @@ namespace Subnautica_Archon
         {
             get
             {
-                var hatch = transform.Find("Hatches");
-                if (!hatch)
+                var hatches = transform.Find("Hatches");
+                if (!hatches)
                 {
-                    Debug.LogError("Hatches not found");
+                    Log.Error("Hatches not found");
                     return new List<VehicleHatchStruct>();
                 }
                 var rs = new List<VehicleHatchStruct>();
-                foreach (Transform harch in hatch)
+                foreach (Transform hatch in hatches)
                 {
                     var exit = hatch.Find("Exit");
                     var entry = hatch.Find("Entry");
                     if (!exit || !entry)
                     {
-                        Debug.LogError("Hatch children not found");
-                        return new List<VehicleHatchStruct>();
+                        Log.Error("Hatch children not found of "+hatch);
+                        continue;
                     }
                     rs.Add(new VehicleHatchStruct
                     {
@@ -727,7 +727,7 @@ namespace Subnautica_Archon
                         EntryLocation = entry
                     });
                 }
-                LogOut.Write($"Returning {rs.Count} tether hatch(es)");
+                Log.Write($"Returning {rs.Count} tether hatch(es)");
 
                 return rs;
             }
@@ -756,7 +756,7 @@ namespace Subnautica_Archon
                         storageTransform = new GameObject(name).transform;
                         storageTransform.parent = root.transform;
                         storageTransform.localPosition = M.V3(i);
-                        Debug.Log($"Creating new storage transform {storageTransform} in {root} @{storageTransform.localPosition} => {storageTransform.position}");
+                        Log.Write($"Creating new storage transform {storageTransform} in {root} @{storageTransform.localPosition} => {storageTransform.position}");
                     }
                     rs.Add(new VehicleStorage
                     {
@@ -781,7 +781,7 @@ namespace Subnautica_Archon
                         rs.Add(clipProxyParent.GetChild(i).gameObject);
                 }
                 else
-                    LogOut.Write("Clip proxy not found");
+                    Log.Write("Clip proxy not found");
                 return rs;
             }
         }
@@ -804,13 +804,13 @@ namespace Subnautica_Archon
                         if (position != null)
                             plugProxies.Add(position);
                         else
-                            LogOut.Write($"Plug {plug.name} does not have a 'Module Position' child");
+                            Log.Write($"Plug {plug.name} does not have a 'Module Position' child");
                     }
                 }
                 else
-                    LogOut.Write($"Plugs not found");
+                    Log.Write($"Plugs not found");
 
-                LogOut.Write($"Determined {plugProxies.Count} plug(s)");
+                Log.Write($"Determined {plugProxies.Count} plug(s)");
 
                 if (ui != null)
                 {
@@ -822,7 +822,7 @@ namespace Subnautica_Archon
                     });
                 }
                 else
-                    LogOut.Write($"Upgrades interface not found");
+                    Log.Write($"Upgrades interface not found");
                 return rs;
 
             }
@@ -891,7 +891,7 @@ namespace Subnautica_Archon
                 {
                     Log.Write("HeadLights", ex);
                 }
-                LogOut.Write($"Returning {rs.Count} headlight(s)");
+                Log.Write($"Returning {rs.Count} headlight(s)");
                 return rs;
 
             }
@@ -907,7 +907,7 @@ namespace Subnautica_Archon
                 var cockpitExit = entry.Find($"Exit");
                 if (!cockpit || !entry || !cockpitExit)
                 {
-                    LogOut.Write("Cockpit not found");
+                    Log.Write("Cockpit not found");
                     return default;
                 }
                 return new List<VehiclePilotSeat>() {  new VehiclePilotSeat
@@ -930,18 +930,24 @@ namespace Subnautica_Archon
                 if (!tether)
                 {
 
-                    LogOut.Write("Tether not found");
+                    Log.Error("Tether not found");
                     return new List<GameObject>();
                 }
 
                 List<GameObject> rs = new List<GameObject>();
-                foreach (var t in tether.GetComponentsInChildren<SphereCollider>())
+                foreach (Transform trans in tether)
                 {
+                    var t = trans.GetComponent<SphereCollider>();
+                    if (!t)
+                    {
+                        Log.Error($"Tether {trans} does not hace a sphere collider");
+                        continue;
+                    }
                     t.radius = t.transform.localScale.x;
                     t.transform.localScale = Vector3.one;
                     rs.Add(t.gameObject);
                 }
-                LogOut.Write($"Returning {rs.Count} tether source(s)");
+                Log.Write($"Returning {rs.Count} tether source(s)");
                 return rs;
             }
         }

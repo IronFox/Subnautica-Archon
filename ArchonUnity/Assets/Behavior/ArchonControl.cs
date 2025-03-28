@@ -580,7 +580,8 @@ public class ArchonControl : MonoBehaviour
         }
         catch (Exception ex)
         {
-            ConsoleControl.WriteException($"EchelongControl.Update()", ex);
+            
+            ConsoleControl.WriteException(nameof(Update), ex);
         }
     }
 
