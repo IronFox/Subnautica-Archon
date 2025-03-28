@@ -28,6 +28,7 @@ public class ArchonControl : MonoBehaviour
     public bool powerOff;
     public bool batteryDead;
     public bool openUpgradeCover;
+    public bool openBay;
 
     private DateTime lastOnboarded;
 
@@ -62,6 +63,7 @@ public class ArchonControl : MonoBehaviour
     private PositionCamera positionCamera;
     private NonCameraOrientation nonCameraOrientation;
     private FallOrientation fallOrientation;
+    private BayControl bayControl;
 
     private DirectAt look;
     private RudderControl[] rudders;
@@ -198,6 +200,7 @@ public class ArchonControl : MonoBehaviour
         fallOrientation = GetComponent<FallOrientation>();
         energyLevel = GetComponentInChildren<EnergyLevel>();
         firstPersonMarkers = GetComponentInChildren<FirstPersonMarkers>();
+        bayControl = GetComponent<BayControl>();
         if (look != null)
             look.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
     }
@@ -321,6 +324,9 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.OnboardingCooldown, OnboardingCooldown);
             statusConsole.Set(StatusProperty.OpenUpgradeCover, openUpgradeCover);
             statusConsole.Set(StatusProperty.IsFirstPerson, positionCamera.isFirstPerson);
+            statusConsole.Set(StatusProperty.OpenBay, openBay);
+
+            bayControl.open = openBay;
 
             firstPersonMarkers.show = 
                 positionCamera.isFirstPerson
