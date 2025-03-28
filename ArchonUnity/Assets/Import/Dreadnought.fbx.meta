@@ -4,32 +4,44 @@ ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable:
   - first:
-      74: 3106750229579075562
-    second: Bay Door Center|Bay Door CenterAction
+      74: -3961969962902840998
+    second: Bay Door|Bay Door
   - first:
-      74: -6442938836284227088
-    second: Bay Door Center|Bay Door Side LeftAction
+      74: 4276651856404657641
+    second: Bay Door|Bay Door.001
   - first:
-      74: -6145193636035338829
-    second: Bay Door Center|Bay Door Side RightAction
+      74: -1766588446510047060
+    second: Bay Door|Bay Door.002
   - first:
-      74: -9192331806237080427
-    second: Bay Door Side Left|Bay Door CenterAction
+      74: -4573562069327484520
+    second: Bay Door.001|Bay Door
   - first:
-      74: 2264954385053994452
-    second: Bay Door Side Left|Bay Door Side LeftAction
+      74: -1573464633849007168
+    second: Bay Door.001|Bay Door.001
   - first:
-      74: 6744412874149175979
-    second: Bay Door Side Left|Bay Door Side RightAction
+      74: -4018047857228306636
+    second: Bay Door.001|Bay Door.002
   - first:
-      74: -4509654119427873674
-    second: Bay Door Side Right|Bay Door CenterAction
+      74: -1032074412196731681
+    second: Bay Door.002|Bay Door
   - first:
-      74: -9026354264592770029
-    second: Bay Door Side Right|Bay Door Side LeftAction
+      74: 1082466688961076236
+    second: Bay Door.002|Bay Door.001
   - first:
-      74: -8596123657581964041
-    second: Bay Door Side Right|Bay Door Side RightAction
+      74: 4885028953966492190
+    second: Bay Door.002|Bay Door.002
+  - first:
+      74: -6935304650884823010
+    second: Bay|Bay Door
+  - first:
+      74: 13488033074067766
+    second: Bay|Bay Door.001
+  - first:
+      74: 7739849520145714541
+    second: Bay|Bay Door.002
+  - first:
+      74: 4916348763353728097
+    second: Bay|Open Bay
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -111,11 +123,11 @@ ModelImporter:
     globalScale: 1
     rootMotionBoneName: 
     hasTranslationDoF: 0
-    hasExtraRoot: 0
+    hasExtraRoot: 1
     skeletonHasParents: 1
   lastHumanDescriptionAvatarSource: {instanceID: 0}
   autoGenerateAvatarMappingIfUnspecified: 1
-  animationType: 2
+  animationType: 1
   humanoidOversampling: 1
   avatarSetup: 0
   additionalBone: 0
