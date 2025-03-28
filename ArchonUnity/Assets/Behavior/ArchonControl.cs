@@ -3,11 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.LowLevel;
 using static UnityEngine.GraphicsBuffer;
 
 public class ArchonControl : MonoBehaviour
 {
     public KeyCode openConsoleKey = KeyCode.F7;
+
+    public Transform interior;
 
     public float forwardAxis;
     public float rightAxis;
@@ -16,11 +19,12 @@ public class ArchonControl : MonoBehaviour
     public float lookRightAxis;
     public float lookUpAxis;
 
+    private const int OuterShellLayer = 30;
 
     public bool overdriveActive;
     public bool outOfWater;
     public bool freeCamera;
-    public bool isBoarded;
+    public bool isControlled;
 
     //public bool positionCameraBelowSub;
 
@@ -32,6 +36,7 @@ public class ArchonControl : MonoBehaviour
 
     private DateTime lastOnboarded;
 
+    private GameObject isEnteredBy;
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
     public float maxEnergy=1;
     public float currentEnergy=0.5f;
@@ -68,7 +73,7 @@ public class ArchonControl : MonoBehaviour
     private DirectAt look;
     private RudderControl[] rudders;
     private Rigidbody rb;
-    private bool currentlyBoarded;
+    private bool currentlyControlled;
 
     private Parentage onboardLocalizedTransform;
     private Parentage cameraMove;
@@ -126,14 +131,57 @@ public class ArchonControl : MonoBehaviour
     }
 
 
+    public void Enter(GameObject playerRoot)
+    {
+        rb.isKinematic = true;
+        isEnteredBy = playerRoot;
+        var colliders = playerRoot.GetComponentsInChildren<Collider>();
+        foreach (var collider in colliders)
+        {
+            Physics.IgnoreLayerCollision(collider.gameObject.layer, OuterShellLayer, true);
+        }
 
-    public void Onboard(Transform localizeInsteadOfMainCamera = null)
+        if (interior)
+        {
+            foreach (var r in interior.GetComponentsInChildren<Renderer>())
+                r.enabled = true;
+            foreach (var r in interior.GetComponentsInChildren<Collider>())
+                r.enabled = true;
+        }
+
+    }
+
+    public void Exit()
+    {
+
+        if (interior)
+        {
+            foreach (var r in interior.GetComponentsInChildren<Renderer>())
+                r.enabled = false;
+            foreach (var r in interior.GetComponentsInChildren<Collider>())
+                r.enabled = false;
+        }
+
+        if (isEnteredBy)
+        {
+            var colliders = isEnteredBy.GetComponentsInChildren<Collider>();
+            foreach (var collider in colliders)
+            {
+                Physics.IgnoreLayerCollision(collider.gameObject.layer, OuterShellLayer,false);
+            }
+            isEnteredBy = null;
+            rb.isKinematic = false;
+        }
+    }
+
+
+    public void Control(Transform localizeInsteadOfMainCamera = null)
     {
         wasEverBoarded = true;
         lastOnboarded = DateTime.Now;
-        if (!currentlyBoarded)
+        if (!currentlyControlled)
         {
-            log.Write($"Onboarding");
+            log.Write($"Controlling");
 
             var listeners = BoardingListeners.Of(this, trailSpace);
 
@@ -153,7 +201,7 @@ public class ArchonControl : MonoBehaviour
             log.Write($"Offloading trail space");
             trailSpace.parent = transform.parent;
 
-            currentlyBoarded = isBoarded = true;
+            currentlyControlled = isControlled = true;
 
             listeners.SignalOnboardingEnd();
         }
@@ -161,11 +209,11 @@ public class ArchonControl : MonoBehaviour
 
 
 
-    public void Offboard()
+    public void ExitControl()
     {
-        if (currentlyBoarded)
+        if (currentlyControlled)
         {
-            log.Write($"Offboarding");
+            log.Write($"Exiting control");
             var listeners = BoardingListeners.Of(this, trailSpace);
             try
             {
@@ -178,7 +226,7 @@ public class ArchonControl : MonoBehaviour
             }
             finally
             {
-                currentlyBoarded = isBoarded = false;
+                currentlyControlled = isControlled = false;
                 log.Write($"Reintegration trail space");
                 trailSpace.parent = transform;
             }
@@ -203,6 +251,7 @@ public class ArchonControl : MonoBehaviour
         bayControl = GetComponent<BayControl>();
         if (look != null)
             look.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
+
     }
 
     private static string TN(RenderTexture rt)
@@ -269,7 +318,7 @@ public class ArchonControl : MonoBehaviour
 
     public void SelfDestruct(bool pseudo)
     {
-        Offboard();
+        ExitControl();
         //var explosion = Instantiate(explosionPrefab,transform.position, Quaternion.identity);
         //var control = explosion.GetComponentInChildren<ExplosionController>();
         //control.explosionDamage = 100;
@@ -303,7 +352,8 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.EnergyCapacity, maxEnergy);
             statusConsole.Set(StatusProperty.BatteryDead, batteryDead);
             statusConsole.Set(StatusProperty.PowerOff, powerOff);
-            statusConsole.Set(StatusProperty.IsBoarded, currentlyBoarded);
+            statusConsole.Set(StatusProperty.IsControlled, currentlyControlled);
+            statusConsole.Set(StatusProperty.IsEntered, !!isEnteredBy);
             statusConsole.Set(StatusProperty.IsOutOfWater, outOfWater);
             statusConsole.Set(StatusProperty.LookRightAxis, lookRightAxis);
             statusConsole.Set(StatusProperty.LookUpAxis, lookUpAxis);
@@ -330,7 +380,7 @@ public class ArchonControl : MonoBehaviour
 
             firstPersonMarkers.show = 
                 positionCamera.isFirstPerson
-                && isBoarded
+                && isControlled
                 && !batteryDead
                 && !powerOff;
 
@@ -353,15 +403,15 @@ public class ArchonControl : MonoBehaviour
                 energyLevel.currentEnergy = currentEnergy;
             }
 
-            if (currentlyBoarded != isBoarded)
+            if (currentlyControlled != isControlled)
             {
-                if (!isBoarded)
-                    Offboard();
+                if (!isControlled)
+                    ExitControl();
                 else
-                    Onboard();
+                    Control();
             }
 
-            if (currentCameraCenterIsCockpit != cameraCenterIsCockpit && currentlyBoarded)
+            if (currentCameraCenterIsCockpit != cameraCenterIsCockpit && currentlyControlled)
             {
                 currentCameraCenterIsCockpit = cameraCenterIsCockpit;
                 if (currentCameraCenterIsCockpit)
@@ -372,7 +422,7 @@ public class ArchonControl : MonoBehaviour
 
             if (Input.GetKeyDown(openConsoleKey))
             {
-                if (currentlyBoarded)
+                if (currentlyControlled)
                 {
                     statusConsole.ToggleVisibility();
 
@@ -406,7 +456,7 @@ public class ArchonControl : MonoBehaviour
 
             positionCamera.positionBelowTarget = false/*positionCameraBelowSub*/;
 
-            if (currentlyBoarded && !cameraCenterIsCockpit)
+            if (currentlyControlled && !cameraCenterIsCockpit)
             {
                 rotateCamera.enabled = true;
 
@@ -519,7 +569,7 @@ public class ArchonControl : MonoBehaviour
             }
 
             if (look != null)
-                look.enabled = (isBoarded || (outOfWater && wasEverBoarded)) && !batteryDead && !powerOff;
+                look.enabled = (isControlled || (outOfWater && wasEverBoarded)) && !batteryDead && !powerOff;
 
             forwardFacingLeft.thrust = -backFacingLeft.thrust;
             forwardFacingRight.thrust = -backFacingRight.thrust;

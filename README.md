@@ -20,7 +20,7 @@ See dependencies below. Since the plugin references the DLL produced by Unity, y
 
 ## Plugin/Subnautica Echelon Project Dependencies and Building
 The plugin needs the following DLLs to be referenced in the ArchonPlugin project:
-- [build]\Archon_Data\Managed\ArchonScripts.dll
+- [build]\Subnautica Archon_Data\Managed\ArchonScripts.dll
 - [Subnautica]\BepInEx\core\0Harmony.dll
 - [Subnautica]\BepInEx\core\BepInEx.dll
 - [Subnautica]\BepInEx\plugins\Nautilus\Nautilus.dll
@@ -44,7 +44,7 @@ In order to run the mod, you need to copy the following files directly into that
 1) [clone]\Unity\Assets\AssetBundles\OSX\archon -> (rename to) archon.osx
 2) [clone]\Unity\Assets\AssetBundles\Windows\archon
 3) [clone]\Plugin\bin\Release\net4.7.2\ArchonPlugin.dll
-4) [build]\Archon_Data\Managed\ArchonScripts.dll
+4) [build]\Subnautica Archon_Data\Managed\ArchonScripts.dll
 
 Also copy these entire directories:
 1) [clone]\images

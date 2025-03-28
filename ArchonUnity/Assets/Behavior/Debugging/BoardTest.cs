@@ -65,7 +65,7 @@ public class BoardTest : MonoBehaviour
                     preBoardingEuler = LockedEuler.FromGlobal(transform);
                     preBoardingParent = transform.parent;
                     subControl.Localize(transform);
-                    subControl.Onboard();
+                    subControl.Control();
                 }
                 catch (Exception ex)
                 {
@@ -77,7 +77,7 @@ public class BoardTest : MonoBehaviour
             else
             {
                 ConsoleControl.Write("Offboarding");
-                subControl.Offboard();
+                subControl.ExitControl();
                 transform.parent = preBoardingParent;
                 transform.position = preBoardingPosition;
                 preBoardingEuler.ApplyTo(transform);

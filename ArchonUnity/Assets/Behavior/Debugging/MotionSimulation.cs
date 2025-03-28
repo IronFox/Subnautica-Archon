@@ -35,7 +35,7 @@ public class MotionSimulation : MonoBehaviour
             control.outOfWater = control.transform.position.y >= oceanSurface.position.y;
 
 
-        if (control.isBoarded && !control.outOfWater)
+        if (control.isControlled && !control.outOfWater)
         {
             if (rb == null)
             {
