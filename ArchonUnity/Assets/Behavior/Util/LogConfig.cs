@@ -17,7 +17,7 @@ public readonly struct LogConfig
         IncludeTimestamp = includeTimestamp;
     }
 
-    public const string DefaultPrefix = "Material Fix";
+    public const string DefaultPrefix = "";
 
     public static LogConfig Default { get; } = new LogConfig(
         prefix: DefaultPrefix,

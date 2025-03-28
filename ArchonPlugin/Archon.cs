@@ -1,4 +1,6 @@
-﻿using System;
+﻿using FMOD.Studio;
+using FMODUnity;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -25,6 +27,7 @@ namespace Subnautica_Archon
         public static readonly Color defaultBaseColor = new Color(0xDE, 0xDE, 0xDE) / 255f;
         public static readonly Color defaultStripeColor = new Color(0x3F, 0x4C, 0x7A) / 255f;
 
+        private List<GameObject> tetherSources;
         //tracks true if vehicle death was ever determined. Can't enter in this state
         private bool wasDead;
         private bool destroyed;
@@ -333,6 +336,23 @@ namespace Subnautica_Archon
         }
 
         private bool fixedUpdateError = false;
+        private bool wasAboveWater = false;
+
+        private PARAMETER_ID verticalVelocitySoundIndex = FMODUWE.invalidParameterId;
+        private void PlaySplashSound()
+        {
+            EventInstance ev = FMODUWE.GetEvent(splashSound);
+            ev.set3DAttributes(base.transform.position.To3DAttributes());
+            if (FMODUWE.IsInvalidParameterId(verticalVelocitySoundIndex))
+            {
+                verticalVelocitySoundIndex = FMODUWE.GetEventInstanceParameterIndex(ev, "verticalVelocity");
+            }
+
+            ev.setParameterValueByIndex(verticalVelocitySoundIndex, useRigidbody.velocity.y);
+            ev.start();
+            ev.release();
+        }
+
 
         public override void FixedUpdate()
         {
@@ -340,7 +360,15 @@ namespace Subnautica_Archon
             {
                 LocalInit();
                 stabilizeRoll = false;
-                base.FixedUpdate();
+
+                if (worldForces.IsAboveWater() != wasAboveWater)
+                {
+                    PlaySplashSound();
+                    wasAboveWater = worldForces.IsAboveWater();
+                }
+
+                prevVelocity = useRigidbody.velocity;
+                //base.FixedUpdate();
             }
             catch (Exception ex)
             {
@@ -489,10 +517,7 @@ namespace Subnautica_Archon
         /// </summary>
         private void RepositionCamera()
         {
-            //if (transform.position.y >= Ocean.GetOceanLevel() - 15 && transform.position.y < 1)
-            //    control.positionCameraBelowSub = true;
-            //else if (transform.position.y < Ocean.GetOceanLevel() - 20 || transform.position.y > 2)
-            //    control.positionCameraBelowSub = false;
+            control.UpdateLowCamera(Ocean.GetOceanLevel());
         }
 
         private bool HasModule(ArchonModule module)
@@ -727,7 +752,7 @@ namespace Subnautica_Archon
                         EntryLocation = entry
                     });
                 }
-                Log.Write($"Returning {rs.Count} tether hatch(es)");
+                Log.Write($"Returning {rs.Count} hatch(es)");
 
                 return rs;
             }
@@ -926,31 +951,36 @@ namespace Subnautica_Archon
         {
             get
             {
-                var tether = transform.Find("Tether");
-                if (!tether)
+                if (tetherSources is null)
                 {
-
-                    Log.Error("Tether not found");
-                    return new List<GameObject>();
-                }
-
-                List<GameObject> rs = new List<GameObject>();
-                foreach (Transform trans in tether)
-                {
-                    var t = trans.GetComponent<SphereCollider>();
-                    if (!t)
+                    tetherSources = new List<GameObject>();
+                    var tether = transform.Find("Tether");
+                    if (!tether)
                     {
-                        Log.Error($"Tether {trans} does not hace a sphere collider");
-                        continue;
+
+                        Log.Error("Tether not found. No tethers will be defined");
+
                     }
-                    t.radius = t.transform.localScale.x;
-                    t.transform.localScale = Vector3.one;
-                    rs.Add(t.gameObject);
+                    else
+                    {
+                        foreach (Transform trans in tether)
+                        {
+                            var t = trans.GetComponent<SphereCollider>();
+                            if (!t)
+                            {
+                                Log.Error($"Tether {trans} does not hace a sphere collider");
+                                continue;
+                            }
+                            t.radius = t.transform.localScale.x;
+                            t.transform.localScale = Vector3.one;
+                            tetherSources.Add(t.gameObject);
+                        }
+                        Log.Write($"Recorded {tetherSources.Count} tether source(s)");
+                    }
+
                 }
-                Log.Write($"Returning {rs.Count} tether source(s)");
-                return rs;
+                return tetherSources;
             }
         }
-    
     }
 }

@@ -26,6 +26,8 @@ public static class M
     public static float Sqr(float x) => x * x;
     public static float Sqr(Vector3 x) => Vector3.Dot(x, x);
     public static float Abs(float x) => Mathf.Abs(x);
+
+    public static float MaxAxis(Vector3 v) => Mathf.Max(v.x,v.y, v.z);
     public static float Max(float x, float y) => Mathf.Max(x, y);
     public static float Max(float x, float y, float z) => Mathf.Max(x, y, z);
     public static Vector3 Max(Vector3 x, float y) => Max(x,V3(y));

@@ -26,7 +26,7 @@ public class ArchonControl : MonoBehaviour
     public bool freeCamera;
     public bool isControlled;
 
-    //public bool positionCameraBelowSub;
+    public bool positionCameraBelowSub;
 
     public bool cameraCenterIsCockpit;
     public bool powerOff;
@@ -37,6 +37,7 @@ public class ArchonControl : MonoBehaviour
     private DateTime lastOnboarded;
 
     private GameObject isEnteredBy;
+    private GameObject controlledFromEntered;
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
     public float maxEnergy=1;
     public float currentEnergy=0.5f;
@@ -92,6 +93,9 @@ public class ArchonControl : MonoBehaviour
     }
 
     private CameraState state = CameraState.IsBound;
+
+
+    public bool IsBoarded => isEnteredBy;
 
     private void ChangeState(CameraState state)
     {
@@ -183,6 +187,9 @@ public class ArchonControl : MonoBehaviour
         {
             log.Write($"Controlling");
 
+            controlledFromEntered = isEnteredBy;
+            Exit();
+
             var listeners = BoardingListeners.Of(this, trailSpace);
 
             listeners.SignalOnboardingBegin();
@@ -231,6 +238,11 @@ public class ArchonControl : MonoBehaviour
                 trailSpace.parent = transform;
             }
 
+            if (controlledFromEntered)
+            {
+                Enter(controlledFromEntered);
+                controlledFromEntered = null;
+            }
             listeners.SignalOffBoardingEnd();
 
         }
@@ -319,6 +331,7 @@ public class ArchonControl : MonoBehaviour
     public void SelfDestruct(bool pseudo)
     {
         ExitControl();
+        
         //var explosion = Instantiate(explosionPrefab,transform.position, Quaternion.identity);
         //var control = explosion.GetComponentInChildren<ExplosionController>();
         //control.explosionDamage = 100;
@@ -339,6 +352,16 @@ public class ArchonControl : MonoBehaviour
         try
         {
             firstPersonMarkers.overdriveActive = false;
+
+            if (isEnteredBy)
+            {
+                if (!rb.isKinematic)
+                {
+                    log.LogWarning("Re-enabling kinematic state");
+                    rb.isKinematic = true;
+
+                }
+            }
 
             ProcessUpgradeCover();
 
@@ -454,7 +477,7 @@ public class ArchonControl : MonoBehaviour
             rotateCamera.rotationAxisX = lookRightAxis;
             rotateCamera.rotationAxisY = lookUpAxis;
 
-            positionCamera.positionBelowTarget = false/*positionCameraBelowSub*/;
+            positionCamera.positionBelowTarget = positionCameraBelowSub;
 
             if (currentlyControlled && !cameraCenterIsCockpit)
             {
@@ -592,4 +615,11 @@ public class ArchonControl : MonoBehaviour
         player.localEulerAngles = Vector3.zero;
     }
 
+    public void UpdateLowCamera(float oceanY)
+    {
+        if (transform.position.y >= oceanY - 35 && transform.position.y < oceanY - 1)
+            positionCameraBelowSub = true;
+        else if (transform.position.y < oceanY - 40 || transform.position.y > oceanY - 2)
+            positionCameraBelowSub = false;
+    }
 }
