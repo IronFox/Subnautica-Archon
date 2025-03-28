@@ -4,14 +4,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-public class BoardTest : MonoBehaviour
+public class FpsTest : MonoBehaviour
 {
     private Vector3 preBoardingPosition;
     private LockedEuler preBoardingEuler;
     private Transform preBoardingParent;
     private bool isOnboarded;
     public ArchonControl subControl;
-    
+    private Rigidbody rb;
 
     public KeyCode boardKey = KeyCode.B;
     public KeyCode centerKey = KeyCode.C;
@@ -20,17 +20,42 @@ public class BoardTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        rb = GetComponent<Rigidbody>();
+    }
+
+
+    void FixedUpdate()
+    {
+        var up = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.LeftControl) ? 1 : 0);
+
+        rb.AddRelativeForce(M.V3(Input.GetAxis("Horizontal"), up, Input.GetAxis("Vertical")) * 30);
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (!subControl.isControlled && Input.GetKeyDown(KeyCode.Mouse0))
+        {
+            var hits = Physics.RaycastAll(new Ray(transform.position, transform.forward), 2);
+
+
+            foreach (var hit in hits)
+            {
+                var hatch = hit.collider.gameObject.GetComponent<DebugHatch>();
+                if (hatch)
+                {
+                    if (!subControl.IsBoarded)
+                        hatch.Board(rb, subControl);
+                    else
+                        hatch.Exit(rb, subControl);
+                }
+            }
+        }
         if (!isOnboarded)
         {
             //Debug.Log(Input.GetAxis("Vertical"));
-            transform.position += transform.forward * Input.GetAxis("Vertical") * 10* Time.deltaTime;
-            transform.position += transform.right * Input.GetAxis("Horizontal") * 10 * Time.deltaTime;
+
 
             LockedEuler
                 .FromLocal(transform)

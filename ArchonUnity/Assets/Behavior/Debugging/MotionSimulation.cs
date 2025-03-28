@@ -32,9 +32,11 @@ public class MotionSimulation : MonoBehaviour
     void FixedUpdate()
     {
         if (oceanSurface != null)
+        {
             control.outOfWater = control.transform.position.y >= oceanSurface.position.y;
 
-
+            control.UpdateLowCamera(oceanSurface.position.y);
+        }
         if (control.isControlled && !control.outOfWater)
         {
             if (rb == null)

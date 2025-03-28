@@ -38,13 +38,17 @@ public class PositionCamera : MonoBehaviour
         //scanner= GetComponentInChildren<TargetScanner>();
         target = subRoot.transform;
         distanceToTarget = Vector3.Distance(referenceBoundingBox.transform.position, transform.transform.position);
-        minDistanceToTarget = referenceBoundingBox.size.magnitude;
+
+
+        minDistanceToTarget = (referenceBoundingBox.transform.localPosition.z
+                                - referenceBoundingBox.transform.localScale.z
+                                    * referenceBoundingBox.size.z) * -0.5f;
         maxDistanceToTarget = minDistanceToTarget * 5;
         ConsoleControl.Write($"Valid 3rd person camera distance range is [{minDistanceToTarget},{maxDistanceToTarget}]");
         distanceToTarget = Mathf.Clamp( distanceToTarget, minDistanceToTarget, maxDistanceToTarget );
         ConsoleControl.Write($"3rd camera distance set to {distanceToTarget}");
         verticalOffset = 
-            referenceBoundingBox.size.y * referenceBoundingBox.transform.localScale.y * 1.5f;
+            referenceBoundingBox.size.y * referenceBoundingBox.transform.localScale.y * 1.1f;
     }
 
     private string loggedCollider;
