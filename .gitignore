@@ -75,3 +75,5 @@ crashlytics-build.properties
 
 /ArchonPlugin/bin/
 /ArchonPlugin/obj/
+/Scripts/Archon/
+*.lnk
