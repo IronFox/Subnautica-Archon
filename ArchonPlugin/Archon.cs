@@ -279,12 +279,14 @@ namespace Subnautica_Archon
         public override void PlayerEntry()
         {
             control.Enter(Player.mainObject);
+            pingInstance.enabled = false;
             base.PlayerEntry();
         }
 
         public override void PlayerExit()
         {
             base.PlayerExit();
+            pingInstance.enabled = true;
             control.Exit();
 
         }
