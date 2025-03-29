@@ -25,7 +25,6 @@ public class ArchonControl : MonoBehaviour
     public bool overdriveActive;
     public bool outOfWater;
     public bool freeCamera;
-    public bool isControlled;
 
     public bool positionCameraBelowSub;
 
@@ -84,6 +83,8 @@ public class ArchonControl : MonoBehaviour
     private bool cameraIsInTrailspace;
 
     private bool wasEverBoarded;
+
+    public bool IsBeingControlled => currentlyControlled;
 
     public LogConfig log = LogConfig.Default;
     private enum CameraState
@@ -210,7 +211,7 @@ public class ArchonControl : MonoBehaviour
             log.Write($"Offloading trail space");
             trailSpace.parent = transform.parent;
 
-            currentlyControlled = isControlled = true;
+            currentlyControlled = true;
 
             listeners.SignalOnboardingEnd();
         }
@@ -235,7 +236,7 @@ public class ArchonControl : MonoBehaviour
             }
             finally
             {
-                currentlyControlled = isControlled = false;
+                currentlyControlled = false;
                 log.Write($"Reintegration trail space");
                 trailSpace.parent = transform;
             }
@@ -263,7 +264,7 @@ public class ArchonControl : MonoBehaviour
         energyLevel = GetComponentInChildren<EnergyLevel>();
         firstPersonMarkers = GetComponentInChildren<FirstPersonMarkers>();
         bayControl = GetComponent<BayControl>();
-        if (look != null)
+        if (look)
             look.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
 
     }
@@ -349,30 +350,10 @@ public class ArchonControl : MonoBehaviour
             Destroy(gameObject);
     }
 
-    void Update()
+    private void UpdateStatusConsole()
     {
         try
         {
-            firstPersonMarkers.overdriveActive = false;
-
-            if (isEnteredBy)
-            {
-                if (!rb.isKinematic)
-                {
-                    log.LogWarning("Re-enabling kinematic state");
-                    rb.isKinematic = true;
-
-                }
-            }
-
-            ProcessUpgradeCover();
-
-            look.rotateZ = !outOfWater;
-            var projection = look.Intention.TranslateBy(rb.velocity);
-            foreach (var rudder in rudders)
-                rudder.UpdateIntention(projection);
-
-
             statusConsole.Set(StatusProperty.EnergyLevel, currentEnergy);
             statusConsole.Set(StatusProperty.EnergyCapacity, maxEnergy);
             statusConsole.Set(StatusProperty.BatteryDead, batteryDead);
@@ -400,21 +381,89 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.OpenUpgradeCover, openUpgradeCover);
             statusConsole.Set(StatusProperty.IsFirstPerson, positionCamera.isFirstPerson);
             statusConsole.Set(StatusProperty.OpenBay, openBay);
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateStatusConsole));
+            Debug.LogException(ex);
+        }
+    }
 
+    private void UpdateRudders()
+    {
+        try
+        {
+            look.rotateZ = !outOfWater;
+            if (look.Intention != null)
+            {
+                var projection = look.Intention.TranslateBy(rb.velocity);
+                foreach (var rudder in rudders)
+                    rudder.UpdateIntention(projection);
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateRudders));
+            Debug.LogException(ex);
+        }
+
+    }
+
+    private void UpdateBay()
+    {
+        try
+        {
             bayControl.open = openBay;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateBay));
+            Debug.LogException(ex);
+        }
 
-            firstPersonMarkers.show = 
+    }
+
+    private void UpdateFirstPerson()
+    {
+        try
+        {
+            firstPersonMarkers.overdriveActive = false;
+            firstPersonMarkers.show =
                 positionCamera.isFirstPerson
-                && isControlled
+                && currentlyControlled
                 && !batteryDead
                 && !powerOff;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateFirstPerson));
+            Debug.LogException(ex);
+        }
 
+    }
+
+    private void UpdateHealingLights()
+    {
+        try
+        {
             foreach (var h in healingLights)
                 h.isHealing = isHealing;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateHealingLights));
+            Debug.LogException(ex);
+        }
 
+    }
+
+    private void UpdateEnergyLevels()
+    {
+        try
+        {
             energyHistory.Add(currentEnergy);
             var edge = energyHistory.GetEdge();
-            if (energyLevel != null)
+            if (energyLevel)
             {
                 if (edge.HasValue)
                 {
@@ -427,15 +476,18 @@ public class ArchonControl : MonoBehaviour
                 energyLevel.maxEnergy = maxEnergy;
                 energyLevel.currentEnergy = currentEnergy;
             }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateEnergyLevels));
+            Debug.LogException(ex);
+        }
+    }
 
-            if (currentlyControlled != isControlled)
-            {
-                if (!isControlled)
-                    ExitControl();
-                else
-                    Control();
-            }
-
+    private void UpdateCameraInCockpit()
+    {
+        try
+        {
             if (currentCameraCenterIsCockpit != cameraCenterIsCockpit && currentlyControlled)
             {
                 currentCameraCenterIsCockpit = cameraCenterIsCockpit;
@@ -444,6 +496,18 @@ public class ArchonControl : MonoBehaviour
                 else
                     MoveCameraToTrailSpace();
             }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateCameraInCockpit));
+            Debug.LogException(ex);
+        }
+    }
+
+    private void UpdateConsoleVisibility()
+    {
+        try
+        {
 
             if (Input.GetKeyDown(openConsoleKey))
             {
@@ -451,31 +515,23 @@ public class ArchonControl : MonoBehaviour
                 {
                     statusConsole.ToggleVisibility();
 
-                    //ConsoleControl.Write("Capturing debug information v3");
-
-                    //ConsoleControl.Write($"3rd person camera at {trailSpace.position}");
-                    //ConsoleControl.Write($"Main camera at {cameraRoot.position}");
-                    ////ConsoleControl.Write($"Cockpit center at {cockpitRoot.position}");
-
-
-                    ////ConsoleControl.Write($"RigidBody.isKinematic="+rb.isKinematic);
-                    ////ConsoleControl.Write($"RigidBody.constraints="+rb.constraints);
-                    ////ConsoleControl.Write($"RigidBody.collisionDetectionMode=" +rb.collisionDetectionMode);
-                    ////ConsoleControl.Write($"RigidBody.drag=" +rb.drag);
-                    ////ConsoleControl.Write($"RigidBody.mass=" +rb.mass);
-                    ////ConsoleControl.Write($"RigidBody.useGravity=" +rb.useGravity);
-                    ////ConsoleControl.Write($"RigidBody.velocity=" +rb.velocity);
-                    ////ConsoleControl.Write($"RigidBody.worldCenterOfMass=" +rb.worldCenterOfMass);
-
-                    //LogComposition(transform);
-
                 }
                 else
                     log.Write($"Not currently boarded. Ignoring console key");
 
             }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateConsoleVisibility));
+            Debug.LogException(ex);
+        }
+    }
 
-
+    private void UpdateCameraAndOrientation()
+    {
+        try
+        {
             rotateCamera.rotationAxisX = lookRightAxis;
             rotateCamera.rotationAxisY = lookUpAxis;
 
@@ -490,7 +546,7 @@ public class ArchonControl : MonoBehaviour
                     rotateCamera.AbortTransition();
                     ChangeState(CameraState.IsFree);
                     inWaterDirectionSource = nonCameraOrientation;
-                    if (nonCameraOrientation != null)
+                    if (nonCameraOrientation)
                         nonCameraOrientation.isActive = true;
                 }
                 else
@@ -505,7 +561,7 @@ public class ArchonControl : MonoBehaviour
 
                                 inWaterDirectionSource = new TransformDirectionSource(trailSpace);
 
-                                if (nonCameraOrientation != null)
+                                if (nonCameraOrientation)
                                     nonCameraOrientation.isActive = false;
                                 rotateCamera.AbortTransition();
                             }
@@ -518,7 +574,7 @@ public class ArchonControl : MonoBehaviour
                     }
                 }
 
-                if (look != null)
+                if (look)
                     look.targetOrientation = outOfWater
                             ? fallOrientation
                             : inWaterDirectionSource;
@@ -526,11 +582,67 @@ public class ArchonControl : MonoBehaviour
 
                 if (outOfWater)
                 {
-                    if (nonCameraOrientation != null)
+                    if (nonCameraOrientation)
                     {
                         nonCameraOrientation.rightRotationSpeed = 0;
                         nonCameraOrientation.upRotationSpeed = 0;
                     }
+                }
+                else
+                {
+                    if (nonCameraOrientation)
+                    {
+                        nonCameraOrientation.rightRotationSpeed = rightAxis * rotationDegreesPerSecond;
+                        nonCameraOrientation.upRotationSpeed = -upAxis * rotationDegreesPerSecond;
+                    }
+                }
+
+
+
+
+                positionCamera.zoomAxis = zoomAxis;
+            }
+            else
+            {
+                if (nonCameraOrientation)
+                {
+                    nonCameraOrientation.isActive = false;
+                    nonCameraOrientation.rightRotationSpeed = 0;
+                    nonCameraOrientation.upRotationSpeed = 0;
+                }
+                //if (isDocked)
+                //{
+                //    rotateCamera.CopyOrientationFrom(transform);
+                //}
+
+                rotateCamera.enabled = false;
+                positionCamera.zoomAxis = 0;
+                if (look)
+                    look.targetOrientation = fallOrientation;
+
+            }
+
+            if (look)
+                look.enabled = (currentlyControlled || (outOfWater && wasEverBoarded)) && !batteryDead && !powerOff;
+
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateCameraAndOrientation));
+            Debug.LogException(ex);
+
+        }
+    }
+
+
+    private void UpdateDrives()
+    {
+        try
+        {
+            if (currentlyControlled && !cameraCenterIsCockpit)
+            {
+                if (outOfWater)
+                {
                     backFacingLeft.thrust = 0;
                     backFacingRight.thrust = 0;
 
@@ -539,11 +651,6 @@ public class ArchonControl : MonoBehaviour
                 }
                 else
                 {
-                    if (nonCameraOrientation != null)
-                    {
-                        nonCameraOrientation.rightRotationSpeed = rightAxis * rotationDegreesPerSecond;
-                        nonCameraOrientation.upRotationSpeed = -upAxis * rotationDegreesPerSecond;
-                    }
                     backFacingLeft.thrust = forwardAxis + look.HorizontalRotationIntent * 0.001f;
                     backFacingRight.thrust = forwardAxis - look.HorizontalRotationIntent * 0.001f;
 
@@ -565,48 +672,65 @@ public class ArchonControl : MonoBehaviour
                         backFacingLeft.overdrive = backFacingRight.overdrive = 0;
 
                 }
-
-
-
-
-                positionCamera.zoomAxis = zoomAxis;
             }
             else
             {
-                if (nonCameraOrientation != null)
-                {
-                    nonCameraOrientation.isActive = false;
-                    nonCameraOrientation.rightRotationSpeed = 0;
-                    nonCameraOrientation.upRotationSpeed = 0;
-                }
-                //if (isDocked)
-                //{
-                //    rotateCamera.CopyOrientationFrom(transform);
-                //}
-
-                rotateCamera.enabled = false;
-                positionCamera.zoomAxis = 0;
                 backFacingLeft.thrust = 0;
                 backFacingRight.thrust = 0;
-                if (look != null)
-                    look.targetOrientation = fallOrientation;
-
             }
-
-            if (look != null)
-                look.enabled = (isControlled || (outOfWater && wasEverBoarded)) && !batteryDead && !powerOff;
 
             forwardFacingLeft.thrust = -backFacingLeft.thrust;
             forwardFacingRight.thrust = -backFacingRight.thrust;
 
-            //rb.drag = outOfWater ? airDrag : waterDrag;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateDrives));
+            Debug.LogException(ex);
+        }
+    }
 
-            //rb.useGravity = outOfWater && !isDocked;
+    void Update()
+    {
+        try
+        {
+
+            if (isEnteredBy)
+            {
+                if (!rb.isKinematic)
+                {
+                    log.LogWarning("Re-enabling kinematic state");
+                    rb.isKinematic = true;
+
+                }
+            }
+
+            ProcessUpgradeCover();
+
+            UpdateRudders();
+
+            UpdateStatusConsole();
+
+            UpdateBay();
+
+            UpdateFirstPerson();
+
+            UpdateHealingLights();
+
+            UpdateEnergyLevels();
+
+            UpdateCameraInCockpit();
+
+            UpdateConsoleVisibility();
+
+            UpdateCameraAndOrientation();
+            
+            UpdateDrives();
         }
         catch (Exception ex)
         {
             
-            ConsoleControl.WriteException(nameof(Update), ex);
+            Debug.LogException(ex);
         }
     }
 

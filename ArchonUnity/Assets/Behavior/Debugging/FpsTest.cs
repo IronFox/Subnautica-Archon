@@ -35,7 +35,7 @@ public class FpsTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!subControl.isControlled && Input.GetKeyDown(KeyCode.Mouse0))
+        if (!subControl.IsBeingControlled && Input.GetKeyDown(KeyCode.Mouse0))
         {
             var hits = Physics.RaycastAll(new Ray(transform.position, transform.forward), 2);
 

@@ -143,6 +143,17 @@ namespace Subnautica_Archon
                     var wf = go.GetComponent<WorldForces>();
                     return wf.IsAboveWater();
                 };
+
+                EvacuationAdapter.Predicate = go =>
+                {
+                    if (go.transform.IsChildOf( Player.mainObject.transform))
+                        return false;
+                    var rb = go.GetComponent<Rigidbody>();
+                    if (!rb || rb.isKinematic)
+                        return false;
+                    return true;
+                };
+
                 //TargetAdapter.ResolveTarget = (go, rb) =>
                 //{
                 //    var mixin = go.GetComponent<LiveMixin>();

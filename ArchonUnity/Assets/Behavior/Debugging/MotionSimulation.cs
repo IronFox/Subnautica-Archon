@@ -37,7 +37,7 @@ public class MotionSimulation : MonoBehaviour
 
             control.UpdateLowCamera(oceanSurface.position.y);
         }
-        if (control.isControlled && !control.outOfWater)
+        if (control.IsBeingControlled && !control.outOfWater)
         {
             if (rb == null)
             {
