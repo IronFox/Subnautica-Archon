@@ -20,6 +20,7 @@ public class ArchonControl : MonoBehaviour
     public float zoomAxis;
     public float lookRightAxis;
     public float lookUpAxis;
+    public bool isMovingInReverse;
 
     private const int OuterShellLayer = 30;
 
@@ -411,9 +412,9 @@ public class ArchonControl : MonoBehaviour
             orientation.rotateZ = !outOfWater;
             if (orientation.Intention != null)
             {
-                var projection = orientation.Intention.TranslateBy(rb.velocity);
+                var projection = orientation.Intention.TranslateBy(rb.velocity, isMovingInReverse);
                 foreach (var rudder in rudders)
-                    rudder.UpdateIntention(projection);
+                    rudder.UpdateIntention(projection, isMovingInReverse);
             }
         }
         catch (Exception ex)
@@ -607,8 +608,16 @@ public class ArchonControl : MonoBehaviour
                 {
                     if (nonCameraOrientation)
                     {
-                        nonCameraOrientation.rightRotationSpeed = rightAxis * rotationDegreesPerSecond;
-                        nonCameraOrientation.upRotationSpeed = -upAxis * rotationDegreesPerSecond;
+                        if (!isMovingInReverse)
+                        {
+                            nonCameraOrientation.rightRotationSpeed = rightAxis * rotationDegreesPerSecond;
+                            nonCameraOrientation.upRotationSpeed = -upAxis * rotationDegreesPerSecond;
+                        }
+                        else
+                        {
+                            nonCameraOrientation.rightRotationSpeed = -rightAxis * rotationDegreesPerSecond;
+                            nonCameraOrientation.upRotationSpeed = upAxis * rotationDegreesPerSecond;
+                        }
                     }
                 }
 
@@ -638,7 +647,10 @@ public class ArchonControl : MonoBehaviour
             }
 
             if (orientation)
-                orientation.enabled = (currentlyControlled || (outOfWater && wasEverBoarded)) && !batteryDead && !powerOff && !isAutoLeveling;
+            {
+                orientation.enabled = (!IsBoarded && (wasEverBoarded || !outOfWater)) && !batteryDead && !powerOff && !isAutoLeveling;
+                orientation.isMovingInReverse = isMovingInReverse;
+            }
 
         }
         catch (Exception ex)
@@ -765,6 +777,12 @@ public class ArchonControl : MonoBehaviour
                 log.LogWarning("Re-setting angular drag to 1");
                 rb.angularDrag = 1;
             }
+
+            var forwardSpeed = M.Dot(rb.velocity, transform.forward) + forwardAxis * 100f;
+            if (forwardSpeed < 0)
+                isMovingInReverse = true;
+            else //if (forwardSpeed > 0)
+                isMovingInReverse = false;
 
             drag.enabled = !outOfWater;
         }

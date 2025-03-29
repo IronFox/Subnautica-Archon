@@ -44,8 +44,10 @@ public class ProjectedMotionSpace
         return new ProjectedMotionSpace(Center, Motion + motion, Rotation);
     }
 
-    internal ProjectedMotionSpace TranslateBy(Vector3 velocity)
+    internal ProjectedMotionSpace TranslateBy(Vector3 velocity, bool flip)
     {
-        return new ProjectedMotionSpace(Center, Motion + velocity, Rotation);
+        return new ProjectedMotionSpace(Center,
+            Motion + velocity,
+            flip ? Quaternion.Inverse(Rotation) : Rotation);
     }
 }
