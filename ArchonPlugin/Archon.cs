@@ -46,7 +46,9 @@ namespace Subnautica_Archon
             MaterialFixer = new MaterialFixer(this, LogConfig.Verbose);
         }
 
+        public override float ExitVelocityLimit => 100f;    //any speed is good
 
+ 
 
         public override void OnFinishedLoading()
         {
@@ -625,29 +627,18 @@ namespace Subnautica_Archon
                         {
                             var rollDelta = SecondaryEulerZeroDistance(transform.eulerAngles.z);
                             var pitchDelta = SecondaryEulerZeroDistance(transform.eulerAngles.x);
-                            bool shouldBeAutoLeveling = rollDelta > 0.4f || pitchDelta > 0.4f;
 
-                            if (!shouldBeAutoLeveling)
+                            Log.Write($"Angle error at {rollDelta} / {pitchDelta}");
+                            if (!control.isAutoLeveling)
                             {
-                                Log.Error("Auto-pilot should have switched off auto-leveling. Forcing off");
-                                useRigidbody.velocity = Vector3.zero;
-                                autoLevelProperty.SetValue(autopilot, false);
-                                DeselectSlots();
+                                isAutoLevelingSince = DateTime.Now;
+                                control.isAutoLeveling = true;
                             }
-                            else
+                            else if (DateTime.Now - isAutoLevelingSince > TimeSpan.FromSeconds(5))
                             {
-                                Log.Write($"Angle error at {rollDelta} / {pitchDelta}");
-                                if (!control.isAutoLeveling)
-                                {
-                                    isAutoLevelingSince = DateTime.Now;
-                                    control.isAutoLeveling = true;
-                                }
-                                else if (DateTime.Now - isAutoLevelingSince > TimeSpan.FromSeconds(5))
-                                {
-                                    autoLevelProperty.SetValue(autopilot, false);
-                                    control.isAutoLeveling = false;
-                                    ErrorMessage.AddError($"Auto-leveling has not succeeded in 5 seconds. Aborting auto-level");
-                                }
+                                autoLevelProperty.SetValue(autopilot, false);
+                                control.isAutoLeveling = false;
+                                ErrorMessage.AddError($"Auto-leveling has not succeeded in 5 seconds. Aborting auto-level");
                             }
                         }
                         else if (control.isAutoLeveling)
@@ -980,7 +971,7 @@ namespace Subnautica_Archon
 
         //public override VFEngine VFEngine { get; set; }
 
-        private List<VehicleFloodLight> headLights;
+        private List<VehicleFloodLight> headLights = new List<VehicleFloodLight>();
 
         public override List<VehicleFloodLight> HeadLights
         {
@@ -1029,7 +1020,7 @@ namespace Subnautica_Archon
                 //    }
                 //    Log.Write($"Returning {headLights.Count} headlight(s)");
                 //}
-                return headLights ?? new List<VehicleFloodLight>();
+                return headLights;
 
             }
 
