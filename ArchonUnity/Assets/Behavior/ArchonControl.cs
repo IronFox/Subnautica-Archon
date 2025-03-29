@@ -79,6 +79,7 @@ public class ArchonControl : MonoBehaviour
     private DirectAt orientation;
     private RudderControl[] rudders;
     private Rigidbody rb;
+    private EvacuateIntruders evacuateIntruders;
     private bool currentlyControlled;
 
     private Parentage onboardLocalizedTransform;
@@ -170,6 +171,7 @@ public class ArchonControl : MonoBehaviour
 
         SetRenderAndCollisionActive(interior, true);
         SetRenderAndCollisionActive(exterior, false);
+        evacuateIntruders.enabled = true;
     }
 
     public void Exit()
@@ -177,6 +179,7 @@ public class ArchonControl : MonoBehaviour
 
         SetRenderAndCollisionActive(interior, false);
         SetRenderAndCollisionActive(exterior, true);
+        evacuateIntruders.enabled = false;
 
         if (isEnteredBy)
         {
@@ -269,6 +272,7 @@ public class ArchonControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        evacuateIntruders = GetComponentInChildren<EvacuateIntruders>();
         drag = GetComponentInChildren<DirectionalDrag>();
         nonCameraOrientation = GetComponent<NonCameraOrientation>();
         rb = GetComponent<Rigidbody>();
@@ -282,7 +286,7 @@ public class ArchonControl : MonoBehaviour
         bayControl = GetComponent<BayControl>();
         if (orientation)
             orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
-
+        evacuateIntruders.enabled = IsBoarded;
     }
 
     private static string TN(RenderTexture rt)
