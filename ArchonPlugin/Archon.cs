@@ -140,7 +140,7 @@ namespace Subnautica_Archon
 
         public override void Awake()
         {
-
+            worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
 
             var existing = GetComponent<VFEngine>();
             if (existing != null)
