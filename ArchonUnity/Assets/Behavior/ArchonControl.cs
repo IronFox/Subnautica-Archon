@@ -74,6 +74,7 @@ public class ArchonControl : MonoBehaviour
     private FallOrientation fallOrientation;
     private BayControl bayControl;
 
+    private DirectionalDrag drag;
     private DirectAt orientation;
     private RudderControl[] rudders;
     private Rigidbody rb;
@@ -267,6 +268,7 @@ public class ArchonControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        drag = GetComponentInChildren<DirectionalDrag>();
         nonCameraOrientation = GetComponent<NonCameraOrientation>();
         rb = GetComponent<Rigidbody>();
         orientation = GetComponent<DirectAt>();
@@ -763,6 +765,8 @@ public class ArchonControl : MonoBehaviour
                 log.LogWarning("Re-setting angular drag to 1");
                 rb.angularDrag = 1;
             }
+
+            drag.enabled = !outOfWater;
         }
         catch (Exception ex)
         {
