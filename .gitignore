@@ -78,3 +78,4 @@ crashlytics-build.properties
 /Scripts/Archon/
 *.lnk
 /ArchonUnity/Assets/AssetBundles/
+/Scripts/archon.zip
