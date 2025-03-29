@@ -630,6 +630,7 @@ namespace Subnautica_Archon
                             if (!shouldBeAutoLeveling)
                             {
                                 Log.Error("Auto-pilot should have switched off auto-leveling. Forcing off");
+                                useRigidbody.velocity = Vector3.zero;
                                 autoLevelProperty.SetValue(autopilot, false);
                                 DeselectSlots();
                             }
