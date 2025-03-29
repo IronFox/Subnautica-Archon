@@ -11,6 +11,7 @@ public class ArchonControl : MonoBehaviour
     public KeyCode openConsoleKey = KeyCode.F7;
 
     public Transform interior;
+    public Transform exterior;
 
     public float forwardAxis;
     public float rightAxis;
@@ -135,6 +136,18 @@ public class ArchonControl : MonoBehaviour
     }
 
 
+    private static void SetRenderAndCollisionActive(Transform t, bool active)
+    {
+        if (t)
+        {
+            foreach (var r in t.GetComponentsInChildren<Renderer>())
+                r.enabled = active;
+            foreach (var r in t.GetComponentsInChildren<Collider>())
+                r.enabled = active;
+        }
+
+    }
+
     public void Enter(GameObject playerRoot)
     {
         rb.isKinematic = true;
@@ -145,26 +158,15 @@ public class ArchonControl : MonoBehaviour
             Physics.IgnoreLayerCollision(collider.gameObject.layer, OuterShellLayer, true);
         }
 
-        if (interior)
-        {
-            foreach (var r in interior.GetComponentsInChildren<Renderer>())
-                r.enabled = true;
-            foreach (var r in interior.GetComponentsInChildren<Collider>())
-                r.enabled = true;
-        }
-
+        SetRenderAndCollisionActive(interior, true);
+        SetRenderAndCollisionActive(exterior, false);
     }
 
     public void Exit()
     {
 
-        if (interior)
-        {
-            foreach (var r in interior.GetComponentsInChildren<Renderer>())
-                r.enabled = false;
-            foreach (var r in interior.GetComponentsInChildren<Collider>())
-                r.enabled = false;
-        }
+        SetRenderAndCollisionActive(interior, false);
+        SetRenderAndCollisionActive(exterior, true);
 
         if (isEnteredBy)
         {
