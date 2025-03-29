@@ -17,6 +17,10 @@ namespace Subnautica_Archon
         /// </summary>
         public Color Color { get; }
         /// <summary>
+        /// Emission texture of this material. Black if not emissive
+        /// </summary>
+        public Color EmissionColor { get; }
+        /// <summary>
         /// Main texture of the material. Null if none.
         /// In order to be applicable as
         /// specular reflectivity map, its alpha value must be filled such.
@@ -70,6 +74,7 @@ namespace Subnautica_Archon
 
         public SurfaceShaderData(
             Color color,
+            Color emissionColor,
             Texture mainTex,
             float smoothness,
             int smoothnessTextureChannel,
@@ -80,6 +85,7 @@ namespace Subnautica_Archon
         {
             Source = source;
             Color = color;
+            EmissionColor = emissionColor;
             MainTex = mainTex;
             Smoothness = smoothness;
             MetallicTexture = metallicTexture;
@@ -181,6 +187,7 @@ namespace Subnautica_Archon
             logConfig.LogExtraStep($"Reading material {m} which uses shader {m.shader}");
             return new SurfaceShaderData(
                 color: GetColor(m, "_Color", logConfig),
+                emissionColor: GetColor(m, "_EmissionColor", logConfig),
                 mainTex: GetTexture(m, "_MainTex", logConfig),
                 smoothness: GetFloat(m, "_Glossiness", logConfig),
                 metallicTexture: GetTexture(m, "_MetallicGlossMap", logConfig),
@@ -240,6 +247,7 @@ namespace Subnautica_Archon
         private const string SpecTexName = "_SpecTex";
         private const string IllumTexName = "_Illum";
         private const string DummyTexName = "SurfaceShaderData.DummyTexture";
+        private const string DummyIllumTexName = "SurfaceShaderData.DummyIllumTexture";
         /// <summary>
         /// Applies the loaded configuration to the given material
         /// </summary>
@@ -265,7 +273,7 @@ namespace Subnautica_Archon
             }
             else
             {
-                if (existingSpecTex == null || existingSpecTex.name != DummyTexName)
+                if (!existingSpecTex || existingSpecTex.name != DummyTexName)
                 {
                     logConfig.LogExtraStep($"Source has no smoothness alpha texture. Setting to {Smoothness}");
                     var met = Smoothness;
@@ -283,7 +291,7 @@ namespace Subnautica_Archon
             {
                 if (EmissionTexture != existingIllumTex)
                 {
-                    logConfig.LogExtraStep($"Translating emission map {EmissionTexture} to _Illum");
+                    logConfig.LogExtraStep($"Translating emission map {EmissionTexture} to {IllumTexName}");
 
                     m.SetTexture(IllumTexName, EmissionTexture);
                 }
@@ -291,10 +299,26 @@ namespace Subnautica_Archon
             }
             else
             {
-                if (existingIllumTex != Texture2D.blackTexture)
+                if (EmissionColor == Color.black)
                 {
-                    logConfig.LogExtraStep($"Source has no illumination texture. Loading black into _Illum");
-                    m.SetTexture(IllumTexName, Texture2D.blackTexture);
+                    if (existingIllumTex != Texture2D.blackTexture)
+                    {
+                        logConfig.LogExtraStep($"Source has no illumination texture. Loading black into {IllumTexName}");
+                        m.SetTexture(IllumTexName, Texture2D.blackTexture);
+                    }
+                }
+                else
+                {
+                    if (!existingIllumTex || existingIllumTex.name != DummyIllumTexName)
+                    {
+                        logConfig.LogExtraStep($"Source has no illumination texture. Setting to {EmissionColor}");
+                        
+                        var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+                        tex.name = DummyIllumTexName;
+                        tex.SetPixel(0, 0, EmissionColor);
+                        tex.Apply();
+                        m.SetTexture(IllumTexName, tex);
+                    }
                 }
             }
         }
@@ -308,6 +332,7 @@ namespace Subnautica_Archon
             => new SurfaceShaderData(
                 color: Color,
                 mainTex: MainTex,
+                emissionColor: EmissionColor,
                 smoothness: Smoothness,
                 metallicTexture: MetallicTexture,
                 bumpMap: BumpMap,
