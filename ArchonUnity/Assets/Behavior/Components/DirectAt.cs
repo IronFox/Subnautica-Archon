@@ -15,7 +15,7 @@ public class DirectAt : MonoBehaviour
     public bool isMovingInReverse;
     public bool rotateUpDown = true;
     public bool rotateZ = true;
-    private const float rotationSpeed = 30f;
+    public float rotationDegreesPerSecond = 30f;
 
     // Start is called before the first frame update
     void Start()
@@ -97,7 +97,7 @@ public class DirectAt : MonoBehaviour
 
     private (float Acceleration, float AngleError) Adjust(float angleError, float haveTurn, Vector3 axis, bool isZ = false)
     {
-        float wantTurn = M.SignedMin(angleError/10, 1) * rotationSpeed;
+        float wantTurn = M.SignedMin(angleError/10, 1) * rotationDegreesPerSecond;
         if (isZ)
             wantTurn *= 1.5f;
         if (Mathf.Abs(wantTurn) < 1f)

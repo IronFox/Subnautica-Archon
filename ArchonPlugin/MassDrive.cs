@@ -43,8 +43,8 @@ namespace Subnautica_Archon
         {
             //default = 3/4 * 5 / 2.25 = 166%
             //lateral = 3/4 * 2 / 1.5 = 100%
-            var baseSpeed = 5f;
-            var baseLateral = 3f;
+            var baseSpeed = 4f;
+            var baseLateral = 2f;
             //var speedBoost = DriveModule.GetSpeedBoost(driveUpgrade);
 
             //var boost = baseSpeed * speedBoost;

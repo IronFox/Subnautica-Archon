@@ -654,6 +654,7 @@ public class ArchonControl : MonoBehaviour
             {
                 orientation.enabled = (!IsBoarded && (wasEverBoarded || !outOfWater)) && !batteryDead && !powerOff && !isAutoLeveling;
                 orientation.isMovingInReverse = isMovingInReverse;
+                orientation.rotationDegreesPerSecond = rotationDegreesPerSecond;
             }
 
         }
@@ -783,9 +784,9 @@ public class ArchonControl : MonoBehaviour
             }
 
             var forwardSpeed = M.Dot(rb.velocity, transform.forward) + forwardAxis * 100f;
-            if (forwardSpeed < 0)
+            if (forwardSpeed < -3)
                 isMovingInReverse = true;
-            else //if (forwardSpeed > 0)
+            else if (forwardSpeed > -2)
                 isMovingInReverse = false;
 
             drag.enabled = !outOfWater;
