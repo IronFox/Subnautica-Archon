@@ -2506,6 +2506,7 @@ MonoBehaviour:
   zoomAxis: 0
   lookRightAxis: 0
   lookUpAxis: 0
+  isMovingInReverse: 0
   overdriveActive: 0
   outOfWater: 0
   freeCamera: 0
@@ -2521,7 +2522,7 @@ MonoBehaviour:
   maxHealth: 1
   currentHealth: 0.5
   isHealing: 0
-  rotationDegreesPerSecond: 30
+  rotationDegreesPerSecond: 20
   forwardFacingLeft: {fileID: 1095750951304202031}
   backFacingLeft: {fileID: 8076880089678062853}
   forwardFacingRight: {fileID: 5192958935902015580}
@@ -2543,8 +2544,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: feaca3506156d4c47a13c50b2545a014, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rightRotationSpeed: 20
-  upRotationSpeed: 20
+  rightRotationSpeed: 15
+  upRotationSpeed: 15
   isActive: 0
   outOfWater: 0
 --- !u!114 &724242510189758999
@@ -2572,8 +2573,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc629ece36b18a40960824202572b64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isMovingInReverse: 0
   rotateUpDown: 1
   rotateZ: 1
+  rotationDegreesPerSecond: 30
 --- !u!54 &8172530930230637688
 Rigidbody:
   m_ObjectHideFlags: 0
