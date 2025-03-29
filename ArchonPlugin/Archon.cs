@@ -521,6 +521,32 @@ namespace Subnautica_Archon
             control.overdriveActive = engine.overdriveActive > 0.5f;
         }
 
+        private void ProcessTriggers()
+        {
+            if (control.IsBeingControlled 
+                && Player.main.pda.state == PDA.State.Closed
+                && !IngameMenu.main.gameObject.activeSelf
+                )
+            {
+                if (GameInput.GetButtonDown(GameInput.Button.RightHand))
+                {
+                    control.lights = !control.lights;
+                    if (control.lights )
+                    {
+                        lightsOnSound.Stop();
+                        lightsOnSound.Play();
+                    }
+                    else
+                    {
+                        lightsOffSound.Stop();
+                        lightsOffSound.Play();
+                    }
+
+                }
+            }
+
+        }
+
         /// <summary>
         /// Redetects proximity to the ocean surface and forwards the state to control
         /// </summary>
@@ -674,6 +700,7 @@ namespace Subnautica_Archon
                 ProcessEnergyRecharge(out var lowPower, out var criticalPower);
                 ProcessRegeneration(criticalPower);
                 ForwardControlAxes();
+                ProcessTriggers();
 
                 control.outOfWater = !GetIsUnderwater();
                 control.cameraCenterIsCockpit = Player.main.pda.state == PDA.State.Opened;
@@ -950,36 +977,56 @@ namespace Subnautica_Archon
 
         //public override VFEngine VFEngine { get; set; }
 
+        private List<VehicleFloodLight> headLights;
+
         public override List<VehicleFloodLight> HeadLights
         {
             get
             {
-                var rs = new List<VehicleFloodLight>();
-                try
-                {
-                    var headlights = transform.GetComponentsInChildren<Light>();
-                    if (headlights.Length > 0)
-                    {
-                        foreach (var light in headlights)
-                            if (light.type == LightType.Spot && light.transform.name != "Center Light")
-                            {
-                                rs.Add(new VehicleFloodLight
-                                {
-                                    Angle = light.spotAngle,
-                                    Color = light.color,
-                                    Intensity = light.intensity,
-                                    Light = light.gameObject,
-                                    Range = light.range
-                                });
-                            }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Write("HeadLights", ex);
-                }
-                Log.Write($"Returning {rs.Count} headlight(s)");
-                return rs;
+                //Log.Write($"Get HeadLights");
+                //if (headLights is null)
+                //{
+
+                //    headLights = new List<VehicleFloodLight>();
+                //    try
+                //    {
+                //        var hl = transform.GetComponentsInChildren<Light>();
+                //        Log.Write($"processing {hl.Length} headlight(s)");
+
+
+                //        if (hl.Length > 0)
+                //        {
+                //            foreach (var light in hl)
+                //                if (light.type == LightType.Spot && light.transform.name != "Center Light")
+                //                {
+                //                    var go = new GameObject($"Light Dummy for {light.name}");
+                //                    go.transform.parent = light.transform.parent;
+                //                    go.transform.localPosition = light.transform.localPosition;
+                //                    go.transform.localRotation = light.transform.localRotation;
+                //                    Log.Write($"Reparenting light {light} to {go}");
+                //                    light.transform.parent = go.transform;
+                //                    light.transform.localPosition = Vector3.zero;
+                //                    light.transform.localRotation = Quaternion.identity;
+                //                    light.transform.name = light.name = "VolumetricLight";
+
+                //                    headLights.Add(new VehicleFloodLight
+                //                    {
+                //                        Angle = light.spotAngle,
+                //                        Color = light.color,
+                //                        Intensity = light.intensity,
+                //                        Light = go,
+                //                        Range = light.range
+                //                    });
+                //                }
+                //        }
+                //    }
+                //    catch (Exception ex)
+                //    {
+                //        Log.Write("HeadLights", ex);
+                //    }
+                //    Log.Write($"Returning {headLights.Count} headlight(s)");
+                //}
+                return headLights ?? new List<VehicleFloodLight>();
 
             }
 

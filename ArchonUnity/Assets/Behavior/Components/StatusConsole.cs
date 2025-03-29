@@ -128,5 +128,6 @@ public enum StatusProperty
     OpenUpgradeCover,
     IsFirstPerson,
     OpenBay,
+    Lights,
 }
 

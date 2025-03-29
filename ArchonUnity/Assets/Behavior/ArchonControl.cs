@@ -37,6 +37,7 @@ public class ArchonControl : MonoBehaviour
     public bool batteryDead;
     public bool openUpgradeCover;
     public bool openBay;
+    public bool lights;
 
     private DateTime lastOnboarded;
 
@@ -74,6 +75,7 @@ public class ArchonControl : MonoBehaviour
     private NonCameraOrientation nonCameraOrientation;
     private FallOrientation fallOrientation;
     private BayControl bayControl;
+    private HullLightController hullLightController;
 
     private DirectionalDrag drag;
     private DirectAt orientation;
@@ -272,6 +274,7 @@ public class ArchonControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        hullLightController = GetComponentInChildren<HullLightController>();
         evacuateIntruders = GetComponentInChildren<EvacuateIntruders>();
         drag = GetComponentInChildren<DirectionalDrag>();
         nonCameraOrientation = GetComponent<NonCameraOrientation>();
@@ -401,6 +404,7 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.OpenUpgradeCover, openUpgradeCover);
             statusConsole.Set(StatusProperty.IsFirstPerson, positionCamera.isFirstPerson);
             statusConsole.Set(StatusProperty.OpenBay, openBay);
+            statusConsole.Set(StatusProperty.Lights, lights);
         }
         catch (Exception ex)
         {
@@ -751,6 +755,8 @@ public class ArchonControl : MonoBehaviour
             UpdateCameraAndOrientation();
             
             UpdateDrives();
+
+            UpdateLighting();
         }
         catch (Exception ex)
         {
@@ -758,6 +764,20 @@ public class ArchonControl : MonoBehaviour
             Debug.LogException(ex);
         }
     }
+
+    private void UpdateLighting()
+    {
+        try
+        {
+            hullLightController.lightsEnabled = lights;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(UpdateLighting));
+            Debug.LogException(ex);
+        }
+    }
+
 
     private void MonitorPhysics()
     {
