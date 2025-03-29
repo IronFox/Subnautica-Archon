@@ -12,6 +12,7 @@ public class ArchonControl : MonoBehaviour
 
     public Transform interior;
     public Transform exterior;
+    public Transform controlExit;
 
     public float forwardAxis;
     public float rightAxis;
@@ -25,6 +26,8 @@ public class ArchonControl : MonoBehaviour
     public bool overdriveActive;
     public bool outOfWater;
     public bool freeCamera;
+
+    public bool isAutoLeveling;
 
     public bool positionCameraBelowSub;
 
@@ -71,7 +74,7 @@ public class ArchonControl : MonoBehaviour
     private FallOrientation fallOrientation;
     private BayControl bayControl;
 
-    private DirectAt look;
+    private DirectAt orientation;
     private RudderControl[] rudders;
     private Rigidbody rb;
     private bool currentlyControlled;
@@ -152,6 +155,10 @@ public class ArchonControl : MonoBehaviour
     public void Enter(GameObject playerRoot)
     {
         rb.isKinematic = true;
+        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+        rb.interpolation = RigidbodyInterpolation.None;
+
+
         isEnteredBy = playerRoot;
         var colliders = playerRoot.GetComponentsInChildren<Collider>();
         foreach (var collider in colliders)
@@ -178,6 +185,8 @@ public class ArchonControl : MonoBehaviour
             }
             isEnteredBy = null;
             rb.isKinematic = false;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            rb.interpolation = RigidbodyInterpolation.Extrapolate;
         }
     }
 
@@ -243,6 +252,10 @@ public class ArchonControl : MonoBehaviour
 
             if (controlledFromEntered)
             {
+                //if (controlExit)
+                //{
+                //    controlledFromEntered.transform.position = controlExit.position;
+                //}
                 Enter(controlledFromEntered);
                 controlledFromEntered = null;
             }
@@ -256,7 +269,7 @@ public class ArchonControl : MonoBehaviour
     {
         nonCameraOrientation = GetComponent<NonCameraOrientation>();
         rb = GetComponent<Rigidbody>();
-        look = GetComponent<DirectAt>();
+        orientation = GetComponent<DirectAt>();
         rudders = GetComponentsInChildren<RudderControl>();
         rotateCamera = trailSpace.GetComponent<RotateCamera>();
         positionCamera = trailSpace.GetComponent<PositionCamera>();
@@ -264,8 +277,8 @@ public class ArchonControl : MonoBehaviour
         energyLevel = GetComponentInChildren<EnergyLevel>();
         firstPersonMarkers = GetComponentInChildren<FirstPersonMarkers>();
         bayControl = GetComponent<BayControl>();
-        if (look)
-            look.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
+        if (orientation)
+            orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
 
     }
 
@@ -393,10 +406,10 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
-            look.rotateZ = !outOfWater;
-            if (look.Intention != null)
+            orientation.rotateZ = !outOfWater;
+            if (orientation.Intention != null)
             {
-                var projection = look.Intention.TranslateBy(rb.velocity);
+                var projection = orientation.Intention.TranslateBy(rb.velocity);
                 foreach (var rudder in rudders)
                     rudder.UpdateIntention(projection);
             }
@@ -574,8 +587,8 @@ public class ArchonControl : MonoBehaviour
                     }
                 }
 
-                if (look)
-                    look.targetOrientation = outOfWater
+                if (orientation)
+                    orientation.targetOrientation = outOfWater
                             ? fallOrientation
                             : inWaterDirectionSource;
                 nonCameraOrientation.outOfWater = outOfWater;
@@ -617,13 +630,13 @@ public class ArchonControl : MonoBehaviour
 
                 rotateCamera.enabled = false;
                 positionCamera.zoomAxis = 0;
-                if (look)
-                    look.targetOrientation = fallOrientation;
+                if (orientation)
+                    orientation.targetOrientation = fallOrientation;
 
             }
 
-            if (look)
-                look.enabled = (currentlyControlled || (outOfWater && wasEverBoarded)) && !batteryDead && !powerOff;
+            if (orientation)
+                orientation.enabled = (currentlyControlled || (outOfWater && wasEverBoarded)) && !batteryDead && !powerOff && !isAutoLeveling;
 
         }
         catch (Exception ex)
@@ -651,8 +664,8 @@ public class ArchonControl : MonoBehaviour
                 }
                 else
                 {
-                    backFacingLeft.thrust = forwardAxis + look.HorizontalRotationIntent * 0.001f;
-                    backFacingRight.thrust = forwardAxis - look.HorizontalRotationIntent * 0.001f;
+                    backFacingLeft.thrust = forwardAxis + orientation.HorizontalRotationIntent * 0.001f;
+                    backFacingRight.thrust = forwardAxis - orientation.HorizontalRotationIntent * 0.001f;
 
 
                     if (overdriveActive)
@@ -695,15 +708,8 @@ public class ArchonControl : MonoBehaviour
         try
         {
 
-            if (isEnteredBy)
-            {
-                if (!rb.isKinematic)
-                {
-                    log.LogWarning("Re-enabling kinematic state");
-                    rb.isKinematic = true;
 
-                }
-            }
+            MonitorPhysics();
 
             ProcessUpgradeCover();
 
@@ -730,6 +736,37 @@ public class ArchonControl : MonoBehaviour
         catch (Exception ex)
         {
             
+            Debug.LogException(ex);
+        }
+    }
+
+    private void MonitorPhysics()
+    {
+        try
+        {
+            if (isEnteredBy)
+            {
+                if (!rb.isKinematic)
+                {
+                    log.LogWarning("Re-enabling kinematic state");
+                    rb.isKinematic = true;
+
+                }
+            }
+            if (rb.drag != 0)
+            {
+                log.LogWarning("Re-setting drag to 0");
+                rb.drag = 0;
+            }
+            if (rb.angularDrag != 1)
+            {
+                log.LogWarning("Re-setting angular drag to 1");
+                rb.angularDrag = 1;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(MonitorPhysics));
             Debug.LogException(ex);
         }
     }

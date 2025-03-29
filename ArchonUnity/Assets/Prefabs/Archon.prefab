@@ -2499,6 +2499,7 @@ MonoBehaviour:
   openConsoleKey: 288
   interior: {fileID: 3054471254611705171}
   exterior: {fileID: 1341443219838386736}
+  controlExit: {fileID: 8526686247607529142}
   forwardAxis: 0
   rightAxis: 0
   upAxis: 0
@@ -2508,7 +2509,7 @@ MonoBehaviour:
   overdriveActive: 0
   outOfWater: 0
   freeCamera: 0
-  isControlled: 0
+  isAutoLeveling: 0
   positionCameraBelowSub: 0
   cameraCenterIsCockpit: 0
   powerOff: 0
@@ -7776,7 +7777,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8634341630621449393}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.876, z: 2.048}
+  m_LocalPosition: {x: 0, y: 2.375, z: 2.885}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 8218089166630041366}
