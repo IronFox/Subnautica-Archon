@@ -58,13 +58,11 @@ public class MotionSimulation : MonoBehaviour
         }
         if (control.outOfWater)
         {
-            rb.drag = 0;
             rb.useGravity = true;
             drag.density = 0.01f;
         }
         else
         {
-            rb.drag = 0;
             rb.useGravity = false;
             drag.density = 0.5f;
         }

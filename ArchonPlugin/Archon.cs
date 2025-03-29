@@ -35,7 +35,9 @@ namespace Subnautica_Archon
         //private MyLogger Log { get; }
         private MassDrive engine;
         private AutoPilot autopilot;
+        private PropertyInfo autoLevelProperty;
         private EnergyInterface energyInterface;
+        private DateTime isAutoLevelingSince;
         private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
         public Archon()
         {
@@ -176,8 +178,13 @@ namespace Subnautica_Archon
                 {
                     autopilot = GetComponentInChildren<AutoPilot>();
 
-                    if (autopilot != null/* && MainPatcher.PluginConfig.batteryChargeSpeed > 0*/)
+                    if (autopilot)
                     {
+                        autoLevelProperty = autopilot.GetType().GetProperty("autoLeveling",BindingFlags.Instance | BindingFlags.NonPublic);
+                        if (autoLevelProperty is null)
+                            Log.Error($"Could not find autoLeveling property on {autopilot}");
+
+
                         //"Airon" - weird, partially indecipherable low energy voice
                         //"Chels-E" - high-pitched panicky
                         //"Mikjaw"/"Salli" - just bad
@@ -316,8 +323,10 @@ namespace Subnautica_Archon
             try
             {
                 Log.Write(nameof(StopPiloting));
+
                 LocalInit();
                 control.ExitControl();
+                control.isAutoLeveling = false;
                 base.StopPiloting();
 
                 foreach (MonoBehaviour behavior in reenableOnExit)
@@ -559,6 +568,13 @@ namespace Subnautica_Archon
             SetStripeColor(Vector3.zero, nonBlackStripeColor);
         }
 
+        private static float SecondaryEulerZeroDistance(float euler)
+        {
+            return euler > 180f
+                ? 360f - euler  //mirror around
+                : euler;
+        }
+
         public override void Update()
         {
             try
@@ -571,6 +587,52 @@ namespace Subnautica_Archon
                     nonBlackStripeColor = stripeColor;
 
                 MaterialFixer.OnUpdate();
+
+                try
+                {
+                    if (autoLevelProperty != null)
+                    {
+                        bool autoLeveling = (bool)autoLevelProperty.GetValue(autopilot);
+                        if (autoLeveling)
+                        {
+                            var rollDelta = SecondaryEulerZeroDistance(transform.eulerAngles.z);
+                            var pitchDelta = SecondaryEulerZeroDistance(transform.eulerAngles.x);
+                            bool shouldBeAutoLeveling = rollDelta > 0.4f || pitchDelta > 0.4f;
+
+                            if (!shouldBeAutoLeveling)
+                            {
+                                Log.Error("Auto-pilot should have switched off auto-leveling. Forcing off");
+                                autoLevelProperty.SetValue(autopilot, false);
+                                DeselectSlots();
+                            }
+                            else
+                            {
+                                Log.Write($"Angle error at {rollDelta} / {pitchDelta}");
+                                if (!control.isAutoLeveling)
+                                {
+                                    isAutoLevelingSince = DateTime.Now;
+                                    control.isAutoLeveling = true;
+                                }
+                                else if (DateTime.Now - isAutoLevelingSince > TimeSpan.FromSeconds(5))
+                                {
+                                    autoLevelProperty.SetValue(autopilot, false);
+                                    control.isAutoLeveling = false;
+                                    ErrorMessage.AddError($"Auto-leveling has not succeeded in 5 seconds. Aborting auto-level");
+                                }
+                            }
+                        }
+                        else if (control.isAutoLeveling)
+                        {
+                            DeselectSlots();
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Failed to read autoleveling property");
+                    Debug.LogException(ex);
+                }
+
 
                 if (Input.GetKeyDown(KeyCode.F6))
                 {

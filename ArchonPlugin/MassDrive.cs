@@ -9,7 +9,7 @@ namespace Subnautica_Archon
         public MassDrive()
         {
             Log = new MyLogger(this);
-            RB.drag = 1;
+            RB.drag = 0;
             AngularDrag = 1;
         }
 
