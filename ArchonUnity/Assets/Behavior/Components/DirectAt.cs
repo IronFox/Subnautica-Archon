@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
+using static UnityEngine.GraphicsBuffer;
 
 public class DirectAt : MonoBehaviour
 {
@@ -11,7 +12,7 @@ public class DirectAt : MonoBehaviour
 
     float rotX = 0;
 
-    
+    public bool isMovingInReverse;
     public bool rotateUpDown = true;
     public bool rotateZ = true;
     private const float rotationSpeed = 30f;
@@ -65,7 +66,7 @@ public class DirectAt : MonoBehaviour
 
     public void RotateZ(Rigidbody rb, float targetZ, float targetImpact)
     {
-        if (M.Dot(transform.forward, rb.velocity) < 0)
+        if (isMovingInReverse)
             targetZ = -targetZ;
         var axis = rb.transform.forward;
         //var correct = -Vector3.Dot(rb.angularVelocity, axis);
@@ -145,13 +146,23 @@ public class DirectAt : MonoBehaviour
         var directForward = Flat(rb.transform.forward);
         var correctedForward = (directForward + normalForward) / 2;
         var forward = Mathf.Atan2(correctedForward.y, correctedForward.x) * 180f / Mathf.PI;
-        var delta1 = Vector2.SignedAngle(Flat(targetOrientation.Forward), directForward);
-        //var delta2 = Vector2.SignedAngle(Flat(targetOrientation.forward), normalForward);
-        var delta = delta1;
+        var error = Vector2.SignedAngle(Flat(targetOrientation.Forward), directForward);
+
+
+        float currentZAngle = rb.rotation.eulerAngles.z;
+        while (currentZAngle < -180)
+            currentZAngle += 360;
+        while (currentZAngle > 180)
+            currentZAngle -= 360;
+        //+45 .. -45
+        if (isMovingInReverse)
+            currentZAngle = -currentZAngle;
+        float zError = Mathf.Abs(Mathf.Clamp(currentZAngle / 45, -1, 1) + Mathf.Clamp(error / 10, -1, 1));
+        float zModifier = (2f - zError) * 0.5f;
         float accel;
         float have = /*rb.angularVelocity.y*/M.RadToDeg(M.Dot(rb.angularVelocity, transform.up));
-        (accel, delta) = Adjust(delta, have, Vector3.up);
-        return delta;
+        (accel, error) = Adjust(error * zModifier, have, Vector3.up);
+        return error;
 
     }
 }

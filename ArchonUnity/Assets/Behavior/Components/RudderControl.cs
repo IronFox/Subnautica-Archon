@@ -13,7 +13,7 @@ public class RudderControl : MonoBehaviour
     }
 
     private const float maxDegPerSecond = 60;
-
+    private bool isMovingInReverse;
     public ProjectedMotionSpace Intention { get; private set; }
 
     // Update is called once per frame
@@ -28,21 +28,29 @@ public class RudderControl : MonoBehaviour
             var velocity = future - t.position;
 
 
-            var forward = transform.forward * M.Dot(velocity, transform.forward);
+            //var forward = transform.forward * M.Dot(velocity, transform.forward);
             //var projected = velocity - forward;
             //velocity = forward + velocity * 2 + t.forward;
             
             //var projected = velocity - transform.up * M.Dot(velocity, transform.up);
             var local = t.InverseTransformDirection(velocity);
+            bool flipAngle = false;
+            if (local.z < 0)
+            {
+                local.z = -local.z;
+                local.x = -local.x;
+                flipAngle = true;
+            }
+                //angle += 180;
             //Debug.Log(local);
             var angle = M.RadToDeg(Mathf.Atan2(local.x, local.z));
-            if (local.z < 0)
-                angle = 180-angle;
             var s = local.magnitude;
             //if (s < 1f)
             //    angle = M.Interpolate(0, angle, s);
             angle = Mathf.Repeat(angle+180, 360) - 180;
             angle = Mathf.Clamp(angle , -45,45);
+            if (flipAngle)
+                angle = -angle;
 
             var current = transform.localEulerAngles.y;
             var delta = Mathf.Repeat( angle - current + 180, 360) - 180;
@@ -56,8 +64,9 @@ public class RudderControl : MonoBehaviour
         //lastPosition = newPosition;
     }
 
-    public void UpdateIntention(ProjectedMotionSpace intention)
+    public void UpdateIntention(ProjectedMotionSpace intention, bool isMovingInReverse)
     {
         Intention = intention;
+        this.isMovingInReverse = isMovingInReverse;
     }
 }
