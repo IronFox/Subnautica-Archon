@@ -26,12 +26,13 @@ public static class M
     public static float Sqr(float x) => x * x;
     public static float Sqr(Vector3 x) => Vector3.Dot(x, x);
     public static float Abs(float x) => Mathf.Abs(x);
+    public static Vector3 Abs(Vector3 v) => V3(Mathf.Abs(v.x),Mathf.Abs(v.y),Mathf.Abs(v.z));
 
     public static float MaxAxis(Vector3 v) => Mathf.Max(v.x,v.y, v.z);
-    public static float Max(float x, float y) => Mathf.Max(x, y);
+    public static float Max(float x, float y) => Math.Max(x, y);
     public static float Max(float x, float y, float z) => Mathf.Max(x, y, z);
     public static Vector3 Max(Vector3 x, float y) => Max(x,V3(y));
-    public static float Min(float x, float y) => Mathf.Min(x, y);
+    public static float Min(float x, float y) => Math.Min(x, y);
     public static Vector3 Max(Vector3 a, Vector3 b)
         => new Vector3(Max(a.x, b.x), Max(a.y, b.y), Max(a.z, b.z));
     /// <summary>
@@ -146,6 +147,18 @@ public static class M
     public static float SignedMin(float signedValue, float limit)
     {
         return Mathf.Sign(signedValue) * Mathf.Min(Mathf.Abs(signedValue), limit);
+    }
+
+    public static Vector3 Push(Vector3 from, Vector3 what, float toMinDistance)
+    {
+        var fromToWhat = what - from;
+        float d2 = fromToWhat.sqrMagnitude;
+        if (d2 > Sqr(toMinDistance))
+            return what;
+        if (d2 == 0)    //can't push
+            return what;
+        var d = Mathf.Sqrt(d2);
+        return from + fromToWhat * toMinDistance / d;
     }
 }
 

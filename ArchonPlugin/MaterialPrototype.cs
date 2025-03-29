@@ -197,7 +197,7 @@ namespace Subnautica_Archon
                 return;
             }
             MaterialGlobalIlluminationFlags = source.globalIlluminationFlags;
-            ShaderKeywords.AddRange(source.shaderKeywords);
+            ListExtensions.AddRange(ShaderKeywords,source.shaderKeywords);
 
             var colorVariables = new List<ColorVariable>();
             var floatVariables = new List<FloatVariable>();
