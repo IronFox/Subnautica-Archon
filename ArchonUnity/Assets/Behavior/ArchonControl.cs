@@ -161,9 +161,7 @@ public class ArchonControl : MonoBehaviour
 
     public void Enter(GameObject playerRoot)
     {
-        rb.isKinematic = true;
-        rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-        rb.interpolation = RigidbodyInterpolation.None;
+        RigidbodyUtil.SetKinematic(rb);
 
 
         isEnteredBy = playerRoot;
@@ -193,9 +191,7 @@ public class ArchonControl : MonoBehaviour
                 Physics.IgnoreLayerCollision(collider.gameObject.layer, OuterShellLayer,false);
             }
             isEnteredBy = null;
-            rb.isKinematic = false;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            rb.interpolation = RigidbodyInterpolation.Extrapolate;
+            RigidbodyUtil.UnsetKinematic(rb);
         }
     }
 
@@ -288,7 +284,7 @@ public class ArchonControl : MonoBehaviour
         fallOrientation = GetComponent<FallOrientation>();
         energyLevel = GetComponentInChildren<EnergyLevel>();
         firstPersonMarkers = GetComponentInChildren<FirstPersonMarkers>();
-        bayControl = GetComponent<BayControl>();
+        bayControl = GetComponentInChildren<BayControl>();
         if (orientation)
             orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
         evacuateIntruders.enabled = IsBoarded;
@@ -439,7 +435,7 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
-            bayControl.open = openBay;
+            //bayControl.open = openBay;
         }
         catch (Exception ex)
         {
@@ -790,8 +786,7 @@ public class ArchonControl : MonoBehaviour
                 if (!rb.isKinematic)
                 {
                     log.LogWarning("Re-enabling kinematic state");
-                    rb.isKinematic = true;
-
+                    rb.SetKinematic();
                 }
             }
             if (rb.drag != 0)
