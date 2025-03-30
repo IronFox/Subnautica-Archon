@@ -59,15 +59,19 @@ public class PositionCamera : MonoBehaviour
         {
             wasFirstPerson = true;
 
-            var local = subRoot.transform.InverseTransformDirection(transform.forward);
 
-            float forwardRadius = (M.Abs(local.x) * referenceBoundingBox.size.x + M.Abs(local.y) * referenceBoundingBox.size.y + M.Abs(local.z) * referenceBoundingBox.size.z*1.1f) * 0.5f;
-            if (Physics.Raycast(new Ray(target.position, transform.forward), out var hit, forwardRadius, ~(1 << 30)))
-            {
-                forwardRadius = hit.distance - 1f;
-            }
+            transform.position = target.position + target.forward * (referenceBoundingBox.size.z / 2 + 5);
 
-            transform.position = target.position + transform.forward * forwardRadius;
+
+            //var local = subRoot.transform.InverseTransformDirection(transform.forward);
+
+            //float forwardRadius = (M.Abs(local.x) * referenceBoundingBox.size.x + M.Abs(local.y) * referenceBoundingBox.size.y + M.Abs(local.z) * referenceBoundingBox.size.z*1.1f) * 0.5f;
+            //if (Physics.Raycast(new Ray(target.position, transform.forward), out var hit, forwardRadius, ~(1 << 30)))
+            //{
+            //    forwardRadius = hit.distance - 1f;
+            //}
+
+            //transform.position = target.position + transform.forward * forwardRadius;
             if (zoomAxis > 0)
             {
                 isFirstPerson = false;
