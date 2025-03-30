@@ -62,13 +62,13 @@ namespace Subnautica_Archon
             if (!string.IsNullOrEmpty(Prefix))
             {
                 if (IncludeTimestamp)
-                    return $"[Archon] {DateTime.Now:HH:mm:ss.fff} {Prefix}: {msg}";
+                    return $"{DateTime.Now:HH:mm:ss.fff} [Archon] {Prefix}: {msg}";
                 return $"{Prefix}: {msg}";
             }
             else
             {
                 if (IncludeTimestamp)
-                    return $"[Archon] {DateTime.Now:HH:mm:ss.fff} {msg}";
+                    return $"{DateTime.Now:HH:mm:ss.fff} [Archon] {msg}";
                 return msg;
             }
         }
