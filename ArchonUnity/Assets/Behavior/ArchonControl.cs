@@ -13,6 +13,8 @@ public class ArchonControl : MonoBehaviour
     public Transform interior;
     public Transform exterior;
     public Transform controlExit;
+    public Transform dockingTrigger;
+    public Transform dockedSpace;
 
     public float forwardAxis;
     public float rightAxis;
