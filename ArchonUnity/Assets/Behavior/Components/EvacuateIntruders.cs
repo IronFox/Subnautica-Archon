@@ -48,7 +48,7 @@ public class EvacuateIntruders : MonoBehaviour
                     if (!candidate)
                         return default;
 
-                    if (!candidate.transform.IsChildOf(transform.parent) && EvacuationAdapter.Predicate(candidate))
+                    if (!candidate.transform.IsChildOf(transform.parent) && EvacuationAdapter.ShouldEvacuate(candidate))
                     {
                         var isEnabled = exteriorCollider.enabled;
                         if (!isEnabled)
