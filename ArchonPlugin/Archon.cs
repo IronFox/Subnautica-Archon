@@ -7,11 +7,9 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using VehicleFramework;
-using VehicleFramework.Assets;
 using VehicleFramework.Engines;
 using VehicleFramework.VehicleParts;
 using VehicleFramework.VehicleTypes;
-using static PDAScanner;
 
 
 namespace Subnautica_Archon
