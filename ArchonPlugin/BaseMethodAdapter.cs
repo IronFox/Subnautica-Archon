@@ -4,12 +4,15 @@ using UnityEngine;
 
 namespace Subnautica_Archon
 {
-    public class MethodAdapter
+    public class BaseMethodAdapter
     {
         public bool IsEmpty => Method is null || !Target;
         protected MethodInfo Method {get; }
         protected UnityEngine.Object Target { get; }
-        protected MethodAdapter(UnityEngine.Object target, string methodName, params Type[] parameterTypes)
+
+
+
+        protected BaseMethodAdapter(UnityEngine.Object target, string methodName, params Type[] parameterTypes)
         {
             Target = target;
             if (target == null)
@@ -57,7 +60,21 @@ namespace Subnautica_Archon
             }
         }
     }
-    public class MethodAdapter<T> : MethodAdapter
+
+    public class MethodAdapter : BaseMethodAdapter
+    {
+        public MethodAdapter(UnityEngine.Object target, string methodName)
+            : base(target, methodName, Array.Empty<Type>())
+        {
+
+        }
+
+        public void Invoke()
+        {
+            base.Invoke();
+        }
+    }
+    public class MethodAdapter<T> : BaseMethodAdapter
     {
         public MethodAdapter(UnityEngine.Object target, string methodName)
             : base(target, methodName, typeof(T))
@@ -68,7 +85,7 @@ namespace Subnautica_Archon
             base.Invoke(p);
         }
     }
-    public class MethodAdapter<T0, T1> : MethodAdapter
+    public class MethodAdapter<T0, T1> : BaseMethodAdapter
     {
         public MethodAdapter(UnityEngine.Object target, string methodName)
             :base(target,methodName, typeof(T0), typeof(T1))
@@ -79,7 +96,7 @@ namespace Subnautica_Archon
             base.Invoke(p0, p1);
         }
     }
-    public class MethodAdapter<T0, T1, T2> : MethodAdapter
+    public class MethodAdapter<T0, T1, T2> : BaseMethodAdapter
     {
         public MethodAdapter(UnityEngine.Object target, string methodName)
             :base(target,methodName, typeof(T0), typeof(T1), typeof(T2))
@@ -90,7 +107,7 @@ namespace Subnautica_Archon
             base.Invoke(p0, p1, p2);
         }
     }
-    public class MethodAdapter<T0, T1, T2, T3> : MethodAdapter
+    public class MethodAdapter<T0, T1, T2, T3> : BaseMethodAdapter
     {
         public MethodAdapter(UnityEngine.Object target, string methodName)
             : base(target, methodName, typeof(T0), typeof(T1), typeof(T2), typeof(T3))

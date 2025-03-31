@@ -11,10 +11,12 @@ namespace Subnautica_Archon
         private static readonly LogConfig log = new LogConfig(true, null, true, true);
         public static string PathOf(Transform t)
         {
+            if (!t)
+                return "<null>";
             var parts = new List<string>();
             try
             {
-                while (t != null)
+                while (t)
                 {
                     parts.Add($"{t.name}[{t.GetInstanceID()}]");
                     t = t.parent;
