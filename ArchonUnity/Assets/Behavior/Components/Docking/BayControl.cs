@@ -44,6 +44,22 @@ public class BayControl : MonoBehaviour
     }
 
 
+    public UndockingCheckResult CheckUndocking(GameObject dockedSub)
+    {
+        if (active)
+            return UndockingCheckResult.CannotBusy;
+        if (dockedSub && dockedSub.transform.parent == dockedSubRoot)
+        {
+            var dockable = DockingAdapter.ToDockable(dockedSub, archon);
+            if (dockable != null)
+                return UndockingCheckResult.Possible;
+            return UndockingCheckResult.NotDockable;
+        }
+        else
+            return UndockingCheckResult.CannotNotDocked;
+    }
+
+
     public void Undock(GameObject dockedSub)
     {
         if (active)
@@ -172,4 +188,6 @@ public class BayControl : MonoBehaviour
             animation.Stop();
         }
     }
+
+
 }

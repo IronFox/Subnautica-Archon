@@ -6,6 +6,8 @@ public class DebugDockable : MonoBehaviour, IDockable
 {
     public GameObject GameObject => base.gameObject;
 
+    public bool ShouldUnfreezeImmediately => false;
+
     public void BeginDocking()
     {}
 

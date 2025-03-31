@@ -143,6 +143,8 @@ namespace Subnautica_Archon
         {
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
 
+            onToggle += OnQuickbarToggle;
+
             var existing = GetComponent<VFEngine>();
             if (existing != null)
             {
@@ -171,6 +173,41 @@ namespace Subnautica_Archon
 
         }
 
+        private void OnQuickbarToggle(int slotID, bool state)
+        {
+            if (state == true)
+            {
+                var slotId = slotIDs[slotID];
+                var item = modules.GetItemInSlot(slotId)?.item;
+                if (item == null)
+                    Log.Error($"No item found in slot {slotID}/{slotId}");
+                else
+                {
+                    var vehicle = item.gameObject.GetComponent<Vehicle>();
+                    if (!vehicle)
+                        Log.Error($"Item found in slot {slotID}/{slotId} ({item.gameObject}) is not a vehicle");
+                    else
+                    {
+                        var cr = control.CheckUndocking(vehicle.gameObject);
+                        if (cr == UndockingCheckResult.Possible)
+                        {
+                            Log.Write($"Removing quick bar item");
+                            modules.RemoveItem(slotId, true, true);
+
+                            Log.Write($"Undocking {Log.Describe(vehicle)}");
+                            control.Undock(vehicle.gameObject);
+                            ToggleSlot(slotID, false);
+                        }
+                        else
+                        {
+                            ToggleSlot(slotID, false);
+                            ErrorMessage.AddError($"Cannot undock right now ({cr})");
+                        }
+                    }
+                }
+            }
+
+        }
 
         public override bool AutoApplyShaders => false;
 
@@ -819,6 +856,26 @@ namespace Subnautica_Archon
             PlayerEntry();
             BeginPiloting();
 
+        }
+
+        public override float ExitPitchLimit
+            => exitLimitsSuspended
+                ? 360
+                : base.ExitPitchLimit;
+
+        public override float ExitRollLimit
+            => exitLimitsSuspended
+                ? 360
+                : base.ExitRollLimit;
+
+        private bool exitLimitsSuspended = false;
+        internal void SuspendExitLimits()
+        {
+            exitLimitsSuspended = true;
+        }
+        internal void RestoreExitLimits()
+        {
+            exitLimitsSuspended = false;
         }
 
         public string VehicleName => subName ? subName.GetName() : vehicleName;

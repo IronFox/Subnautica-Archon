@@ -13,8 +13,11 @@ public class Tug : MonoBehaviour
     private LogConfig Log { get; set; } = LogConfig.Default;
     
     private int WaitCount { get; set; }
-    private List<Action> UndoTugging { get; } = new List<Action>();
-    private List<Action> UndoDocked {get; } = new List<Action>();
+    private Undoable UndoTugging { get; } = new Undoable();
+    private Undoable ParticleSystems {get; } = new Undoable();
+    private Undoable Renderers { get; } = new Undoable();
+    private Undoable Lights { get; } = new Undoable();
+    private Undoable Behaviours { get; } = new Undoable();
     public TransformDescriptor AnimationStart { get; private set; }
     public TransformDescriptor AnimationEnd { get; private set; }
     public float AnimationSeconds { get; private set; }
@@ -93,13 +96,6 @@ public class Tug : MonoBehaviour
             c.velocity = Vector3.zero;
         }
 
-        foreach (var c in dockable.GetAllComponents<MonoBehaviour>())
-            if (c != this && c.enabled)
-            {
-                c.enabled = false;
-                UndoTugging.Add(() => c.enabled = true);
-            }
-
         var pos = dockable.GameObject.transform.position;
         var rot = dockable.GameObject.transform.rotation;
         dockable.GameObject.transform.parent = bayControl.dockedSubRoot;
@@ -112,9 +108,11 @@ public class Tug : MonoBehaviour
                 TransitionToDocked();
                 break;
             case TugStatus.WaitingForBayDoorOpen:
-                foreach (var c in UndoDocked)
-                    c();
-                UndoDocked.Clear();
+                if (Dockable.ShouldUnfreezeImmediately)
+                    Behaviours.UndoAll();
+                Renderers.UndoAll();
+                Lights.UndoAll();
+
                 Log.Write($"Dockable.PrepareUndocking()");
                 Dockable.PrepareUndocking();
                 break;
@@ -149,10 +147,11 @@ public class Tug : MonoBehaviour
         Dockable.GameObject.transform.position = pos;
         Dockable.GameObject.transform.rotation = rot;
 
-
-        foreach (var c in UndoTugging)
-            c();
-        UndoTugging.Clear();
+        UndoTugging.UndoAll();
+        Renderers.UndoAll();
+        Lights.UndoAll();
+        ParticleSystems.UndoAll();
+        Behaviours.UndoAll();
 
         Log.Write($"Dockable.EndUndocking()");
         Dockable.EndUndocking();
@@ -162,26 +161,26 @@ public class Tug : MonoBehaviour
     {
         Log.Write($"Loaded");
         Status = TugStatus.Docked;
-        UndoDocked.Clear();
 
         foreach (var c in Dockable.GetAllComponents<Renderer>())
             if (c.enabled)
             {
                 c.enabled = false;
-                UndoDocked.Add(() => c.enabled = true);
+                Renderers.Add(() => c.enabled = true);
             }
         foreach (var c in Dockable.GetAllComponents<Light>())
             if (c.enabled)
             {
                 c.enabled = false;
-                UndoDocked.Add(() => c.enabled = true);
+                Lights.Add(() => c.enabled = true);
             }
+
         foreach (var c in Dockable.GetAllComponents<ParticleSystem>())
             if (c.emission.enabled)
             {
                 var em = c.emission;
                 em.enabled = false;
-                UndoDocked.Add(() =>
+                ParticleSystems.Add(() =>
                 {
                     var em2 = c.emission;
                     em2.enabled = true;
@@ -199,9 +198,11 @@ public class Tug : MonoBehaviour
 
         Status = TugStatus.Undocking;
 
-        foreach (var c in UndoDocked)
-            c();
-        UndoDocked.Clear();
+        Behaviours.UndoAll();
+        ParticleSystems.UndoAll();
+        Renderers.UndoAll();
+        Lights.UndoAll();
+
 
         Dockable.GameObject.transform.localPosition = Owner.dockedBounds.localPosition;
         Dockable.GameObject.transform.localRotation = Owner.dockedBounds.localRotation;
@@ -303,9 +304,7 @@ public class Tug : MonoBehaviour
                     if (Status == TugStatus.Docking)
                     {
 
-                        Log.Write($"Dockable.EndDocking()");
-                        Dockable.EndDocking();
-                        Status = TugStatus.WaitingForBayDoorClose;
+                        TransitionToWaitingForBayDoorClose();
                     }
                     else
                     {
@@ -317,6 +316,52 @@ public class Tug : MonoBehaviour
 
                 break;
         }
+    }
+
+    private void TransitionToWaitingForBayDoorClose()
+    {
+        Log.Write($"WaitingForBayDoorClose");
+        Status = TugStatus.WaitingForBayDoorClose;
+
+
+        foreach (var c in Dockable.GetAllComponents<MonoBehaviour>())
+            if (c != this && c.enabled)
+            {
+                Log.Write($"Disabling behavior {c.name}");
+                c.enabled = false;
+                Behaviours.Add(() =>
+                {
+                    Log.Write($"Re-enabling behavior {c.name}");
+                    c.enabled = true;
+                });
+            }
+        //recheck these, seen falling brawn suits
+        foreach (var c in Dockable.GetAllComponents<Collider>())
+            if (c.enabled)
+            {
+                c.enabled = false;
+                UndoTugging.Add(() => c.enabled = true);
+            }
+        foreach (var c in Dockable.GetAllComponents<Rigidbody>())
+        {
+            if (!c.isKinematic)
+            {
+                c.SetKinematic();
+                UndoTugging.Add(() => c.UnsetKinematic());
+            }
+            if (c.detectCollisions)
+            {
+                c.detectCollisions = false;
+                UndoTugging.Add(() => c.detectCollisions = true);
+            }
+            c.velocity = Vector3.zero;
+        }
+
+
+        Log.Write($"Dockable.EndDocking()");
+        Dockable.EndDocking();
+
+
     }
 
     public static Tug GetOf(Transform t)
