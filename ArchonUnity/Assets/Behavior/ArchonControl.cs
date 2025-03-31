@@ -160,6 +160,16 @@ public class ArchonControl : MonoBehaviour
 
     }
 
+    public void Undock(GameObject dockedSub)
+    {
+        bayControl.Undock(dockedSub);
+    }
+
+    public void OnSavegameLoadingDone()
+    {
+        bayControl.SignalSavegameLoadingDone();
+    }
+
     public void Enter(GameObject playerRoot)
     {
         RigidbodyUtil.SetKinematic(rb);

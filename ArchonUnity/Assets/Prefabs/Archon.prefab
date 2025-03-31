@@ -2574,7 +2574,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2420336263794514219}
   m_Layer: 0
-  m_Name: Loaded Subs
+  m_Name: Docked Subs Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2804,7 +2804,7 @@ MonoBehaviour:
   controlExit: {fileID: 8526686247607529142}
   dockingTrigger: {fileID: 4625006239438012383}
   dockedSpace: {fileID: 1197983882717610232}
-  hangarRoot: {fileID: 8374179641319680559}
+  hangarRoot: {fileID: 2420336263794514219}
   forwardAxis: 0
   rightAxis: 0
   upAxis: 0
@@ -2953,8 +2953,8 @@ MonoBehaviour:
   dockingTrigger: {fileID: 2740786908025829339}
   dockingMetersPerSecond: 10
   insides: {fileID: 4303897304366771707}
-  subRoot: {fileID: 7197353428443423573}
-  loaded: {fileID: 2420336263794514219}
+  archon: {fileID: 7197353428443423573}
+  dockedSubRoot: {fileID: 2420336263794514219}
   dockedBounds: {fileID: 1197983882717610232}
   dockingColliders: {fileID: 8374179641319680559}
 --- !u!111 &4256051324498355797

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class Tug : MonoBehaviour
 {
     public BayControl Owner { get; private set; }
@@ -11,18 +12,38 @@ public class Tug : MonoBehaviour
 
     private LogConfig Log { get; set; } = LogConfig.Default;
     
-
+    private int WaitCount { get; set; }
     private List<Action> UndoTugging { get; } = new List<Action>();
     private List<Action> UndoDocked {get; } = new List<Action>();
     public TransformDescriptor AnimationStart { get; private set; }
     public TransformDescriptor AnimationEnd { get; private set; }
     public float AnimationSeconds { get; private set; }
     public float AnimationProgress { get; private set; }
+    public bool WantsDoorsOpen
+    {
+        get
+        {
+            switch (Status)
+            {
+                case TugStatus.WaitingForBayDoorClose:
+                case TugStatus.Docked:
+                case TugStatus.UndockedWaitingForTriggerExit:
+                    return false;
+                case TugStatus.WaitingForBayDoorOpen:
+                case TugStatus.Undocking:
+                case TugStatus.Docking:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+    }
+
 
     internal void Bind(BayControl bayControl, IDockable dockable, TugStatus status)
     {
-        Log = new LogConfig($"Tug[{GetInstanceID()}]", true);
-        UndoTugging.Clear();
+        Log = new LogConfig($"Tug[{GetInstanceID()}]<{dockable.GameObject}>", true);
+        //UndoTugging.Clear();
 
         Owner = bayControl;
         Status = status;
@@ -44,6 +65,7 @@ public class Tug : MonoBehaviour
                 dockable.BeginDocking();
                 Log.Write($"Dockable.EndDocking()");
                 dockable.EndDocking();
+                TransitionToDocked();
                 break;
             case TugStatus.Undocking:
                 Log.Write($"Dockable.BeginUndocking()");
@@ -80,13 +102,23 @@ public class Tug : MonoBehaviour
 
         var pos = dockable.GameObject.transform.position;
         var rot = dockable.GameObject.transform.rotation;
-        dockable.GameObject.transform.parent = bayControl.loaded;
+        dockable.GameObject.transform.parent = bayControl.dockedSubRoot;
         dockable.GameObject.transform.position = pos;
         dockable.GameObject.transform.rotation = rot;
 
-
-        if (status == TugStatus.Docked)
-            TransitionToLoaded();
+        switch (status)
+        {
+            case TugStatus.Docked:
+                TransitionToDocked();
+                break;
+            case TugStatus.WaitingForBayDoorOpen:
+                foreach (var c in UndoDocked)
+                    c();
+                UndoDocked.Clear();
+                Log.Write($"Dockable.PrepareUndocking()");
+                Dockable.PrepareUndocking();
+                break;
+        }
 
         if (status == TugStatus.Undocking)
         {
@@ -101,12 +133,7 @@ public class Tug : MonoBehaviour
 
     }
 
-    public void Undock()
-    {
-        BeginUndocking();
-        Log.Write($"Dockable.BeginUndocking()");
-        Dockable.BeginUndocking();
-    }
+
 
     private void TransitionToFree()
     {
@@ -114,10 +141,11 @@ public class Tug : MonoBehaviour
             throw new InvalidOperationException($"Cannot transition to free from {Status}");
         Log.Write($"Free");
         Status = TugStatus.UndockedWaitingForTriggerExit;
+        WaitCount = 0;
 
         var pos = Dockable.GameObject.transform.position;
         var rot = Dockable.GameObject.transform.rotation;
-        Dockable.GameObject.transform.parent = Owner.subRoot.transform.parent;
+        Dockable.GameObject.transform.parent = Owner.archon.transform.parent;
         Dockable.GameObject.transform.position = pos;
         Dockable.GameObject.transform.rotation = rot;
 
@@ -125,9 +153,12 @@ public class Tug : MonoBehaviour
         foreach (var c in UndoTugging)
             c();
         UndoTugging.Clear();
+
+        Log.Write($"Dockable.EndUndocking()");
+        Dockable.EndUndocking();
     }
 
-    private void TransitionToLoaded()
+    private void TransitionToDocked()
     {
         Log.Write($"Loaded");
         Status = TugStatus.Docked;
@@ -164,9 +195,7 @@ public class Tug : MonoBehaviour
 
     private void BeginUndocking()
     {
-        if (Status != TugStatus.Docked)
-            throw new InvalidOperationException($"Cannot transition to unloading from {Status}");
-        Log.Write($"Unloading");
+        Log.Write($"Undocking");
 
         Status = TugStatus.Undocking;
 
@@ -174,10 +203,13 @@ public class Tug : MonoBehaviour
             c();
         UndoDocked.Clear();
 
-        Dockable.GameObject.transform.localPosition = Owner.dockedBounds.transform.localPosition;
+        Dockable.GameObject.transform.localPosition = Owner.dockedBounds.localPosition;
+        Dockable.GameObject.transform.localRotation = Owner.dockedBounds.localRotation;
         AnimationStart = TransformDescriptor.FromLocal(Dockable.GameObject.transform);
         AnimationEnd = TransformDescriptor.FromLocal(Owner.dockingTrigger.transform);
         RestartAnimation();
+        Log.Write($"Dockable.BeginUndocking()");
+        Dockable.BeginUndocking();
     }
 
     private Vector3 LocalPosition(TransformDescriptor desc)
@@ -224,16 +256,35 @@ public class Tug : MonoBehaviour
         switch (Status)
         {
             case TugStatus.UndockedWaitingForTriggerExit:
-                if (!Owner.dockingTrigger.IsTracked(Dockable.GameObject))
+                if (++WaitCount > 3 && !Owner.dockingTrigger.IsTracked(Dockable.GameObject))
                 {
                     Log.Write("No longer in trigger zone. Releasing");
+
+                    Log.Write($"Dockable.OnUndockingDone()");
+                    Dockable.OnUndockingDone();
+
                     Destroy(this);
                 }
                 break;
             case TugStatus.WaitingForBayDoorClose:
-                Dockable.UpdateWaitingForBayDoorClose();
+                if (Owner.DoorsAreClosed)
+                {
+                    Owner.ReleaseActive(this);
+                    Log.Write("Doors closed. Concluding");
+                    TransitionToDocked();
+                }
+                else
+                    Dockable.UpdateWaitingForBayDoorClose();
                 break;
-
+            case TugStatus.WaitingForBayDoorOpen:
+                if (Owner.DoorsAreSufficientlyOpen)
+                {
+                    Log.Write($"Doors open wide enough. Undocking");
+                    BeginUndocking();
+                }
+                else
+                    Dockable.UpdateWaitingForBayDoorOpen();
+                break;
             case TugStatus.Docking:
             case TugStatus.Undocking:
                 AnimationProgress += Time.deltaTime / AnimationSeconds;
@@ -255,12 +306,10 @@ public class Tug : MonoBehaviour
                         Log.Write($"Dockable.EndDocking()");
                         Dockable.EndDocking();
                         Status = TugStatus.WaitingForBayDoorClose;
-                        Owner.SignalDockingDone(this, TransitionToLoaded);
                     }
                     else
                     {
-                        Log.Write($"Dockable.EndUndocking()");
-                        Dockable.EndUndocking();
+                        Owner.ReleaseActive(this);
                         TransitionToFree();
                     }
                 }
@@ -269,6 +318,17 @@ public class Tug : MonoBehaviour
                 break;
         }
     }
+
+    public static Tug GetOf(Transform t)
+        => GetOf(t.gameObject);
+    public static Tug GetOf(GameObject go)
+    {
+        var tug = go.GetComponent<Tug>();
+        if (!tug)
+            tug = go.AddComponent<Tug>();
+        return tug;
+    }
+
 }
 
 public enum TugStatus
@@ -276,6 +336,7 @@ public enum TugStatus
     Docking,
     WaitingForBayDoorClose,
     Docked,
+    WaitingForBayDoorOpen,
     Undocking,
     UndockedWaitingForTriggerExit
 }

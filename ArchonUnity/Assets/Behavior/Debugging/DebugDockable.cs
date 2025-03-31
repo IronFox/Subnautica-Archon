@@ -39,4 +39,13 @@ public class DebugDockable : MonoBehaviour, IDockable
 
     public void UpdateWaitingForBayDoorClose()
     {}
+
+    public void PrepareUndocking()
+    {}
+
+    public void UpdateWaitingForBayDoorOpen()
+    {}
+
+    public void OnUndockingDone()
+    {}
 }

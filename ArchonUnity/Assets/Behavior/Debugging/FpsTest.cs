@@ -17,6 +17,7 @@ public class FpsTest : MonoBehaviour
     public KeyCode centerKey = KeyCode.C;
     public KeyCode outOfWaterKey = KeyCode.F;
     public KeyCode bayOpenKey = KeyCode.O;
+    public KeyCode testUndock = KeyCode.U;
     // Start is called before the first frame update
     void Start()
     {
@@ -61,6 +62,20 @@ public class FpsTest : MonoBehaviour
                 .FromLocal(transform)
                 .RotateBy(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), Time.deltaTime * 800)
                 .ApplyTo(transform);
+        }
+
+
+        if (Input.GetKeyDown(testUndock))
+        {
+            if (subControl.hangarRoot.childCount == 0)
+            {
+                Debug.LogError($"Not docked sub to undock");
+            }
+            else
+            {
+                var v = subControl.hangarRoot.GetChild(0);
+                subControl.Undock(v.gameObject);
+            }
         }
 
         if (Input.GetKeyDown(outOfWaterKey))
