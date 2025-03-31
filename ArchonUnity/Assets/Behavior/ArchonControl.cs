@@ -43,8 +43,8 @@ public class ArchonControl : MonoBehaviour
 
     private DateTime lastOnboarded;
 
-    private GameObject isEnteredBy;
-    private GameObject controlledFromEntered;
+    private GameObject boardedBy;
+    private GameObject controlledBy;
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
     public float maxEnergy=1;
     public float currentEnergy=0.5f;
@@ -107,7 +107,7 @@ public class ArchonControl : MonoBehaviour
     private CameraState state = CameraState.IsBound;
 
 
-    public bool IsBoarded => isEnteredBy;
+    public bool IsBoarded => boardedBy;
 
     private void ChangeState(CameraState state)
     {
@@ -164,7 +164,7 @@ public class ArchonControl : MonoBehaviour
         RigidbodyUtil.SetKinematic(rb);
 
 
-        isEnteredBy = playerRoot;
+        boardedBy = playerRoot;
         var colliders = playerRoot.GetComponentsInChildren<Collider>();
         foreach (var collider in colliders)
         {
@@ -183,20 +183,20 @@ public class ArchonControl : MonoBehaviour
         SetRenderAndCollisionActive(exterior, true);
         evacuateIntruders.enabled = false;
 
-        if (isEnteredBy)
+        if (boardedBy)
         {
-            var colliders = isEnteredBy.GetComponentsInChildren<Collider>();
+            var colliders = boardedBy.GetComponentsInChildren<Collider>();
             foreach (var collider in colliders)
             {
                 Physics.IgnoreLayerCollision(collider.gameObject.layer, OuterShellLayer,false);
             }
-            isEnteredBy = null;
+            boardedBy = null;
             RigidbodyUtil.UnsetKinematic(rb);
         }
     }
 
 
-    public void Control(Transform localizeInsteadOfMainCamera = null)
+    public void Control(GameObject playerRoot, Transform localizeInsteadOfMainCamera = null)
     {
         wasEverBoarded = true;
         lastOnboarded = DateTime.Now;
@@ -204,7 +204,7 @@ public class ArchonControl : MonoBehaviour
         {
             log.Write($"Controlling");
 
-            controlledFromEntered = isEnteredBy;
+            controlledBy = playerRoot;
             Exit();
 
             var listeners = BoardingListeners.Of(this, trailSpace);
@@ -233,7 +233,7 @@ public class ArchonControl : MonoBehaviour
 
 
 
-    public void ExitControl()
+    public void ExitControl(GameObject playerRoot)
     {
         if (currentlyControlled)
         {
@@ -254,16 +254,8 @@ public class ArchonControl : MonoBehaviour
                 log.Write($"Reintegration trail space");
                 trailSpace.parent = transform;
             }
-
-            if (controlledFromEntered)
-            {
-                //if (controlExit)
-                //{
-                //    controlledFromEntered.transform.position = controlExit.position;
-                //}
-                Enter(controlledFromEntered);
-                controlledFromEntered = null;
-            }
+            controlledBy = null;
+            Enter(playerRoot);
             listeners.SignalOffBoardingEnd();
 
         }
@@ -354,7 +346,8 @@ public class ArchonControl : MonoBehaviour
 
     public void SelfDestruct(bool pseudo)
     {
-        ExitControl();
+        if (controlledBy)
+            ExitControl(controlledBy);
         
         //var explosion = Instantiate(explosionPrefab,transform.position, Quaternion.identity);
         //var control = explosion.GetComponentInChildren<ExplosionController>();
@@ -379,8 +372,8 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.EnergyCapacity, maxEnergy);
             statusConsole.Set(StatusProperty.BatteryDead, batteryDead);
             statusConsole.Set(StatusProperty.PowerOff, powerOff);
-            statusConsole.Set(StatusProperty.IsControlled, currentlyControlled);
-            statusConsole.Set(StatusProperty.IsEntered, !!isEnteredBy);
+            statusConsole.Set(StatusProperty.IsControlled, !!controlledBy);
+            statusConsole.Set(StatusProperty.IsBoarded, !!boardedBy);
             statusConsole.Set(StatusProperty.IsOutOfWater, outOfWater);
             statusConsole.Set(StatusProperty.LookRightAxis, lookRightAxis);
             statusConsole.Set(StatusProperty.LookUpAxis, lookUpAxis);
@@ -781,7 +774,7 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
-            if (isEnteredBy)
+            if (IsBoarded)
             {
                 if (!rb.isKinematic)
                 {
@@ -789,6 +782,12 @@ public class ArchonControl : MonoBehaviour
                     rb.SetKinematic();
                 }
             }
+            else if (rb.isKinematic)
+            {
+                log.LogWarning("Re-disabling kinematic state");
+                rb.UnsetKinematic();
+            }
+
             if (rb.drag != 0)
             {
                 log.LogWarning("Re-setting drag to 0");

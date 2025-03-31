@@ -105,7 +105,7 @@ public enum StatusProperty
     EnergyCapacity,
     BatteryDead,
     PowerOff,
-    IsEntered,
+    IsBoarded,
     IsControlled,
     IsOutOfWater,
     LookRightAxis,

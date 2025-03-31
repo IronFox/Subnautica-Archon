@@ -95,7 +95,7 @@ public class DriveControl : MonoBehaviour
 
             lastPosition = regularParticleSystem.transform.position;
         }
-        foreach (var p in propellers)
-            p.Rotate(0, 0, thrust * maxRPS * Time.deltaTime);
+        //foreach (var p in propellers)
+        //    p.Rotate(0, 0, thrust * maxRPS * Time.deltaTime);
     }
 }

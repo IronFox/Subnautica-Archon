@@ -144,7 +144,19 @@ namespace Subnautica_Archon
                     return wf.IsAboveWater();
                 };
 
-                EvacuationAdapter.Predicate = go =>
+                DockingAdapter.ToDockable = (go, archonControl) =>
+                {
+                    var v = go.GetComponent<Vehicle>();
+                    if (!v)
+                        return null;
+                    var archon = archonControl.GetComponent<Archon>();
+                    if (!archon)
+                        return null;
+                    var d = new DockableVehicle(v, archon);
+                    return d;
+                };
+
+                EvacuationAdapter.ShouldEvacuate = go =>
                 {
                     if (go.transform.IsChildOf( Player.mainObject.transform))
                         return false;
