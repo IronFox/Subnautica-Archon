@@ -2804,6 +2804,7 @@ MonoBehaviour:
   controlExit: {fileID: 8526686247607529142}
   dockingTrigger: {fileID: 4625006239438012383}
   dockedSpace: {fileID: 1197983882717610232}
+  hangarRoot: {fileID: 8374179641319680559}
   forwardAxis: 0
   rightAxis: 0
   upAxis: 0
