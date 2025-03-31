@@ -39,7 +39,7 @@ public class TriggerTracker : MonoBehaviour
     {
         //if (!other.transform.IsChildOf(exclude))
         {
-            currentlyTouching.Add(other.GetInstanceID(), other);
+            currentlyTouching[other.GetInstanceID()] = other;
             logConfig.Write("Registered entering "+other);
         }
     }
@@ -77,7 +77,7 @@ public class TriggerTracker : MonoBehaviour
     internal bool IsTracked(GameObject gameObject)
     {
         foreach (var c in CurrentlyTouching)
-            if (c.gameObject == gameObject)
+            if (c.gameObject == gameObject || (c.attachedRigidbody && c.attachedRigidbody.gameObject == gameObject))
                 return true;
         return false;
     }
