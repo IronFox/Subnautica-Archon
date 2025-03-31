@@ -40,13 +40,13 @@ public readonly struct LogConfig
         if (!string.IsNullOrEmpty(Prefix))
         {
             if (IncludeTimestamp)
-                return $"{DateTime.Now:HH:mm:ss.fff} {Prefix}: {msg}";
+                return $"{DateTime.Now:HH:mm:ss.fff} [Archon] {Prefix}: {msg}";
             return $"{Prefix}: {msg}";
         }
         else
         {
             if (IncludeTimestamp)
-                return $"{DateTime.Now:HH:mm:ss.fff} {msg}";
+                return $"{DateTime.Now:HH:mm:ss.fff} [Archon] {msg}";
             return msg;
         }
     }

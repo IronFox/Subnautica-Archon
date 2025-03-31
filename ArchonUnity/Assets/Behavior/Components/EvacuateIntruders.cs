@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class EvacuateIntruders : MonoBehaviour
 {
-    public Collider exteriorCollider;
+    public Transform exteriorColliderRoot;
     private readonly List<Sphere> localSpheres = new List<Sphere>();
     private Collider[] buffer = new Collider[256];
     private readonly HashSet<GameObject> shove = new HashSet<GameObject> ();
@@ -50,9 +50,18 @@ public class EvacuateIntruders : MonoBehaviour
 
                     if (!candidate.transform.IsChildOf(transform.parent) && EvacuationAdapter.ShouldEvacuate(candidate))
                     {
-                        var isEnabled = exteriorCollider.enabled;
-                        if (!isEnabled)
-                            exteriorCollider.enabled = true;
+                        List<Collider> disabled = new List<Collider>();
+                        var colliders = exteriorColliderRoot.GetComponentsInChildren<Collider>().ToDictionary(x => x.GetInstanceID());
+                        foreach (var exteriorCollider in colliders.Values)
+                        {
+                            var isEnabled = exteriorCollider.enabled;
+                            if (!isEnabled)
+                            {
+                                disabled.Add(exteriorCollider);
+                                exteriorCollider.enabled = true;
+                            }
+                        }
+
                         try
                         {
                             const float outerRadius = 100;
@@ -77,22 +86,25 @@ public class EvacuateIntruders : MonoBehaviour
 
                             var inwards = (transform.position - p);
                             var hits = Physics.RaycastAll(new Ray(p, inwards / outerRadius), outerRadius);
-                            var exteriorHit = hits.First(x => x.collider == exteriorCollider);
-
-                            var exteriorRadius = outerRadius - exteriorHit.distance;
-
-                            var r = 1f;
-                            foreach (var collider in candidate.GetComponentsInChildren<Collider>())
+                            var exteriorHits = hits.Where(x => colliders.ContainsKey( x.collider.GetInstanceID()));
+                            if (exteriorHits.Any())
                             {
-                                r = M.Max(r, (M.Abs(candidate.transform.InverseTransformPoint(collider.transform.position)) + collider.bounds.extents).sqrMagnitude);
-                            }
-                            r = Mathf.Sqrt(r);
+                                var hitDistance = hits.Select(x => x.distance).Min();
+                                var exteriorRadius = outerRadius - hitDistance;
 
-                            if (exteriorRadius > distanceToCandidiate - r)
-                            {
-                                var targetPosition = from + fromToWhat * (outerRadius + r*1.2f) / distanceToCandidiate;
-                                log.LogWarning($"Evacuating {candidate} to {targetPosition}");
-                                candidate.transform.position = targetPosition;
+                                var r = 1f;
+                                foreach (var collider in candidate.GetComponentsInChildren<Collider>())
+                                {
+                                    r = M.Max(r, (M.Abs(candidate.transform.InverseTransformPoint(collider.transform.position)) + collider.bounds.extents).sqrMagnitude);
+                                }
+                                r = Mathf.Sqrt(r);
+
+                                if (exteriorRadius > distanceToCandidiate - r)
+                                {
+                                    var targetPosition = from + fromToWhat * (outerRadius + r * 1.2f) / distanceToCandidiate;
+                                    log.LogWarning($"Evacuating {candidate} to {targetPosition}");
+                                    candidate.transform.position = targetPosition;
+                                }
                             }
                         }
                         catch (Exception ex)
@@ -101,8 +113,8 @@ public class EvacuateIntruders : MonoBehaviour
                         }
                         finally
                         {
-                            if (!isEnabled)
-                                exteriorCollider.enabled = false;
+                            foreach (var c in disabled)
+                                c.enabled = false;
                         }
                     }
                 }

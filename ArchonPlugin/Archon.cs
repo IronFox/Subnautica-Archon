@@ -41,7 +41,7 @@ namespace Subnautica_Archon
         {
             //Log = new MyLogger(this);
             Log.Write($"Constructed");
-            MaterialFixer = new MaterialFixer(this, LogConfig.Verbose);
+            MaterialFixer = new MaterialFixer(this, LogConfig.Default);
         }
 
         public override float ExitVelocityLimit => 100f;    //any speed is good
@@ -331,6 +331,15 @@ namespace Subnautica_Archon
                 control.isAutoLeveling = false;
                 base.StopPiloting();
 
+                if (Player.main.sitting)
+                {
+                    Log.Error($"Player is still sitting after control exit");
+                    Player.main.sitting = false;
+                    Player.main.playerController.ForceControllerSize();
+                }
+                else
+                    Log.Write($"Sitting not detected");
+
                 foreach (MonoBehaviour behavior in reenableOnExit)
                 {
                     Log.Write($"Reenabling {behavior.name}");
@@ -609,6 +618,15 @@ namespace Subnautica_Archon
             {
                 LocalInit();
 
+
+
+                //if (Player.main.sitting)
+                //{
+                //    Log.Error($"Player is sitting in sub");
+                //    Player.main.sitting = false;
+                //    Player.main.playerController.ForceControllerSize();
+                //}
+
                 if (baseColor != Color.black)
                     nonBlackBaseColor = baseColor;
                 if (stripeColor != Color.black)
@@ -788,6 +806,13 @@ namespace Subnautica_Archon
             //        ErrorMessage.AddMessage(string.Format(Language.main.Get($"repairCapChanged"), VehicleName, Language.main.Get("cap_r_" + rm2)));
             //}
             //Debug.Log($"Changed counts of {moduleType} to {moduleCounts[(int)moduleType]}");
+        }
+
+        internal void EnterFromDocking()
+        {
+            PlayerEntry();
+            BeginPiloting();
+
         }
 
         public string VehicleName => subName != null ? subName.GetName() : vehicleName;

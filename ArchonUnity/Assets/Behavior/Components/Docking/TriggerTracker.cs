@@ -37,7 +37,7 @@ public class TriggerTracker : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!other.transform.IsChildOf(exclude))
+        //if (!other.transform.IsChildOf(exclude))
         {
             currentlyTouching.Add(other.GetInstanceID(), other);
             logConfig.Write("Registered entering "+other);

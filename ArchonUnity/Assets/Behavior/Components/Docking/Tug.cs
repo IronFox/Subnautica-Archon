@@ -36,13 +36,17 @@ public class Tug : MonoBehaviour
         switch (status)
         {
             case TugStatus.Docking:
+                Log.Write($"Dockable.BeginDocking()");
                 dockable.BeginDocking();
                 break;
             case TugStatus.Docked:
+                Log.Write($"Dockable.BeginDocking()");
                 dockable.BeginDocking();
+                Log.Write($"Dockable.EndDocking()");
                 dockable.EndDocking();
                 break;
             case TugStatus.Undocking:
+                Log.Write($"Dockable.BeginUndocking()");
                 dockable.BeginUndocking();
                 break;
         }
@@ -100,6 +104,7 @@ public class Tug : MonoBehaviour
     public void Undock()
     {
         BeginUndocking();
+        Log.Write($"Dockable.BeginUndocking()");
         Dockable.BeginUndocking();
     }
 
@@ -128,32 +133,33 @@ public class Tug : MonoBehaviour
         Status = TugStatus.Docked;
         UndoDocked.Clear();
 
-        if (Dockable != null)
-        {
-            foreach (var c in Dockable.GetAllComponents<Renderer>())
-                if (c.enabled)
+        foreach (var c in Dockable.GetAllComponents<Renderer>())
+            if (c.enabled)
+            {
+                c.enabled = false;
+                UndoDocked.Add(() => c.enabled = true);
+            }
+        foreach (var c in Dockable.GetAllComponents<Light>())
+            if (c.enabled)
+            {
+                c.enabled = false;
+                UndoDocked.Add(() => c.enabled = true);
+            }
+        foreach (var c in Dockable.GetAllComponents<ParticleSystem>())
+            if (c.emission.enabled)
+            {
+                var em = c.emission;
+                em.enabled = false;
+                UndoDocked.Add(() =>
                 {
-                    c.enabled = false;
-                    UndoDocked.Add(() => c.enabled = true);
-                }
-            foreach (var c in Dockable.GetAllComponents<Light>())
-                if (c.enabled)
-                {
-                    c.enabled = false;
-                    UndoDocked.Add(() => c.enabled = true);
-                }
-            foreach (var c in Dockable.GetAllComponents<ParticleSystem>())
-                if (c.emission.enabled)
-                {
-                    var em = c.emission;
-                    em.enabled = false;
-                    UndoDocked.Add(() =>
-                    {
-                        var em2 = c.emission;
-                        em2.enabled = true;
-                    });
-                }
-        }
+                    var em2 = c.emission;
+                    em2.enabled = true;
+                });
+            }
+
+        Log.Write($"Dockable.OnDockingDone()");
+        Dockable.OnDockingDone();
+        
     }
 
     private void BeginUndocking()
@@ -224,6 +230,10 @@ public class Tug : MonoBehaviour
                     Destroy(this);
                 }
                 break;
+            case TugStatus.WaitingForBayDoorClose:
+                Dockable.UpdateWaitingForBayDoorClose();
+                break;
+
             case TugStatus.Docking:
             case TugStatus.Undocking:
                 AnimationProgress += Time.deltaTime / AnimationSeconds;
@@ -241,12 +251,15 @@ public class Tug : MonoBehaviour
                     Local(AnimationEnd).ApplyTo(Dockable.GameObject.transform);
                     if (Status == TugStatus.Docking)
                     {
+
+                        Log.Write($"Dockable.EndDocking()");
                         Dockable.EndDocking();
                         Status = TugStatus.WaitingForBayDoorClose;
                         Owner.SignalDockingDone(this, TransitionToLoaded);
                     }
                     else
                     {
+                        Log.Write($"Dockable.EndUndocking()");
                         Dockable.EndUndocking();
                         TransitionToFree();
                     }

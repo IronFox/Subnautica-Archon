@@ -20,8 +20,10 @@ public class BayControl : MonoBehaviour
     public ArchonControl subRoot;
     public Transform loaded;
     public Transform dockedBounds;
+    public Transform dockingColliders;
     private bool dockingDoneCloseDoors;
     private Action callWhenDoorsClosed;
+    
 
     private LogConfig Log { get; } = LogConfig.Default;
 
@@ -38,6 +40,8 @@ public class BayControl : MonoBehaviour
             r.enabled = visible;
         foreach (var r in insides.GetComponentsInChildren<Light>())
             r.enabled = visible;
+        foreach (var c in dockingColliders.GetComponentsInChildren<Collider>())
+            c.enabled = visible;
     }
 
     private static GameObject GameObjectOf(Collider collider)
@@ -47,7 +51,7 @@ public class BayControl : MonoBehaviour
         return collider.gameObject;
     }
 
-    public void SignalLoadDone()
+    public void SignalGameLoadingDone()
     {
         foreach (Transform child in loaded)
         {
@@ -70,10 +74,13 @@ public class BayControl : MonoBehaviour
     {
         if (docking == tug)
         {
+            Log.Write(nameof(SignalDockingDone) + $": {tug}");
             dockingDoneCloseDoors = true;
             this.callWhenDoorsClosed = callWhenDoorsClosed;
             //docking = null;
         }
+        else
+            Log.LogError($"Cannot set callback. Requesting tug is {tug}. Expected tug is {docking}");
     }
 
     // Update is called once per frame
@@ -134,6 +141,7 @@ public class BayControl : MonoBehaviour
                     if (callWhenDoorsClosed != null)
                         callWhenDoorsClosed();
                     docking = null;
+                    Log.Write("Doors closed. Docking reset");
                 }
 
             }
