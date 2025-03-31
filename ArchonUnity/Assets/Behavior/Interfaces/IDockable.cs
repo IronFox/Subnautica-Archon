@@ -44,5 +44,8 @@ public interface IDockable
     IEnumerable<T> GetAllComponents<T>() where T: Component;
 
     GameObject GameObject { get; }
-
+    /// <summary>
+    /// True if behaviours should be unfrozen immediately on undock. Vanilla vehicles need this
+    /// </summary>
+    bool ShouldUnfreezeImmediately { get; }
 }

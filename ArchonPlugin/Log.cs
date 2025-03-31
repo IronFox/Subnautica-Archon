@@ -67,6 +67,16 @@ namespace Subnautica_Archon
             log.LogError($"Caught exception during {whileDoing}");
             Write(caughtException);
         }
+
+        public static string GetVehicleName(Vehicle v) => v.subName ? v.subName.GetName() : v.vehicleName;
+
+        internal static string Describe(Vehicle vehicle)
+        {
+            if (!vehicle)
+                return "<null vehicle>";
+
+            return $"'{GetVehicleName(vehicle)}' ({vehicle.GetType().Name})";
+        }
     }
 
 

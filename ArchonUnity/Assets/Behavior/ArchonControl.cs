@@ -165,6 +165,12 @@ public class ArchonControl : MonoBehaviour
         bayControl.Undock(dockedSub);
     }
 
+    public UndockingCheckResult CheckUndocking(GameObject dockedSub)
+    {
+        return bayControl.CheckUndocking(dockedSub);
+    }
+
+
     public void OnSavegameLoadingDone()
     {
         bayControl.SignalSavegameLoadingDone();
@@ -839,4 +845,13 @@ public class ArchonControl : MonoBehaviour
         else if (transform.position.y < oceanY - 40 || transform.position.y > oceanY - 2)
             positionCameraBelowSub = false;
     }
+}
+
+
+public enum UndockingCheckResult
+{
+    Possible,
+    CannotBusy,
+    CannotNotDocked,
+    NotDockable,
 }

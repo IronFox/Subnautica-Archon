@@ -1,3 +1,4 @@
+using Nautilus.Handlers;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -25,12 +26,16 @@ namespace Subnautica_Archon
         public GameObject GameObject => Vehicle.gameObject;
         private int UpdateCounter { get; set; }
 
+        public bool ShouldUnfreezeImmediately => !(Vehicle is ModVehicle);
+
         public void BeginDocking()
         {
             if (HasPlayer)
                 AvatarInputHandler.main.gameObject.SetActive(value: false);
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
+            if (Vehicle is ModVehicle)
+                Vehicle.docked = true;  //vanilla react oddd
         }
 
 
@@ -102,18 +107,24 @@ namespace Subnautica_Archon
 
                 var pu = Vehicle.gameObject.GetComponent<Pickupable>();
                 if (!pu)
+                {
+                    Log.Write($"Attaching new Pickupable");
                     pu = Vehicle.gameObject.AddComponent<Pickupable>();
+                }
 
                 //Pickupable pu = new Pickupable();
                 //pu.SetTechTypeOverride(module.TechType);
                 //pu.SetVisible(true);
                 InventoryItem item = new InventoryItem(pu);
+
+                CraftDataHandler.SetQuickSlotType(CraftData.GetTechType(Vehicle.gameObject), QuickSlotType.Toggleable);
                 //item.SetTechType(module.TechType);
                 Log.Write($"Adding new item to slot");
                 foreach (var slot in Archon.slotIDs)
                     if (Archon.modules.GetItemInSlot(slot) == null)
                     {
                         Archon.modules.AddItem(slot, item, true);
+
                         Log.Write($"Added to slot {slot}");
                         break;
                     }
@@ -139,6 +150,8 @@ namespace Subnautica_Archon
 
             }
         }
+
+
         public void OnDockingDone()
         {
             Log.Write("Docking done");
@@ -182,17 +195,44 @@ namespace Subnautica_Archon
         }
 
 
-        public void BeginUndocking()
+        public void PrepareUndocking()
         {
+            Archon.SuspendExitLimits();
             if (Archon.IsPlayerPiloting())
                 Archon.DeselectSlots();
             if (Archon.IsPlayerInside())
                 Archon.PlayerExit();
+
             if (Vehicle is ModVehicle mv)
+            {
+                mv.PlayerEntry();
                 mv.BeginPiloting();
+            }
             else
+            {
                 new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
+                new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
+            }
             AvatarInputHandler.main.gameObject.SetActive(value: false);
+            Archon.RestoreExitLimits();
+
+            var mode = Player.main.GetType()
+                    .GetField("mode", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            mode?.SetValue(Player.main, Player.Mode.LockedPiloting);
+
+
+            Log.Write($"Destroying pickupable (if any)");
+            GameObject.Destroy(Vehicle.GetComponent<Pickupable>());
+        }
+
+
+
+        public void UpdateWaitingForBayDoorOpen()
+        {
+        }
+
+        public void BeginUndocking()
+        {
         }
 
 
@@ -200,9 +240,17 @@ namespace Subnautica_Archon
         {
             Vehicle.liveMixin.shielded = false;
             Vehicle.crushDamage.enabled = true;
+            if (Vehicle is ModVehicle)
+                Vehicle.docked = false;
+
             //new MethodAdapter<bool>(Vehicle, "UpdateCollidersForDocking").Invoke(false);
             AvatarInputHandler.main.gameObject.SetActive(value: true);
         }
+
+        public void OnUndockingDone()
+        {
+        }
+
 
         public IEnumerable<T> GetAllComponents<T>() where T : Component
         {
