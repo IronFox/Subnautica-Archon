@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using VehicleFramework;
+using static VehicleUpgradeConsoleInput;
 
 
 namespace Subnautica_Archon
@@ -45,21 +46,12 @@ namespace Subnautica_Archon
             }
             if (Player.main.currentMountedVehicle)
             {
-                switch (Player.main.currentMountedVehicle)
+                new MethodAdapter(Player.main.currentMountedVehicle, "OnPilotModeEnd").Invoke();
+                if (Player.main.currentMountedVehicle is ModVehicle v)
                 {
-                    case ModVehicle v:
-                        {
-                            Log.Write($"Player is in mod vehicle {v}. Deselecting...");
-                            v.DeselectSlots();
-                            v.PlayerExit();
-                        }
-                        break;
-                    case Vehicle s:
-                        {
-                            Log.Write($"Player is in non-mod vehicle {Player.main.currentMountedVehicle}. Ending pilot mode...");
-                            new MethodAdapter(s, "OnPilotModeEnd").Invoke();
-                        }
-                        break;
+                    Log.Write($"Player is in mod vehicle {v}. Deselecting...");
+                    v.DeselectSlots();
+                    v.PlayerExit();
                 }
             }
 
@@ -100,6 +92,46 @@ namespace Subnautica_Archon
         
         public void EndDocking()
         {
+
+            //if (Vehicle is ModVehicle mv)
+            {
+                Log.Write($"Trying to set module slot for {Vehicle}");
+                //CraftData.
+                //var module = ModVehicleUndockModule.GetPrototypeFor( mv );
+
+
+                var pu = Vehicle.gameObject.GetComponent<Pickupable>();
+                if (!pu)
+                    pu = Vehicle.gameObject.AddComponent<Pickupable>();
+
+                //Pickupable pu = new Pickupable();
+                //pu.SetTechTypeOverride(module.TechType);
+                //pu.SetVisible(true);
+                InventoryItem item = new InventoryItem(pu);
+                //item.SetTechType(module.TechType);
+                Log.Write($"Adding new item to slot");
+                foreach (var slot in Archon.slotIDs)
+                    if (Archon.modules.GetItemInSlot(slot) == null)
+                    {
+                        Archon.modules.AddItem(slot, item, true);
+                        Log.Write($"Added to slot {slot}");
+                        break;
+                    }
+                if (Vehicle.transform.parent != Archon.Control.hangarRoot)
+                {
+                    Log.Error($"Docked vehicle root has changed from {Log.PathOf(Archon.Control.hangarRoot)} to {Log.PathOf(Vehicle.transform.parent)}. Reparenting");
+                    Vehicle.transform.parent = Archon.Control.hangarRoot;
+                }
+                if (Vehicle.transform.localPosition != Archon.Control.dockedSpace.localPosition)
+                {
+                    Log.Error($"Docked vehicle local position has changed from {Archon.Control.dockedSpace.localPosition} to {Vehicle.transform.localPosition}. Relocating");
+                    Vehicle.transform.localPosition = Archon.Control.dockedSpace.localPosition;
+                    Vehicle.transform.localRotation = Archon.Control.dockedSpace.localRotation;
+                }
+                Log.Write($"Mod added");
+
+            }
+
             if (HasPlayer)
             {
 
@@ -116,6 +148,8 @@ namespace Subnautica_Archon
                 Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
                 Log.Write($"A-Okay = {VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
             }
+
+
         }
 
         public void UpdateWaitingForBayDoorClose()

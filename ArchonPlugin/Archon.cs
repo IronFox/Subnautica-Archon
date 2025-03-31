@@ -21,6 +21,7 @@ namespace Subnautica_Archon
     {
         public static GameObject model;
         private ArchonControl control;
+        public ArchonControl Control => control;
 
         public static readonly Color defaultBaseColor = new Color(0xDE, 0xDE, 0xDE) / 255f;
         public static readonly Color defaultStripeColor = new Color(0x3F, 0x4C, 0x7A) / 255f;
@@ -152,6 +153,11 @@ namespace Subnautica_Archon
             VFEngine = Engine = engine = gameObject.AddComponent<MassDrive>();
             Log.Write($"Assigned new engine");
 
+            control = GetComponent<ArchonControl>();
+
+            Destroy(modulesRoot);
+
+            modulesRoot = control.hangarRoot.gameObject.AddComponent<ChildObjectIdentifier>();
 
 
             base.Awake();
@@ -815,7 +821,7 @@ namespace Subnautica_Archon
 
         }
 
-        public string VehicleName => subName != null ? subName.GetName() : vehicleName;
+        public string VehicleName => subName ? subName.GetName() : vehicleName;
 
         public override int MaxHealth => 2000;
         public override int NumModules => 8;
