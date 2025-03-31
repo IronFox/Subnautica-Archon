@@ -307,7 +307,7 @@ namespace Subnautica_Archon
                 LocalInit();
 
                 base.BeginPiloting();
-                control.Control(Player.main.camRoot.transform);
+                control.Control(Player.mainObject, Player.main.camRoot.transform);
 
                 reenableOnExit.Clear();
 
@@ -327,7 +327,7 @@ namespace Subnautica_Archon
                 Log.Write(nameof(StopPiloting));
 
                 LocalInit();
-                control.ExitControl();
+                control.ExitControl(Player.mainObject);
                 control.isAutoLeveling = false;
                 base.StopPiloting();
 
@@ -626,7 +626,7 @@ namespace Subnautica_Archon
                             var rollDelta = SecondaryEulerZeroDistance(transform.eulerAngles.z);
                             var pitchDelta = SecondaryEulerZeroDistance(transform.eulerAngles.x);
 
-                            Log.Write($"Angle error at {rollDelta} / {pitchDelta}");
+                            //Log.Write($"Angle error at {rollDelta} / {pitchDelta}");
                             if (!control.isAutoLeveling)
                             {
                                 isAutoLevelingSince = DateTime.Now;

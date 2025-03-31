@@ -6,17 +6,21 @@ public class DebugDockable : MonoBehaviour, IDockable
 {
     public GameObject GameObject => base.gameObject;
 
-    public void OnBeginDockAnimation()
+    public void BeginDocking()
     {}
 
-    public void OnBeginUndockAnimation()
+    public void EndDocking()
     {}
 
-    public void OnEndDockAnimation()
+    public void BeginUndocking()
     {}
 
-    public void OnEndUndockAnimation()
+    public void EndUndocking()
     {}
+
+    public IEnumerable<T> GetAllComponents<T>() where T : Component
+        => gameObject.GetComponentsInChildren<T>();
+
 
     // Start is called before the first frame update
     void Start()

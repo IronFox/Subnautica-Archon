@@ -14,10 +14,10 @@ public class BayControl : MonoBehaviour
 
     private Tug docking;
 
-    public float dockingSeconds = 2f;
+    public float dockingMetersPerSecond = 10;
 
     public Transform insides;
-    public Transform subRoot;
+    public ArchonControl subRoot;
     public Transform loaded;
     public Transform dockedBounds;
     private bool dockingDoneCloseDoors;
@@ -51,7 +51,7 @@ public class BayControl : MonoBehaviour
     {
         foreach (Transform child in loaded)
         {
-            var dockable = DockingAdapter.ToDockable(child.gameObject);
+            var dockable = DockingAdapter.ToDockable(child.gameObject, subRoot);
             if (dockable == null)
             {
                 Log.LogError($"Contained transform {child} does not resolve to dockable. Deleting");
@@ -61,7 +61,8 @@ public class BayControl : MonoBehaviour
             var tug = child.gameObject.GetComponent<Tug>();
             if (!tug)
                 tug = child.gameObject.AddComponent<Tug>();
-            tug.Bind(this, dockable, TugStatus.Loaded);
+            
+            tug.Bind(this, dockable, child.localPosition == dockedBounds.transform.localPosition ? TugStatus.Docked : TugStatus.Docking);
         }
     }
 
@@ -81,12 +82,12 @@ public class BayControl : MonoBehaviour
         var open = false;
         if (!docking)
         {
-            var candidate = dockingTrigger.Closest(c =>
+            var candidate = dockingTrigger.ClosestEnabledNonKinematic(c =>
             {
                 var go = GameObjectOf(c);
                 if (go.GetComponent<Tug>()) //being tugged (in or out) or docked
                     return null;
-                return DockingAdapter.ToDockable(go);
+                return DockingAdapter.ToDockable(go, subRoot);
             });
             open = candidate != null;
 
@@ -95,7 +96,7 @@ public class BayControl : MonoBehaviour
                 //move ahead
 
                 var tug = candidate.GameObject.AddComponent<Tug>();
-                tug.Bind(this, candidate, TugStatus.Loading);
+                tug.Bind(this, candidate, TugStatus.Docking);
                 docking = tug;
             }
 

@@ -50,13 +50,15 @@ public class TriggerTracker : MonoBehaviour
         logConfig.Write("Registered leaving " + other);
     }
 
-    internal T Closest<T>(Func<Collider, T> converter)
+    internal T ClosestEnabledNonKinematic<T>(Func<Collider, T> converter)
         where T:class
     {
         float dist = float.MaxValue;
         T rs = null;
         foreach (var c in CurrentlyTouching)
         {
+            if (!c.enabled || !c.attachedRigidbody || c.attachedRigidbody.isKinematic)
+                continue;
             var closest = c.ClosestPoint(transform.position);
             var dist2 = M.SqrDistance(transform.position, closest);
             if (dist2 < dist)
