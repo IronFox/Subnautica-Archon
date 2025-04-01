@@ -64,10 +64,8 @@ public class Tug : MonoBehaviour
                 dockable.BeginDocking();
                 break;
             case TugStatus.Docked:
-                Log.Write($"Dockable.BeginDocking()");
-                dockable.BeginDocking();
-                Log.Write($"Dockable.EndDocking()");
-                dockable.EndDocking();
+                Log.Write($"Dockable.RestoreDockedStateFromSaveGame()");
+                dockable.RestoreDockedStateFromSaveGame();
                 TransitionToDocked();
                 break;
             case TugStatus.Undocking:
@@ -104,9 +102,6 @@ public class Tug : MonoBehaviour
 
         switch (status)
         {
-            case TugStatus.Docked:
-                TransitionToDocked();
-                break;
             case TugStatus.WaitingForBayDoorOpen:
                 if (Dockable.ShouldUnfreezeImmediately)
                     Behaviours.UndoAll();
@@ -116,18 +111,15 @@ public class Tug : MonoBehaviour
                 Log.Write($"Dockable.PrepareUndocking()");
                 Dockable.PrepareUndocking();
                 break;
+            case TugStatus.Undocking:
+                BeginUndocking();
+                break;
+            default:
+                AnimationStart = TransformDescriptor.FromGlobal(dockable.GameObject.transform);
+                AnimationEnd = TransformDescriptor.FromLocal(Owner.dockedBounds.transform);
+                RestartAnimation();
+                break;
         }
-
-        if (status == TugStatus.Undocking)
-        {
-            BeginUndocking();
-        }
-        else
-        {
-            AnimationStart = TransformDescriptor.FromGlobal(dockable.GameObject.transform);
-            AnimationEnd = TransformDescriptor.FromLocal(Owner.dockedBounds.transform);
-        }
-        RestartAnimation();
 
     }
 
@@ -192,6 +184,51 @@ public class Tug : MonoBehaviour
         
     }
 
+    private void TransitionToWaitingForBayDoorClose()
+    {
+        Log.Write($"WaitingForBayDoorClose");
+        Status = TugStatus.WaitingForBayDoorClose;
+
+
+        foreach (var c in Dockable.GetAllComponents<MonoBehaviour>())
+            if (c != this && c.enabled)
+            {
+                Log.Write($"Disabling behavior {c.name}");
+                c.enabled = false;
+                Behaviours.Add(() =>
+                {
+                    Log.Write($"Re-enabling behavior {c.name}");
+                    c.enabled = true;
+                });
+            }
+        //recheck these, seen falling brawn suits
+        foreach (var c in Dockable.GetAllComponents<Collider>())
+            if (c.enabled)
+            {
+                c.enabled = false;
+                UndoTugging.Add(() => c.enabled = true);
+            }
+        foreach (var c in Dockable.GetAllComponents<Rigidbody>())
+        {
+            if (!c.isKinematic)
+            {
+                c.SetKinematic();
+                UndoTugging.Add(() => c.UnsetKinematic());
+            }
+            if (c.detectCollisions)
+            {
+                c.detectCollisions = false;
+                UndoTugging.Add(() => c.detectCollisions = true);
+            }
+            c.velocity = Vector3.zero;
+        }
+
+
+        Log.Write($"Dockable.EndDocking()");
+        Dockable.EndDocking();
+    }
+
+
     private void BeginUndocking()
     {
         Log.Write($"Undocking");
@@ -208,6 +245,9 @@ public class Tug : MonoBehaviour
         Dockable.GameObject.transform.localRotation = Owner.dockedBounds.localRotation;
         AnimationStart = TransformDescriptor.FromLocal(Dockable.GameObject.transform);
         AnimationEnd = TransformDescriptor.FromLocal(Owner.dockingTrigger.transform);
+        if (Dockable.UndockUpright)
+            AnimationEnd = AnimationEnd.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
+
         RestartAnimation();
         Log.Write($"Dockable.BeginUndocking()");
         Dockable.BeginUndocking();
@@ -292,6 +332,8 @@ public class Tug : MonoBehaviour
                 if (AnimationProgress < 1)
                 {
                     var start = Local(AnimationStart);
+                    if (Status == TugStatus.Undocking && Dockable.UndockUpright)
+                        AnimationEnd = AnimationEnd.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
                     var end = Local(AnimationEnd);
                     TransformDescriptor
                         .Lerp(start, end, M.Smoothstep(0, 1, AnimationProgress))
@@ -300,6 +342,8 @@ public class Tug : MonoBehaviour
                 else
                 {
                     Log.Write($"Animation end reached");
+                    if (Status == TugStatus.Undocking && Dockable.UndockUpright)
+                        AnimationEnd = AnimationEnd.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
                     Local(AnimationEnd).ApplyTo(Dockable.GameObject.transform);
                     if (Status == TugStatus.Docking)
                     {
@@ -316,52 +360,6 @@ public class Tug : MonoBehaviour
 
                 break;
         }
-    }
-
-    private void TransitionToWaitingForBayDoorClose()
-    {
-        Log.Write($"WaitingForBayDoorClose");
-        Status = TugStatus.WaitingForBayDoorClose;
-
-
-        foreach (var c in Dockable.GetAllComponents<MonoBehaviour>())
-            if (c != this && c.enabled)
-            {
-                Log.Write($"Disabling behavior {c.name}");
-                c.enabled = false;
-                Behaviours.Add(() =>
-                {
-                    Log.Write($"Re-enabling behavior {c.name}");
-                    c.enabled = true;
-                });
-            }
-        //recheck these, seen falling brawn suits
-        foreach (var c in Dockable.GetAllComponents<Collider>())
-            if (c.enabled)
-            {
-                c.enabled = false;
-                UndoTugging.Add(() => c.enabled = true);
-            }
-        foreach (var c in Dockable.GetAllComponents<Rigidbody>())
-        {
-            if (!c.isKinematic)
-            {
-                c.SetKinematic();
-                UndoTugging.Add(() => c.UnsetKinematic());
-            }
-            if (c.detectCollisions)
-            {
-                c.detectCollisions = false;
-                UndoTugging.Add(() => c.detectCollisions = true);
-            }
-            c.velocity = Vector3.zero;
-        }
-
-
-        Log.Write($"Dockable.EndDocking()");
-        Dockable.EndDocking();
-
-
     }
 
     public static Tug GetOf(Transform t)

@@ -28,6 +28,17 @@ namespace Subnautica_Archon
 
         public bool ShouldUnfreezeImmediately => !(Vehicle is ModVehicle);
 
+        public bool UndockUpright => true;
+
+        public void RestoreDockedStateFromSaveGame()
+        {
+            Vehicle.liveMixin.shielded = true;
+            Vehicle.crushDamage.enabled = false;
+            if (Vehicle is ModVehicle)
+                Vehicle.docked = true;  //vanilla react odd
+            EndDocking();
+        }
+
         public void BeginDocking()
         {
             if (HasPlayer)
@@ -35,7 +46,7 @@ namespace Subnautica_Archon
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             if (Vehicle is ModVehicle)
-                Vehicle.docked = true;  //vanilla react oddd
+                Vehicle.docked = true;  //vanilla react odd
         }
 
 
@@ -115,19 +126,39 @@ namespace Subnautica_Archon
                 //Pickupable pu = new Pickupable();
                 //pu.SetTechTypeOverride(module.TechType);
                 //pu.SetVisible(true);
-                InventoryItem item = new InventoryItem(pu);
 
                 CraftDataHandler.SetQuickSlotType(CraftData.GetTechType(Vehicle.gameObject), QuickSlotType.Toggleable);
                 //item.SetTechType(module.TechType);
-                Log.Write($"Adding new item to slot");
+                bool found = false;
                 foreach (var slot in Archon.slotIDs)
-                    if (Archon.modules.GetItemInSlot(slot) == null)
+                {
+                    var existing = Archon.modules.GetItemInSlot(slot);
+                    if (existing?.item == pu)
                     {
-                        Archon.modules.AddItem(slot, item, true);
-
-                        Log.Write($"Added to slot {slot}");
+                        found = true;
+                        Log.Write($"Found {pu} in slot {slot}. Not adding");
                         break;
                     }
+
+                }
+                if (!found)
+                {
+                    Log.Write($"Adding new item to slot");
+                    InventoryItem item = new InventoryItem(pu);
+                    bool added = false;
+                    foreach (var slot in Archon.slotIDs)
+                    {
+                        if (Archon.modules.GetItemInSlot(slot) == null)
+                        {
+                            Archon.modules.AddItem(slot, item, true);
+                            added = true;
+                            Log.Write($"Added to slot {slot}");
+                            break;
+                        }
+                    }
+                    if (!added)
+                        Log.Error($"Unable to find suitable quickslot for docked sub {pu}. Sub will not be listed in quickbar");
+                }
                 if (Vehicle.transform.parent != Archon.Control.hangarRoot)
                 {
                     Log.Error($"Docked vehicle root has changed from {Log.PathOf(Archon.Control.hangarRoot)} to {Log.PathOf(Vehicle.transform.parent)}. Reparenting");
@@ -198,31 +229,37 @@ namespace Subnautica_Archon
         public void PrepareUndocking()
         {
             Archon.SuspendExitLimits();
-            if (Archon.IsPlayerPiloting())
-                Archon.DeselectSlots();
-            if (Archon.IsPlayerInside())
-                Archon.PlayerExit();
-
-            if (Vehicle is ModVehicle mv)
+            try
             {
-                mv.PlayerEntry();
-                mv.BeginPiloting();
+                if (Archon.IsPlayerPiloting())
+                    Archon.DeselectSlots();
+                if (Archon.IsPlayerInside())
+                    Archon.PlayerExit();
+
+                if (Vehicle is ModVehicle mv)
+                {
+                    mv.PlayerEntry();
+                    mv.BeginPiloting();
+                }
+                else
+                {
+                    new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
+                    new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
+                }
+                AvatarInputHandler.main.gameObject.SetActive(value: false);
+
+                var mode = Player.main.GetType()
+                        .GetField("mode", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+                mode?.SetValue(Player.main, Player.Mode.LockedPiloting);
+
+
+                Log.Write($"Destroying pickupable (if any)");
+                GameObject.Destroy(Vehicle.GetComponent<Pickupable>());
             }
-            else
+            finally
             {
-                new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
-                new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
+                Archon.RestoreExitLimits();
             }
-            AvatarInputHandler.main.gameObject.SetActive(value: false);
-            Archon.RestoreExitLimits();
-
-            var mode = Player.main.GetType()
-                    .GetField("mode", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            mode?.SetValue(Player.main, Player.Mode.LockedPiloting);
-
-
-            Log.Write($"Destroying pickupable (if any)");
-            GameObject.Destroy(Vehicle.GetComponent<Pickupable>());
         }
 
 

@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class DebugDockable : MonoBehaviour, IDockable
 {
+    public bool undockUpright = true;
+
     public GameObject GameObject => base.gameObject;
 
     public bool ShouldUnfreezeImmediately => false;
+
+    public bool UndockUpright => undockUpright;
 
     public void BeginDocking()
     {}
@@ -49,5 +53,8 @@ public class DebugDockable : MonoBehaviour, IDockable
     {}
 
     public void OnUndockingDone()
+    {}
+
+    public void RestoreDockedStateFromSaveGame()
     {}
 }

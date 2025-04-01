@@ -22,7 +22,7 @@ public class MotionSimulation : MonoBehaviour
     {
         control.forwardAxis = Input.GetAxis("Vertical");
         control.rightAxis = Input.GetAxis("Horizontal");
-        control.upAxis = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.LeftControl) ? 1 : 0);
+        control.upAxis = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.C) ? 1 : 0);
         control.overdriveActive = Input.GetKey(KeyCode.LeftShift);
         control.freeCamera = Input.GetMouseButton(1);
         control.zoomAxis = -Input.GetAxis("Mouse ScrollWheel");
@@ -44,10 +44,14 @@ public class MotionSimulation : MonoBehaviour
                 return;
             }
             var forwardAccel = control.forwardAxis * 50;
+            var hAccel = control.freeCamera ? 0:
+                            control.rightAxis * 20;
+            var upAccel = control.freeCamera ? 0:
+                            control.upAxis * 20;
 
             try
             {
-                rb.AddRelativeForce(0, 0, forwardAccel, ForceMode.Acceleration);
+                rb.AddRelativeForce(hAccel, upAccel, forwardAccel, ForceMode.Acceleration);
             }
             catch (Exception ex)
             {

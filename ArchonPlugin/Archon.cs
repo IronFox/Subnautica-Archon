@@ -189,7 +189,7 @@ namespace Subnautica_Archon
                     else
                     {
                         var cr = control.CheckUndocking(vehicle.gameObject);
-                        if (cr == UndockingCheckResult.Possible)
+                        if (cr == UndockingCheckResult.Ok)
                         {
                             Log.Write($"Removing quick bar item");
                             modules.RemoveItem(slotId, true, true);
@@ -370,7 +370,7 @@ namespace Subnautica_Archon
                 Log.Write(nameof(StopPiloting));
 
                 LocalInit();
-                control.ExitControl(Player.mainObject);
+                control.ExitControl(Player.mainObject, !exitLimitsSuspended);
                 control.isAutoLeveling = false;
                 base.StopPiloting();
 

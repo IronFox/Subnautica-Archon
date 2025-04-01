@@ -14,7 +14,7 @@ public class FpsTest : MonoBehaviour
     private Rigidbody rb;
 
     public KeyCode boardKey = KeyCode.B;
-    public KeyCode centerKey = KeyCode.C;
+    public KeyCode centerKey = KeyCode.LeftControl;
     public KeyCode outOfWaterKey = KeyCode.F;
     public KeyCode bayOpenKey = KeyCode.O;
     public KeyCode testUndock = KeyCode.U;
@@ -27,7 +27,7 @@ public class FpsTest : MonoBehaviour
 
     void FixedUpdate()
     {
-        var up = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.LeftControl) ? 1 : 0);
+        var up = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.C) ? 1 : 0);
 
         rb.AddRelativeForce(M.V3(Input.GetAxis("Horizontal"), up, Input.GetAxis("Vertical")) * 30);
 
@@ -117,7 +117,7 @@ public class FpsTest : MonoBehaviour
             else
             {
                 ConsoleControl.Write("Offboarding");
-                subControl.ExitControl(gameObject);
+                subControl.ExitControl(gameObject,false);
                 transform.parent = preBoardingParent;
                 transform.position = preBoardingPosition;
                 preBoardingEuler.ApplyTo(transform);

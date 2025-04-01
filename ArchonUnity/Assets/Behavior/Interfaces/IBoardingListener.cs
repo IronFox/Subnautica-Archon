@@ -43,13 +43,13 @@ public class BoardingListeners : ListenerSet<IBoardingListener>
         return Make<BoardingListeners>(origins);
     }
 
-    public void SignalOnboardingBegin()
-        => Do(nameof(SignalOnboardingBegin), listener => listener.SignalOnboardingBegin());
-    public void SignalOnboardingEnd()
-        => Do(nameof(SignalOnboardingEnd), listener => listener.SignalOnboardingEnd());
-    public void SignalOffBoardingBegin()
-        => Do(nameof(SignalOffBoardingBegin), listener => listener.SignalOffBoardingBegin());
-    public void SignalOffBoardingEnd()
-        => Do(nameof(SignalOffBoardingEnd), listener => listener.SignalOffBoardingEnd());
+    public void SignalEnterControlBegin()
+        => Do(nameof(SignalEnterControlBegin), listener => listener.SignalOnboardingBegin());
+    public void SignalEnterControlEnd()
+        => Do(nameof(SignalEnterControlEnd), listener => listener.SignalOnboardingEnd());
+    public void SignalExitControlBegin()
+        => Do(nameof(SignalExitControlBegin), listener => listener.SignalOffBoardingBegin());
+    public void SignalExitControlEnd()
+        => Do(nameof(SignalExitControlEnd), listener => listener.SignalOffBoardingEnd());
 }
 

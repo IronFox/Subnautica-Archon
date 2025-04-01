@@ -129,5 +129,6 @@ public enum StatusProperty
     IsFirstPerson,
     OpenBay,
     Lights,
+    NumDockedVehicles,
 }
 

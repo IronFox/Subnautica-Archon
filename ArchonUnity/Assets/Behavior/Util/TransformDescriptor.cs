@@ -86,4 +86,27 @@ public readonly struct TransformDescriptor
             transform.TransformPoint(Position)
         );
     }
+
+    /// <summary>
+    /// Produces a transformed version where the rotation is replaced with the given global rotation
+    /// </summary>
+    /// <param name="localTransform">Transform to localize into IF the local descriptor is <see cref="TransformLocality.Local"></see></param>
+    /// <param name="globalRotation">Global rotation to set</param>
+    /// <returns></returns>
+    /// <exception cref="NotImplementedException"></exception>
+    public TransformDescriptor WithGlobalRotation(Transform localTransform, Quaternion globalRotation)
+    {
+        switch (Locality)
+        {
+            case TransformLocality.Global:
+                return new TransformDescriptor(FullEuler.From(globalRotation, TransformLocality.Global), Position);
+            case TransformLocality.Local:
+                {
+                    var local = Quaternion.Inverse(localTransform.rotation) * globalRotation;
+                    return new TransformDescriptor(FullEuler.From(local, TransformLocality.Local), Position);
+                }
+            default:
+                throw new InvalidOperationException($"Unexpected locality: {Locality}");
+        }
+    }
 }

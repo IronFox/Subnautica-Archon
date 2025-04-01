@@ -40,7 +40,17 @@ public interface IDockable
     /// Called once per Update() while waiting for the bay doors to open (before undocking)
     /// </summary>
     void UpdateWaitingForBayDoorOpen();
+    /// <summary>
+    /// Signals that this vehicle was loaded in docked status from a savegame and should be treated such
+    /// </summary>
+    void RestoreDockedStateFromSaveGame();
 
+    /// <summary>
+    /// Queries all child components of given type from the local dockable.
+    /// Contained player components, if any, should not be returned.
+    /// </summary>
+    /// <typeparam name="T">Type to query</typeparam>
+    /// <returns>All components of given type suitable for manipulation by the docking bay</returns>
     IEnumerable<T> GetAllComponents<T>() where T: Component;
 
     GameObject GameObject { get; }
@@ -48,4 +58,8 @@ public interface IDockable
     /// True if behaviours should be unfrozen immediately on undock. Vanilla vehicles need this
     /// </summary>
     bool ShouldUnfreezeImmediately { get; }
+    /// <summary>
+    /// True if this dockable requires a vertical orientation on release
+    /// </summary>
+    bool UndockUpright { get; }
 }
