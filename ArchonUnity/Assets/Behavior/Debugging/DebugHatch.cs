@@ -10,7 +10,7 @@ public class DebugHatch : MonoBehaviour
 
     internal void Board(Rigidbody player, ArchonControl subControl)
     {
-        subControl.Enter(player.gameObject);
+        subControl.Enter(new PlayerReference(player.gameObject, null));
         player.useGravity = true;
         player.transform.position = entry.position;
     }

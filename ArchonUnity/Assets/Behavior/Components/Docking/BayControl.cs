@@ -24,8 +24,17 @@ public class BayControl : MonoBehaviour
 
     public int maxDockedVehicles = 2;
 
+    private Bounds permittedBounds;
+
+    public static Action<ArchonControl, IDockable> OnDockingFailedFull { get; set; }
+    public static Action<ArchonControl, IDockable> OnDockingFailedTooLarge { get; set; }
+
     private LogConfig Log { get; } = LogConfig.Default;
 
+    void Awake()
+    {
+        permittedBounds = dockedBounds.ComputeScaledLocalColliderBounds();
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -105,8 +114,6 @@ public class BayControl : MonoBehaviour
             NumDockedVehicles++;
             var tug = Tug.GetOf(child);
 
-            child.localPosition = dockedBounds.localPosition;
-            child.localRotation = dockedBounds.localRotation;
             tug.Bind(this, dockable, TugStatus.Docked);
         }
     }
@@ -137,26 +144,47 @@ public class BayControl : MonoBehaviour
         var open = false;
         if (!active)
         {
-            if (NumDockedVehicles < maxDockedVehicles)
+            
+            var candidate = dockingTrigger.ClosestEnabledNonKinematic(c =>
             {
-                var candidate = dockingTrigger.ClosestEnabledNonKinematic(c =>
+                var go = GameObjectOf(c);
+                if (go.GetComponent<Tug>()) //being tugged (in or out) or docked
                 {
-                    var go = GameObjectOf(c);
-                    if (go.GetComponent<Tug>()) //being tugged (in or out) or docked
-                        return null;
-                    return DockingAdapter.ToDockable(go, archon);
-                });
-                open = candidate != null;
-
-                if (open && DoorsAreSufficientlyOpen)
-                {
-                    //move ahead
-
-                    var tug = candidate.GameObject.AddComponent<Tug>();
-                    tug.Bind(this, candidate, TugStatus.Docking);
-                    active = tug;
-                    NumDockedVehicles++;
+                    //Log.Write($"{go} it already being tugged");
+                    return null;
                 }
+                var d = DockingAdapter.ToDockable(go, archon);
+                if (d == null)
+                {
+                    //Log.Write($"Failed to convert {go} into dockable");
+                    return null;
+                }
+                var bounds = d.LocalBounds;
+
+                var correction = -bounds.center;
+                bounds = bounds.TranslateBy(correction);
+
+                if (!permittedBounds.Contains(bounds))
+                {
+                    Log.LogError($"Candidate vehicle {d} is too large to dock ({bounds} exeeds {permittedBounds})");
+                    OnDockingFailedTooLarge?.Invoke(archon, d);
+                    return null;
+                }
+                if (NumDockedVehicles < maxDockedVehicles)
+                    return d;
+                OnDockingFailedFull?.Invoke(archon, d);
+                return null;
+            });
+            open = candidate != null;
+
+            if (open && DoorsAreSufficientlyOpen)
+            {
+                //move ahead
+
+                var tug = candidate.GameObject.AddComponent<Tug>();
+                tug.Bind(this, candidate, TugStatus.Docking);
+                active = tug;
+                NumDockedVehicles++;
             }
         }
         else
