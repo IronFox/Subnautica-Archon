@@ -185,11 +185,6 @@ public class ArchonControl : MonoBehaviour
         transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
 
         boardedBy = playerRoot;
-        var colliders = playerRoot.GetComponentsInChildren<Collider>();
-        foreach (var collider in colliders)
-        {
-            Physics.IgnoreLayerCollision(collider.gameObject.layer, OuterShellLayer, true);
-        }
 
         SetRenderAndCollisionActive(interior, true);
         SetRenderAndCollisionActive(exterior, false);
@@ -205,11 +200,6 @@ public class ArchonControl : MonoBehaviour
 
         if (boardedBy)
         {
-            var colliders = boardedBy.GetComponentsInChildren<Collider>();
-            foreach (var collider in colliders)
-            {
-                Physics.IgnoreLayerCollision(collider.gameObject.layer, OuterShellLayer,false);
-            }
             boardedBy = null;
             RigidbodyUtil.UnsetKinematic(rb);
         }
