@@ -109,4 +109,7 @@ public readonly struct TransformDescriptor
                 throw new InvalidOperationException($"Unexpected locality: {Locality}");
         }
     }
+
+    public TransformDescriptor TranslatedBy(Vector3 delta)
+        => new TransformDescriptor(Euler, Position + delta);
 }

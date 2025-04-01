@@ -1,5 +1,7 @@
 ﻿using FMOD.Studio;
 using FMODUnity;
+using Subnautica_Archon.MaterialAdapt;
+using Subnautica_Archon.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,7 +44,7 @@ namespace Subnautica_Archon
         {
             //Log = new MyLogger(this);
             Log.Write($"Constructed");
-            MaterialFixer = new MaterialFixer(this, LogConfig.Default);
+            MaterialFixer = new MaterialFixer(this, Logging.Default);
         }
 
         public override float ExitVelocityLimit => 100f;    //any speed is good
@@ -142,6 +144,17 @@ namespace Subnautica_Archon
         public override void Awake()
         {
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
+
+
+            BayControl.OnDockingFailedFull = (archon, d) =>
+            {
+                VehicleFramework.Logger.PDANote("Cannot dock: Hangar is full", 3f);
+            };
+
+            BayControl.OnDockingFailedTooLarge = (archon, d) =>
+            {
+                VehicleFramework.Logger.PDANote("Cannot dock: Your vehicle is too large", 3f);
+            };
 
             onToggle += OnQuickbarToggle;
 
@@ -321,7 +334,7 @@ namespace Subnautica_Archon
 
         public override void PlayerEntry()
         {
-            control.Enter(Player.mainObject);
+            control.Enter(Helper.GetPlayerReference());
             pingInstance.enabled = false;
             base.PlayerEntry();
         }
@@ -350,7 +363,7 @@ namespace Subnautica_Archon
                 LocalInit();
 
                 base.BeginPiloting();
-                control.Control(Player.mainObject, Player.main.camRoot.transform);
+                control.Control(Helper.GetPlayerReference());
 
                 reenableOnExit.Clear();
 
@@ -370,7 +383,7 @@ namespace Subnautica_Archon
                 Log.Write(nameof(StopPiloting));
 
                 LocalInit();
-                control.ExitControl(Player.mainObject, !exitLimitsSuspended);
+                control.ExitControl(Helper.GetPlayerReference(), !exitLimitsSuspended);
                 control.isAutoLeveling = false;
                 base.StopPiloting();
 
@@ -767,7 +780,7 @@ namespace Subnautica_Archon
                         ;
                 }
 
-                if (GameInput.GetKeyDown(MainPatcher.PluginConfig.toggleFreeCamera))
+                if (control.IsBeingControlled && GameInput.GetKeyDown(MainPatcher.PluginConfig.toggleFreeCamera))
                     engine.freeCamera = control.freeCamera = !control.freeCamera;
 
                 ProcessBoost(lowPower);

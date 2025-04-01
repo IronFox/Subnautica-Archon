@@ -105,7 +105,7 @@ public class FpsTest : MonoBehaviour
                     preBoardingEuler = LockedEuler.FromGlobal(transform);
                     preBoardingParent = transform.parent;
                     subControl.Localize(transform);
-                    subControl.Control(gameObject);
+                    subControl.Control(new PlayerReference(gameObject, null));
                 }
                 catch (Exception ex)
                 {
@@ -117,7 +117,7 @@ public class FpsTest : MonoBehaviour
             else
             {
                 ConsoleControl.Write("Offboarding");
-                subControl.ExitControl(gameObject,false);
+                subControl.ExitControl(new PlayerReference(gameObject, null),false);
                 transform.parent = preBoardingParent;
                 transform.position = preBoardingPosition;
                 preBoardingEuler.ApplyTo(transform);

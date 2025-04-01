@@ -4,6 +4,8 @@ using HarmonyLib;
 using Nautilus.Handlers;
 using Nautilus.Utility;
 using RootMotion.FinalIK;
+using Subnautica_Archon.Adapters;
+using Subnautica_Archon.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -152,6 +154,11 @@ namespace Subnautica_Archon
                     var archon = archonControl.GetComponent<Archon>();
                     if (!archon)
                         return null;
+                    if (v is Drone)
+                    {
+                        VehicleFramework.Logger.PDANote("Cannot dock: Drones are currently not supported", 3f);
+                        return null;
+                    }
                     var d = new DockableVehicle(v, archon);
                     return d;
                 };

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Subnautica_Archon.Util;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -6,7 +7,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using VehicleFramework;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.MaterialAdapt
 {
 
     internal interface IShaderVariable
@@ -18,7 +19,7 @@ namespace Subnautica_Archon
         /// </summary>
         /// <param name="m">Material to update</param>
         /// <param name="logConfig">Log Configuration</param>
-        void SetTo(Material m, LogConfig logConfig);
+        void SetTo(Material m, Logging logConfig);
     }
 
     internal readonly struct ColorVariable : IShaderVariable
@@ -39,7 +40,7 @@ namespace Subnautica_Archon
         /// <param name="name">Variable name to change</param>
         /// <param name="value">Color value to set</param>
         /// <param name="logConfig">Log Configuration</param>
-        public static void Set(Material m, string name, Color value, LogConfig logConfig)
+        public static void Set(Material m, string name, Color value, Logging logConfig)
         {
             try
             {
@@ -56,7 +57,7 @@ namespace Subnautica_Archon
             }
         }
 
-        public void SetTo(Material m, LogConfig logConfig)
+        public void SetTo(Material m, Logging logConfig)
         {
             Set(m, Name, Value, logConfig);
         }
@@ -75,14 +76,14 @@ namespace Subnautica_Archon
             Name = n;
         }
 
-        public void SetTo(Material m, LogConfig logConfig)
+        public void SetTo(Material m, Logging logConfig)
         {
             try
             {
                 var old = m.GetVector(Name);
                 if (old == Value)
                     return;
-                logConfig.LogMaterialVariableSet(Type,Name,old,Value,m);
+                logConfig.LogMaterialVariableSet(Type, Name, old, Value, m);
                 m.SetVector(Name, Value);
             }
             catch (Exception ex)
@@ -92,7 +93,7 @@ namespace Subnautica_Archon
             }
         }
     }
-    
+
     internal readonly struct FloatVariable : IShaderVariable
     {
         public ShaderPropertyType Type => ShaderPropertyType.Float;
@@ -106,14 +107,14 @@ namespace Subnautica_Archon
             Name = n;
         }
 
-        public void SetTo(Material m, LogConfig logConfig)
+        public void SetTo(Material m, Logging logConfig)
         {
             try
             {
                 var old = m.GetFloat(Name);
                 if (old == Value)
                     return;
-                logConfig.LogMaterialVariableSet(Type,Name, old, Value, m);
+                logConfig.LogMaterialVariableSet(Type, Name, old, Value, m);
                 m.SetFloat(Name, Value);
             }
             catch (Exception ex)
@@ -134,8 +135,8 @@ namespace Subnautica_Archon
         /// True if this instance was created without a source material.
         /// All local values are empty/default if true
         /// </summary>
-        public bool IsEmpty {get; private set; }
-        
+        public bool IsEmpty { get; private set; }
+
         private HashSet<string> ShaderKeywords { get; } = new HashSet<string>();
         public MaterialGlobalIlluminationFlags MaterialGlobalIlluminationFlags { get; }
         private ColorVariable[] ColorVariables { get; }
@@ -150,7 +151,7 @@ namespace Subnautica_Archon
         /// <param name="variableNamePredicate">
         /// Optional predicate to only check/update certain shader variables by name.
         /// If non-null updates only variables for which this function returns true</param>
-        public void ApplyTo(Material m, LogConfig logConfig, Func<string,bool> variableNamePredicate = null)
+        public void ApplyTo(Material m, Logging logConfig, Func<string, bool> variableNamePredicate = null)
         {
             variableNamePredicate = variableNamePredicate ?? (_ => true);
 
@@ -197,7 +198,7 @@ namespace Subnautica_Archon
                 return;
             }
             MaterialGlobalIlluminationFlags = source.globalIlluminationFlags;
-            ListExtensions.AddRange(ShaderKeywords,source.shaderKeywords);
+            ListExtensions.AddRange(ShaderKeywords, source.shaderKeywords);
 
             var colorVariables = new List<ColorVariable>();
             var floatVariables = new List<FloatVariable>();
@@ -208,25 +209,25 @@ namespace Subnautica_Archon
                 var n = source.shader.GetPropertyName(v);
                 switch (source.shader.GetPropertyType(v))
                 {
-                    case UnityEngine.Rendering.ShaderPropertyType.Color:
+                    case ShaderPropertyType.Color:
                         if (!n.StartsWith("_Color")    //don't copy colors (_Color, _Color2, _Color3)
                             &&
                             !n.StartsWith("_SpecColor")    //not sure if these have an impact but can be left out
                             )
                             colorVariables.Add(new ColorVariable(source, n));
                         break;
-                    case UnityEngine.Rendering.ShaderPropertyType.Float:
-                    case UnityEngine.Rendering.ShaderPropertyType.Range:
+                    case ShaderPropertyType.Float:
+                    case ShaderPropertyType.Range:
                         floatVariables.Add(new FloatVariable(source, n));
                         break;
-                    case UnityEngine.Rendering.ShaderPropertyType.Vector:
+                    case ShaderPropertyType.Vector:
                         vectorVariables.Add(new VectorVariable(source, n));
                         break;
-                    //don't copy textures (does not make sense)
-                    //case UnityEngine.Rendering.ShaderPropertyType.Texture:
-                    //    if (n != "_MainTex" && n != "_BumpMap" && n != "_SpecTex" && n != "_Illum")
-                    //        m.SetTexture(n, seamothMaterial.GetTexture(n));
-                    //    break;
+                        //don't copy textures (does not make sense)
+                        //case UnityEngine.Rendering.ShaderPropertyType.Texture:
+                        //    if (n != "_MainTex" && n != "_BumpMap" && n != "_SpecTex" && n != "_Illum")
+                        //        m.SetTexture(n, seamothMaterial.GetTexture(n));
+                        //    break;
                 }
             }
 
@@ -245,7 +246,7 @@ namespace Subnautica_Archon
         /// <returns>Null if the seamoth is not (yet) available. Keep trying if null.
         /// Non-null if the seamoth is loaded, but can then be empty (IsEmpty is true)
         /// if the respective material is not found</returns>
-        public static MaterialPrototype FromSeamoth(LogConfig logConfig=default)
+        public static MaterialPrototype FromSeamoth(Logging logConfig = default)
         {
             var sm = SeamothHelper.Seamoth;
             if (sm == null)

@@ -2,12 +2,12 @@
 using System.Reflection;
 using UnityEngine;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.Util
 {
     public class BaseMethodAdapter
     {
         public bool IsEmpty => Method is null || !Target;
-        protected MethodInfo Method {get; }
+        protected MethodInfo Method { get; }
         protected UnityEngine.Object Target { get; }
 
 
@@ -88,8 +88,8 @@ namespace Subnautica_Archon
     public class MethodAdapter<T0, T1> : BaseMethodAdapter
     {
         public MethodAdapter(UnityEngine.Object target, string methodName)
-            :base(target,methodName, typeof(T0), typeof(T1))
-        {}
+            : base(target, methodName, typeof(T0), typeof(T1))
+        { }
 
         public void Invoke(T0 p0, T1 p1)
         {
@@ -99,8 +99,8 @@ namespace Subnautica_Archon
     public class MethodAdapter<T0, T1, T2> : BaseMethodAdapter
     {
         public MethodAdapter(UnityEngine.Object target, string methodName)
-            :base(target,methodName, typeof(T0), typeof(T1), typeof(T2))
-        {}
+            : base(target, methodName, typeof(T0), typeof(T1), typeof(T2))
+        { }
 
         public void Invoke(T0 p0, T1 p1, T2 p2)
         {

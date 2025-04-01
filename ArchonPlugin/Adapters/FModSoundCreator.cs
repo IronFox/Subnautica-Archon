@@ -1,11 +1,12 @@
 ﻿using FMOD;
 using Nautilus.Utility;
+using Subnautica_Archon.Util;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using static Subnautica_Archon.MyLogger;
+using static Subnautica_Archon.Util.MyLogger;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.Adapters
 {
     internal class FModSoundCreator : ISoundCreator
     {
@@ -24,13 +25,13 @@ namespace Subnautica_Archon
                     mode |= MODE.LOOP_NORMAL;
                 else
                     mode |= MODE.LOOP_OFF;
-                var sound = AudioUtils.CreateSound(cfg.AudioClip,mode
+                var sound = AudioUtils.CreateSound(cfg.AudioClip, mode
                     );
 
-                
+
 
                 List<VECTOR> rolloff = new List<VECTOR>();
-                float range = (cfg.MaxDistance - cfg.MinDistance);
+                float range = cfg.MaxDistance - cfg.MinDistance;
                 for (int ix = 0; ix <= 10; ix++)
                 {
                     float distance = Sqr((float)ix / 10) * range + cfg.MinDistance;
@@ -39,7 +40,7 @@ namespace Subnautica_Archon
                     distance /= halfDistance / M.Sqrt2;
                     //Log.Write($"Distance modified by halfDistance({halfDistance}): {distance}");
 
-                    float volume = M.Saturate(1f / (distance * distance) - (1f / (cfg.MaxDistance * cfg.MaxDistance)));
+                    float volume = M.Saturate(1f / (distance * distance) - 1f / (cfg.MaxDistance * cfg.MaxDistance));
                     rolloff.Add(new VECTOR
                     {
                         x = worldDistance,
@@ -49,20 +50,20 @@ namespace Subnautica_Archon
                 }
                 var rolloffArray = rolloff.ToArray();
 
-                
 
-                FModSoundCreator.Check($"sound.set3DCustomRolloff(ref rolloffArray[0], {rolloffArray.Length})",sound.set3DCustomRolloff(ref rolloffArray[0], rolloffArray.Length));
-                FModSoundCreator.Check($"sound.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", sound.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
+
+                Check($"sound.set3DCustomRolloff(ref rolloffArray[0], {rolloffArray.Length})", sound.set3DCustomRolloff(ref rolloffArray[0], rolloffArray.Length));
+                Check($"sound.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", sound.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
 
 
 
 
                 if (!AudioUtils.TryPlaySound(sound, "bus:/master", out var channel))
                     throw new InvalidOperationException($"AudioUtils.TryPlaySound(sound, \"bus:/master\", out var channel) failed");
-                
-                FModSoundCreator.Check($"Channel.setVolume({cfg.Volume})", channel.setVolume(0));
-                FModSoundCreator.Check($"Channel.setPitch({cfg.Pitch})", channel.setPitch(0.01f));
-                FModSoundCreator.Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
+
+                Check($"Channel.setVolume({cfg.Volume})", channel.setVolume(0));
+                Check($"Channel.setPitch({cfg.Pitch})", channel.setPitch(0.01f));
+                Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
 
 
 
@@ -86,7 +87,7 @@ namespace Subnautica_Archon
                 Check($"channel.set3DAttributes(ref pos, ref vel)", channel.set3DAttributes(ref pos, ref vel));
 
                 var component = cfg.Owner.AddComponent<FModComponent>();
-                
+
                 channel.isPlaying(out var isPlaying);
                 //Log.Write($"Sound created (isPlaying={isPlaying})");
                 var rs = component.sound = new FModSound(cfg, channel, sound, component, rolloffArray);
@@ -147,7 +148,7 @@ namespace Subnautica_Archon
                 velocity = (position - lastPosition) / timeDelta;
                 lastPosition = position;
                 vpos = position;
-                
+
                 var pos = new VECTOR
                 {
                     x = position.x,
@@ -191,11 +192,11 @@ namespace Subnautica_Archon
                     FModSoundCreator.Check($"Channel.setVolume({cfg.Volume})", Channel.setVolume(cfg.Volume));
                     FModSoundCreator.Check($"Channel.setPitch({cfg.Pitch})", Channel.setPitch(cfg.Pitch));
                 }
-                FModSoundCreator.Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})",Channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
+                FModSoundCreator.Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", Channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
             }
             catch (Exception ex)
             {
-                Log.Write($"FModSound.ApplyLiveChanges()",ex);
+                Log.Write($"FModSound.ApplyLiveChanges()", ex);
             }
 
 
@@ -208,7 +209,7 @@ namespace Subnautica_Archon
             {
                 Channel.stop();
                 Sound.release();
-                GameObject.Destroy(Component);
+                UnityEngine.Object.Destroy(Component);
             }
             catch (Exception ex)
             {

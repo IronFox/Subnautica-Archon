@@ -22,6 +22,7 @@ public class Tug : MonoBehaviour
     public TransformDescriptor AnimationEnd { get; private set; }
     public float AnimationSeconds { get; private set; }
     public float AnimationProgress { get; private set; }
+    public Vector3 Correction { get; private set; }
     public bool WantsDoorsOpen
     {
         get
@@ -43,10 +44,18 @@ public class Tug : MonoBehaviour
     }
 
 
+    private static string NiceName(string s)
+    {
+        int at = s.IndexOf('(');
+        if (at >= 0)
+            return s.Substring(0, at);
+        return s;
+    }
     internal void Bind(BayControl bayControl, IDockable dockable, TugStatus status)
     {
-        Log = new LogConfig($"Tug[{GetInstanceID()}]<{dockable.GameObject}>", true);
+        Log = new LogConfig($"Tug[{GetInstanceID()}]<{NiceName(dockable.GameObject.name)}>", true);
         //UndoTugging.Clear();
+        Correction = -dockable.LocalBounds.center;
 
         Owner = bayControl;
         Status = status;
@@ -103,6 +112,9 @@ public class Tug : MonoBehaviour
         switch (status)
         {
             case TugStatus.WaitingForBayDoorOpen:
+
+                ChangeActiveState(true);
+
                 if (Dockable.ShouldUnfreezeImmediately)
                     Behaviours.UndoAll();
                 Renderers.UndoAll();
@@ -149,10 +161,22 @@ public class Tug : MonoBehaviour
         Dockable.EndUndocking();
     }
 
+    private void ChangeActiveState(bool active)
+    {
+        if (Dockable.GameObject.activeSelf != active)
+        {
+            Dockable.GameObject.SetActive(active);
+            Log.Write($"Active:={Dockable.GameObject.activeSelf}");
+        }
+    }
+
     private void TransitionToDocked()
     {
         Log.Write($"Loaded");
         Status = TugStatus.Docked;
+
+        ChangeActiveState(false);
+
 
         foreach (var c in Dockable.GetAllComponents<Renderer>())
             if (c.enabled)
@@ -179,6 +203,11 @@ public class Tug : MonoBehaviour
                 });
             }
 
+        TransformDescriptor.FromLocal(Owner.dockedBounds.transform)
+            .TranslatedBy(Correction)
+            .ApplyTo(Dockable.GameObject.transform);
+
+
         Log.Write($"Dockable.OnDockingDone()");
         Dockable.OnDockingDone();
         
@@ -189,15 +218,14 @@ public class Tug : MonoBehaviour
         Log.Write($"WaitingForBayDoorClose");
         Status = TugStatus.WaitingForBayDoorClose;
 
-
         foreach (var c in Dockable.GetAllComponents<MonoBehaviour>())
             if (c != this && c.enabled)
             {
-                Log.Write($"Disabling behavior {c.name}");
+                Log.Write($"Disabling behavior {c.name} [{c.GetInstanceID()}]");
                 c.enabled = false;
                 Behaviours.Add(() =>
                 {
-                    Log.Write($"Re-enabling behavior {c.name}");
+                    Log.Write($"Re-enabling behavior {c.name} [{c.GetInstanceID()}]");
                     c.enabled = true;
                 });
             }
@@ -222,6 +250,7 @@ public class Tug : MonoBehaviour
             }
             c.velocity = Vector3.zero;
         }
+
 
 
         Log.Write($"Dockable.EndDocking()");
@@ -337,6 +366,7 @@ public class Tug : MonoBehaviour
                     var end = Local(AnimationEnd);
                     TransformDescriptor
                         .Lerp(start, end, M.Smoothstep(0, 1, AnimationProgress))
+                        .TranslatedBy(Correction)
                         .ApplyTo(Dockable.GameObject.transform);
                 }
                 else
@@ -344,7 +374,9 @@ public class Tug : MonoBehaviour
                     Log.Write($"Animation end reached");
                     if (Status == TugStatus.Undocking && Dockable.UndockUpright)
                         AnimationEnd = AnimationEnd.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
-                    Local(AnimationEnd).ApplyTo(Dockable.GameObject.transform);
+                    Local(AnimationEnd)
+                        .TranslatedBy(Correction)
+                        .ApplyTo(Dockable.GameObject.transform);
                     if (Status == TugStatus.Docking)
                     {
 

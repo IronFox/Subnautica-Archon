@@ -46,8 +46,9 @@ public class ArchonControl : MonoBehaviour
 
     private DateTime lastOnboarded;
 
-    private GameObject boardedBy;
-    private GameObject controlledBy;
+    private bool boardedLeave;
+    private PlayerReference boardedBy,
+                    controlledBy;
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
     public float maxEnergy=1;
     public float currentEnergy=0.5f;
@@ -99,7 +100,7 @@ public class ArchonControl : MonoBehaviour
 
     public bool IsBeingControlled => currentlyControlled;
 
-    public LogConfig log = LogConfig.Default;
+    public LogConfig Log { get; } = LogConfig.Default;
     private enum CameraState
     {
         IsFree,
@@ -110,7 +111,7 @@ public class ArchonControl : MonoBehaviour
     private CameraState state = CameraState.IsBound;
 
 
-    public bool IsBoarded => boardedBy;
+    public bool IsBoarded => boardedBy.IsSet;
 
     private void ChangeState(CameraState state)
     {
@@ -123,14 +124,14 @@ public class ArchonControl : MonoBehaviour
         if (!cameraIsInTrailspace)
         {
             cameraIsInTrailspace = true;
-            log.Write("Moving camera to trailspace. Setting secondary fallback camera transform");
+            Log.Write("Moving camera to trailspace. Setting secondary fallback camera transform");
             
             CameraUtil.secondaryFallbackCameraTransform = trailSpaceCameraContainer;
 
             cameraMove = Parentage.FromLocal(cameraRoot);
             cameraRoot.parent = trailSpaceCameraContainer;
             TransformDescriptor.LocalIdentity.ApplyTo(cameraRoot);
-            log.Write("Moved");
+            Log.Write("Moved");
         }
     }
 
@@ -140,12 +141,12 @@ public class ArchonControl : MonoBehaviour
         {
             cameraIsInTrailspace = false;
 
-            log.Write("Moving camera out of trailspace. Unsetting secondary fallback camera transform");
+            Log.Write("Moving camera out of trailspace. Unsetting secondary fallback camera transform");
             
             CameraUtil.secondaryFallbackCameraTransform = null;
 
             cameraMove.Restore();
-            log.Write("Moved");
+            Log.Write("Moved");
         }
     }
 
@@ -178,13 +179,15 @@ public class ArchonControl : MonoBehaviour
         bayControl.SignalSavegameLoadingDone();
     }
 
-    public void Enter(GameObject playerRoot)
+    public void Enter(PlayerReference player)
     {
+        Log.Write($"Boarding");
         RigidbodyUtil.SetKinematic(rb);
 
         transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
 
-        boardedBy = playerRoot;
+        boardedBy = player;
+        boardedLeave = false;
 
         SetRenderAndCollisionActive(interior, true);
         SetRenderAndCollisionActive(exterior, false);
@@ -193,6 +196,7 @@ public class ArchonControl : MonoBehaviour
 
     public void Exit()
     {
+        Log.Write($"Offboarding");
 
         SetRenderAndCollisionActive(interior, false);
         SetRenderAndCollisionActive(exterior, true);
@@ -200,31 +204,31 @@ public class ArchonControl : MonoBehaviour
 
         if (boardedBy)
         {
-            boardedBy = null;
+            boardedBy = default;
             RigidbodyUtil.UnsetKinematic(rb);
         }
     }
 
 
-    public void Control(GameObject playerRoot, Transform localizeInsteadOfMainCamera = null)
+    public void Control(PlayerReference player)
     {
         wasEverBoarded = true;
         lastOnboarded = DateTime.Now;
         if (!currentlyControlled)
         {
-            log.Write($"Controlling");
+            Log.Write($"Controlling");
 
-            controlledBy = playerRoot;
+            controlledBy = player;
             Exit();
 
             var listeners = BoardingListeners.Of(this, trailSpace);
 
             listeners.SignalEnterControlBegin();
 
-            cameraRoot = localizeInsteadOfMainCamera;
-            if (cameraRoot == null)
+            cameraRoot = player.CameraRoot;
+            if (!cameraRoot)
                 cameraRoot = Camera.main.transform;
-            log.Write($"Setting {cameraRoot} as cameraRoot");
+            Log.Write($"Setting {cameraRoot} as cameraRoot");
             CameraUtil.primaryFallbackCameraTransform = cameraRoot;
             onboardLocalizedTransform = Parentage.FromLocal(cameraRoot);
 
@@ -232,7 +236,7 @@ public class ArchonControl : MonoBehaviour
             if (!currentCameraCenterIsCockpit)
                 MoveCameraToTrailSpace();
 
-            log.Write($"Offloading trail space");
+            Log.Write($"Offloading trail space");
             trailSpace.parent = transform.parent;
 
             currentlyControlled = true;
@@ -243,11 +247,11 @@ public class ArchonControl : MonoBehaviour
 
 
 
-    public void ExitControl(GameObject playerRoot, bool intoShip=true)
+    public void ExitControl(PlayerReference player, bool intoShip=true)
     {
         if (currentlyControlled)
         {
-            log.Write($"Exiting control");
+            Log.Write($"Exiting control");
             var listeners = BoardingListeners.Of(this, trailSpace);
             try
             {
@@ -255,18 +259,18 @@ public class ArchonControl : MonoBehaviour
                 listeners.SignalExitControlBegin();
 
                 MoveCameraOutOfTrailSpace();
-                log.Write($"Restoring parentage");
+                Log.Write($"Restoring parentage");
                 onboardLocalizedTransform.Restore();
             }
             finally
             {
                 currentlyControlled = false;
-                log.Write($"Reintegration trail space");
+                Log.Write($"Reintegration trail space");
                 trailSpace.parent = transform;
             }
-            controlledBy = null;
+            controlledBy = default;
             if (intoShip)
-                Enter(playerRoot);
+                Enter(player);
             listeners.SignalExitControlEnd();
         }
     }
@@ -544,7 +548,7 @@ public class ArchonControl : MonoBehaviour
 
                 }
                 else
-                    log.Write($"Not currently boarded. Ignoring console key");
+                    Log.Write($"Not currently boarded. Ignoring console key");
 
             }
         }
@@ -729,11 +733,13 @@ public class ArchonControl : MonoBehaviour
         }
     }
 
+
+
     void Update()
     {
         try
         {
-
+            MonitorPlayer();
 
             MonitorPhysics();
 
@@ -780,6 +786,34 @@ public class ArchonControl : MonoBehaviour
             Debug.LogException(ex);
         }
     }
+    
+    private void MonitorPlayer()
+    {
+        try
+        {
+            if (boardedBy)
+            {
+                bool onLeave = boardedBy.HasDetachedHead;
+
+                if (boardedLeave != onLeave)
+                {
+                    Log.LogWarning($"Detected leave-change: now {onLeave}");
+                    boardedLeave = onLeave;
+
+                    SetRenderAndCollisionActive(interior, !onLeave);
+                    SetRenderAndCollisionActive(exterior, onLeave);
+                    evacuateIntruders.enabled = !onLeave;
+                }
+
+            }
+            hullLightController.lightsEnabled = lights;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogError(nameof(MonitorPlayer));
+            Debug.LogException(ex);
+        }
+    }
 
 
     private void MonitorPhysics()
@@ -790,24 +824,24 @@ public class ArchonControl : MonoBehaviour
             {
                 if (!rb.isKinematic)
                 {
-                    log.LogWarning("Re-enabling kinematic state");
+                    Log.LogWarning("Re-enabling kinematic state");
                     rb.SetKinematic();
                 }
             }
             else if (rb.isKinematic)
             {
-                log.LogWarning("Re-disabling kinematic state");
+                Log.LogWarning("Re-disabling kinematic state");
                 rb.UnsetKinematic();
             }
 
             if (rb.drag != 0)
             {
-                log.LogWarning("Re-setting drag to 0");
+                Log.LogWarning("Re-setting drag to 0");
                 rb.drag = 0;
             }
             if (rb.angularDrag != 1)
             {
-                log.LogWarning("Re-setting angular drag to 1");
+                Log.LogWarning("Re-setting angular drag to 1");
                 rb.angularDrag = 1;
             }
 

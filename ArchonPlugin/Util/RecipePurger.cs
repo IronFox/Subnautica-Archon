@@ -3,7 +3,7 @@ using System.IO;
 using System.Reflection;
 using UnityEngine;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.Util
 {
     public class RecipePurger
     {

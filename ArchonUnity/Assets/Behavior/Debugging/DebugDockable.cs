@@ -12,21 +12,29 @@ public class DebugDockable : MonoBehaviour, IDockable
 
     public bool UndockUpright => undockUpright;
 
+    public Bounds debugOutBounds;
+    public Bounds LocalBounds { get; private set; }
+
     public void BeginDocking()
-    {}
+    { }
 
     public void EndDocking()
-    {}
+    { }
 
     public void BeginUndocking()
-    {}
+    { }
 
     public void EndUndocking()
-    {}
+    { }
 
     public IEnumerable<T> GetAllComponents<T>() where T : Component
         => gameObject.GetComponentsInChildren<T>();
 
+
+    void Awake()
+    {
+        LocalBounds = debugOutBounds = transform.ComputeScaledLocalColliderBounds();
+    }
 
     // Start is called before the first frame update
     void Start()

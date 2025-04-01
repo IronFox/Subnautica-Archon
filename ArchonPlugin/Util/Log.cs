@@ -3,12 +3,12 @@ using System;
 using UnityEngine;
 using System.IO;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.Util
 {
 
     public static class Log
     {
-        private static readonly LogConfig log = new LogConfig(true, null, true, true);
+        private static readonly Logging log = new Logging(true, null, true, true);
         public static string PathOf(Transform t)
         {
             if (!t)

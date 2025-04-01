@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Subnautica_Archon.Util;
+using System;
 using UnityEngine;
 using static PDAScanner;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.MaterialAdapt
 {
     /// <summary>
     /// Surface shader data extracted from a material imported from Unity.
@@ -26,7 +27,7 @@ namespace Subnautica_Archon
         /// specular reflectivity map, its alpha value must be filled such.
         /// </summary>
         public Texture MainTex { get; }
-        
+
         /// <summary>
         /// Smoothness value (typically 0-1)
         /// </summary>
@@ -94,7 +95,7 @@ namespace Subnautica_Archon
             EmissionTexture = emissionTexture;
         }
 
-        private static Color GetColor(Material m, string name, LogConfig logConfig)
+        private static Color GetColor(Material m, string name, Logging logConfig)
         {
             if (!m.HasProperty(name))
             {
@@ -112,8 +113,8 @@ namespace Subnautica_Archon
                 return Color.black;
             }
         }
-        
-        private static Texture GetTexture(Material m, string name, LogConfig logConfig)
+
+        private static Texture GetTexture(Material m, string name, Logging logConfig)
         {
             if (!m.HasProperty(name))
             {
@@ -131,8 +132,8 @@ namespace Subnautica_Archon
                 return null;
             }
         }
-        
-        private static float GetFloat(Material m, string name, LogConfig logConfig)
+
+        private static float GetFloat(Material m, string name, Logging logConfig)
         {
             if (!m.HasProperty(name))
             {
@@ -150,8 +151,8 @@ namespace Subnautica_Archon
                 return 0;
             }
         }
-         
-        private static int GetInt(Material m, string name, LogConfig logConfig)
+
+        private static int GetInt(Material m, string name, Logging logConfig)
         {
             if (!m.HasProperty(name))
             {
@@ -173,10 +174,10 @@ namespace Subnautica_Archon
         [Obsolete("Please use SurfaceShaderData.From(renderer,materialIndex, logConfig) instead")]
         public static SurfaceShaderData From(Material m, bool ignoreShaderName = false)
         {
-            return From(target:default, m, LogConfig.Default, ignoreShaderName);
+            return From(target: default, m, Logging.Default, ignoreShaderName);
         }
 
-        private static SurfaceShaderData From(MaterialAddress target, Material m, LogConfig logConfig, bool ignoreShaderName = false)
+        private static SurfaceShaderData From(MaterialAddress target, Material m, Logging logConfig, bool ignoreShaderName = false)
         {
 
             if (m.shader.name != "Standard" && !ignoreShaderName)
@@ -211,7 +212,7 @@ namespace Subnautica_Archon
         /// return null otherwise</param>
         /// <returns>Read surface shader data or null if the shader name did not match
         /// or the target is (no longer) valid</returns>
-        public static SurfaceShaderData From(MaterialAddress source, LogConfig logConfig, bool ignoreShaderName = false)
+        public static SurfaceShaderData From(MaterialAddress source, Logging logConfig, bool ignoreShaderName = false)
         {
             var material = source.GetMaterial();
             if (material == null)
@@ -238,7 +239,7 @@ namespace Subnautica_Archon
         /// return null otherwise</param>
         /// <returns>Read surface shader data or null if the shader name did not match
         /// or the target is (no longer) valid</returns>
-        public static SurfaceShaderData From(Renderer renderer, int materialIndex, LogConfig logConfig = default, bool ignoreShaderName=false)
+        public static SurfaceShaderData From(Renderer renderer, int materialIndex, Logging logConfig = default, bool ignoreShaderName = false)
         {
             return From(new MaterialAddress(renderer, materialIndex), logConfig);
         }
@@ -253,11 +254,11 @@ namespace Subnautica_Archon
         /// </summary>
         /// <param name="m">Target material</param>
         /// <param name="logConfig">Log Configuration</param>
-        public void ApplyTo(Material m, LogConfig logConfig)
+        public void ApplyTo(Material m, Logging logConfig)
         {
             ColorVariable.Set(m, "_Color2", Color, logConfig);
             ColorVariable.Set(m, "_Color3", Color, logConfig);
-            
+
             var existingSpecTex = m.GetTexture(SpecTexName);
 
             var spec = SpecularTexture;
@@ -312,7 +313,7 @@ namespace Subnautica_Archon
                     if (!existingIllumTex || existingIllumTex.name != DummyIllumTexName)
                     {
                         logConfig.LogExtraStep($"Source has no illumination texture. Setting to {EmissionColor}");
-                        
+
                         var tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
                         tex.name = DummyIllumTexName;
                         tex.SetPixel(0, 0, EmissionColor);

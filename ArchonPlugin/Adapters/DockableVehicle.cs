@@ -1,23 +1,27 @@
 using Nautilus.Handlers;
+using Subnautica_Archon.Util;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using VehicleFramework;
+using VehicleFramework.VehicleTypes;
 using static VehicleUpgradeConsoleInput;
 
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.Adapters
 {
 
     public class DockableVehicle : IDockable
     {
+        private FieldAdapter<Player.Mode> Mode { get; }
         public DockableVehicle(Vehicle vehicle, Archon archon)
         {
             Vehicle = vehicle;
             Archon = archon;
-            HasPlayer = Player.main.currentMountedVehicle == Vehicle;
+            HasPlayer = Player.main.currentMountedVehicle == Vehicle && !(Vehicle is Drone);
+            Mode = FieldAdapter.OfNonPublic<Player.Mode>(Player.main, "mode");
         }
-        //private LogConfig Log { get; } = new LogConfig(false,"Dockable",true,true);
+        //private Logging Log { get; } = new Logging(false,"Dockable",true,true);
         public Vehicle Vehicle { get; }
         public Archon Archon { get; }
         public bool HasPlayer { get; }
@@ -30,6 +34,19 @@ namespace Subnautica_Archon
 
         public bool UndockUpright => true;
 
+        private Bounds? bounds;
+        public Bounds LocalBounds
+        {
+            get
+            {
+                if (bounds is null)
+                    bounds = Vehicle.transform.ComputeScaledLocalColliderBounds();
+                return bounds.Value;
+            }
+        }
+
+
+
         public void RestoreDockedStateFromSaveGame()
         {
             Vehicle.liveMixin.shielded = true;
@@ -37,12 +54,37 @@ namespace Subnautica_Archon
             if (Vehicle is ModVehicle)
                 Vehicle.docked = true;  //vanilla react odd
             EndDocking();
+
+        }
+
+        private void ChangeAvatarInput(bool active)
+        {
+            Log.Write($"Changing avatar input: {active}");
+            AvatarInputHandler.main.gameObject.SetActive(active);
+
         }
 
         public void BeginDocking()
         {
             if (HasPlayer)
-                AvatarInputHandler.main.gameObject.SetActive(value: false);
+            {
+                ChangeAvatarInput(false);
+            }
+            else if (Vehicle is Drone d)
+            {
+                Log.Write($"Stopping drone control");
+                d.StopControlling();
+
+                ChangeAvatarInput(true);
+                if (!Player.main.ToNormalMode(false) && Mode != Player.Mode.Normal)
+                {
+                    Log.Write($"ToNormalMode() refused and mode is not normal. Forcing to normal");
+                    Mode.Set(Player.Mode.Normal);
+                }
+                Player.main.playerController.SetEnabled(true);
+                Player.main.playerController.ForceControllerSize();
+            }
+
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             if (Vehicle is ModVehicle)
@@ -54,12 +96,6 @@ namespace Subnautica_Archon
         {
             Log.Write("(Re-)Switching player to archon");
 
-            var mode = Player.main.GetType()
-                    .GetField("mode", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            if (mode == null)
-            {
-                Log.Error($"Unable to find mode field on Player.main");
-            }
             if (Player.main.currentMountedVehicle)
             {
                 new MethodAdapter(Player.main.currentMountedVehicle, "OnPilotModeEnd").Invoke();
@@ -89,7 +125,7 @@ namespace Subnautica_Archon
                 Player.main.transform.localScale = Vector3.one;
                 Player.main.currentMountedVehicle = null;
                 Player.main.playerController.SetEnabled(enabled: true);
-                mode?.SetValue(Player.main, Player.Mode.Normal);
+                Mode.Set(Player.Mode.Normal);
                 //Player.main.mode = Player.Mode.Normal;
                 Player.main.playerModeChanged?.Trigger(Player.Mode.Normal);
                 Player.main.sitting = false;
@@ -102,10 +138,10 @@ namespace Subnautica_Archon
             Log.Write($"Player transform parent now {Log.PathOf(Player.main.transform.parent)}");
             Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
             Log.Write($"A-Okay = {VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
-            AvatarInputHandler.main.gameObject.SetActive(value: true);
+            ChangeAvatarInput(true);
         }
 
-        
+
         public void EndDocking()
         {
 
@@ -180,6 +216,14 @@ namespace Subnautica_Archon
                 MovePlayerToArchon();
 
             }
+            else if (Vehicle is Drone d)
+            {
+                if (d.gameObject.activeSelf)
+                {
+                    Log.Write($"Disabling drone");
+                    d.gameObject.SetActive(false);
+                }
+            }
         }
 
 
@@ -192,6 +236,15 @@ namespace Subnautica_Archon
                 Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
                 Log.Write($"A-Okay = {VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
             }
+            else if (Vehicle is Drone d)
+            {
+                if (d.gameObject.activeSelf)
+                {
+                    Log.Write($"Disabling drone");
+                    d.gameObject.SetActive( false );
+                }
+            }
+
 
 
         }
@@ -223,43 +276,46 @@ namespace Subnautica_Archon
                         Log.Error($"Cannot fix. No correction target memorized");
                 }
             }
+
         }
 
 
         public void PrepareUndocking()
         {
-            Archon.SuspendExitLimits();
-            try
+            if (Vehicle is Drone d)
             {
-                if (Archon.IsPlayerPiloting())
-                    Archon.DeselectSlots();
-                if (Archon.IsPlayerInside())
-                    Archon.PlayerExit();
-
-                if (Vehicle is ModVehicle mv)
-                {
-                    mv.PlayerEntry();
-                    mv.BeginPiloting();
-                }
-                else
-                {
-                    new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
-                    new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
-                }
-                AvatarInputHandler.main.gameObject.SetActive(value: false);
-
-                var mode = Player.main.GetType()
-                        .GetField("mode", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-                mode?.SetValue(Player.main, Player.Mode.LockedPiloting);
-
-
-                Log.Write($"Destroying pickupable (if any)");
-                GameObject.Destroy(Vehicle.GetComponent<Pickupable>());
             }
-            finally
+            else
             {
-                Archon.RestoreExitLimits();
+                Archon.SuspendExitLimits();
+                try
+                {
+                    if (Archon.IsPlayerPiloting())
+                        Archon.DeselectSlots();
+                    if (Archon.IsPlayerInside())
+                        Archon.PlayerExit();
+
+                    if (Vehicle is ModVehicle mv)
+                    {
+                        mv.PlayerEntry();
+                        mv.BeginPiloting();
+                    }
+                    else
+                    {
+                        new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
+                        new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
+                    }
+                    ChangeAvatarInput(false);
+                    Mode.Set(Player.Mode.LockedPiloting);
+                }
+                finally
+                {
+                    Archon.RestoreExitLimits();
+                }
             }
+
+            Log.Write($"Destroying pickupable (if any)");
+            Object.Destroy(Vehicle.GetComponent<Pickupable>());
         }
 
 
@@ -280,8 +336,11 @@ namespace Subnautica_Archon
             if (Vehicle is ModVehicle)
                 Vehicle.docked = false;
 
-            //new MethodAdapter<bool>(Vehicle, "UpdateCollidersForDocking").Invoke(false);
-            AvatarInputHandler.main.gameObject.SetActive(value: true);
+            if (!(Vehicle is Drone d))
+                ChangeAvatarInput(true);
+            else
+            {
+            }
         }
 
         public void OnUndockingDone()

@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Subnautica_Archon.Util;
+using System;
 using UnityEngine;
-using static PDAScanner;
-using static UnityEngine.GraphicsBuffer;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.MaterialAdapt
 {
     /// <summary>
     /// A renderer material target description, identifying a material by its slot index,
@@ -29,8 +28,8 @@ namespace Subnautica_Archon
         public override string ToString()
         {
             if (Renderer == null)
-                return $"Dead renderer target ({RendererInstanceId}) material #{MaterialIndex+1}";
-            return $"Renderer rarget {Renderer} material #{MaterialIndex+1}/{Renderer.materials.Length}";
+                return $"Dead renderer target ({RendererInstanceId}) material #{MaterialIndex + 1}";
+            return $"Renderer rarget {Renderer} material #{MaterialIndex + 1}/{Renderer.materials.Length}";
         }
         public MaterialAddress(Renderer renderer, int materialIndex)
         {
@@ -103,8 +102,8 @@ namespace Subnautica_Archon
             MaterialPrototype prototype,
             SurfaceShaderData surfaceShaderData,
             Shader shader
-            ) : this(new MaterialAddress(renderer,materialIndex), prototype, surfaceShaderData, shader)
-        {}
+            ) : this(new MaterialAddress(renderer, materialIndex), prototype, surfaceShaderData, shader)
+        { }
 
         public MaterialAdaptation(
             MaterialPrototype prototype,
@@ -125,13 +124,13 @@ namespace Subnautica_Archon
             SurfaceShaderData migrated,
             Shader shader
             ) : this(prototype, migrated.RedefineSource(target), shader)
-        {}
+        { }
 
         /// <summary>
         /// Resets only variables known to be corrupted during moonpool undock
         /// </summary>
         /// <param name="logConfig">Log Configuration</param>
-        public void PostDockFixOnTarget(LogConfig logConfig)
+        public void PostDockFixOnTarget(Logging logConfig)
         {
             try
             {
@@ -165,7 +164,7 @@ namespace Subnautica_Archon
         /// Reapplies all material properties to the target
         /// </summary>
         /// <param name="logConfig">Log Configuration</param>
-        public void ApplyToTarget(LogConfig logConfig=default)
+        public void ApplyToTarget(Logging logConfig = default)
         {
             try
             {

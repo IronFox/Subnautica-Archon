@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Subnautica_Archon.Util;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Security.Cryptography;
@@ -6,121 +7,9 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using VehicleFramework;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.MaterialAdapt
 {
-    /// <summary>
-    /// Logging configuration
-    /// </summary>
-    public readonly struct LogConfig
-    {
-        public bool LogMaterialChanges { get; }
-        public string Prefix { get; }
-        public bool IncludeTimestamp { get; }
-        public bool LogExtraSteps { get; }
-
-        public LogConfig(bool logMaterialChanges, string prefix, bool includeTimestamp, bool logExtraSteps)
-        {
-            LogMaterialChanges = logMaterialChanges;
-            Prefix = prefix;
-            IncludeTimestamp = includeTimestamp;
-            LogExtraSteps = logExtraSteps;
-        }
-
-        public const string DefaultPrefix = "Material Fix";
-
-        public static LogConfig Default { get; } = new LogConfig(
-            logMaterialChanges: false,
-            prefix: DefaultPrefix,
-            includeTimestamp: true,
-            logExtraSteps: true
-            );
-
-        public static LogConfig Silent { get; } = new LogConfig(
-            logMaterialChanges: false,
-            prefix: DefaultPrefix,
-            includeTimestamp: true,
-            logExtraSteps: false
-            );
-
-        public static LogConfig Verbose { get; } = new LogConfig(
-            logMaterialChanges: true,
-            prefix: DefaultPrefix,
-            includeTimestamp: true,
-            logExtraSteps: true
-            );
-
-        public void LogExtraStep(string msg)
-        {
-            if (!LogExtraSteps)
-                return;
-
-            Debug.Log(MakeMessage(msg));
-        }
-
-        private string MakeMessage(string msg)
-        {
-            if (!string.IsNullOrEmpty(Prefix))
-            {
-                if (IncludeTimestamp)
-                    return $"{DateTime.Now:HH:mm:ss.fff} [Archon] {Prefix}: {msg}";
-                return $"{Prefix}: {msg}";
-            }
-            else
-            {
-                if (IncludeTimestamp)
-                    return $"{DateTime.Now:HH:mm:ss.fff} [Archon] {msg}";
-                return msg;
-            }
-        }
-
-
-        public void LogMessage(string msg)
-        {
-            Debug.Log(MakeMessage(msg));
-        }
-
-        public void LogWarning(string msg)
-        {
-            Debug.LogWarning(MakeMessage(msg));
-        }
-
-        public void LogError(string msg)
-        {
-            Debug.LogError(MakeMessage(msg));
-        }
-
-        public void LogMaterialChange(string msg)
-        {
-            if (!LogMaterialChanges)
-                return;
-            Debug.Log(MakeMessage(msg));
-        }
-        public void LogMaterialChange(Func<string> msg)
-        {
-            if (!LogMaterialChanges)
-                return;
-            Debug.Log(MakeMessage(msg()));
-        }
-
-        private string ValueToString<T>(T value)
-        {
-            if (value is float f0)
-                return f0.ToString(CultureInfo.InvariantCulture);
-            return value?.ToString();
-        }
-
-        public void LogMaterialVariableSet<T>(
-            ShaderPropertyType type,
-            string name,
-            T old,
-            T value,
-            Material m)
-        {
-            if (LogMaterialChanges)
-                Debug.Log(MakeMessage($"Setting {type} {name} ({ValueToString(old)} -> {ValueToString(value)}) on material {m}"));
-        }
-    }
-
+   
 
     /// <summary>
     /// Helper class to fix materials automatically. Should be instantiated on the vehicle
@@ -142,7 +31,7 @@ namespace Subnautica_Archon
         /// <summary>
         /// Controls how debug logging should be performed
         /// </summary>
-        public LogConfig LogConfig { get; set; }
+        public Logging Logging { get; set; }
 
         public Func<IEnumerable<SurfaceShaderData>> MaterialResolver { get; }
 
@@ -153,18 +42,18 @@ namespace Subnautica_Archon
         /// <param name="materialResolver">The solver function to fetch all materials to translate.
         /// If null, a default implementation is used which 
         /// mimics VF's default material selection in addition to filtering out non-standard materials</param>
-        /// <param name="logConfig">Log Configuration. If null, defaults to <see cref="LogConfig.Default" /></param>
+        /// <param name="logConfig">Log Configuration. If null, defaults to <see cref="Logging.Default" /></param>
         public MaterialFixer(
             ModVehicle owner,
-            LogConfig? logConfig = null,
+            Logging? logConfig = null,
             Func<IEnumerable<SurfaceShaderData>> materialResolver = null
             )
-        { 
+        {
             if (owner == null)
                 throw new ArgumentNullException(nameof(owner));
             Vehicle = owner;
-            LogConfig = logConfig??LogConfig.Default;
-            MaterialResolver = materialResolver ?? (() => DefaultMaterialResolver(owner, LogConfig));
+            Logging = logConfig ?? Logging.Default;
+            MaterialResolver = materialResolver ?? (() => DefaultMaterialResolver(owner, Logging));
         }
 
         /// <summary>
@@ -174,7 +63,7 @@ namespace Subnautica_Archon
         /// <param name="ignoreShaderNames">True to return all materials, false to only return Standard materials</param>
         /// <param name="logConfig">Log Configuration</param>
         /// <returns>Enumerable of all suitable material addresses</returns>
-        public static IEnumerable<SurfaceShaderData> DefaultMaterialResolver(ModVehicle vehicle, LogConfig logConfig, bool ignoreShaderNames=false)
+        public static IEnumerable<SurfaceShaderData> DefaultMaterialResolver(ModVehicle vehicle, Logging logConfig, bool ignoreShaderNames = false)
         {
             var renderers = vehicle.GetComponentsInChildren<Renderer>();
             foreach (var renderer in renderers)
@@ -187,7 +76,7 @@ namespace Subnautica_Archon
                     // I feel okay using Skybox as the designated "don't apply marmoset to me" component.
                     // I think there's no reason a vehicle should have a skybox anywhere.
                     // And if there is, I'm sure that developer can work around this.
-                    Component.DestroyImmediate(renderer.gameObject.GetComponent<Skybox>());
+                    UnityEngine.Object.DestroyImmediate(renderer.gameObject.GetComponent<Skybox>());
                     continue;
                 }
                 if (renderer.gameObject.name.ToLower().Contains("light"))
@@ -225,7 +114,7 @@ namespace Subnautica_Archon
         public void ReApply()
         {
             foreach (MaterialAdaptation adaptation in adaptations)
-                adaptation.ApplyToTarget(LogConfig);
+                adaptation.ApplyToTarget(Logging);
         }
 
         /// <summary>
@@ -239,7 +128,7 @@ namespace Subnautica_Archon
 
             if (!materialsFixed)
             {
-                var prototype = MaterialPrototype.FromSeamoth(LogConfig);
+                var prototype = MaterialPrototype.FromSeamoth(Logging);
 
                 if (prototype != null)
                 {
@@ -247,7 +136,7 @@ namespace Subnautica_Archon
 
                     if (prototype.IsEmpty)
                     {
-                        LogConfig.LogError($"No material prototype found on Seamoth");
+                        Logging.LogError($"No material prototype found on Seamoth");
                     }
                     else
                     {
@@ -258,17 +147,17 @@ namespace Subnautica_Archon
                             try
                             {
                                 var materialAdaptation = new MaterialAdaptation(prototype, data, shader);
-                                materialAdaptation.ApplyToTarget(LogConfig);
+                                materialAdaptation.ApplyToTarget(Logging);
 
                                 adaptations.Add(materialAdaptation);
                             }
                             catch (Exception ex)
                             {
-                                LogConfig.LogError($"Adaptation failed for material {data}: {ex}");
+                                Logging.LogError($"Adaptation failed for material {data}: {ex}");
                                 Debug.LogException(ex);
                             }
                         }
-                        LogConfig.LogExtraStep($"All done. Applied {adaptations.Count} adaptations");
+                        Logging.LogExtraStep($"All done. Applied {adaptations.Count} adaptations");
                     }
                 }
             }
@@ -276,9 +165,9 @@ namespace Subnautica_Archon
             if (DateTime.Now > repairMaterialsIn && --repairMaterialsInFrames == 0)
             {
                 repairMaterialsIn = DateTime.MaxValue;
-                LogConfig.LogExtraStep($"Undocked. Resetting materials");
+                Logging.LogExtraStep($"Undocked. Resetting materials");
                 foreach (MaterialAdaptation adaptation in adaptations)
-                    adaptation.PostDockFixOnTarget(LogConfig);
+                    adaptation.PostDockFixOnTarget(Logging);
             }
         }
     }

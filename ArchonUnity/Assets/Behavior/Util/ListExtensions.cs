@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 public static class ListExtensions
@@ -6,6 +7,12 @@ public static class ListExtensions
     {
         foreach (var item in items)
             set.Add(item);
+    }
+
+    public static void ForEach<T>(this IEnumerable<T> source, Action<T> action)
+    {
+        foreach (var item in source)
+            action(item);
     }
 
 }

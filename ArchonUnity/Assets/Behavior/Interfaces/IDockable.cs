@@ -62,4 +62,10 @@ public interface IDockable
     /// True if this dockable requires a vertical orientation on release
     /// </summary>
     bool UndockUpright { get; }
+
+    /// <summary>
+    /// Gets the axis aligned bounds of the local dockable from its point of origin in local space.
+    /// Transform scale, if any, should be applied, position or rotation should not
+    /// </summary>
+    Bounds LocalBounds { get; }
 }

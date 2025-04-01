@@ -6,10 +6,15 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Subnautica_Archon
+namespace Subnautica_Archon.Util
 {
     public static class Helper
     {
+        public static PlayerReference GetPlayerReference()
+        {
+            return new PlayerReference(Player.mainObject, Player.main.camRoot.transform);
+        }
+
         public static IEnumerable<Transform> Children(Transform t)
         {
             if (t == null)
@@ -34,9 +39,9 @@ namespace Subnautica_Archon
                 else
                     yield return obj.name;
         }
-        public static string NamesS(IEnumerable<UnityEngine.Component> source)
+        public static string NamesS(IEnumerable<Component> source)
             => S(Names(source));
-        public static IEnumerable<string> Names(IEnumerable<UnityEngine.Component> source)
+        public static IEnumerable<string> Names(IEnumerable<Component> source)
         {
             foreach (var obj in source)
             {

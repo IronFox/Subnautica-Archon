@@ -89,7 +89,7 @@ public class EvacuateIntruders : MonoBehaviour
                             var exteriorHits = hits.Where(x => colliders.ContainsKey( x.collider.GetInstanceID()));
                             if (exteriorHits.Any())
                             {
-                                var hitDistance = hits.Select(x => x.distance).Min();
+                                var hitDistance = hits.Select(x => x.distance).Max();
                                 var exteriorRadius = outerRadius - hitDistance;
 
                                 var r = 1f;
@@ -102,7 +102,7 @@ public class EvacuateIntruders : MonoBehaviour
                                 if (exteriorRadius > distanceToCandidiate - r)
                                 {
                                     var targetPosition = from + fromToWhat * (outerRadius + r * 1.2f) / distanceToCandidiate;
-                                    log.LogWarning($"Evacuating {candidate} to {targetPosition}");
+                                    log.LogWarning($"Evacuating {candidate} to {targetPosition} at extR={exteriorRadius}, dist={distanceToCandidiate}, r={r} ");
                                     candidate.transform.position = targetPosition;
                                 }
                             }

@@ -160,6 +160,19 @@ public static class M
         var d = Mathf.Sqrt(d2);
         return from + fromToWhat * toMinDistance / d;
     }
+
+    public static Bool3 Greater(this Vector3 a, Vector3 b)
+    => new Bool3(a.x > b.x, a.y > b.y, a.z > b.z);
+    public static Bool3 GreaterOrEqual(this Vector3 a, Vector3 b)
+        => new Bool3(a.x >= b.x, a.y >= b.y, a.z >= b.z);
+    public static Bool3 Equal(this Vector3 a, Vector3 b)
+        => new Bool3(a.x == b.x, a.y == b.y, a.z == b.z);
+    public static Bool3 Less(this Vector3 a, Vector3 b)
+        => new Bool3(a.x < b.x, a.y < b.y, a.z < b.z);
+    public static Bool3 LessOrEqual(this Vector3 a, Vector3 b)
+        => new Bool3(a.x <= b.x, a.y <= b.y, a.z <= b.z);
+
+
 }
 
 
@@ -197,9 +210,6 @@ public readonly struct QuadraticSolution
         return new QuadraticSolution(x, null);
     }
 
-
-
-
 }
 
 
@@ -213,4 +223,69 @@ public readonly struct RayDistance
         DistanceAlongRay = distanceAlongRay;
         DistanceToClosesPointOnRay = distanceToClosesPointOnRay;
     }
+}
+
+
+public readonly struct Bool3 : IEquatable<Bool3>
+{
+    public bool X { get; }
+    public bool Y { get; }
+    public bool Z { get; }
+
+    public Bool3(bool x, bool y, bool z)
+    {
+        X = x;
+        Y = y;
+        Z = z;
+    }
+
+    public override bool Equals(object obj)
+    {
+        return obj is Bool3 @bool &&
+               X == @bool.X &&
+               Y == @bool.Y &&
+               Z == @bool.Z;
+    }
+
+    public override int GetHashCode()
+    {
+        int hashCode = -307843816;
+        hashCode = hashCode * -1521134295 + X.GetHashCode();
+        hashCode = hashCode * -1521134295 + Y.GetHashCode();
+        hashCode = hashCode * -1521134295 + Z.GetHashCode();
+        return hashCode;
+    }
+
+    public bool Equals(Bool3 other)
+    {
+        return X == other.X
+            && Y == other.Y
+            && Z == other.Z;
+    }
+
+    public static bool operator ==(Bool3 a, Bool3 b)
+        => a.Equals(b);
+    public static bool operator !=(Bool3 a, Bool3 b)
+        => !a.Equals(b);
+
+    public Bool3 And(Bool3 other)
+        => new Bool3(
+            X && other.X,
+            Y && other.Y,
+            Z && other.Z
+            );
+    public Bool3 Or(Bool3 other)
+        => new Bool3(
+            X || other.X,
+            Y || other.Y,
+            Z || other.Z
+            );
+
+    public static Bool3 operator !(Bool3 b)
+        => new Bool3(!b.X, !b.Y, !b.Z);
+
+    public bool All => X && Y && Z;
+    public bool NotAll => !X || !Y || !Z;
+    public bool Any => X || Y || Z;
+    public bool None => !X && !Y && !Z;
 }
