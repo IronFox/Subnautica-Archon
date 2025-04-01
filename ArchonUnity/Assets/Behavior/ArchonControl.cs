@@ -42,6 +42,8 @@ public class ArchonControl : MonoBehaviour
     public bool openBay;
     public bool lights;
 
+    public int maxDockedVehicles = 2;
+
     private DateTime lastOnboarded;
 
     private GameObject boardedBy;
@@ -180,6 +182,7 @@ public class ArchonControl : MonoBehaviour
     {
         RigidbodyUtil.SetKinematic(rb);
 
+        transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
 
         boardedBy = playerRoot;
         var colliders = playerRoot.GetComponentsInChildren<Collider>();
@@ -226,7 +229,7 @@ public class ArchonControl : MonoBehaviour
 
             var listeners = BoardingListeners.Of(this, trailSpace);
 
-            listeners.SignalOnboardingBegin();
+            listeners.SignalEnterControlBegin();
 
             cameraRoot = localizeInsteadOfMainCamera;
             if (cameraRoot == null)
@@ -244,13 +247,13 @@ public class ArchonControl : MonoBehaviour
 
             currentlyControlled = true;
 
-            listeners.SignalOnboardingEnd();
+            listeners.SignalEnterControlEnd();
         }
     }
 
 
 
-    public void ExitControl(GameObject playerRoot)
+    public void ExitControl(GameObject playerRoot, bool intoShip=true)
     {
         if (currentlyControlled)
         {
@@ -259,7 +262,7 @@ public class ArchonControl : MonoBehaviour
             try
             {
 
-                listeners.SignalOffBoardingBegin();
+                listeners.SignalExitControlBegin();
 
                 MoveCameraOutOfTrailSpace();
                 log.Write($"Restoring parentage");
@@ -272,9 +275,9 @@ public class ArchonControl : MonoBehaviour
                 trailSpace.parent = transform;
             }
             controlledBy = null;
-            Enter(playerRoot);
-            listeners.SignalOffBoardingEnd();
-
+            if (intoShip)
+                Enter(playerRoot);
+            listeners.SignalExitControlEnd();
         }
     }
 
@@ -413,6 +416,7 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.IsFirstPerson, positionCamera.isFirstPerson);
             statusConsole.Set(StatusProperty.OpenBay, openBay);
             statusConsole.Set(StatusProperty.Lights, lights);
+            statusConsole.Set(StatusProperty.NumDockedVehicles, bayControl.NumDockedVehicles);
         }
         catch (Exception ex)
         {
@@ -446,6 +450,7 @@ public class ArchonControl : MonoBehaviour
         try
         {
             //bayControl.open = openBay;
+            bayControl.maxDockedVehicles = maxDockedVehicles;
         }
         catch (Exception ex)
         {
@@ -850,8 +855,8 @@ public class ArchonControl : MonoBehaviour
 
 public enum UndockingCheckResult
 {
-    Possible,
-    CannotBusy,
+    Ok,
+    Busy,
     CannotNotDocked,
     NotDockable,
 }
