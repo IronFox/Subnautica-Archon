@@ -15,7 +15,7 @@ public class TriggerTracker : MonoBehaviour
     public Transform exclude;
 
     private LogConfig logConfig = LogConfig.Default;
-
+    public Collider[] tracked;
     public IEnumerable<Collider> CurrentlyTouching => currentlyTouching.Values.Where(x => x);
     private readonly Dictionary<int, Collider> currentlyTouching = new Dictionary<int, Collider>();
     private int checkProgress = 0;
@@ -26,11 +26,12 @@ public class TriggerTracker : MonoBehaviour
         {
             List<int> remove = null;
             foreach (var c in currentlyTouching)
-                if (!c.Value)
+                if (!c.Value || !c.Value.enabled)
                     (remove ?? (remove = new List<int>())).Add(c.Key);
             if (remove != null)
                 foreach (var c in remove)
                     currentlyTouching.Remove(c);
+            tracked = currentlyTouching.Values.ToArray();
             checkProgress = 10;
         }
     }
@@ -41,6 +42,7 @@ public class TriggerTracker : MonoBehaviour
         {
             currentlyTouching[other.GetInstanceID()] = other;
             logConfig.Write("Registered entering "+other);
+            tracked = currentlyTouching.Values.ToArray();
         }
     }
 
@@ -48,6 +50,7 @@ public class TriggerTracker : MonoBehaviour
     {
         currentlyTouching.Remove(other.GetInstanceID());
         logConfig.Write("Registered leaving " + other);
+        tracked = currentlyTouching.Values.ToArray();
     }
 
     internal T ClosestEnabledNonKinematic<T>(Func<Collider, T> converter)

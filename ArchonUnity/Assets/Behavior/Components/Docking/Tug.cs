@@ -12,7 +12,7 @@ public class Tug : MonoBehaviour
 
     private LogConfig Log { get; set; } = LogConfig.Default;
     
-    private int WaitCount { get; set; }
+    private float WaitSeconds { get; set; }
     private Undoable UndoTugging { get; } = new Undoable();
     private Undoable ParticleSystems {get; } = new Undoable();
     private Undoable Renderers { get; } = new Undoable();
@@ -23,6 +23,8 @@ public class Tug : MonoBehaviour
     public float AnimationSeconds { get; private set; }
     public float AnimationProgress { get; private set; }
     public Vector3 Correction { get; private set; }
+
+    
     public bool WantsDoorsOpen
     {
         get
@@ -43,6 +45,10 @@ public class Tug : MonoBehaviour
         }
     }
 
+
+    private DateTime LastUpdate { get; set; }
+    public override string ToString()
+        => $"Tug[{GetInstanceID()}]<{Dockable}>{{{Status}/{AnimationProgress.ToStr()}/o={Owner.DoorOpenStatus.ToStr()}/{Owner.DoorsAreClosed}/{DateTime.Now - LastUpdate}/e={isActiveAndEnabled}/oe={Owner.isActiveAndEnabled}}}";
 
     private static string NiceName(string s)
     {
@@ -103,11 +109,8 @@ public class Tug : MonoBehaviour
             c.velocity = Vector3.zero;
         }
 
-        var pos = dockable.GameObject.transform.position;
-        var rot = dockable.GameObject.transform.rotation;
-        dockable.GameObject.transform.parent = bayControl.dockedSubRoot;
-        dockable.GameObject.transform.position = pos;
-        dockable.GameObject.transform.rotation = rot;
+        if (status != TugStatus.UndockedWaitingForTriggerExit)
+            dockable.GameObject.transform.SetParent(transform);
 
         switch (status)
         {
@@ -143,13 +146,9 @@ public class Tug : MonoBehaviour
             throw new InvalidOperationException($"Cannot transition to free from {Status}");
         Log.Write($"Free");
         Status = TugStatus.UndockedWaitingForTriggerExit;
-        WaitCount = 0;
+        WaitSeconds = 0;
 
-        var pos = Dockable.GameObject.transform.position;
-        var rot = Dockable.GameObject.transform.rotation;
-        Dockable.GameObject.transform.parent = Owner.archon.transform.parent;
-        Dockable.GameObject.transform.position = pos;
-        Dockable.GameObject.transform.rotation = rot;
+        Dockable.GameObject.transform.SetParent(Owner.archon.transform.parent);
 
         UndoTugging.UndoAll();
         Renderers.UndoAll();
@@ -251,10 +250,13 @@ public class Tug : MonoBehaviour
             c.velocity = Vector3.zero;
         }
 
-
+        ObjectUtil.RequireActive(this, Owner.archon.transform);
 
         Log.Write($"Dockable.EndDocking()");
         Dockable.EndDocking();
+
+        ObjectUtil.RequireActive(this, Owner.archon.transform);
+
     }
 
 
@@ -323,74 +325,88 @@ public class Tug : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        switch (Status)
+        LastUpdate = DateTime.Now;
+        try
         {
-            case TugStatus.UndockedWaitingForTriggerExit:
-                if (++WaitCount > 3 && !Owner.dockingTrigger.IsTracked(Dockable.GameObject))
-                {
-                    Log.Write("No longer in trigger zone. Releasing");
-
-                    Log.Write($"Dockable.OnUndockingDone()");
-                    Dockable.OnUndockingDone();
-
-                    Destroy(this);
-                }
-                break;
-            case TugStatus.WaitingForBayDoorClose:
-                if (Owner.DoorsAreClosed)
-                {
-                    Owner.ReleaseActive(this);
-                    Log.Write("Doors closed. Concluding");
-                    TransitionToDocked();
-                }
-                else
-                    Dockable.UpdateWaitingForBayDoorClose();
-                break;
-            case TugStatus.WaitingForBayDoorOpen:
-                if (Owner.DoorsAreSufficientlyOpen)
-                {
-                    Log.Write($"Doors open wide enough. Undocking");
-                    BeginUndocking();
-                }
-                else
-                    Dockable.UpdateWaitingForBayDoorOpen();
-                break;
-            case TugStatus.Docking:
-            case TugStatus.Undocking:
-                AnimationProgress += Time.deltaTime / AnimationSeconds;
-                if (AnimationProgress < 1)
-                {
-                    var start = Local(AnimationStart);
-                    if (Status == TugStatus.Undocking && Dockable.UndockUpright)
-                        AnimationEnd = AnimationEnd.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
-                    var end = Local(AnimationEnd);
-                    TransformDescriptor
-                        .Lerp(start, end, M.Smoothstep(0, 1, AnimationProgress))
-                        .TranslatedBy(Correction)
-                        .ApplyTo(Dockable.GameObject.transform);
-                }
-                else
-                {
-                    Log.Write($"Animation end reached");
-                    if (Status == TugStatus.Undocking && Dockable.UndockUpright)
-                        AnimationEnd = AnimationEnd.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
-                    Local(AnimationEnd)
-                        .TranslatedBy(Correction)
-                        .ApplyTo(Dockable.GameObject.transform);
-                    if (Status == TugStatus.Docking)
+            switch (Status)
+            {
+                case TugStatus.UndockedWaitingForTriggerExit:
+                    WaitSeconds += Time.deltaTime;
+                    if (WaitSeconds > 1 && !Owner.dockingTrigger.IsTracked(Dockable.GameObject))
                     {
+                        Log.Write("No longer in trigger zone. Releasing");
 
-                        TransitionToWaitingForBayDoorClose();
+                        Log.Write($"Dockable.OnUndockingDone()");
+                        Dockable.OnUndockingDone();
+
+                        if (Dockable.GameObject.transform.IsChildOf(transform))
+                        {
+                            Log.LogError($"{Dockable} is still a child of {this}. Offloading");
+                            Dockable.GameObject.transform.SetParent(Owner.archon.transform.parent);
+                        }
+                        Destroy(gameObject);
+                    }
+                    break;
+                case TugStatus.WaitingForBayDoorClose:
+                    if (Owner.DoorsAreClosed)
+                    {
+                        Owner.ReleaseActive(this);
+                        Log.Write("Doors closed. Concluding");
+                        TransitionToDocked();
+                    }
+                    else
+                        Dockable.UpdateWaitingForBayDoorClose();
+                    break;
+                case TugStatus.WaitingForBayDoorOpen:
+                    if (Owner.DoorsAreSufficientlyOpen)
+                    {
+                        Log.Write($"Doors open wide enough. Undocking");
+                        BeginUndocking();
+                    }
+                    else
+                        Dockable.UpdateWaitingForBayDoorOpen();
+                    break;
+                case TugStatus.Docking:
+                case TugStatus.Undocking:
+                    AnimationProgress += Time.deltaTime / AnimationSeconds;
+                    if (AnimationProgress < 1)
+                    {
+                        var start = Local(AnimationStart);
+                        if (Status == TugStatus.Undocking && Dockable.UndockUpright)
+                            AnimationEnd = AnimationEnd.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
+                        var end = Local(AnimationEnd);
+                        TransformDescriptor
+                            .Lerp(start, end, M.Smoothstep(0, 1, AnimationProgress))
+                            .TranslatedBy(Correction)
+                            .ApplyTo(Dockable.GameObject.transform);
                     }
                     else
                     {
-                        Owner.ReleaseActive(this);
-                        TransitionToFree();
+                        Log.Write($"Animation end reached");
+                        if (Status == TugStatus.Undocking && Dockable.UndockUpright)
+                            AnimationEnd = AnimationEnd.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
+                        Local(AnimationEnd)
+                            .TranslatedBy(Correction)
+                            .ApplyTo(Dockable.GameObject.transform);
+                        if (Status == TugStatus.Docking)
+                        {
+
+                            TransitionToWaitingForBayDoorClose();
+                        }
+                        else
+                        {
+                            Owner.ReleaseActive(this);
+                            TransitionToFree();
+                        }
                     }
-                }
 
 
-                break;
+                    break;
+            }
+        }
+        catch (Exception e)
+        {
+            Log.LogException(e);
         }
     }
 
