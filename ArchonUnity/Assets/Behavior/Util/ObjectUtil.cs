@@ -4,6 +4,86 @@ using UnityEngine;
 
 public static class ObjectUtil
 {
+    public static void DisableAllEnabled(this IEnumerable<Collider> colliders, Undoable undo)
+    {
+        foreach (var c in colliders)
+            if (c.enabled)
+            {
+                c.enabled = false;
+                undo.Add(() => c.enabled = true);
+            }
+    }
+    public static void DisableAllEnabledColliders(this GameObject go, Undoable undo)
+        => go.GetComponentsInChildren<Collider>().DisableAllEnabled(undo);
+    public static void DisableAllEnabledColliders(this Transform t, Undoable undo)
+        => t.GetComponentsInChildren<Collider>().DisableAllEnabled(undo);
+    public static void DisableAllEnabledColliders(this IDockable dockable, Undoable undo)
+        => dockable.GetAllComponents<Collider>().DisableAllEnabled(undo);
+
+    public static void Disable(this IEnumerable<Rigidbody> rbs, Undoable undo)
+    {
+        foreach (var c in rbs)
+        {
+            if (!c.isKinematic)
+            {
+                LogConfig.Default.Write($"Disabling rigidbody [{c}]");
+                c.SetKinematic();
+                undo.Add(() => {
+                    LogConfig.Default.Write($"Re-enabling rigidbody [{c}]");
+                    c.UnsetKinematic();
+                });
+            }
+            if (c.detectCollisions)
+            {
+                LogConfig.Default.Write($"Disabling collisions of [{c}]");
+                c.detectCollisions = false;
+                undo.Add(() => {
+                    LogConfig.Default.Write($"Re-enabling collisions of [{c}]");
+                    c.detectCollisions = true;
+                });
+            }
+            if (c.velocity.sqrMagnitude > 0)
+            {
+                LogConfig.Default.Write($"Clearing velocity of [{c}]");
+
+                c.velocity = Vector3.zero;
+            }
+        }
+    }
+    public static void DisableRigidbodies(this GameObject go, Undoable undo)
+        => go.GetComponentsInChildren<Rigidbody>().Disable(undo);
+    public static void DisableRigidbodies(this Transform t, Undoable undo)
+        => t.GetComponentsInChildren<Rigidbody>().Disable(undo);
+    public static void DisableRigidbodies(this IDockable dockable, Undoable undo)
+        => dockable.GetAllComponents<Rigidbody>().Disable(undo);
+
+    public static string NiceName(this UnityEngine.Object o)
+    {
+        var s = o.name;
+        int at = s.IndexOf('(');
+        if (at >= 0)
+            return s.Substring(0, at);
+        return s;
+    }
+    public static string PathToString(this Transform t)
+    {
+        if (!t)
+            return "<null>";
+        var parts = new List<string>();
+        try
+        {
+            while (t)
+            {
+                parts.Add($"{t.name}[{t.GetInstanceID()}]");
+                t = t.parent;
+            }
+        }
+        catch (UnityException)  //odd, but okay, don't care
+        { }
+        parts.Reverse();
+        return string.Join("/", parts);
+
+    }
 
     public static IEnumerable<Transform> GetChildren(this Transform transform)
     {

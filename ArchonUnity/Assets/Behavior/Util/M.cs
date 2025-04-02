@@ -46,7 +46,18 @@ public static class M
     /// <returns>Interpolated value in [0,1]</returns>
     public static float Smoothstep(float a, float b, float x)
     {
-        float t = Saturate((x - a) / (b - a));
+        return Smooth((x - a) / (b - a));
+    }
+
+    /// <summary>
+    /// Uses the interpolation mechanic of <see cref="Smoothstep(float, float, float)" />
+    /// to transform a value in [0,1] to a smooth version in [0,1]
+    /// </summary>
+    /// <param name="t">Input value in [0,1]. Values outside this range are clamped</param>
+    /// <returns>Smooth value</returns>
+    public static float Smooth(float t)
+    {
+        t = Saturate(t);
         return t * t * (3f - (2f * t));
     }
 

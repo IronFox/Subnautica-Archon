@@ -49,7 +49,14 @@ namespace Subnautica_Archon
 
         public override float ExitVelocityLimit => 100f;    //any speed is good
 
- 
+        public IEnumerable<QuickSlot> QuickSlots
+        {
+            get
+            {
+                for (int i = 0; i < slotIDs.Length; i++)
+                    yield return new QuickSlot(i,slotIDs[i]);
+            }
+        }
 
         public override void OnFinishedLoading()
         {
@@ -206,12 +213,16 @@ namespace Subnautica_Archon
                         var cr = control.CheckUndocking(vehicle.gameObject);
                         if (cr == UndockingCheckResult.Ok)
                         {
-                            Log.Write($"Removing quick bar item");
-                            modules.RemoveItem(slotId, true, true);
+                            Log.Write($"Removing quick bar item in slot [{slotId}]");
+                            var removed = modules.RemoveItem(slotId, true, true);
+                            Log.Write($"Removed [{removed}]");
+                            
 
                             Log.Write($"Undocking {Log.Describe(vehicle)}");
                             control.Undock(vehicle.gameObject);
                             ToggleSlot(slotID, false);
+                            if (vehicle is Drone)
+                                SignalQuickslotsChangedWhilePiloting();
                         }
                         else
                         {
@@ -891,6 +902,17 @@ namespace Subnautica_Archon
         internal void RestoreExitLimits()
         {
             exitLimitsSuspended = false;
+        }
+
+        public void ToggleSlot(QuickSlot slot, bool enabled)
+        {
+            base.ToggleSlot(slot.Index, enabled);
+        }
+
+        internal void SignalQuickslotsChangedWhilePiloting()
+        {
+            DeselectSlots();
+            BeginPiloting();
         }
 
         public string VehicleName => subName ? subName.GetName() : vehicleName;
