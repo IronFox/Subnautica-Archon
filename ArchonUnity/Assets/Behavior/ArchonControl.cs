@@ -131,7 +131,7 @@ public class ArchonControl : MonoBehaviour
 
             cameraMove = Parentage.FromLocal(cameraRoot);
             cameraRoot.parent = trailSpaceCameraContainer;
-            TransformDescriptor.LocalIdentity.ApplyTo(cameraRoot);
+            TransDesc.LocalIdentity.ApplyTo(cameraRoot);
             Log.Write("Moved");
         }
     }

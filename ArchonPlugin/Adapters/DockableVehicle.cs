@@ -57,7 +57,7 @@ namespace Subnautica_Archon.Adapters
         {
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
-            if (Vehicle is ModVehicle)
+            //if (Vehicle is ModVehicle)
                 Vehicle.docked = true;  //vanilla vehicles react oddly
             EndDocking();
 
@@ -94,8 +94,8 @@ namespace Subnautica_Archon.Adapters
 
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
-            if (Vehicle is ModVehicle)
-                Vehicle.docked = true;  //vanilla vehicles react oddly
+            if (Vehicle is ModVehicle || !HasPlayer)
+                Vehicle.docked = true;
         }
 
 
@@ -158,6 +158,7 @@ namespace Subnautica_Archon.Adapters
                 //CraftData.
                 //var module = ModVehicleUndockModule.GetPrototypeFor( mv );
 
+                Vehicle.docked = true;
 
                 var pu = Vehicle.gameObject.GetComponent<Pickupable>();
                 if (!pu)
@@ -211,17 +212,7 @@ namespace Subnautica_Archon.Adapters
                     else
                         Log.Error($"Unable to find suitable quickslot for docked sub {pu}. Sub will not be listed in quickbar");
                 }
-                if (Vehicle.transform.parent != Archon.Control.hangarRoot)
-                {
-                    Log.Error($"Docked vehicle root has changed from {Log.PathOf(Archon.Control.hangarRoot)} to {Log.PathOf(Vehicle.transform.parent)}. Reparenting");
-                    Vehicle.transform.parent = Archon.Control.hangarRoot;
-                }
-                if (Vehicle.transform.localPosition != Archon.Control.dockedSpace.localPosition)
-                {
-                    Log.Error($"Docked vehicle local position has changed from {Archon.Control.dockedSpace.localPosition} to {Vehicle.transform.localPosition}. Relocating");
-                    Vehicle.transform.localPosition = Archon.Control.dockedSpace.localPosition;
-                    Vehicle.transform.localRotation = Archon.Control.dockedSpace.localRotation;
-                }
+
                 Log.Write($"Mod added");
 
             }
@@ -303,6 +294,9 @@ namespace Subnautica_Archon.Adapters
             }
             else
             {
+                if (!(Vehicle is ModVehicle))
+                    Vehicle.docked = false;
+
                 Archon.SuspendExitLimits();
                 try
                 {
@@ -349,7 +343,7 @@ namespace Subnautica_Archon.Adapters
         {
             Vehicle.liveMixin.shielded = false;
             Vehicle.crushDamage.enabled = true;
-            if (Vehicle is ModVehicle)
+            //if (Vehicle is ModVehicle)
                 Vehicle.docked = false;
 
             if (!(Vehicle is Drone d))

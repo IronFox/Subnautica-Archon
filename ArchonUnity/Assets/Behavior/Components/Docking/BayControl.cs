@@ -229,7 +229,7 @@ public class BayControl : MonoBehaviour
                 var d = DockingAdapter.ToDockable(go, archon);
                 if (d == null)
                 {
-                    Log.Write($"Failed to convert {go} into dockable");
+                    //Log.Write($"Failed to convert {go} into dockable");
                     return null;
                 }
                 var bounds = d.LocalBounds;
@@ -256,7 +256,7 @@ public class BayControl : MonoBehaviour
                 //move ahead
 
                 var tugObj = Instantiate(tugPrefab, dockedSubRoot);
-                TransformDescriptor.LocalIdentity.ApplyTo(tugObj);
+                TransDesc.LocalIdentity.ApplyTo(tugObj);
                 var tug = tugObj.GetComponent<Tug>();
                 tug.Bind(this, candidate, TugStatus.Docking);
                 active = tug;

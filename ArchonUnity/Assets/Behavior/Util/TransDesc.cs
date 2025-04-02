@@ -5,12 +5,12 @@ using System.Security.Cryptography;
 using UnityEngine;
 using static UnityEngine.UI.GridLayoutGroup;
 
-public readonly struct TransformDescriptor 
+public readonly struct TransDesc 
 {
-    public static TransformDescriptor LocalIdentity { get; } = new TransformDescriptor(FullEuler.LocalIdentity, Vector3.zero);
-    public static TransformDescriptor GlobalIdentity { get; } = new TransformDescriptor(FullEuler.GlobalIdentity, Vector3.zero);
+    public static TransDesc LocalIdentity { get; } = new TransDesc(FullEuler.LocalIdentity, Vector3.zero);
+    public static TransDesc GlobalIdentity { get; } = new TransDesc(FullEuler.GlobalIdentity, Vector3.zero);
 
-    public TransformDescriptor(FullEuler rotation, Vector3 position) : this()
+    public TransDesc(FullEuler rotation, Vector3 position) : this()
     {
         Euler = rotation;
         Position = position;
@@ -20,13 +20,13 @@ public readonly struct TransformDescriptor
     public Vector3 Position { get; }
 
     public TransformLocality Locality => Euler.Locality;
-    public static TransformDescriptor FromLocal(Transform source)
-        => new TransformDescriptor(FullEuler.FromLocal(source), position: source.localPosition);
-    public static TransformDescriptor FromLocal(GameObject source)
+    public static TransDesc FromLocal(Transform source)
+        => new TransDesc(FullEuler.FromLocal(source), position: source.localPosition);
+    public static TransDesc FromLocal(GameObject source)
         => FromLocal(source.transform);
-    public static TransformDescriptor FromGlobal(Transform source)
-        => new TransformDescriptor(FullEuler.FromGlobal(source), position: source.position);
-    public static TransformDescriptor FromGlobal(GameObject source)
+    public static TransDesc FromGlobal(Transform source)
+        => new TransDesc(FullEuler.FromGlobal(source), position: source.position);
+    public static TransDesc FromGlobal(GameObject source)
         => FromGlobal(source.transform);
 
     public void ApplyTo(GameObject target)
@@ -45,8 +45,8 @@ public readonly struct TransformDescriptor
         }
     }
 
-    public static TransformDescriptor Lerp(TransformDescriptor a, TransformDescriptor b, float t)
-        => new TransformDescriptor(FullEuler.Slerp(a.Euler, b.Euler, t), Vector3.Lerp(a.Position,b.Position,t));
+    public static TransDesc Lerp(TransDesc a, TransDesc b, float t)
+        => new TransDesc(FullEuler.Slerp(a.Euler, b.Euler, t), Vector3.Lerp(a.Position,b.Position,t));
 
     /// <summary>
     /// Transforms this global descriptor to a local descriptor in the given transform
@@ -54,15 +54,15 @@ public readonly struct TransformDescriptor
     /// <param name="transform">Transform to localize in</param>
     /// <returns>Localized descriptor</returns>
     /// <exception cref="InvalidOperationException">If the local descriptor was not global</exception>
-    public TransformDescriptor Localize(Transform transform)
+    public TransDesc Localize(Transform transform)
     {
         if (Locality != TransformLocality.Global)
-            throw new InvalidOperationException($"{nameof(TransformDescriptor)} has locality {Locality}. Needs Global");
+            throw new InvalidOperationException($"{nameof(TransDesc)} has locality {Locality}. Needs Global");
         Quaternion q
             = Quaternion.Inverse(transform.rotation)
             * Euler.Quaternion;
 
-        return new TransformDescriptor(
+        return new TransDesc(
             FullEuler.FromAngles(
                 q.eulerAngles,
                 TransformLocality.Local
@@ -76,15 +76,15 @@ public readonly struct TransformDescriptor
     /// <param name="transform">Transform to globalize with</param>
     /// <returns>Globalized descriptor</returns>
     /// <exception cref="InvalidOperationException">If the local descriptor was not local</exception>
-    public TransformDescriptor Globalize(Transform transform)
+    public TransDesc Globalize(Transform transform)
     {
         if (Locality != TransformLocality.Local)
-            throw new InvalidOperationException($"{nameof(TransformDescriptor)} has locality {Locality}. Needs Local");
+            throw new InvalidOperationException($"{nameof(TransDesc)} has locality {Locality}. Needs Local");
         Quaternion q
             = transform.rotation
             * Euler.Quaternion;
 
-        return new TransformDescriptor(
+        return new TransDesc(
             FullEuler.FromAngles(
                 q.eulerAngles,
                 TransformLocality.Global
@@ -100,22 +100,22 @@ public readonly struct TransformDescriptor
     /// <param name="globalRotation">Global rotation to set</param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public TransformDescriptor WithGlobalRotation(Transform localTransform, Quaternion globalRotation)
+    public TransDesc WithGlobalRotation(Transform localTransform, Quaternion globalRotation)
     {
         switch (Locality)
         {
             case TransformLocality.Global:
-                return new TransformDescriptor(FullEuler.From(globalRotation, TransformLocality.Global), Position);
+                return new TransDesc(FullEuler.From(globalRotation, TransformLocality.Global), Position);
             case TransformLocality.Local:
                 {
                     var local = Quaternion.Inverse(localTransform.rotation) * globalRotation;
-                    return new TransformDescriptor(FullEuler.From(local, TransformLocality.Local), Position);
+                    return new TransDesc(FullEuler.From(local, TransformLocality.Local), Position);
                 }
             default:
                 throw new InvalidOperationException($"Unexpected locality: {Locality}");
         }
     }
 
-    public TransformDescriptor TranslatedBy(Vector3 delta)
-        => new TransformDescriptor(Euler, Position + delta);
+    public TransDesc TranslatedBy(Vector3 delta)
+        => new TransDesc(Euler, Position + delta);
 }
