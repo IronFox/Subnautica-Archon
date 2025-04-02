@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
@@ -18,8 +19,8 @@ public class Tug : MonoBehaviour
     private Undoable Renderers { get; } = new Undoable();
     private Undoable Lights { get; } = new Undoable();
     private Undoable Behaviours { get; } = new Undoable();
-    public TransformDescriptor AnimationStart { get; private set; }
-    public Func<TransformDescriptor> AnimationEnd { get; private set; }
+    public TransDesc AnimationStart { get; private set; }
+    public Func<TransDesc> AnimationEnd { get; private set; }
     public float AnimationSeconds { get; private set; }
     public float AnimationProgress { get; private set; }
     public Vector3 Correction { get; private set; }
@@ -120,8 +121,11 @@ public class Tug : MonoBehaviour
                 BeginUndocking();
                 break;
             default:
-                AnimationStart = TransformDescriptor.FromGlobal(dockable.GameObject.transform);
-                AnimationEnd = () => TransformDescriptor.FromLocal(Owner.dockedBounds.transform);
+                AnimationStart = TransDesc.FromGlobal(dockable.GameObject.transform);
+                AnimationEnd = () => 
+                TransDesc
+                    .FromLocal(Owner.dockedBounds.transform)
+                    .TranslatedBy(Correction);
                 RestartAnimation();
                 break;
         }
@@ -222,7 +226,7 @@ public class Tug : MonoBehaviour
                 });
             }
 
-        TransformDescriptor.FromLocal(Owner.dockedBounds.transform)
+        TransDesc.FromLocal(Owner.dockedBounds.transform)
             .TranslatedBy(Correction)
             .ApplyTo(Dockable.GameObject.transform);
 
@@ -235,23 +239,16 @@ public class Tug : MonoBehaviour
         Log.Write($"WaitingForBayDoorClose");
         Status = TugStatus.WaitingForBayDoorClose;
 
-        foreach (var c in Dockable.GetAllComponents<MonoBehaviour>())
-            if (c != this && c.enabled)
-            {
-                Log.Write($"Disabling behavior {c.GetType()} on {c.transform.NiceName()} [{c.GetInstanceID()}]");
-                c.enabled = false;
-                Behaviours.Add(() =>
-                {
-                    Log.Write($"Re-enabling behavior {c.GetType()} on {c.transform.NiceName()} [{c.GetInstanceID()}]");
-                    c.enabled = true;
-                });
-            }
+        Dockable.GetAllComponents<MonoBehaviour>()
+                .Where(x => !x == this)
+                .DisableAllEnabled(Behaviours);
         //recheck these, seen falling brawn suits
         Dockable.DisableAllEnabledColliders(UndoTugging);
         Dockable.DisableRigidbodies(UndoTugging);
 
-
         Do(Dockable.EndDocking, $"Dockable.EndDocking()");
+
+        Local(AnimationEnd()).ApplyTo(Dockable.GameObject.transform);   //just in case
     }
 
 
@@ -267,12 +264,14 @@ public class Tug : MonoBehaviour
         Lights.UndoAll();
 
 
-        Dockable.GameObject.transform.localPosition = Owner.dockedBounds.localPosition;
-        Dockable.GameObject.transform.localRotation = Owner.dockedBounds.localRotation;
-        AnimationStart = TransformDescriptor.FromLocal(Dockable.GameObject.transform);
+        AnimationStart = TransDesc
+            .FromLocal(Owner.dockedBounds)
+            .TranslatedBy(Correction);
+        AnimationStart
+            .ApplyTo(Dockable.GameObject);
         AnimationEnd = () =>
         {
-            var td = TransformDescriptor.FromLocal(Owner.dockingTrigger.transform);
+            var td = TransDesc.FromLocal(Owner.dockingTrigger.transform);
             if (Dockable.UndockUpright)
                 td = td.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
             return td;
@@ -282,7 +281,7 @@ public class Tug : MonoBehaviour
         Do(Dockable.BeginUndocking, $"Dockable.BeginUndocking()");
     }
 
-    private Vector3 LocalPosition(TransformDescriptor desc)
+    private Vector3 LocalPosition(TransDesc desc)
     {
         switch (desc.Locality)
         {
@@ -295,7 +294,7 @@ public class Tug : MonoBehaviour
         }
     }
 
-    private TransformDescriptor Local(TransformDescriptor desc)
+    private TransDesc Local(TransDesc desc)
     {
         switch (desc.Locality)
         {
@@ -309,7 +308,7 @@ public class Tug : MonoBehaviour
     }
     
 
-    private TransformDescriptor Global(TransformDescriptor desc)
+    private TransDesc Global(TransDesc desc)
     {
         switch (desc.Locality)
         {
@@ -350,6 +349,18 @@ public class Tug : MonoBehaviour
                         Log.Write("No longer in trigger zone. Releasing");
 
                         Do(Dockable.OnUndockingDone, $"Dockable.OnUndockingDone()");
+                        if (transform.childCount > 0)
+                        {
+                            Log.LogError($"Tug should not have children at this point but has {transform.childCount}");
+                            foreach (var c in transform.GetChildren())
+                            {
+                                Log.LogError($"Found [{c}]. Relocating out of tug");
+                                c.SetParent(Owner.archon.transform.parent);
+                            }
+                        }
+
+                        Log.Write($"Destroying [{gameObject}]");
+
                         Destroy(gameObject);
                     }
                     break;
@@ -377,19 +388,17 @@ public class Tug : MonoBehaviour
                     AnimationProgress += Time.deltaTime / AnimationSeconds;
                     if (AnimationProgress < 1)
                     {
-                        TransformDescriptor
+                        TransDesc
                             .Lerp(
                                 Local(AnimationStart),
                                 Local(AnimationEnd()),
                                 M.Smooth(AnimationProgress))
-                            .TranslatedBy(Correction)
                             .ApplyTo(Dockable.GameObject.transform);
                     }
                     else
                     {
                         Log.Write($"Animation end reached");
                         Local(AnimationEnd())
-                            .TranslatedBy(Correction)
                             .ApplyTo(Dockable.GameObject.transform);
                         if (Status == TugStatus.Docking)
                         {

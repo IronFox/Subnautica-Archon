@@ -3,6 +3,7 @@ using FMODUnity;
 using Subnautica_Archon.MaterialAdapt;
 using Subnautica_Archon.Util;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
@@ -909,10 +910,28 @@ namespace Subnautica_Archon
             base.ToggleSlot(slot.Index, enabled);
         }
 
+        private readonly Undoable disabledCameras = new Undoable();
         internal void SignalQuickslotsChangedWhilePiloting()
         {
+            Log.Write(nameof(SignalQuickslotsChangedWhilePiloting));
+            SuspendExitLimits();
             DeselectSlots();
+            RestoreExitLimits();
+            //foreach (var mbehavior in GetComponentsInChildren<MonoBehaviour>())
+            //    SimulateUpdate(mbehavior);
+            //foreach (var mbehavior in Player.main.GetComponentsInChildren<MonoBehaviour>())
+            //    SimulateUpdate(mbehavior);
+            //BeginPiloting();
+
+            Player.main.camRoot.GetComponentsInChildren<Camera>().DisableAllEnabled(disabledCameras);
+            StartCoroutine(ReenterNextFrame());
+        }
+
+        private IEnumerator ReenterNextFrame()
+        {
+            yield return null;
             BeginPiloting();
+            disabledCameras.UndoAll();
         }
 
         public string VehicleName => subName ? subName.GetName() : vehicleName;

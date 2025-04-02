@@ -4,34 +4,68 @@ using UnityEngine;
 
 public static class ObjectUtil
 {
-    public static void DisableAllEnabled(this IEnumerable<Collider> colliders, Undoable undo)
+
+    public static void DisableAllEnabled(this IEnumerable<Camera> behaviours, Undoable undo)
     {
+        foreach (var c in behaviours)
+            if (c.enabled)
+            {
+                LogConfig.Default.Write($"Disabling camera on {c.transform.NiceName()} [{c.GetInstanceID()}]");
+                c.enabled = false;
+                undo.Add(() =>
+                {
+                    LogConfig.Default.Write($"Re-enabling camera on {c.transform.NiceName()} [{c.GetInstanceID()}]");
+                    c.enabled = true;
+                });
+            }
+    }
+    public static void DisableAllEnabled(this IEnumerable<MonoBehaviour> behaviours, Undoable undo)
+    {
+        foreach (var c in behaviours)
+            if (c.enabled)
+            {
+                LogConfig.Default.Write($"Disabling behavior {c.GetType()} on {c.transform.NiceName()} [{c.GetInstanceID()}]");
+                c.enabled = false;
+                undo.Add(() =>
+                {
+                    LogConfig.Default.Write($"Re-enabling behavior {c.GetType()} on {c.transform.NiceName()} [{c.GetInstanceID()}]");
+                    c.enabled = true;
+                });
+            }
+    }
+    public static bool DisableAllEnabled(this IEnumerable<Collider> colliders, Undoable undo)
+    {
+        bool rs = false;
         foreach (var c in colliders)
             if (c.enabled)
             {
                 c.enabled = false;
                 undo.Add(() => c.enabled = true);
+                rs = true;
             }
+        return rs;
     }
-    public static void DisableAllEnabledColliders(this GameObject go, Undoable undo)
+    public static bool DisableAllEnabledColliders(this GameObject go, Undoable undo)
         => go.GetComponentsInChildren<Collider>().DisableAllEnabled(undo);
-    public static void DisableAllEnabledColliders(this Transform t, Undoable undo)
+    public static bool DisableAllEnabledColliders(this Transform t, Undoable undo)
         => t.GetComponentsInChildren<Collider>().DisableAllEnabled(undo);
-    public static void DisableAllEnabledColliders(this IDockable dockable, Undoable undo)
+    public static bool DisableAllEnabledColliders(this IDockable dockable, Undoable undo)
         => dockable.GetAllComponents<Collider>().DisableAllEnabled(undo);
 
-    public static void Disable(this IEnumerable<Rigidbody> rbs, Undoable undo)
+    public static bool Disable(this IEnumerable<Rigidbody> rbs, Undoable undo)
     {
+        bool rs = false;
         foreach (var c in rbs)
         {
             if (!c.isKinematic)
             {
-                LogConfig.Default.Write($"Disabling rigidbody [{c}]");
+                //LogConfig.Default.Write($"Disabling rigidbody [{c}]");
                 c.SetKinematic();
                 undo.Add(() => {
-                    LogConfig.Default.Write($"Re-enabling rigidbody [{c}]");
+                    //LogConfig.Default.Write($"Re-enabling rigidbody [{c}]");
                     c.UnsetKinematic();
                 });
+                rs = true;
             }
             if (c.detectCollisions)
             {
@@ -41,6 +75,7 @@ public static class ObjectUtil
                     LogConfig.Default.Write($"Re-enabling collisions of [{c}]");
                     c.detectCollisions = true;
                 });
+                rs = true;
             }
             if (c.velocity.sqrMagnitude > 0)
             {
@@ -49,12 +84,13 @@ public static class ObjectUtil
                 c.velocity = Vector3.zero;
             }
         }
+        return rs;
     }
-    public static void DisableRigidbodies(this GameObject go, Undoable undo)
+    public static bool DisableRigidbodies(this GameObject go, Undoable undo)
         => go.GetComponentsInChildren<Rigidbody>().Disable(undo);
-    public static void DisableRigidbodies(this Transform t, Undoable undo)
+    public static bool DisableRigidbodies(this Transform t, Undoable undo)
         => t.GetComponentsInChildren<Rigidbody>().Disable(undo);
-    public static void DisableRigidbodies(this IDockable dockable, Undoable undo)
+    public static bool DisableRigidbodies(this IDockable dockable, Undoable undo)
         => dockable.GetAllComponents<Rigidbody>().Disable(undo);
 
     public static string NiceName(this UnityEngine.Object o)

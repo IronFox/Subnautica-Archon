@@ -12,7 +12,7 @@ namespace Subnautica_Archon.Util
 
 
 
-        protected BaseMethodAdapter(UnityEngine.Object target, string methodName, params Type[] parameterTypes)
+        protected BaseMethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing, params Type[] parameterTypes)
         {
             Target = target;
             if (target == null)
@@ -27,10 +27,11 @@ namespace Subnautica_Archon.Util
             }
             try
             {
-                Method = target.GetType().GetMethod(methodName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, parameterTypes, modifiers: null);
+                Method = target.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, parameterTypes, modifiers: null);
                 if (Method is null)
                 {
-                    Log.Error($"Unable to find method {methodName} on object of type {target.GetType()}");
+                    if (!ignoreMissing)
+                        Log.Error($"Unable to find method {methodName} on object of type {target.GetType()}");
                 }
             }
             catch (Exception ex)
@@ -63,8 +64,8 @@ namespace Subnautica_Archon.Util
 
     public class MethodAdapter : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName)
-            : base(target, methodName, Array.Empty<Type>())
+        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing=false)
+            : base(target, methodName, ignoreMissing, Array.Empty<Type>())
         {
 
         }
@@ -76,8 +77,8 @@ namespace Subnautica_Archon.Util
     }
     public class MethodAdapter<T> : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName)
-            : base(target, methodName, typeof(T))
+        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+            : base(target, methodName, ignoreMissing, typeof(T))
         { }
 
         public void Invoke(T p)
@@ -87,8 +88,8 @@ namespace Subnautica_Archon.Util
     }
     public class MethodAdapter<T0, T1> : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName)
-            : base(target, methodName, typeof(T0), typeof(T1))
+        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+            : base(target, methodName, ignoreMissing, typeof(T0), typeof(T1))
         { }
 
         public void Invoke(T0 p0, T1 p1)
@@ -98,8 +99,8 @@ namespace Subnautica_Archon.Util
     }
     public class MethodAdapter<T0, T1, T2> : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName)
-            : base(target, methodName, typeof(T0), typeof(T1), typeof(T2))
+        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+            : base(target, methodName, ignoreMissing, typeof(T0), typeof(T1), typeof(T2))
         { }
 
         public void Invoke(T0 p0, T1 p1, T2 p2)
@@ -109,8 +110,8 @@ namespace Subnautica_Archon.Util
     }
     public class MethodAdapter<T0, T1, T2, T3> : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName)
-            : base(target, methodName, typeof(T0), typeof(T1), typeof(T2), typeof(T3))
+        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+            : base(target, methodName, ignoreMissing, typeof(T0), typeof(T1), typeof(T2), typeof(T3))
         { }
 
         public void Invoke(T0 p0, T1 p1, T2 p2, T3 p3)
