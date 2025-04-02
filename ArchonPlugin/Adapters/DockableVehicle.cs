@@ -34,6 +34,10 @@ namespace Subnautica_Archon.Adapters
 
         public bool UndockUpright => true;
 
+
+        public override string ToString()
+            => $"<Adapter>"+Log.GetVehicleName(Vehicle);
+
         private Bounds? bounds;
         public Bounds LocalBounds
         {

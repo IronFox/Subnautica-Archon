@@ -22,9 +22,15 @@ public readonly struct TransformDescriptor
     public TransformLocality Locality => Euler.Locality;
     public static TransformDescriptor FromLocal(Transform source)
         => new TransformDescriptor(FullEuler.FromLocal(source), position: source.localPosition);
+    public static TransformDescriptor FromLocal(GameObject source)
+        => FromLocal(source.transform);
     public static TransformDescriptor FromGlobal(Transform source)
         => new TransformDescriptor(FullEuler.FromGlobal(source), position: source.position);
+    public static TransformDescriptor FromGlobal(GameObject source)
+        => FromGlobal(source.transform);
 
+    public void ApplyTo(GameObject target)
+        => ApplyTo(target.transform);
     public void ApplyTo(Transform target)
     {
         Euler.ApplyTo(target);

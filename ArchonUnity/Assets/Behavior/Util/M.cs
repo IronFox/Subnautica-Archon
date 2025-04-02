@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public static class M
@@ -172,6 +173,8 @@ public static class M
     public static Bool3 LessOrEqual(this Vector3 a, Vector3 b)
         => new Bool3(a.x <= b.x, a.y <= b.y, a.z <= b.z);
 
+    public static string ToStr(this float v)
+        => v.ToString(CultureInfo.InvariantCulture);
 
 }
 

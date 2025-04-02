@@ -148,11 +148,13 @@ namespace Subnautica_Archon
 
             BayControl.OnDockingFailedFull = (archon, d) =>
             {
+                Log.Write($"full");
                 VehicleFramework.Logger.PDANote("Cannot dock: Hangar is full", 3f);
             };
 
             BayControl.OnDockingFailedTooLarge = (archon, d) =>
             {
+                Log.Write($"too large");
                 VehicleFramework.Logger.PDANote("Cannot dock: Your vehicle is too large", 3f);
             };
 
@@ -654,12 +656,12 @@ namespace Subnautica_Archon
         private Color nonBlackBaseColor;
         private Color nonBlackStripeColor;
 
-        public override void OnVehicleDocked(Vehicle vehicle, Vector3 exitLocation)
-        {
-            base.OnVehicleDocked(vehicle, exitLocation);
-            SetBaseColor(Vector3.zero, nonBlackBaseColor);
-            SetStripeColor(Vector3.zero, nonBlackStripeColor);
-        }
+        //public override void OnVehicleDocked(Vehicle vehicle, Vector3 exitLocation)
+        //{
+        //    base.OnVehicleDocked(vehicle, exitLocation);
+        //    SetBaseColor(Vector3.zero, nonBlackBaseColor);
+        //    SetStripeColor(Vector3.zero, nonBlackStripeColor);
+        //}
 
         private static float SecondaryEulerZeroDistance(float euler)
         {

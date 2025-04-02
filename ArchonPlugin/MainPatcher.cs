@@ -29,7 +29,7 @@ namespace Subnautica_Archon
 
 
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency(VehicleFramework.PluginInfo.PLUGIN_GUID, VehicleFramework.PluginInfo.PLUGIN_VERSION)]
+    [BepInDependency(VehicleFramework.PluginInfo.PLUGIN_GUID/*, VehicleFramework.PluginInfo.PLUGIN_VERSION*/)]
     [BepInDependency(Nautilus.PluginInfo.PLUGIN_GUID, Nautilus.PluginInfo.PLUGIN_VERSION)]
     public class MainPatcher : BaseUnityPlugin
     {
@@ -154,11 +154,11 @@ namespace Subnautica_Archon
                     var archon = archonControl.GetComponent<Archon>();
                     if (!archon)
                         return null;
-                    if (v is Drone)
-                    {
-                        VehicleFramework.Logger.PDANote("Cannot dock: Drones are currently not supported", 3f);
-                        return null;
-                    }
+                    //if (v is Drone)
+                    //{
+                    //    VehicleFramework.Logger.PDANote("Cannot dock: Drones are currently not supported", 3f);
+                    //    return null;
+                    //}
                     var d = new DockableVehicle(v, archon);
                     return d;
                 };

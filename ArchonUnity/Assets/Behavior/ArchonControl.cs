@@ -174,11 +174,6 @@ public class ArchonControl : MonoBehaviour
     }
 
 
-    public void OnSavegameLoadingDone()
-    {
-        bayControl.SignalSavegameLoadingDone();
-    }
-
     public void Enter(PlayerReference player)
     {
         Log.Write($"Boarding");
@@ -881,6 +876,6 @@ public enum UndockingCheckResult
 {
     Ok,
     Busy,
-    CannotNotDocked,
+    NotDocked,
     NotDockable,
 }
