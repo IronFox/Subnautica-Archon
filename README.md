@@ -36,14 +36,14 @@ The plugin needs the following DLLs to be referenced in the ArchonPlugin project
 - [Subnautica]\Subnautica_Data\Managed\UnityEngine.PhysicsModule.dll
 
 Once set up, the project should build.
-Compile the ArchonPlugin project for **release**. It cannot be run outside Subnautica. That should produce the DLL we need in [clone]\ArchonPlugin\bin\Release\net4.7.2\ArchonPlugin.dll
+Compile the ArchonPlugin project for **release**. It cannot be run outside Subnautica. That should produce the DLL we need in [clone]\ArchonPlugin\bin\Release\net4.7.2\Subnautica Archon.dll
 
 ## Assembly
 The target mod directory should be in [Subnautica]\BepInEx\plugins\Archon.
 In order to run the mod, you need to copy the following files directly into that directory (no subdirectories):
 1) [clone]\Unity\Assets\AssetBundles\OSX\archon -> (rename to) archon.osx
 2) [clone]\Unity\Assets\AssetBundles\Windows\archon
-3) [clone]\Plugin\bin\Release\net4.7.2\ArchonPlugin.dll
+3) [clone]\Plugin\bin\Release\net4.7.2\Subnautica Archon.dll
 4) [build]\Subnautica Archon_Data\Managed\ArchonScripts.dll
 
 Also copy these entire directories:
