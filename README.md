@@ -10,7 +10,7 @@ A mod that adds the Archon submarine to the Subnautica game
 
 ## Project Composition
 The project is split in two: There is a unity project in the [clone]\ArchonUnity subdirectory. If should be opened with the correct Unity editor. The second directory, [clone]\ArchonPlugin, contains the actual plugin which is loaded by BepInEx.
-While the Unity project should build (and run) once you fixed the explosion issue (see requirements), the Plugin likely will not.
+While the Unity project should build (and run), the Plugin likely will not.
 See dependencies below. Since the plugin references the DLL produced by Unity, you will need to build those at least once before fixing the dependency issues.
 
 ## Building via Unity
