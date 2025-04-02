@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public readonly struct PlayerReference
@@ -15,4 +16,12 @@ public readonly struct PlayerReference
     }
 
     public static implicit operator bool(PlayerReference player) => player.IsSet;
+
+    internal void DisableCollidersAndRigidbodies(Undoable undo)
+    {
+        if (!Root)
+            return;
+        Root.DisableAllEnabledColliders(undo);
+        Root.DisableRigidbodies(undo);
+    }
 }

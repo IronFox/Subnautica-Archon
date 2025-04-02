@@ -19,12 +19,14 @@ namespace Subnautica_Archon.Adapters
             Vehicle = vehicle;
             Archon = archon;
             HasPlayer = Player.main.currentMountedVehicle == Vehicle && !(Vehicle is Drone);
+            IsPlayerControlledDrone = Vehicle is Drone d && d.IsPlayerControlling();
             Mode = FieldAdapter.OfNonPublic<Player.Mode>(Player.main, "mode");
         }
         //private Logging Log { get; } = new Logging(false,"Dockable",true,true);
         public Vehicle Vehicle { get; }
         public Archon Archon { get; }
         public bool HasPlayer { get; }
+        public bool IsPlayerControlledDrone { get; }
         private Transform FixParentTo { get; set; }
 
         public GameObject GameObject => Vehicle.gameObject;
@@ -56,7 +58,7 @@ namespace Subnautica_Archon.Adapters
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             if (Vehicle is ModVehicle)
-                Vehicle.docked = true;  //vanilla react odd
+                Vehicle.docked = true;  //vanilla vehicles react oddly
             EndDocking();
 
         }
@@ -74,8 +76,9 @@ namespace Subnautica_Archon.Adapters
             {
                 ChangeAvatarInput(false);
             }
-            else if (Vehicle is Drone d)
+            else if (IsPlayerControlledDrone)
             {
+                var d = (Drone)Vehicle;
                 Log.Write($"Stopping drone control");
                 d.StopControlling();
 
@@ -92,7 +95,7 @@ namespace Subnautica_Archon.Adapters
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             if (Vehicle is ModVehicle)
-                Vehicle.docked = true;  //vanilla react odd
+                Vehicle.docked = true;  //vanilla vehicles react oddly
         }
 
 
@@ -100,7 +103,7 @@ namespace Subnautica_Archon.Adapters
         {
             Log.Write("(Re-)Switching player to archon");
 
-            if (Player.main.currentMountedVehicle)
+            if (HasPlayer)
             {
                 new MethodAdapter(Player.main.currentMountedVehicle, "OnPilotModeEnd").Invoke();
                 if (Player.main.currentMountedVehicle is ModVehicle v)
@@ -170,13 +173,14 @@ namespace Subnautica_Archon.Adapters
                 CraftDataHandler.SetQuickSlotType(CraftData.GetTechType(Vehicle.gameObject), QuickSlotType.Toggleable);
                 //item.SetTechType(module.TechType);
                 bool found = false;
-                foreach (var slot in Archon.slotIDs)
+                foreach (var slot in Archon.QuickSlots)
                 {
-                    var existing = Archon.modules.GetItemInSlot(slot);
+                    var existing = Archon.modules.GetItemInSlot(slot.ID);
                     if (existing?.item == pu)
                     {
                         found = true;
-                        Log.Write($"Found {pu} in slot {slot}. Not adding");
+                        Log.Write($"Found {pu} in slot {slot}. Not adding but toggling off");
+                        Archon.ToggleSlot(slot, false);
                         break;
                     }
 
@@ -186,17 +190,25 @@ namespace Subnautica_Archon.Adapters
                     Log.Write($"Adding new item to slot");
                     InventoryItem item = new InventoryItem(pu);
                     bool added = false;
-                    foreach (var slot in Archon.slotIDs)
+                    foreach (var slot in Archon.QuickSlots)
                     {
-                        if (Archon.modules.GetItemInSlot(slot) == null)
+                        if (Archon.modules.GetItemInSlot(slot.ID) == null)
                         {
-                            Archon.modules.AddItem(slot, item, true);
+                            Archon.modules.AddItem(slot.ID, item, true);
                             added = true;
+                            Archon.ToggleSlot(slot, false);
                             Log.Write($"Added to slot {slot}");
                             break;
                         }
                     }
-                    if (!added)
+                    if (added)
+                    {
+                        if (!HasPlayer && !IsPlayerControlledDrone)
+                        {
+                            Archon.SignalQuickslotsChangedWhilePiloting();
+                        }
+                    }
+                    else
                         Log.Error($"Unable to find suitable quickslot for docked sub {pu}. Sub will not be listed in quickbar");
                 }
                 if (Vehicle.transform.parent != Archon.Control.hangarRoot)
@@ -220,14 +232,14 @@ namespace Subnautica_Archon.Adapters
                 MovePlayerToArchon();
 
             }
-            else if (Vehicle is Drone d)
-            {
-                if (d.gameObject.activeSelf)
-                {
-                    Log.Write($"Disabling drone");
-                    d.gameObject.SetActive(false);
-                }
-            }
+            //else if (Vehicle is Drone d)
+            //{
+            //    if (d.gameObject.activeSelf)
+            //    {
+            //        Log.Write($"Disabling drone");
+            //        d.gameObject.SetActive(false);
+            //    }
+            //}
         }
 
 
@@ -240,14 +252,14 @@ namespace Subnautica_Archon.Adapters
                 Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
                 Log.Write($"A-Okay = {VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
             }
-            else if (Vehicle is Drone d)
-            {
-                if (d.gameObject.activeSelf)
-                {
-                    Log.Write($"Disabling drone");
-                    d.gameObject.SetActive( false );
-                }
-            }
+            //else if (Vehicle is Drone d)
+            //{
+            //    if (d.gameObject.activeSelf)
+            //    {
+            //        Log.Write($"Disabling drone");
+            //        d.gameObject.SetActive( false );
+            //    }
+            //}
 
 
 

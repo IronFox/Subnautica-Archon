@@ -49,6 +49,7 @@ public class ArchonControl : MonoBehaviour
     private bool boardedLeave;
     private PlayerReference boardedBy,
                     controlledBy;
+    private readonly Undoable controlUndo = new Undoable();
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
     public float maxEnergy=1;
     public float currentEnergy=0.5f;
@@ -236,6 +237,8 @@ public class ArchonControl : MonoBehaviour
 
             currentlyControlled = true;
 
+            player.DisableCollidersAndRigidbodies(controlUndo);
+
             listeners.SignalEnterControlEnd();
         }
     }
@@ -247,6 +250,7 @@ public class ArchonControl : MonoBehaviour
         if (currentlyControlled)
         {
             Log.Write($"Exiting control");
+            controlUndo.UndoAll();
             var listeners = BoardingListeners.Of(this, trailSpace);
             try
             {
@@ -878,4 +882,6 @@ public enum UndockingCheckResult
     Busy,
     NotDocked,
     NotDockable,
+    Obstructed,
+    DoesNotExist,
 }

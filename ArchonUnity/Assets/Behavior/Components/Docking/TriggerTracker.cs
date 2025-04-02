@@ -1,8 +1,11 @@
-﻿using System;
+﻿#define DebugTracked
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+
+
 
 public class TriggerTracker : MonoBehaviour
 {
@@ -12,45 +15,57 @@ public class TriggerTracker : MonoBehaviour
         
     }
 
-    public Transform exclude;
+    private ComponentSet<Collider> Set { get; } = new ComponentSet<Collider>(c => c.enabled && !c.isTrigger);
 
     private LogConfig logConfig = LogConfig.Default;
+#if DebugTracked
+    private int trackedVersion;
     public Collider[] tracked;
-    public IEnumerable<Collider> CurrentlyTouching => currentlyTouching.Values.Where(x => x);
-    private readonly Dictionary<int, Collider> currentlyTouching = new Dictionary<int, Collider>();
-    private int checkProgress = 0;
+#endif
+    public IEnumerable<Collider> CurrentlyTouching => Set;
+
+    //public Collider GetFirstOrDefault(Func<Collider, bool> predicate)
+    //{
+    //    foreach (var collider in CurrentlyTouching)
+    //        if (!predicate(collider))
+    //            return collider;
+    //    return null;
+    //}
+
+    void Awake()
+    {
+        Set.StartCleaningFrom(this);
+    }
     // Update is called once per frame
     void Update()
     {
-        if (--checkProgress < 0)
-        {
-            List<int> remove = null;
-            foreach (var c in currentlyTouching)
-                if (!c.Value || !c.Value.enabled)
-                    (remove ?? (remove = new List<int>())).Add(c.Key);
-            if (remove != null)
-                foreach (var c in remove)
-                    currentlyTouching.Remove(c);
-            tracked = currentlyTouching.Values.ToArray();
-            checkProgress = 10;
-        }
+        Set.UpdateIfChanged(ref trackedVersion, ref tracked);
+    }
+
+    void OnDestroy()
+    {
+        Set.Dispose();
     }
 
     private void OnTriggerEnter(Collider other)
     {
         //if (!other.transform.IsChildOf(exclude))
         {
-            currentlyTouching[other.GetInstanceID()] = other;
+            Set.Add(other);
             logConfig.Write("Registered entering "+other);
-            tracked = currentlyTouching.Values.ToArray();
+#if DebugTracked
+            tracked = Set.ToArray();
+#endif
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        currentlyTouching.Remove(other.GetInstanceID());
+        Set.Remove(other);
         logConfig.Write("Registered leaving " + other);
-        tracked = currentlyTouching.Values.ToArray();
+#if DebugTracked
+        tracked = Set.ToArray();
+#endif
     }
 
     internal T ClosestEnabledNonKinematic<T>(Func<Collider, T> converter)
