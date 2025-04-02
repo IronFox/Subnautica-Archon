@@ -19,6 +19,9 @@ See dependencies below. Since the plugin references the DLL produced by Unity, y
 (Then pick a folder that is not in the clone directory.  This will be called [build] from here)
 
 ## Plugin/Subnautica Echelon Project Dependencies and Building
+If you do not want to jump through all the hoops necessary to build this project, the compiled dll has now been added to the repo. So this step can be skipped if necessary.
+Otherwise read on:
+
 The plugin needs the following DLLs to be referenced in the ArchonPlugin project:
 - [build]\Subnautica Archon_Data\Managed\ArchonScripts.dll
 - [Subnautica]\BepInEx\core\0Harmony.dll
