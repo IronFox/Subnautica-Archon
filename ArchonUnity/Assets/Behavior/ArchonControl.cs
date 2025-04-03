@@ -131,7 +131,7 @@ public class ArchonControl : MonoBehaviour
 
             cameraMove = Parentage.FromLocal(cameraRoot);
             cameraRoot.parent = trailSpaceCameraContainer;
-            TransDesc.LocalIdentity.ApplyTo(cameraRoot);
+            Location.LocalIdentity.ApplyTo(cameraRoot);
             Log.Write("Moved");
         }
     }
@@ -250,7 +250,7 @@ public class ArchonControl : MonoBehaviour
         if (currentlyControlled)
         {
             Log.Write($"Exiting control");
-            controlUndo.UndoAll();
+            controlUndo.UndoAndClear();
             var listeners = BoardingListeners.Of(this, trailSpace);
             try
             {

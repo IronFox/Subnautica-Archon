@@ -36,6 +36,7 @@ The plugin needs the following DLLs to be referenced in the ArchonPlugin project
 - [Subnautica]\Subnautica_Data\Managed\UnityEngine.AudioModule.dll
 - [Subnautica]\Subnautica_Data\Managed\UnityEngine.CoreModule.dll
 - [Subnautica]\Subnautica_Data\Managed\UnityEngine.InputLegacyModule.dll
+- [Subnautica]\Subnautica_Data\Managed\UnityEngine.ParticleSystemModule.dll
 - [Subnautica]\Subnautica_Data\Managed\UnityEngine.PhysicsModule.dll
 
 Once set up, the project should build.

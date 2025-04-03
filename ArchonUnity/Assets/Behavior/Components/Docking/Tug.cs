@@ -19,8 +19,8 @@ public class Tug : MonoBehaviour
     private Undoable Renderers { get; } = new Undoable();
     private Undoable Lights { get; } = new Undoable();
     private Undoable Behaviours { get; } = new Undoable();
-    public TransDesc AnimationStart { get; private set; }
-    public Func<TransDesc> AnimationEnd { get; private set; }
+    public Location AnimationStart { get; private set; }
+    public Func<Location> AnimationEnd { get; private set; }
     public float AnimationSeconds { get; private set; }
     public float AnimationProgress { get; private set; }
     public Vector3 Correction { get; private set; }
@@ -110,9 +110,9 @@ public class Tug : MonoBehaviour
                 ChangeActiveState(true);
 
                 if (Dockable.ShouldUnfreezeImmediately)
-                    Behaviours.UndoAll();
-                Renderers.UndoAll();
-                Lights.UndoAll();
+                    Behaviours.UndoAndClear();
+                Renderers.UndoAndClear();
+                Lights.UndoAndClear();
 
                 CheckIntegrity();
                 Do(Dockable.PrepareUndocking, $"Dockable.PrepareUndocking()");
@@ -121,9 +121,9 @@ public class Tug : MonoBehaviour
                 BeginUndocking();
                 break;
             default:
-                AnimationStart = TransDesc.FromGlobal(dockable.GameObject.transform);
+                AnimationStart = Location.FromGlobal(dockable.GameObject.transform);
                 AnimationEnd = () => 
-                TransDesc
+                Location
                     .FromLocal(Owner.dockedBounds.transform)
                     .TranslatedBy(Correction);
                 RestartAnimation();
@@ -142,13 +142,13 @@ public class Tug : MonoBehaviour
         Status = TugStatus.UndockedWaitingForTriggerExit;
         WaitSeconds = 0;
 
-        Dockable.GameObject.transform.SetParent(Owner.archon.transform.parent);
+        transform.GetChildren().ForEach( child => child.SetParent(Owner.archon.transform.parent));
 
-        UndoTugging.UndoAll();
-        Renderers.UndoAll();
-        Lights.UndoAll();
-        ParticleSystems.UndoAll();
-        Behaviours.UndoAll();
+        UndoTugging.UndoAndClear();
+        Renderers.UndoAndClear();
+        Lights.UndoAndClear();
+        ParticleSystems.UndoAndClear();
+        Behaviours.UndoAndClear();
 
         foreach (var body in Dockable.GetAllComponents<Rigidbody>())
         {
@@ -176,6 +176,7 @@ public class Tug : MonoBehaviour
             if (Dockable.GameObject.transform.parent != transform)
             {
                 Log.LogError($"Dockable resides in wrong parent ({Dockable.GameObject.transform.parent.PathToString()}). Moving to {transform}");
+                transform.GetChildren().ForEach(child => child.SetParent(Owner.archon.transform.parent));
                 Dockable.GameObject.transform.SetParent (transform);
             }
         }
@@ -201,32 +202,12 @@ public class Tug : MonoBehaviour
         ChangeActiveState(false);
 
 
-        foreach (var c in Dockable.GetAllComponents<Renderer>())
-            if (c.enabled)
-            {
-                c.enabled = false;
-                Renderers.Add(() => c.enabled = true);
-            }
-        foreach (var c in Dockable.GetAllComponents<Light>())
-            if (c.enabled)
-            {
-                c.enabled = false;
-                Lights.Add(() => c.enabled = true);
-            }
+        Dockable.DisableAllEnabledRenderers(Renderers);
+        Dockable.DisableAllEnabledLights(Lights);
+        Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
 
-        foreach (var c in Dockable.GetAllComponents<ParticleSystem>())
-            if (c.emission.enabled)
-            {
-                var em = c.emission;
-                em.enabled = false;
-                ParticleSystems.Add(() =>
-                {
-                    var em2 = c.emission;
-                    em2.enabled = true;
-                });
-            }
 
-        TransDesc.FromLocal(Owner.dockedBounds.transform)
+        Location.FromLocal(Owner.dockedBounds.transform)
             .TranslatedBy(Correction)
             .ApplyTo(Dockable.GameObject.transform);
 
@@ -241,10 +222,10 @@ public class Tug : MonoBehaviour
 
         Dockable.GetAllComponents<MonoBehaviour>()
                 .Where(x => !x == this)
+                .ToEnabled()
                 .DisableAllEnabled(Behaviours);
-        //recheck these, seen falling brawn suits
-        Dockable.DisableAllEnabledColliders(UndoTugging);
-        Dockable.DisableRigidbodies(UndoTugging);
+        
+        UndoTugging.RedoAll(); //recheck these, seen falling brawn suits
 
         Do(Dockable.EndDocking, $"Dockable.EndDocking()");
 
@@ -258,20 +239,20 @@ public class Tug : MonoBehaviour
 
         Status = TugStatus.Undocking;
 
-        Behaviours.UndoAll();
-        ParticleSystems.UndoAll();
-        Renderers.UndoAll();
-        Lights.UndoAll();
+        Behaviours.UndoAndClear();
+        ParticleSystems.UndoAndClear();
+        Renderers.UndoAndClear();
+        Lights.UndoAndClear();
 
 
-        AnimationStart = TransDesc
+        AnimationStart = Location
             .FromLocal(Owner.dockedBounds)
             .TranslatedBy(Correction);
         AnimationStart
             .ApplyTo(Dockable.GameObject);
         AnimationEnd = () =>
         {
-            var td = TransDesc.FromLocal(Owner.dockingTrigger.transform);
+            var td = Location.FromLocal(Owner.dockingTrigger.transform);
             if (Dockable.UndockUpright)
                 td = td.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
             return td;
@@ -281,7 +262,7 @@ public class Tug : MonoBehaviour
         Do(Dockable.BeginUndocking, $"Dockable.BeginUndocking()");
     }
 
-    private Vector3 LocalPosition(TransDesc desc)
+    private Vector3 LocalPosition(Location desc)
     {
         switch (desc.Locality)
         {
@@ -294,7 +275,7 @@ public class Tug : MonoBehaviour
         }
     }
 
-    private TransDesc Local(TransDesc desc)
+    private Location Local(Location desc)
     {
         switch (desc.Locality)
         {
@@ -308,7 +289,7 @@ public class Tug : MonoBehaviour
     }
     
 
-    private TransDesc Global(TransDesc desc)
+    private Location Global(Location desc)
     {
         switch (desc.Locality)
         {
@@ -372,7 +353,19 @@ public class Tug : MonoBehaviour
                         TransitionToDocked();
                     }
                     else
-                        Do(Dockable.UpdateWaitingForBayDoorClose, "Dockable.UpdateWaitingForBayDoorClose()", logAction:false);
+                    {
+                        if (UndoTugging.RedoAll()
+                            || 
+                            ( Dockable.DisableAllEnabledColliders(UndoTugging)
+                            | Dockable.DisableRigidbodies(UndoTugging))
+                            )
+                        {
+                            Local(AnimationEnd())
+                                .ApplyTo(Dockable.GameObject.transform);
+                        }
+
+                        Do(Dockable.UpdateWaitingForBayDoorClose, "Dockable.UpdateWaitingForBayDoorClose()", logAction: false);
+                    }
                     break;
                 case TugStatus.WaitingForBayDoorOpen:
                     if (Owner.DoorsAreSufficientlyOpen)
@@ -388,7 +381,7 @@ public class Tug : MonoBehaviour
                     AnimationProgress += Time.deltaTime / AnimationSeconds;
                     if (AnimationProgress < 1)
                     {
-                        TransDesc
+                        Location
                             .Lerp(
                                 Local(AnimationStart),
                                 Local(AnimationEnd()),
