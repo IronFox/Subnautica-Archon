@@ -46,7 +46,7 @@ namespace Subnautica_Archon.Adapters
             get
             {
                 if (bounds is null)
-                    bounds = Vehicle.transform.ComputeScaledLocalColliderBounds();
+                    bounds = Vehicle.transform.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true);
                 return bounds.Value;
             }
         }
@@ -59,6 +59,8 @@ namespace Subnautica_Archon.Adapters
             Vehicle.crushDamage.enabled = false;
             //if (Vehicle is ModVehicle)
                 Vehicle.docked = true;  //vanilla vehicles react oddly
+            if (Vehicle is Drone d)
+                d.isAsleep = true;
             EndDocking();
 
         }
@@ -76,25 +78,33 @@ namespace Subnautica_Archon.Adapters
             {
                 ChangeAvatarInput(false);
             }
-            else if (IsPlayerControlledDrone)
+            else if (Vehicle is Drone d)
             {
-                var d = (Drone)Vehicle;
-                Log.Write($"Stopping drone control");
-                d.StopControlling();
-
-                ChangeAvatarInput(true);
-                if (!Player.main.ToNormalMode(false) && Mode != Player.Mode.Normal)
+                if (IsPlayerControlledDrone)
                 {
-                    Log.Write($"ToNormalMode() refused and mode is not normal. Forcing to normal");
-                    Mode.Set(Player.Mode.Normal);
+                    Log.Write($"Stopping drone control");
+                    d.StopControlling();
+
+                    ChangeAvatarInput(true);
+                    if (!Player.main.ToNormalMode(false) && Mode != Player.Mode.Normal)
+                    {
+                        Log.Write($"ToNormalMode() refused and mode is not normal. Forcing to normal");
+                        Mode.Set(Player.Mode.Normal);
+                    }
+                    Player.main.playerController.SetEnabled(true);
+                    Player.main.playerController.ForceControllerSize();
                 }
-                Player.main.playerController.SetEnabled(true);
-                Player.main.playerController.ForceControllerSize();
+                d.isAsleep = true;
             }
 
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
-            if (Vehicle is ModVehicle || !HasPlayer)
+            if (Vehicle is ModVehicle mv)
+            {
+                mv.pingInstance.SetHudIcon(false);
+            }
+
+            if (Vehicle is ModVehicle || !HasPlayer)    //otherwise the hands are all wrong
                 Vehicle.docked = true;
         }
 
@@ -286,6 +296,37 @@ namespace Subnautica_Archon.Adapters
 
         }
 
+        private void SwitchToUndockingCraft()
+        {
+
+            Archon.SuspendExitLimits();
+            try
+            {
+                if (Archon.IsPlayerPiloting())
+                    Archon.DeselectSlots();
+                if (Archon.IsPlayerInside())
+                    Archon.PlayerExit();
+
+                if (Vehicle is ModVehicle mv)
+                {
+                    mv.pingInstance.SetHudIcon(false);
+                    mv.PlayerEntry();
+                    mv.BeginPiloting();
+                }
+                else
+                {
+                    new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
+                    new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
+                }
+                ChangeAvatarInput(false);
+                Mode.Set(Player.Mode.LockedPiloting);
+            }
+            finally
+            {
+                Archon.RestoreExitLimits();
+            }
+        }
+
 
         public void PrepareUndocking()
         {
@@ -295,33 +336,12 @@ namespace Subnautica_Archon.Adapters
             else
             {
                 if (!(Vehicle is ModVehicle))
-                    Vehicle.docked = false;
-
-                Archon.SuspendExitLimits();
-                try
                 {
-                    if (Archon.IsPlayerPiloting())
-                        Archon.DeselectSlots();
-                    if (Archon.IsPlayerInside())
-                        Archon.PlayerExit();
-
-                    if (Vehicle is ModVehicle mv)
-                    {
-                        mv.PlayerEntry();
-                        mv.BeginPiloting();
-                    }
-                    else
-                    {
-                        new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
-                        new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
-                    }
+                    Vehicle.docked = false;//early unset for vanilla or hands are all wrong
+                    SwitchToUndockingCraft();
+                }
+                else
                     ChangeAvatarInput(false);
-                    Mode.Set(Player.Mode.LockedPiloting);
-                }
-                finally
-                {
-                    Archon.RestoreExitLimits();
-                }
             }
 
             Log.Write($"Destroying pickupable (if any)");
@@ -336,6 +356,8 @@ namespace Subnautica_Archon.Adapters
 
         public void BeginUndocking()
         {
+            if (Vehicle is ModVehicle && !(Vehicle is Drone))
+                SwitchToUndockingCraft();
         }
 
 
@@ -346,11 +368,10 @@ namespace Subnautica_Archon.Adapters
             //if (Vehicle is ModVehicle)
                 Vehicle.docked = false;
 
-            if (!(Vehicle is Drone d))
-                ChangeAvatarInput(true);
+            if (Vehicle is Drone d)
+                d.isAsleep = false;
             else
-            {
-            }
+                ChangeAvatarInput(true);
         }
 
         public void OnUndockingDone()

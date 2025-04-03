@@ -97,8 +97,8 @@ public class Tug : MonoBehaviour
                 Do(dockable.BeginUndocking, $"Dockable.BeginUndocking()", verifyIntegrity: false);
                 break;
         }
-        dockable.DisableAllEnabledColliders(UndoTugging);
-        dockable.DisableRigidbodies(UndoTugging);
+        dockable.DisableAllEnabledColliders(UndoTugging, forced:true);
+        dockable.DisableRigidbodies(UndoTugging, forced: true);
 
         if (status != TugStatus.UndockedWaitingForTriggerExit)
             dockable.GameObject.transform.SetParent(transform);
@@ -162,11 +162,11 @@ public class Tug : MonoBehaviour
 
     private void ChangeActiveState(bool active)
     {
-        if (Dockable.GameObject.activeSelf != active)
-        {
-            Dockable.GameObject.SetActive(active);
-            Log.Write($"Active:={Dockable.GameObject.activeSelf}");
-        }
+        //if (Dockable.GameObject.activeSelf != active)
+        //{
+        //    Dockable.GameObject.SetActive(active);
+        //    Log.Write($"Active:={Dockable.GameObject.activeSelf}");
+        //}
     }
 
     public void CheckIntegrity()
@@ -354,11 +354,7 @@ public class Tug : MonoBehaviour
                     }
                     else
                     {
-                        if (UndoTugging.RedoAll()
-                            || 
-                            ( Dockable.DisableAllEnabledColliders(UndoTugging)
-                            | Dockable.DisableRigidbodies(UndoTugging))
-                            )
+                        if (UndoTugging.RedoAll())
                         {
                             Local(AnimationEnd())
                                 .ApplyTo(Dockable.GameObject.transform);
@@ -374,7 +370,12 @@ public class Tug : MonoBehaviour
                         BeginUndocking();
                     }
                     else
+                    {
                         Do(Dockable.UpdateWaitingForBayDoorOpen, "Dockable.UpdateWaitingForBayDoorOpen()", logAction: false);
+                        UndoTugging.RedoAll();
+                        Local(AnimationStart)
+                            .ApplyTo(Dockable.GameObject.transform);
+                    }
                     break;
                 case TugStatus.Docking:
                 case TugStatus.Undocking:

@@ -1,4 +1,4 @@
-﻿#define DebugTracked
+﻿//#define DebugTracked
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -15,6 +15,7 @@ public class TriggerTracker : MonoBehaviour
         
     }
 
+    public bool logChanges = false;
     private ComponentSet<Collider> Set { get; } = new ComponentSet<Collider>(c => c.enabled && !c.isTrigger);
 
     private LogConfig logConfig = LogConfig.Default;
@@ -39,7 +40,9 @@ public class TriggerTracker : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+#if DebugTracked
         Set.UpdateIfChanged(ref trackedVersion, ref tracked);
+#endif
     }
 
     void OnDestroy()
@@ -49,20 +52,19 @@ public class TriggerTracker : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        //if (!other.transform.IsChildOf(exclude))
-        {
-            Set.Add(other);
+        Set.Add(other);
+        if (logChanges)
             logConfig.Write("Registered entering "+other);
 #if DebugTracked
-            tracked = Set.ToArray();
+        tracked = Set.ToArray();
 #endif
-        }
     }
 
     private void OnTriggerExit(Collider other)
     {
         Set.Remove(other);
-        logConfig.Write("Registered leaving " + other);
+        if (logChanges)
+            logConfig.Write("Registered leaving " + other);
 #if DebugTracked
         tracked = Set.ToArray();
 #endif

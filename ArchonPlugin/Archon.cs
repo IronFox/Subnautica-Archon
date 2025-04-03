@@ -45,7 +45,7 @@ namespace Subnautica_Archon
         {
             //Log = new MyLogger(this);
             Log.Write($"Constructed");
-            MaterialFixer = new MaterialFixer(this, Logging.Default);
+            MaterialFixer = new MaterialFixer(this, Logging.Silent);
         }
 
         public override float ExitVelocityLimit => 100f;    //any speed is good
@@ -187,7 +187,7 @@ namespace Subnautica_Archon
 
             base.Awake();
             var cameraController = gameObject.GetComponentInChildren<VehicleFramework.VehicleComponents.MVCameraController>();
-            if (cameraController != null)
+            if (cameraController)
             {
                 Log.Write($"Destroying camera controller {cameraController}");
                 Destroy(cameraController);
@@ -349,14 +349,14 @@ namespace Subnautica_Archon
         public override void PlayerEntry()
         {
             control.Enter(Helper.GetPlayerReference());
-            pingInstance.enabled = false;
+            pingInstance.SetHudIcon(false);
             base.PlayerEntry();
         }
 
         public override void PlayerExit()
         {
             base.PlayerExit();
-            pingInstance.enabled = true;
+            pingInstance.SetHudIcon(true);
             control.Exit();
 
         }
