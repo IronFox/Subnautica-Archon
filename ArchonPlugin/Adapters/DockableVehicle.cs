@@ -103,6 +103,8 @@ namespace Subnautica_Archon.Adapters
             {
                 mv.pingInstance.SetHudIcon(false);
             }
+            else
+                Vehicle.subName.pingInstance.SetHudIcon(false);
 
             if (Vehicle is ModVehicle || !HasPlayer)    //otherwise the hands are all wrong
                 Vehicle.docked = true;
@@ -115,8 +117,8 @@ namespace Subnautica_Archon.Adapters
 
             if (HasPlayer)
             {
-                new MethodAdapter(Player.main.currentMountedVehicle, "OnPilotModeEnd").Invoke();
-                if (Player.main.currentMountedVehicle is ModVehicle v)
+                new MethodAdapter(Vehicle, "OnPilotModeEnd").Invoke();
+                if (Vehicle is ModVehicle v)
                 {
                     Log.Write($"Player is in mod vehicle {v}. Deselecting...");
                     v.DeselectSlots();
@@ -200,23 +202,23 @@ namespace Subnautica_Archon.Adapters
                 {
                     Log.Write($"Adding new item to slot");
                     InventoryItem item = new InventoryItem(pu);
-                    bool added = false;
+                    QuickSlot? addedTo = null;
                     foreach (var slot in Archon.QuickSlots)
                     {
                         if (Archon.modules.GetItemInSlot(slot.ID) == null)
                         {
                             Archon.modules.AddItem(slot.ID, item, true);
-                            added = true;
+                            addedTo = slot;
                             Archon.ToggleSlot(slot, false);
                             Log.Write($"Added to slot {slot}");
                             break;
                         }
                     }
-                    if (added)
+                    if (addedTo.HasValue)
                     {
                         if (!HasPlayer && !IsPlayerControlledDrone)
                         {
-                            Archon.SignalQuickslotsChangedWhilePiloting();
+                            Archon.SignalQuickslotsChangedWhilePiloting(addedTo.Value);
                         }
                     }
                     else
@@ -309,7 +311,6 @@ namespace Subnautica_Archon.Adapters
 
                 if (Vehicle is ModVehicle mv)
                 {
-                    mv.pingInstance.SetHudIcon(false);
                     mv.PlayerEntry();
                     mv.BeginPiloting();
                 }
@@ -358,6 +359,7 @@ namespace Subnautica_Archon.Adapters
         {
             if (Vehicle is ModVehicle && !(Vehicle is Drone))
                 SwitchToUndockingCraft();
+            Vehicle.subName.pingInstance.SetHudIcon(true);
         }
 
 

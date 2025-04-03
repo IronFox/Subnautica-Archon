@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -104,4 +105,7 @@ public readonly struct FullEuler
 
     public static FullEuler FromForward(Vector3 forward, TransformLocality locality)
         => FromAngles(Quaternion.FromToRotation(Vector3.forward, forward).eulerAngles, locality);
+
+    public FullEuler RotateBy(Quaternion rotation)
+        => FromAngles((rotation * Quaternion).eulerAngles, Locality);
 };

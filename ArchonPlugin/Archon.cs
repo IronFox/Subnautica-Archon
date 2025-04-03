@@ -13,6 +13,8 @@ using VehicleFramework;
 using VehicleFramework.Engines;
 using VehicleFramework.VehicleParts;
 using VehicleFramework.VehicleTypes;
+using static HandReticle;
+using static VehicleUpgradeConsoleInput;
 
 
 namespace Subnautica_Archon
@@ -200,8 +202,8 @@ namespace Subnautica_Archon
         {
             if (state == true)
             {
-                var slotId = slotIDs[slotID];
-                var item = modules.GetItemInSlot(slotId)?.item;
+                var slotId = new QuickSlot(slotID, slotIDs[slotID]);
+                var item = modules.GetItemInSlot(slotId.ID)?.item;
                 if (item == null)
                     Log.Error($"No item found in slot {slotID}/{slotId}");
                 else
@@ -215,7 +217,7 @@ namespace Subnautica_Archon
                         if (cr == UndockingCheckResult.Ok)
                         {
                             Log.Write($"Removing quick bar item in slot [{slotId}]");
-                            var removed = modules.RemoveItem(slotId, true, true);
+                            var removed = modules.RemoveItem(slotId.ID, true, true);
                             Log.Write($"Removed [{removed}]");
                             
 
@@ -223,7 +225,7 @@ namespace Subnautica_Archon
                             control.Undock(vehicle.gameObject);
                             ToggleSlot(slotID, false);
                             if (vehicle is Drone)
-                                SignalQuickslotsChangedWhilePiloting();
+                                SignalQuickslotsChangedWhilePiloting(slotId);
                         }
                         else
                         {
@@ -911,9 +913,16 @@ namespace Subnautica_Archon
         }
 
         private readonly Undoable disabledCameras = new Undoable();
-        internal void SignalQuickslotsChangedWhilePiloting()
+        internal void SignalQuickslotsChangedWhilePiloting(QuickSlot slot)
         {
             Log.Write(nameof(SignalQuickslotsChangedWhilePiloting));
+
+            //var qs = uGUI.main.quickSlots;
+            //new MethodAdapter<uGUI_ItemIcon, TechType>(qs, "SetForeground")
+            //    .Invoke(qs.GetIcon(slot.Index), TechType.None);
+            //new MethodAdapter<uGUI_ItemIcon, TechType, bool>(qs, "SetBackground")
+            //    .Invoke(qs.GetIcon(slot.Index), TechType.None, false);
+
             SuspendExitLimits();
             DeselectSlots();
             RestoreExitLimits();

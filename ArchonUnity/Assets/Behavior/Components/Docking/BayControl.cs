@@ -109,7 +109,7 @@ public class BayControl : MonoBehaviour
                 continue;
 
             NumDockedVehicles++;
-            tug.Bind(this, dockable, TugStatus.Docked);
+            tug.Bind(this, tug.Fit, TugStatus.Docked);
         }
 
     }
@@ -118,6 +118,30 @@ public class BayControl : MonoBehaviour
     {
         openAnimation = GetComponent<Animation>();
         SetBayVisible(false);
+    }
+
+    private DockingFit? FindBestFit(IDockable d)
+    {
+        var bounds = d.LocalBounds;
+
+        var fit = new DockingFit(d, Quaternion.identity, -bounds.center, bounds);
+
+        var correction = -bounds.center;
+        bounds = bounds.TranslateBy(correction);
+        if (!permittedBounds.Contains(fit.Bounds))
+        {
+            Log.LogError($"Candidate vehicle {d} is too large unrotated. Rotating ({fit.Bounds} exeeds {permittedBounds})");
+
+            bounds = new Bounds(bounds.center, M.V3(bounds.size.x, bounds.size.z, bounds.size.y));
+            fit = new DockingFit(d, Quaternion.AngleAxis(90, Vector3.right), -bounds.center, bounds);
+
+            if (!permittedBounds.Contains(fit.Bounds))
+            {
+                Log.LogError($"Candidate vehicle {d} is still too large to dock ({fit.Bounds} exeeds {permittedBounds})");
+                return null;
+            }
+        }
+        return fit;
     }
 
     private void SetBayVisible(bool visible)
@@ -147,7 +171,7 @@ public class BayControl : MonoBehaviour
         var obstruction = minimalFreeUndockSpace.CurrentlyTouching.FirstOrDefault(x => !x.transform.IsChildOf(archon.transform));
         if (obstruction)
         {
-            Log.LogError($"Undocking space is obstructed by {obstruction}");
+            Log.LogError($"Undocking space is obstructed by {obstruction.NiceName()} [{obstruction.GetInstanceID()}] {minimalFreeUndockSpace.LastChange}");
             return UndockingCheckResult.Obstructed;
         }
         TugFromDocked(dockedSub, false, out var tug, out var dockable, out var checkResult);
@@ -176,7 +200,7 @@ public class BayControl : MonoBehaviour
         }
         if (!TugFromDocked(dockedSub, false, out var tug, out var dockable, out _))
             return;
-        tug.Bind(this, dockable, TugStatus.WaitingForBayDoorOpen);
+        tug.Bind(this, tug.Fit, TugStatus.WaitingForBayDoorOpen);
         active = tug;
     }
 
@@ -214,7 +238,7 @@ public class BayControl : MonoBehaviour
                 .GetChildren()
                 .Select(x => x.GetComponent<Tug>())
                 .Where(x => x)
-                .Select(x => x.Dockable.GameObject.GetInstanceID())
+                .Select(x => x.Fit.GameObject.GetInstanceID())
                 .ToHashSet();
 
 
@@ -233,19 +257,16 @@ public class BayControl : MonoBehaviour
                     //Log.Write($"Failed to convert {go} into dockable");
                     return null;
                 }
-                var bounds = d.LocalBounds;
-
-                var correction = -bounds.center;
-                bounds = bounds.TranslateBy(correction);
-
-                if (!permittedBounds.Contains(bounds))
+                var fit = FindBestFit(d);
+                if (fit is null)
                 {
-                    Log.LogError($"Candidate vehicle {d} is too large to dock ({bounds} exeeds {permittedBounds})");
                     OnDockingFailedTooLarge?.Invoke(archon, d);
                     return null;
                 }
+                Log.Write($"Docking fit {fit.Value.Bounds} {fit.Value.Rotation} {permittedBounds}");
+
                 if (NumDockedVehicles < maxDockedVehicles)
-                    return d;
+                    return fit;
                 //Log.Write($"Cannot dock {d}: Docking bay is full");
                 OnDockingFailedFull?.Invoke(archon, d);
                 return null;
@@ -259,7 +280,7 @@ public class BayControl : MonoBehaviour
                 var tugObj = Instantiate(tugPrefab, dockedSubRoot);
                 Location.LocalIdentity.ApplyTo(tugObj);
                 var tug = tugObj.GetComponent<Tug>();
-                tug.Bind(this, candidate, TugStatus.Docking);
+                tug.Bind(this, candidate.Value, TugStatus.Docking);
                 active = tug;
                 NumDockedVehicles++;
             }

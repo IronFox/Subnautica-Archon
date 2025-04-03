@@ -25,6 +25,8 @@ public class TriggerTracker : MonoBehaviour
 #endif
     public IEnumerable<Collider> CurrentlyTouching => Set;
 
+    public DateTime LastChange => Set.LastChange;
+
     //public Collider GetFirstOrDefault(Func<Collider, bool> predicate)
     //{
     //    foreach (var collider in CurrentlyTouching)
@@ -71,10 +73,9 @@ public class TriggerTracker : MonoBehaviour
     }
 
     internal T ClosestEnabledNonKinematic<T>(Func<Collider, T> converter)
-        where T:class
     {
         float dist = float.MaxValue;
-        T rs = null;
+        T rs = default(T);
         foreach (var c in CurrentlyTouching)
         {
             if (!c.enabled || !c.attachedRigidbody || c.attachedRigidbody.isKinematic)
