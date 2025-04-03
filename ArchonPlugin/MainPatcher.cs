@@ -146,7 +146,7 @@ namespace Subnautica_Archon
                     return wf.IsAboveWater();
                 };
 
-                DockingAdapter.ToDockable = (go, archonControl) =>
+                DockingAdapter.ToDockable = (go, archonControl, filter) =>
                 {
                     var v = go.GetComponent<Vehicle>();
                     if (!v)
@@ -154,6 +154,8 @@ namespace Subnautica_Archon
                     var archon = archonControl.GetComponent<Archon>();
                     if (!archon)
                         return null;
+                    if (filter == DockingAdapter.Filter.CurrentlyDockable && v.docked)
+                        return null; //don't grap docked vehicles
                     //if (v is Drone)
                     //{
                     //    VehicleFramework.Logger.PDANote("Cannot dock: Drones are currently not supported", 3f);

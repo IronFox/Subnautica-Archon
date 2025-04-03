@@ -95,5 +95,11 @@ namespace Subnautica_Archon.Util
 
             return copy;
         }
+
+        internal static void SetHudIcon(this PingInstance pingInstance, bool visible)
+        {
+            pingInstance.SetVisible(visible);
+            pingInstance.enabled = visible;
+        }
     }
 }

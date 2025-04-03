@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 public interface IBatch
 {
-    bool Do(IAction action);
+    bool Do(IAction action, bool forced = false);
 }
 
 public interface IAction : IEquatable<IAction>
@@ -84,9 +84,10 @@ public class Undoable
         {
             Target = target;
         }
-        public bool Do(IAction action)
+        public bool Do(IAction action, bool forced = false)
         {
-            if (action.Do())
+            bool success = action.Do();
+            if (success || forced)
             {
                 for (int i = Steps.Count - 1; i >= 0; i--)
                     if (Steps[i].Equals(action))
@@ -94,7 +95,7 @@ public class Undoable
                         Steps.RemoveAt(i);
                     }
                 Steps.Add(action);
-                return true;
+                return success;
             }
             return false;
         }
@@ -118,9 +119,10 @@ public class Undoable
 
     private Dictionary<ObjectReference, int> Map { get; } = new Dictionary<ObjectReference, int>();
     private List<IAction> Actions { get; } = new List<IAction>();
-    public bool Do(IAction action)
+    public bool Do(IAction action, bool forced = false)
     {
-        if (!action.Do())
+        bool success = action.Do();
+        if (!success && !forced)
             return false;
         var key = new ObjectReference(action.Target);
         if (!Map.TryGetValue(key, out var slot))
@@ -131,10 +133,10 @@ public class Undoable
         }
         else
             Actions[slot] = action;
-        return true;
+        return success;
     }
 
-    public IBatch AddBatch(UnityEngine.Object owner)
+    public IBatch AddOrReplaceBatch(UnityEngine.Object owner)
     {
         var b = new Batch(owner);
         var key = new ObjectReference(owner);

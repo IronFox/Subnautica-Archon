@@ -10,7 +10,7 @@ public class BayControl : MonoBehaviour
     public float secondsToOpen = 3;
     //public bool open;
     private float progress = 0;
-    private new Animation animation;
+    private Animation openAnimation;
 
     public TriggerTracker dockingTrigger;
     public TriggerTracker minimalFreeUndockSpace;
@@ -66,7 +66,7 @@ public class BayControl : MonoBehaviour
             return false;
         }
         var sub = tugCandidate.GetChild(0);
-        dockable = DockingAdapter.ToDockable(sub.gameObject, archon);
+        dockable = DockingAdapter.ToDockable(sub.gameObject, archon, DockingAdapter.Filter.All);
         if (dockable == null)
         {
             Log.LogError($"Tug candidate [{tugCandidate}] child [{sub}] failed to convert to dockable");
@@ -92,7 +92,7 @@ public class BayControl : MonoBehaviour
 
     void Awake()
     {
-        permittedBounds = dockedBounds.ComputeScaledLocalColliderBounds();
+        permittedBounds = dockedBounds.ComputeScaledLocalBounds(includeRenderers:false, includeColliders:true);
 
 
         NumDockedVehicles = 0;
@@ -116,7 +116,7 @@ public class BayControl : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        animation = GetComponent<Animation>();
+        openAnimation = GetComponent<Animation>();
         SetBayVisible(false);
     }
 
@@ -226,7 +226,7 @@ public class BayControl : MonoBehaviour
                     //Log.Write($"{go} is already being tugged");
                     return null;
                 }
-                var d = DockingAdapter.ToDockable(go, archon);
+                var d = DockingAdapter.ToDockable(go, archon, DockingAdapter.Filter.CurrentlyDockable);
                 if (d == null)
                 {
                     //
@@ -288,7 +288,7 @@ public class BayControl : MonoBehaviour
 
         if (wasClosed && nowClosed)
         {
-            animation.Stop();
+            openAnimation.Stop();
             progress = 0;
             return;
         }
@@ -298,9 +298,9 @@ public class BayControl : MonoBehaviour
         }
 
 
-        if (!animation.isPlaying)
-            animation.Play();
-        foreach (AnimationState state in animation)
+        if (!openAnimation.isPlaying)
+            openAnimation.Play();
+        foreach (AnimationState state in openAnimation)
         {
             state.normalizedTime = progress;
         }

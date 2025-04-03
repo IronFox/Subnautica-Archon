@@ -6,11 +6,11 @@ using UnityEngine;
 public static class ObjectUtil
 {
 
-    public static bool DisableAllEnabled(this IEnumerable<IEnabled> enabled, Undoable undo)
+    public static bool DisableAllEnabled(this IEnumerable<IEnabled> enabled, Undoable undo, bool forced=false)
     {
         bool rs= false;
         foreach (var c in enabled)
-            rs |= undo.Do(new DisableAction(c));
+            rs |= undo.Do(new DisableAction(c), forced);
         return rs;
     }
 
@@ -27,83 +27,83 @@ public static class ObjectUtil
         => behaviours.Select(x => new EmissionEnabled(x));
 
 
-    public static bool DisableAllEnabledColliders(this GameObject go, Undoable undo)
+    public static bool DisableAllEnabledColliders(this GameObject go, Undoable undo, bool forced = false)
         => go.GetComponentsInChildren<Collider>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
-    public static bool DisableAllEnabledColliders(this Transform t, Undoable undo)
+        .DisableAllEnabled(undo, forced);
+    public static bool DisableAllEnabledColliders(this Transform t, Undoable undo, bool forced = false)
         => t.GetComponentsInChildren<Collider>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
-    public static bool DisableAllEnabledColliders(this IDockable dockable, Undoable undo)
+        .DisableAllEnabled(undo,forced);
+    public static bool DisableAllEnabledColliders(this IDockable dockable, Undoable undo, bool forced=false)
         => dockable.GetAllComponents<Collider>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
-    public static bool DisableAllEnabledRenderers(this GameObject go, Undoable undo)
+        .DisableAllEnabled(undo, forced);
+    public static bool DisableAllEnabledRenderers(this GameObject go, Undoable undo, bool forced = false)
         => go.GetComponentsInChildren<Renderer>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
-    public static bool DisableAllEnabledRenderers(this Transform t, Undoable undo)
+    public static bool DisableAllEnabledRenderers(this Transform t, Undoable undo, bool forced = false)
         => t.GetComponentsInChildren<Renderer>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
-    public static bool DisableAllEnabledRenderers(this IDockable dockable, Undoable undo)
+    public static bool DisableAllEnabledRenderers(this IDockable dockable, Undoable undo, bool forced = false)
         => dockable.GetAllComponents<Renderer>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
-    public static bool DisableAllEnabledLights(this GameObject go, Undoable undo)
+    public static bool DisableAllEnabledLights(this GameObject go, Undoable undo, bool forced = false)
         => go.GetComponentsInChildren<Light>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
-    public static bool DisableAllEnabledLights(this Transform t, Undoable undo)
+    public static bool DisableAllEnabledLights(this Transform t, Undoable undo, bool forced = false)
         => t.GetComponentsInChildren<Light>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
-    public static bool DisableAllEnabledLights(this IDockable dockable, Undoable undo)
+    public static bool DisableAllEnabledLights(this IDockable dockable, Undoable undo, bool forced = false)
         => dockable.GetAllComponents<Light>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
     
-    public static bool DisableAllActiveParticleEmitters(this GameObject go, Undoable undo)
+    public static bool DisableAllActiveParticleEmitters(this GameObject go, Undoable undo, bool forced = false)
         => go.GetComponentsInChildren<ParticleSystem>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
-    public static bool DisableAllActiveParticleEmitters(this Transform t, Undoable undo)
+    public static bool DisableAllActiveParticleEmitters(this Transform t, Undoable undo, bool forced = false)
         => t.GetComponentsInChildren<ParticleSystem>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
-    public static bool DisableAllActiveParticleEmitters(this IDockable dockable, Undoable undo)
+    public static bool DisableAllActiveParticleEmitters(this IDockable dockable, Undoable undo, bool forced = false)
         => dockable.GetAllComponents<ParticleSystem>()
         .ToEnabled()
-        .DisableAllEnabled(undo);
+        .DisableAllEnabled(undo, forced);
 
 
-    public static bool Disable(this IEnumerable<Rigidbody> rbs, Undoable undo)
+    public static bool Disable(this IEnumerable<Rigidbody> rbs, Undoable undo, bool forced = false)
     {
         bool rs = false;
         foreach (var c in rbs)
         {
             var batch = undo.GetOrAddBatch(c);
-            rs |= batch.Do(new DisableAction(new NonKinematic(c)));
-            rs |= batch.Do(new DisableAction(new CollisionsEnabled(c)));
-            rs |= batch.Do(new ZeroVelocityAction(c));
+            rs |= batch.Do(new DisableAction(new NonKinematic(c)), forced);
+            rs |= batch.Do(new DisableAction(new CollisionsEnabled(c)), forced);
+            rs |= batch.Do(new ZeroVelocityAction(c), forced);
         }
         return rs;
     }
-    public static bool DisableRigidbodies(this GameObject go, Undoable undo)
-        => go.GetComponentsInChildren<Rigidbody>().Disable(undo);
-    public static bool DisableRigidbodies(this Transform t, Undoable undo)
-        => t.GetComponentsInChildren<Rigidbody>().Disable(undo);
-    public static bool DisableRigidbodies(this IDockable dockable, Undoable undo)
-        => dockable.GetAllComponents<Rigidbody>().Disable(undo);
+    public static bool DisableRigidbodies(this GameObject go, Undoable undo, bool forced = false)
+        => go.GetComponentsInChildren<Rigidbody>().Disable(undo, forced);
+    public static bool DisableRigidbodies(this Transform t, Undoable undo, bool forced = false)
+        => t.GetComponentsInChildren<Rigidbody>().Disable(undo, forced);
+    public static bool DisableRigidbodies(this IDockable dockable, Undoable undo, bool forced = false)
+        => dockable.GetAllComponents<Rigidbody>().Disable(undo, forced);
 
     public static string NiceName(this UnityEngine.Object o)
     {

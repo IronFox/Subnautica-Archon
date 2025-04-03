@@ -4,6 +4,12 @@ using UnityEngine;
 
 public static class DockingAdapter
 {
-    public static Func<GameObject, ArchonControl, IDockable> ToDockable { get; set; } = (go,ctrl) => go.GetComponent<IDockable>();
+    public enum Filter
+    {
+        All,
+        CurrentlyDockable
+    }
+    public static Func<GameObject, ArchonControl, Filter, IDockable> ToDockable { get; set; } = (go,ctrl, filter) => go.GetComponent<IDockable>();
 
 }
+
