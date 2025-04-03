@@ -4,11 +4,11 @@ using UnityEngine;
 
 public readonly struct Parentage
 {
-    public TransDesc Transform { get; }
+    public Location Transform { get; }
     public Transform Parent { get; }
     public Transform Target { get; }
 
-    public Parentage(TransDesc transform, Transform parent, Transform target)
+    public Parentage(Location transform, Transform parent, Transform target)
     {
         Transform = transform;
         Parent = parent;
@@ -16,7 +16,7 @@ public readonly struct Parentage
     }
 
     public static Parentage FromLocal(Transform t)
-        => new Parentage(TransDesc.FromLocal(t), t.parent, t);
+        => new Parentage(Location.FromLocal(t), t.parent, t);
 
     public void Restore()
     {

@@ -1,88 +1,100 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public static class ObjectUtil
 {
 
-    public static void DisableAllEnabled(this IEnumerable<Camera> behaviours, Undoable undo)
+    public static bool DisableAllEnabled(this IEnumerable<IEnabled> enabled, Undoable undo)
     {
-        foreach (var c in behaviours)
-            if (c.enabled)
-            {
-                LogConfig.Default.Write($"Disabling camera on {c.transform.NiceName()} [{c.GetInstanceID()}]");
-                c.enabled = false;
-                undo.Add(() =>
-                {
-                    LogConfig.Default.Write($"Re-enabling camera on {c.transform.NiceName()} [{c.GetInstanceID()}]");
-                    c.enabled = true;
-                });
-            }
-    }
-    public static void DisableAllEnabled(this IEnumerable<MonoBehaviour> behaviours, Undoable undo)
-    {
-        foreach (var c in behaviours)
-            if (c.enabled)
-            {
-                LogConfig.Default.Write($"Disabling behavior {c.GetType()} on {c.transform.NiceName()} [{c.GetInstanceID()}]");
-                c.enabled = false;
-                undo.Add(() =>
-                {
-                    LogConfig.Default.Write($"Re-enabling behavior {c.GetType()} on {c.transform.NiceName()} [{c.GetInstanceID()}]");
-                    c.enabled = true;
-                });
-            }
-    }
-    public static bool DisableAllEnabled(this IEnumerable<Collider> colliders, Undoable undo)
-    {
-        bool rs = false;
-        foreach (var c in colliders)
-            if (c.enabled)
-            {
-                c.enabled = false;
-                undo.Add(() => c.enabled = true);
-                rs = true;
-            }
+        bool rs= false;
+        foreach (var c in enabled)
+            rs |= undo.Do(new DisableAction(c));
         return rs;
     }
+
+    public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<Behaviour> behaviours)
+        => behaviours.Select(x => new BehaviourEnabled(x));
+    
+    public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<Collider> behaviours)
+        => behaviours.Select(x => new ColliderEnabled(x));
+        
+    public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<Renderer> behaviours)
+        => behaviours.Select(x => new RendererEnabled(x));
+            
+    public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<ParticleSystem> behaviours)
+        => behaviours.Select(x => new EmissionEnabled(x));
+
+
     public static bool DisableAllEnabledColliders(this GameObject go, Undoable undo)
-        => go.GetComponentsInChildren<Collider>().DisableAllEnabled(undo);
+        => go.GetComponentsInChildren<Collider>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
     public static bool DisableAllEnabledColliders(this Transform t, Undoable undo)
-        => t.GetComponentsInChildren<Collider>().DisableAllEnabled(undo);
+        => t.GetComponentsInChildren<Collider>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
     public static bool DisableAllEnabledColliders(this IDockable dockable, Undoable undo)
-        => dockable.GetAllComponents<Collider>().DisableAllEnabled(undo);
+        => dockable.GetAllComponents<Collider>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+    public static bool DisableAllEnabledRenderers(this GameObject go, Undoable undo)
+        => go.GetComponentsInChildren<Renderer>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
+    public static bool DisableAllEnabledRenderers(this Transform t, Undoable undo)
+        => t.GetComponentsInChildren<Renderer>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
+    public static bool DisableAllEnabledRenderers(this IDockable dockable, Undoable undo)
+        => dockable.GetAllComponents<Renderer>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
+    public static bool DisableAllEnabledLights(this GameObject go, Undoable undo)
+        => go.GetComponentsInChildren<Light>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
+    public static bool DisableAllEnabledLights(this Transform t, Undoable undo)
+        => t.GetComponentsInChildren<Light>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
+    public static bool DisableAllEnabledLights(this IDockable dockable, Undoable undo)
+        => dockable.GetAllComponents<Light>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
+    
+    public static bool DisableAllActiveParticleEmitters(this GameObject go, Undoable undo)
+        => go.GetComponentsInChildren<ParticleSystem>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
+    public static bool DisableAllActiveParticleEmitters(this Transform t, Undoable undo)
+        => t.GetComponentsInChildren<ParticleSystem>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
+    public static bool DisableAllActiveParticleEmitters(this IDockable dockable, Undoable undo)
+        => dockable.GetAllComponents<ParticleSystem>()
+        .ToEnabled()
+        .DisableAllEnabled(undo);
+
 
     public static bool Disable(this IEnumerable<Rigidbody> rbs, Undoable undo)
     {
         bool rs = false;
         foreach (var c in rbs)
         {
-            if (!c.isKinematic)
-            {
-                //LogConfig.Default.Write($"Disabling rigidbody [{c}]");
-                c.SetKinematic();
-                undo.Add(() => {
-                    //LogConfig.Default.Write($"Re-enabling rigidbody [{c}]");
-                    c.UnsetKinematic();
-                });
-                rs = true;
-            }
-            if (c.detectCollisions)
-            {
-                LogConfig.Default.Write($"Disabling collisions of [{c}]");
-                c.detectCollisions = false;
-                undo.Add(() => {
-                    LogConfig.Default.Write($"Re-enabling collisions of [{c}]");
-                    c.detectCollisions = true;
-                });
-                rs = true;
-            }
-            if (c.velocity.sqrMagnitude > 0)
-            {
-                LogConfig.Default.Write($"Clearing velocity of [{c}]");
-
-                c.velocity = Vector3.zero;
-            }
+            var batch = undo.GetOrAddBatch(c);
+            rs |= batch.Do(new DisableAction(new NonKinematic(c)));
+            rs |= batch.Do(new DisableAction(new CollisionsEnabled(c)));
+            rs |= batch.Do(new ZeroVelocityAction(c));
         }
         return rs;
     }
@@ -95,6 +107,8 @@ public static class ObjectUtil
 
     public static string NiceName(this UnityEngine.Object o)
     {
+        if (!o)
+            return $"<null>";
         var s = o.name;
         int at = s.IndexOf('(');
         if (at >= 0)

@@ -923,7 +923,10 @@ namespace Subnautica_Archon
             //    SimulateUpdate(mbehavior);
             //BeginPiloting();
 
-            Player.main.camRoot.GetComponentsInChildren<Camera>().DisableAllEnabled(disabledCameras);
+            Player.main.camRoot
+                .GetComponentsInChildren<Camera>()
+                .ToEnabled()
+                .DisableAllEnabled(disabledCameras);
             StartCoroutine(ReenterNextFrame());
         }
 
