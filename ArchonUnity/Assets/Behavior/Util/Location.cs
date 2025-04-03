@@ -118,4 +118,7 @@ public readonly struct Location
 
     public Location TranslatedBy(Vector3 delta)
         => new Location(Euler, Position + delta);
+
+    internal Location RotatedBy(Quaternion rotation)
+        => new Location(Euler.RotateBy(rotation), /*rotation * */Position);
 }

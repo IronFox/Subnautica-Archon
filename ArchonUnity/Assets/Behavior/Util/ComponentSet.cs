@@ -68,6 +68,7 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
         RoutineOwner = caller;
     }
     private IEnumerator<KeyValuePair<int,T>> CleanEnum { get; set; }
+    public DateTime LastChange { get; private set; }
     private Coroutine CleanRoutine { get; set; }
     private MonoBehaviour RoutineOwner { get; set; }
     private List<int> RemoveOnNextReset {get; } = new List<int>();
@@ -84,7 +85,10 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
                         anyChanged = true;
                 RemoveOnNextReset.Clear();
                 if (anyChanged)
+                {
+                    LastChange = DateTime.Now;
                     VersionNumber++;
+                }
                 CleanEnum = Content.GetEnumerator();
             }
 
@@ -121,6 +125,7 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
         {
             Content[item.GetInstanceID()] = item;
             CleanEnum = null;
+            LastChange = DateTime.Now;
             VersionNumber++;
         }
     }
@@ -130,6 +135,7 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
         if (Content.Remove(item.GetInstanceID()))
         {
             CleanEnum = null;
+            LastChange = DateTime.Now;
             VersionNumber++;
         }
     }
