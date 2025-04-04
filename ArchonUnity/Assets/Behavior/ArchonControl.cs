@@ -31,7 +31,7 @@ public class ArchonControl : MonoBehaviour
     public bool outOfWater;
     public bool freeCamera;
 
-    public bool isAutoLeveling;
+    public bool doAutoLevel;
 
     public bool positionCameraBelowSub;
 
@@ -113,6 +113,11 @@ public class ArchonControl : MonoBehaviour
 
 
     public bool IsBoarded => boardedBy.IsSet;
+
+    private float PitchDelta => transform.rotation.eulerAngles.x >= 180 ? 360 - transform.rotation.eulerAngles.x : transform.rotation.eulerAngles.x;
+    private float RollDelta => transform.rotation.eulerAngles.z >= 180 ? 360 - transform.rotation.eulerAngles.z : transform.rotation.eulerAngles.z;
+    public bool IsLevel => RollDelta < 0.4f && PitchDelta < 0.4f;
+
 
     private void ChangeState(CameraState state)
     {
@@ -564,6 +569,12 @@ public class ArchonControl : MonoBehaviour
         {
             rotateCamera.rotationAxisX = lookRightAxis;
             rotateCamera.rotationAxisY = lookUpAxis;
+            if (nonCameraOrientation)
+            {
+                nonCameraOrientation.doAutoLevel = doAutoLevel;
+                if (doAutoLevel)
+                    nonCameraOrientation.isActive = true;
+            }
 
             positionCamera.positionBelowTarget = positionCameraBelowSub;
 
@@ -585,14 +596,14 @@ public class ArchonControl : MonoBehaviour
                     switch (state)
                     {
                         case CameraState.IsTransitioningToBound:
-                            if (rotateCamera.IsTransitionDone)
+                            if (rotateCamera.IsTransitionDone || doAutoLevel)
                             {
                                 ChangeState(CameraState.IsBound);
 
                                 inWaterDirectionSource = new TransformDirectionSource(trailSpace);
 
                                 if (nonCameraOrientation)
-                                    nonCameraOrientation.isActive = false;
+                                    nonCameraOrientation.isActive = doAutoLevel;
                                 rotateCamera.AbortTransition();
                             }
                             break;
@@ -603,12 +614,17 @@ public class ArchonControl : MonoBehaviour
 
                     }
                 }
+                
 
                 if (orientation)
-                    orientation.targetOrientation = outOfWater
+                    orientation.targetOrientation
+                        = outOfWater
                             ? fallOrientation
-                            : inWaterDirectionSource;
-                nonCameraOrientation.outOfWater = outOfWater;
+                            : doAutoLevel
+                                ? nonCameraOrientation
+                                : inWaterDirectionSource;
+                if (nonCameraOrientation)
+                    nonCameraOrientation.outOfWater = outOfWater;
 
                 if (outOfWater)
                 {
@@ -644,7 +660,7 @@ public class ArchonControl : MonoBehaviour
             {
                 if (nonCameraOrientation)
                 {
-                    nonCameraOrientation.isActive = false;
+                    nonCameraOrientation.isActive = doAutoLevel;
                     nonCameraOrientation.rightRotationSpeed = 0;
                     nonCameraOrientation.upRotationSpeed = 0;
                 }
@@ -656,13 +672,22 @@ public class ArchonControl : MonoBehaviour
                 rotateCamera.enabled = false;
                 positionCamera.zoomAxis = 0;
                 if (orientation)
-                    orientation.targetOrientation = fallOrientation;
+                    orientation.targetOrientation
+                        = outOfWater 
+                            ? (IDirectionSource)fallOrientation
+                            : nonCameraOrientation;
 
             }
 
             if (orientation)
             {
-                orientation.enabled = (!IsBoarded && (wasEverBoarded || !outOfWater)) && !batteryDead && !powerOff && !isAutoLeveling;
+                orientation.enabled = 
+                    (   doAutoLevel || 
+                        (!IsBoarded && (wasEverBoarded || !outOfWater))
+                    )
+                    && !batteryDead
+                    && !powerOff
+                    ;
                 orientation.isMovingInReverse = isMovingInReverse;
                 orientation.rotationDegreesPerSecond = rotationDegreesPerSecond;
             }

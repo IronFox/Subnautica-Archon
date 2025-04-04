@@ -10,6 +10,11 @@ namespace Subnautica_Archon.Util
 {
     public static class Helper
     {
+        public static void ChangeAvatarInput(bool active)
+        {
+            Log.Write($"Changing avatar input: {active}");
+            AvatarInputHandler.main.gameObject.SetActive(active);
+        }
         public static PlayerReference GetPlayerReference()
         {
             return new PlayerReference(Player.mainObject, Player.main.camRoot.transform);
