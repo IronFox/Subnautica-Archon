@@ -106,8 +106,12 @@ public class Tug : MonoBehaviour
                 Renderers.UndoAndClear();
                 Lights.UndoAndClear();
 
+                AnimationStart = Fit.CorrectDocked(Location.FromGlobal(Owner.dockedBounds.transform));
+                AnimationEnd = () => AnimationStart;
                 CheckIntegrity();
+                Local(AnimationStart).ApplyTo(Fit.GameObject.transform);   //just in case
                 Do(Fit.Dockable.PrepareUndocking, $"Dockable.PrepareUndocking()");
+                Local(AnimationStart).ApplyTo(Fit.GameObject.transform);   //just in case
                 break;
             case TugStatus.Undocking:
                 BeginUndocking();
