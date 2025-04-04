@@ -311,7 +311,7 @@ namespace Subnautica_Archon.Adapters
                 }
                 else
                 {
-                    new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
+                    new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, false);
                     new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
                 }
                 Helper.ChangeAvatarInput(false);
@@ -335,8 +335,11 @@ namespace Subnautica_Archon.Adapters
                 {
                     Vehicle.docked = false;//early unset for vanilla or hands are all wrong
                 }
-                if (!(Vehicle is Drone))
-                    SwitchToUndockingCraft();
+                SwitchToUndockingCraft();
+                if (Vehicle is Exosuit e)
+                {
+                    FieldAdapter.OfNonPublic<bool>(e, "onGround").Set(false);
+                }
                 //else
                 //    ChangeAvatarInput(false);
             }
