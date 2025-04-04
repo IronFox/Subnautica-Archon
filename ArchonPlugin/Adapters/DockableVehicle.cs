@@ -339,10 +339,11 @@ namespace Subnautica_Archon.Adapters
                 if (!(Vehicle is ModVehicle))
                 {
                     Vehicle.docked = false;//early unset for vanilla or hands are all wrong
-                    SwitchToUndockingCraft();
                 }
-                else
-                    ChangeAvatarInput(false);
+                if (!(Vehicle is Drone))
+                    SwitchToUndockingCraft();
+                //else
+                //    ChangeAvatarInput(false);
             }
 
             Log.Write($"Destroying pickupable (if any)");
@@ -357,8 +358,6 @@ namespace Subnautica_Archon.Adapters
 
         public void BeginUndocking()
         {
-            if (Vehicle is ModVehicle && !(Vehicle is Drone))
-                SwitchToUndockingCraft();
             Vehicle.subName.pingInstance.SetHudIcon(true);
         }
 
