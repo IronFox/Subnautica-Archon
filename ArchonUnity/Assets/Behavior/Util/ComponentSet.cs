@@ -48,34 +48,25 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
     }
 
     public int VersionNumber {get; private set; }
-    public ComponentSet(Func<T, bool> additionalValidityCheck)
+    public ComponentSet(UnityEngine.Object owner, Func<T, bool> additionalValidityCheck)
     {
         AdditionalValidityCheck = additionalValidityCheck ?? (_ => true);
+        Owner = owner;
     }
 
     private Dictionary<int, T> Content { get; } = new Dictionary<int, T>();
 
     private Func<T, bool> AdditionalValidityCheck { get; }
+    private UnityEngine.Object Owner { get; }
 
-
-    public void StartCleaningFrom(MonoBehaviour caller)
-    {
-        if (!(CleanRoutine is null))
-        {
-            RoutineOwner.StopCoroutine(CleanRoutine);
-        }
-        CleanRoutine = caller.StartCoroutine(CleanNext());
-        RoutineOwner = caller;
-    }
     private IEnumerator<KeyValuePair<int,T>> CleanEnum { get; set; }
     public DateTime LastChange { get; private set; }
-    private Coroutine CleanRoutine { get; set; }
-    private MonoBehaviour RoutineOwner { get; set; }
+    public DateTime LastCheck { get; private set; }
     private List<int> RemoveOnNextReset {get; } = new List<int>();
-    private IEnumerator CleanNext()
+
+    public void Update()
     {
-        yield return null;
-        while (CleanRoutine != null && RoutineOwner)
+        try
         {
             if (CleanEnum == null)
             {
@@ -91,7 +82,7 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
                 }
                 CleanEnum = Content.GetEnumerator();
             }
-
+            LastCheck = DateTime.Now;
             if (!CleanEnum.MoveNext())
             {
                 CleanEnum = null;
@@ -104,7 +95,10 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
                     RemoveOnNextReset.Add(c.Key);
                 }
             }
-            yield return null;
+        }
+        catch (Exception ex)
+        {
+            LogConfig.Default.LogException($"ComponentSet.Update()",ex);
         }
     }
 
@@ -147,13 +141,7 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
 
     public void Dispose()
     {
-        if (RoutineOwner && CleanRoutine != null)
-        {
-            RoutineOwner.StopCoroutine(CleanRoutine);
-            CleanRoutine = null;
-            Content.Clear();
-            RemoveOnNextReset.Clear();
-        }
+        LogConfig.Default.LogWarning($"ComponentSet dispose");
     }
 
     public void UpdateIfChanged(ref int versionNumber, ref T[] array)

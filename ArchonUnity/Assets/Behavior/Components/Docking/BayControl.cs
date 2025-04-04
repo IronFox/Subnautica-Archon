@@ -13,7 +13,7 @@ public class BayControl : MonoBehaviour
     private Animation openAnimation;
 
     public TriggerTracker dockingTrigger;
-    public TriggerTracker minimalFreeUndockSpace;
+    public SphereCollider minimalFreeUndockSpace;
     private Tug active;
 
     public float dockingMetersPerSecond = 10;
@@ -168,16 +168,31 @@ public class BayControl : MonoBehaviour
             Log.LogError($"Attempted to undock <null> sub");
             return UndockingCheckResult.DoesNotExist;
         }
-        var obstruction = minimalFreeUndockSpace.CurrentlyTouching.FirstOrDefault(x => !x.transform.IsChildOf(archon.transform));
-        if (obstruction)
-        {
-            Log.LogError($"Undocking space is obstructed by {obstruction.NiceName()} [{obstruction.GetInstanceID()}] {minimalFreeUndockSpace.LastChange}");
+        if (UndockingIsObstructed())
             return UndockingCheckResult.Obstructed;
-        }
         TugFromDocked(dockedSub, false, out var tug, out var dockable, out var checkResult);
         return checkResult;
     }
 
+    private bool UndockingIsObstructed()
+    {
+        return false;
+        //var hits = Physics.OverlapSphere(minimalFreeUndockSpace.transform.position, minimalFreeUndockSpace.radius);
+        //foreach (var hit in hits)
+        //{
+        //    if (
+        //        hit.enabled
+        //    && !hit.isTrigger
+        //    && !hit.transform.IsChildOf(archon.transform)
+        //    && (!hit.attachedRigidbody || hit.attachedRigidbody.isKinematic)    //otherwise try to push it away somehow
+        //    )
+        //    {
+        //        Log.LogError($"Undocking space is obstructed by {hit.transform.PathToString()} [{hit.GetInstanceID()}]");
+        //        return true;
+        //    }
+        //}
+        //return false;
+    }
 
     public void Undock(GameObject dockedSub)
     {
@@ -192,12 +207,8 @@ public class BayControl : MonoBehaviour
             Log.LogError($"Requested sub does not exist");
             return;
         }
-        var obstruction = minimalFreeUndockSpace.CurrentlyTouching.FirstOrDefault(x => !x.transform.IsChildOf(archon.transform));
-        if (obstruction)
-        {
-            Log.LogError($"Undocking space is obstructed by {obstruction}");
+        if (UndockingIsObstructed())
             return;
-        }
         if (!TugFromDocked(dockedSub, false, out var tug, out var dockable, out _))
             return;
         tug.Bind(this, tug.Fit, TugStatus.WaitingForBayDoorOpen);

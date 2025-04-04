@@ -16,7 +16,7 @@ public class TriggerTracker : MonoBehaviour
     }
 
     public bool logChanges = false;
-    private ComponentSet<Collider> Set { get; } = new ComponentSet<Collider>(c => c.enabled && !c.isTrigger);
+    private ComponentSet<Collider> Set { get; }
 
     private LogConfig logConfig = LogConfig.Default;
 #if DebugTracked
@@ -26,6 +26,7 @@ public class TriggerTracker : MonoBehaviour
     public IEnumerable<Collider> CurrentlyTouching => Set;
 
     public DateTime LastChange => Set.LastChange;
+    public DateTime LastCheck => Set.LastCheck;
 
     //public Collider GetFirstOrDefault(Func<Collider, bool> predicate)
     //{
@@ -35,13 +36,18 @@ public class TriggerTracker : MonoBehaviour
     //    return null;
     //}
 
+    public TriggerTracker()
+    {
+        Set = new ComponentSet<Collider>(this, c => c.enabled && !c.isTrigger);
+    }
+
     void Awake()
     {
-        Set.StartCleaningFrom(this);
     }
     // Update is called once per frame
     void Update()
     {
+        Set.Update();
 #if DebugTracked
         Set.UpdateIfChanged(ref trackedVersion, ref tracked);
 #endif
