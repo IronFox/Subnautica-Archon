@@ -8,6 +8,7 @@ public class NonCameraOrientation : MonoBehaviour, IDirectionSource
     public float upRotationSpeed;
     public bool isActive;
     public bool outOfWater;
+    public bool doAutoLevel;
     private LockedEuler rot;
 
     public Vector3 Forward => rot.Forward;
@@ -36,7 +37,10 @@ public class NonCameraOrientation : MonoBehaviour, IDirectionSource
         else
         {
             //Debug.Log(upRotationSpeed);
-            rot = rot.RotateBy(upRotationSpeed, rightRotationSpeed, Time.deltaTime);
+            if (doAutoLevel)
+                rot = new LockedEuler(0, rot.Y, rot.Locality);
+            else
+                rot = rot.RotateBy(upRotationSpeed, rightRotationSpeed, Time.deltaTime);
         }
     }
 }

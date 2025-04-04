@@ -11,10 +11,13 @@ using System.Runtime.InteropServices;
 using UnityEngine;
 using VehicleFramework;
 using VehicleFramework.Engines;
+using VehicleFramework.Localization;
 using VehicleFramework.VehicleParts;
 using VehicleFramework.VehicleTypes;
 using static HandReticle;
+using static LowOxygenAlert;
 using static VehicleUpgradeConsoleInput;
+using Logger = VehicleFramework.Logger;
 
 
 namespace Subnautica_Archon
@@ -39,9 +42,7 @@ namespace Subnautica_Archon
         //private MyLogger Log { get; }
         private MassDrive engine;
         private AutoPilot autopilot;
-        private PropertyInfo autoLevelProperty;
         private EnergyInterface energyInterface;
-        private DateTime isAutoLevelingSince;
         private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
         public Archon()
         {
@@ -57,7 +58,7 @@ namespace Subnautica_Archon
             get
             {
                 for (int i = 0; i < slotIDs.Length; i++)
-                    yield return new QuickSlot(i,slotIDs[i]);
+                    yield return new QuickSlot(i, slotIDs[i]);
             }
         }
 
@@ -127,7 +128,7 @@ namespace Subnautica_Archon
                 }
                 else
                     Log.Write("Unable to loade bundle from path");
-                Log.Write(nameof(GetAssets)+" done");
+                Log.Write(nameof(GetAssets) + " done");
             }
             catch (Exception ex)
             {
@@ -137,7 +138,7 @@ namespace Subnautica_Archon
 
         void OnDestroy()
         {
-            Log.Write($"{VehicleName} "+nameof(OnDestroy));
+            Log.Write($"{VehicleName} " + nameof(OnDestroy));
             destroyed = true;
         }
 
@@ -216,10 +217,11 @@ namespace Subnautica_Archon
                         var cr = control.CheckUndocking(vehicle.gameObject);
                         if (cr == UndockingCheckResult.Ok)
                         {
+                            AbortAutoLeveling();
                             Log.Write($"Removing quick bar item in slot [{slotId}]");
                             var removed = modules.RemoveItem(slotId.ID, true, true);
                             Log.Write($"Removed [{removed}]");
-                            
+
 
                             Log.Write($"Undocking {Log.Describe(vehicle)}");
                             control.Undock(vehicle.gameObject);
@@ -239,6 +241,78 @@ namespace Subnautica_Archon
         }
 
         public override bool AutoApplyShaders => false;
+        public override bool DoesAutolevel => false;
+
+        private Coroutine autoLevelRoutine;
+        public override void DeselectSlots()
+        {
+            Log.Write(nameof(DeselectSlots));
+            if (exitLimitsSuspended)
+                base.DeselectSlots();
+            else
+            {
+                if (!AbortAutoLeveling())
+                {
+                    Log.Write("Starting new exit loop");
+                    autoLevelRoutine = StartCoroutine(AutoLevelThenExit());
+                }
+            }
+        }
+
+        public bool AbortAutoLeveling()
+        {
+            if (autoLevelRoutine != null)
+            {
+                Log.Write("Exit loop in progress. Aborting");
+                StopCoroutine(autoLevelRoutine);
+                autoLevelRoutine = null;
+                Logger.PDANote($"Auto-leveling aborted");
+                control.doAutoLevel = false;
+                Log.Write("Aborted. Control restored");
+                return true;
+            }
+            return false;
+        }
+
+        private IEnumerator AutoLevelThenExit()
+        {
+            if (control.IsLevel)
+            {
+                Log.Write("Archon is level. Exiting now");
+                base.DeselectSlots();
+                autoLevelRoutine = null;
+                yield break;
+            }
+
+            Log.Write("Archon is not level. Leveling out");
+            control.doAutoLevel = true;
+            Logger.PDANote($"Leveling out. Please stand by");
+            var timewindow = TimeSpan.FromSeconds(5);
+            var deadline = DateTime.Now + timewindow;
+            while (control.doAutoLevel && !control.IsLevel && deadline > DateTime.Now)
+            {
+                yield return null;
+            }
+            Log.Write("Archon is level or deadline has passed");
+            autoLevelRoutine = null;
+            if (control.doAutoLevel)
+            {
+                Log.Write("Archon leveling has not been aborted");
+                control.doAutoLevel = false;
+                if (control.IsLevel)
+                {
+                    Log.Write("Archon is level. Exiting");
+                    Logger.PDANote($"{VehicleName} is level. Exiting");
+                    base.DeselectSlots();
+                }
+                else
+                {
+                    Log.Write("Archon is not level. Not exiting");
+                    Logger.PDANote($"Failed to auto-level in {timewindow}. Cannot exit here. Please navigate to an area where the {VehicleName} can level out and try again.");
+                }
+            }
+        }
+
 
         private void LocalInit()
         {
@@ -252,11 +326,6 @@ namespace Subnautica_Archon
 
                     if (autopilot)
                     {
-                        autoLevelProperty = autopilot.GetType().GetProperty("autoLeveling",BindingFlags.Instance | BindingFlags.NonPublic);
-                        if (autoLevelProperty is null)
-                            Log.Error($"Could not find autoLeveling property on {autopilot}");
-
-
                         //"Airon" - weird, partially indecipherable low energy voice
                         //"Chels-E" - high-pitched panicky
                         //"Mikjaw"/"Salli" - just bad
@@ -400,7 +469,6 @@ namespace Subnautica_Archon
 
                 LocalInit();
                 control.ExitControl(Helper.GetPlayerReference(), !exitLimitsSuspended);
-                control.isAutoLeveling = false;
                 base.StopPiloting();
 
                 if (Player.main.sitting)
@@ -706,40 +774,6 @@ namespace Subnautica_Archon
 
                 MaterialFixer.OnUpdate();
 
-                try
-                {
-                    if (autoLevelProperty != null)
-                    {
-                        bool autoLeveling = (bool)autoLevelProperty.GetValue(autopilot);
-                        if (autoLeveling)
-                        {
-                            var rollDelta = SecondaryEulerZeroDistance(transform.eulerAngles.z);
-                            var pitchDelta = SecondaryEulerZeroDistance(transform.eulerAngles.x);
-
-                            //Log.Write($"Angle error at {rollDelta} / {pitchDelta}");
-                            if (!control.isAutoLeveling)
-                            {
-                                isAutoLevelingSince = DateTime.Now;
-                                control.isAutoLeveling = true;
-                            }
-                            else if (DateTime.Now - isAutoLevelingSince > TimeSpan.FromSeconds(5))
-                            {
-                                autoLevelProperty.SetValue(autopilot, false);
-                                control.isAutoLeveling = false;
-                                ErrorMessage.AddError($"Auto-leveling has not succeeded in 5 seconds. Aborting auto-level");
-                            }
-                        }
-                        else if (control.isAutoLeveling)
-                        {
-                            DeselectSlots();
-                        }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Log.Error($"Failed to read autoleveling property");
-                    Debug.LogException(ex);
-                }
 
 
                 if (Input.GetKeyDown(KeyCode.F6))
@@ -924,7 +958,7 @@ namespace Subnautica_Archon
             //    .Invoke(qs.GetIcon(slot.Index), TechType.None, false);
 
             SuspendExitLimits();
-            DeselectSlots();
+            base.DeselectSlots();
             RestoreExitLimits();
             //foreach (var mbehavior in GetComponentsInChildren<MonoBehaviour>())
             //    SimulateUpdate(mbehavior);

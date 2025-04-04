@@ -65,18 +65,13 @@ namespace Subnautica_Archon.Adapters
 
         }
 
-        private void ChangeAvatarInput(bool active)
-        {
-            Log.Write($"Changing avatar input: {active}");
-            AvatarInputHandler.main.gameObject.SetActive(active);
 
-        }
 
         public void BeginDocking()
         {
             if (HasPlayer)
             {
-                ChangeAvatarInput(false);
+                Helper.ChangeAvatarInput(false);
             }
             else if (Vehicle is Drone d)
             {
@@ -85,7 +80,7 @@ namespace Subnautica_Archon.Adapters
                     Log.Write($"Stopping drone control");
                     d.StopControlling();
 
-                    ChangeAvatarInput(true);
+                    Helper.ChangeAvatarInput(true);
                     if (!Player.main.ToNormalMode(false) && Mode != Player.Mode.Normal)
                     {
                         Log.Write($"ToNormalMode() refused and mode is not normal. Forcing to normal");
@@ -157,7 +152,7 @@ namespace Subnautica_Archon.Adapters
             Log.Write($"Player transform parent now {Log.PathOf(Player.main.transform.parent)}");
             Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
             Log.Write($"A-Okay = {VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
-            ChangeAvatarInput(true);
+            Helper.ChangeAvatarInput(true);
         }
 
 
@@ -319,7 +314,7 @@ namespace Subnautica_Archon.Adapters
                     new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, true);
                     new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
                 }
-                ChangeAvatarInput(false);
+                Helper.ChangeAvatarInput(false);
                 Mode.Set(Player.Mode.LockedPiloting);
             }
             finally
@@ -372,7 +367,7 @@ namespace Subnautica_Archon.Adapters
             if (Vehicle is Drone d)
                 d.isAsleep = false;
             else
-                ChangeAvatarInput(true);
+                Helper.ChangeAvatarInput(true);
         }
 
         public void OnUndockingDone()
