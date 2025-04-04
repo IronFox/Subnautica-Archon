@@ -19,7 +19,7 @@ namespace Subnautica_Archon
             //nope
         }
 
-
+        public bool doNotAccelerate;
         public float overdriveActive;
         public Vector3 currentInput;
         public bool freeCamera;
@@ -62,6 +62,8 @@ namespace Subnautica_Archon
 
         private Vector3 GetEffectiveMoveInput(Vector3 moveInput)
         {
+            if (doNotAccelerate)
+                return Vector3.zero;
             if (freeCamera)
                 return new Vector3(0, 0, moveInput.z);
             return moveInput;
