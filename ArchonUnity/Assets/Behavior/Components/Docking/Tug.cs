@@ -9,8 +9,22 @@ public class Tug : MonoBehaviour
 {
     public BayControl Owner { get; private set; }
     public TugStatus Status { get; private set; }
-    public DockingFit Fit { get; private set; }
-
+    public DockingFit Fit 
+    {
+        get
+        {
+            if (fit.Dockable is null)
+                throw new NullReferenceException($"Tug.Fit has not been assigned");
+            return fit;
+        }
+        private set
+        {
+            if (value.Dockable is null)
+                throw new ArgumentNullException($"Trying to assing invalid fit");
+            fit = value;
+        }
+    }
+    private DockingFit fit;
     private LogConfig Log { get; set; } = LogConfig.Default;
     
     private float WaitSeconds { get; set; }
@@ -93,7 +107,8 @@ public class Tug : MonoBehaviour
         fit.Dockable.DisableRigidbodies(UndoTugging, forced: true);
 
         if (status != TugStatus.UndockedWaitingForTriggerExit)
-            fit.Dockable.GameObject.transform.SetParent(transform);
+            fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
+
 
         switch (status)
         {
@@ -138,7 +153,7 @@ public class Tug : MonoBehaviour
         Status = TugStatus.UndockedWaitingForTriggerExit;
         WaitSeconds = 0;
 
-        transform.GetChildren().ForEach( child => child.SetParent(Owner.archon.transform.parent));
+        Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
 
         UndoTugging.UndoAndClear();
         Renderers.UndoAndClear();
@@ -169,16 +184,15 @@ public class Tug : MonoBehaviour
     {
         if (Status != TugStatus.UndockedWaitingForTriggerExit)
         {
-            if (Fit.GameObject.transform.parent != transform)
+            if (Fit.GameObject.transform.parent != Owner.dockedSubRoot)
             {
-                Log.LogError($"Dockable resides in wrong parent ({Fit.GameObject.transform.parent.PathToString()}). Moving to {transform}");
-                transform.GetChildren().ForEach(child => child.SetParent(Owner.archon.transform.parent));
-                Fit.GameObject.transform.SetParent (transform);
+                Log.LogError($"Dockable resides in wrong parent ({Fit.GameObject.transform.parent.PathToString()}). Moving to {Owner.dockedSubRoot}");
+                Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
             }
         }
         else
         {
-            if (Fit.GameObject.transform.IsChildOf(transform))
+            if (Fit.GameObject.transform.IsChildOf(Owner.dockedSubRoot))
             {
                 Log.LogError($"{Fit} is still a child of {this}. Offloading");
                 Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
@@ -325,19 +339,19 @@ public class Tug : MonoBehaviour
                         Log.Write("No longer in trigger zone. Releasing");
 
                         Do(Fit.Dockable.OnUndockingDone, $"Dockable.OnUndockingDone()");
-                        if (transform.childCount > 0)
-                        {
-                            Log.LogError($"Tug should not have children at this point but has {transform.childCount}");
-                            foreach (var c in transform.GetChildren())
-                            {
-                                Log.LogError($"Found [{c}]. Relocating out of tug");
-                                c.SetParent(Owner.archon.transform.parent);
-                            }
-                        }
+                        //if (transform.childCount > 0)
+                        //{
+                        //    Log.LogError($"Tug should not have children at this point but has {transform.childCount}");
+                        //    foreach (var c in transform.GetChildren())
+                        //    {
+                        //        Log.LogError($"Found [{c}]. Relocating out of tug");
+                        //        c.SetParent(Owner.archon.transform.parent);
+                        //    }
+                        //}
 
-                        Log.Write($"Destroying [{gameObject}]");
+                        Log.Write($"Destroying [{this}]");
 
-                        Destroy(gameObject);
+                        Destroy(this);
                     }
                     break;
                 case TugStatus.WaitingForBayDoorClose:
@@ -444,6 +458,8 @@ public readonly struct DockingFit
 
     public DockingFit(IDockable dockable, Quaternion rotation, Vector3 centerCorrection, Bounds bounds)
     {
+        if (dockable is null)
+            throw new ArgumentNullException(nameof(dockable));
         Dockable = dockable;
         Rotation = rotation;
         CenterCorrection = centerCorrection;

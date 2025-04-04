@@ -23,7 +23,6 @@ public class BayControl : MonoBehaviour
     public Transform dockedSubRoot;
     public Transform dockedBounds;
     public Transform dockingColliders;
-    public GameObject tugPrefab;
     
 
     public int maxDockedVehicles = 2;
@@ -36,25 +35,25 @@ public class BayControl : MonoBehaviour
     private LogConfig Log { get; } = LogConfig.Default;
 
     private bool TugFromDocked(GameObject dockedSub, bool destroyIfInvalid, out Tug tug, out IDockable dockable, out UndockingCheckResult undockCheckResult)
-        => TugFromGameObject(dockedSub.transform.parent, destroyIfInvalid, out tug, out dockable, out undockCheckResult);
+        => TugFromGameObject(dockedSub.transform, destroyIfInvalid, out tug, out dockable, out undockCheckResult);
     private bool TugFromGameObject(Transform tugCandidate, bool destroyIfInvalid, out Tug tug, out IDockable dockable, out UndockingCheckResult undockCheckResult)
     {
-        if (tugCandidate.childCount != 1)
-        {
-            Log.LogError($"Tug candidate [{tugCandidate}] has does not have exactly one child (has {tugCandidate.childCount})");
-            if (destroyIfInvalid)
-            {
-                Log.LogError($"Destroying");
-                Destroy(tugCandidate);
-            }
-            tug = null;
-            dockable = null;
-            undockCheckResult = UndockingCheckResult.NotDocked;
-            return false;
-        }
+        //if (tugCandidate.childCount != 1)
+        //{
+        //    Log.LogError($"Tug candidate [{tugCandidate}] has does not have exactly one child (has {tugCandidate.childCount})");
+        //    if (destroyIfInvalid)
+        //    {
+        //        Log.LogError($"Destroying");
+        //        Destroy(tugCandidate);
+        //    }
+        //    tug = null;
+        //    dockable = null;
+        //    undockCheckResult = UndockingCheckResult.NotDocked;
+        //    return false;
+        //}
         if (tugCandidate.parent != dockedSubRoot)
         {
-            Log.LogError($"Tug candidate [{tugCandidate}] resides in wrong parent.");
+            Log.LogError($"Tug candidate [{tugCandidate}] resides in wrong parent ([{tugCandidate.parent}], should be [{dockedSubRoot}]).");
             if (destroyIfInvalid)
             {
                 Log.LogError($"Destroying");
@@ -65,27 +64,27 @@ public class BayControl : MonoBehaviour
             undockCheckResult = UndockingCheckResult.NotDocked;
             return false;
         }
-        var sub = tugCandidate.GetChild(0);
-        dockable = DockingAdapter.ToDockable(sub.gameObject, archon, DockingAdapter.Filter.All);
+//        var sub = tugCandidate.GetChild(0);
+        dockable = DockingAdapter.ToDockable(tugCandidate.gameObject, archon, DockingAdapter.Filter.All);
         if (dockable == null)
         {
-            Log.LogError($"Tug candidate [{tugCandidate}] child [{sub}] failed to convert to dockable");
-            if (destroyIfInvalid)
-            {
-                Log.LogError($"Destroying");
-                Destroy(tugCandidate);
-            }
+            Log.LogError($"Tug candidate [{tugCandidate}] failed to convert to dockable. Probably something else");
+            //if (destroyIfInvalid)
+            //{
+            //    Log.LogError($"Destroying");
+            //    Destroy(tugCandidate);
+            //}
             tug = null;
             undockCheckResult = UndockingCheckResult.NotDockable;
             return false;
         }
 
-        tug = tugCandidate.GetComponent<Tug>();
-        if (!tug)
-        {
-            Log.LogError($"Tug candidate {tugCandidate} has no tug. Creating");
-            tug = tugCandidate.gameObject.AddComponent<Tug>();
-        }
+        tug = Tug.GetOf(tugCandidate);
+        //if (!tug)
+        //{
+        //    Log.LogError($"Tug candidate {tugCandidate} has no tug. Creating");
+        //    tug = tugCandidate.gameObject.AddComponent<Tug>();
+        //}
         undockCheckResult = UndockingCheckResult.Ok;
         return true;
     }
@@ -94,17 +93,12 @@ public class BayControl : MonoBehaviour
     {
         permittedBounds = dockedBounds.ComputeScaledLocalBounds(includeRenderers:false, includeColliders:true);
 
+        Log.Write($"Restoring {dockedSubRoot.childCount} children");
 
         NumDockedVehicles = 0;
         foreach (Transform tugCandidate in dockedSubRoot)
         {
-            if (!tugCandidate.name.StartsWith("Tug")
-                && tugCandidate.childCount == 0
-                && !tugCandidate.GetComponent<Tug>())
-            {
-                Log.Write($"Tug candidate {tugCandidate} is probably something else. Ignoring");
-                continue; //these might be modules. Ignore them
-            }
+            Log.Write($"Restoring {tugCandidate}");
             if (!TugFromGameObject(tugCandidate, true, out var tug, out var dockable, out _))
                 continue;
 
@@ -268,6 +262,12 @@ public class BayControl : MonoBehaviour
                     //Log.Write($"Failed to convert {go} into dockable");
                     return null;
                 }
+
+                if (go.GetComponent<Tug>())
+                {
+                    return null;
+                }
+
                 var fit = FindBestFit(d);
                 if (fit is null)
                 {
@@ -287,10 +287,12 @@ public class BayControl : MonoBehaviour
             if (open && DoorsAreSufficientlyOpen)
             {
                 //move ahead
+                if (candidate is null || candidate.Value.Dockable is null)
+                    throw new InvalidOperationException($"Dockable not expected to be invalid here");
 
-                var tugObj = Instantiate(tugPrefab, dockedSubRoot);
-                Location.LocalIdentity.ApplyTo(tugObj);
-                var tug = tugObj.GetComponent<Tug>();
+                var tug = Tug.GetOf(candidate.Value.GameObject);
+                //Location.LocalIdentity.ApplyTo(tugObj);
+//                var tug = tugObj.GetComponent<Tug>();
                 tug.Bind(this, candidate.Value, TugStatus.Docking);
                 active = tug;
                 NumDockedVehicles++;

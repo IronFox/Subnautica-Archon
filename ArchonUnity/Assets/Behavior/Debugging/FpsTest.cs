@@ -74,7 +74,7 @@ public class FpsTest : MonoBehaviour
             else
             {
                 var v = subControl.hangarRoot.GetChild(0);
-                subControl.Undock(v.GetChild(0).gameObject);
+                subControl.Undock(v.gameObject);
             }
         }
 
