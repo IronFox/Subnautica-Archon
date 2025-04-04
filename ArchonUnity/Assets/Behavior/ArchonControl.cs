@@ -29,7 +29,9 @@ public class ArchonControl : MonoBehaviour
 
     public bool overdriveActive;
     public bool outOfWater;
-    public bool freeCamera;
+    public bool freeCamera = true;
+    public bool flipFreeHorizontalRotationInReverse = true;
+    public bool flipFreeVerticalRotationInReverse = false;
 
     public bool doAutoLevel;
 
@@ -641,16 +643,14 @@ public class ArchonControl : MonoBehaviour
                 {
                     if (nonCameraOrientation)
                     {
-                        if (!isMovingInReverse)
-                        {
-                            nonCameraOrientation.rightRotationSpeed = rightAxis * rotationDegreesPerSecond;
-                            nonCameraOrientation.upRotationSpeed = -upAxis * rotationDegreesPerSecond;
-                        }
-                        else
-                        {
-                            nonCameraOrientation.rightRotationSpeed = -rightAxis * rotationDegreesPerSecond;
+                        if (isMovingInReverse && flipFreeVerticalRotationInReverse)
                             nonCameraOrientation.upRotationSpeed = upAxis * rotationDegreesPerSecond;
-                        }
+                        else
+                            nonCameraOrientation.upRotationSpeed = -upAxis * rotationDegreesPerSecond;
+                        if (isMovingInReverse && flipFreeHorizontalRotationInReverse)
+                            nonCameraOrientation.rightRotationSpeed = -rightAxis * rotationDegreesPerSecond;
+                        else
+                            nonCameraOrientation.rightRotationSpeed = rightAxis * rotationDegreesPerSecond;
                     }
                 }
 
@@ -873,9 +873,9 @@ public class ArchonControl : MonoBehaviour
             }
 
             var forwardSpeed = M.Dot(rb.velocity, transform.forward) + forwardAxis * 100f;
-            if (forwardSpeed < -3)
+            if (forwardSpeed < -10)
                 isMovingInReverse = true;
-            else if (forwardSpeed > -2)
+            else if (forwardSpeed > -5)
                 isMovingInReverse = false;
 
             drag.enabled = !outOfWater;

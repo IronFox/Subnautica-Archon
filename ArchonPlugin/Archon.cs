@@ -37,7 +37,7 @@ namespace Subnautica_Archon
         private List<GameObject> tetherSources;
         //tracks true if vehicle death was ever determined. Can't enter in this state
         private bool wasDead;
-        private bool destroyed;
+        public bool destroyed;
         private float deathAge;
         //private MyLogger Log { get; }
         private MassDrive engine;
@@ -157,6 +157,7 @@ namespace Subnautica_Archon
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
 
 
+
             BayControl.OnDockingFailedFull = (archon, d) =>
             {
                 Log.Write($"full");
@@ -182,6 +183,7 @@ namespace Subnautica_Archon
             Log.Write($"Assigned new engine");
 
             control = GetComponent<ArchonControl>();
+            control.freeCamera = MainPatcher.PluginConfig.defaultToFreeCamera;
 
             Destroy(modulesRoot);
 
@@ -642,37 +644,41 @@ namespace Subnautica_Archon
             }
         }
 
-        private void ProcessBoost(bool lowPower)
+        private void ProcessEngine(bool lowPower)
         {
+            engine.overdriveActive = 0;
+            engine.doNotAccelerate = control.doAutoLevel;
+            engine.freeCamera = control.freeCamera;
+            //return;
 
-            var boostToggle = !MainPatcher.PluginConfig.holdToBoost;
+            //var boostToggle = false;// !MainPatcher.PluginConfig.holdToBoost;
 
-            //engine.driveUpgrade = HighestModuleType(ArchonModule.DriveMk1, ArchonModule.DriveMk2, ArchonModule.DriveMk3);
+            ////engine.driveUpgrade = HighestModuleType(ArchonModule.DriveMk1, ArchonModule.DriveMk2, ArchonModule.DriveMk3);
 
-            //if (GameInput.GetButtonDown(GameInput.Button.Sprint) && boostToggle)
+            ////if (GameInput.GetButtonDown(GameInput.Button.Sprint) && boostToggle)
+            ////{
+            ////    if (control.forwardAxis > 0 && engine.overdriveActive > 0)
+            ////        engine.overdriveActive = 0;
+            ////}
+
+            //bool canBoost =
+            //    !lowPower
+            //    ;
+
+            //if (boostToggle)
             //{
-            //    if (control.forwardAxis > 0 && engine.overdriveActive > 0)
+            //    if (control.forwardAxis <= 0 || !canBoost)
             //        engine.overdriveActive = 0;
+            //    else
+            //        engine.overdriveActive = Mathf.Max(engine.overdriveActive, GameInput.GetAnalogValueForButton(GameInput.Button.Sprint));
             //}
-
-            bool canBoost =
-                !lowPower
-                ;
-
-            if (boostToggle)
-            {
-                if (control.forwardAxis <= 0 || !canBoost)
-                    engine.overdriveActive = 0;
-                else
-                    engine.overdriveActive = Mathf.Max(engine.overdriveActive, GameInput.GetAnalogValueForButton(GameInput.Button.Sprint));
-            }
-            else
-                engine.overdriveActive = control.forwardAxis > 0 && canBoost
-                    ? GameInput.GetAnalogValueForButton(GameInput.Button.Sprint)
-                    : 0;
+            //else
+            //    engine.overdriveActive = control.forwardAxis > 0 && canBoost
+            //        ? GameInput.GetAnalogValueForButton(GameInput.Button.Sprint)
+            //        : 0;
 
 
-            control.overdriveActive = engine.overdriveActive > 0.5f;
+            //control.overdriveActive = engine.overdriveActive > 0.5f;
         }
 
         private void ProcessTriggers()
@@ -777,7 +783,8 @@ namespace Subnautica_Archon
 
                 MaterialFixer.OnUpdate();
 
-
+                control.flipFreeHorizontalRotationInReverse = MainPatcher.PluginConfig.flipFreeHorizontalRotationInReverse;
+                control.flipFreeVerticalRotationInReverse = MainPatcher.PluginConfig.flipFreeVerticalRotationInReverse;
 
                 if (Input.GetKeyDown(KeyCode.F6))
                 {
@@ -836,7 +843,7 @@ namespace Subnautica_Archon
                 if (control.IsBeingControlled && GameInput.GetKeyDown(MainPatcher.PluginConfig.toggleFreeCamera))
                     engine.freeCamera = control.freeCamera = !control.freeCamera;
 
-                ProcessBoost(lowPower);
+                ProcessEngine(lowPower);
                 RepositionCamera();
 
                 if (energyInterface != null)

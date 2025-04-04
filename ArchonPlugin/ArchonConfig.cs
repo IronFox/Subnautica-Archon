@@ -6,13 +6,20 @@ using System;
 [Menu("Archon Options")]
 public class ArchonConfig : ConfigFile
 {
-    [Keybind("Input to Toggle Free Camera ")]
+    [Keybind("Toggle Free Camera ")]
     public KeyCode toggleFreeCamera = KeyCode.F;
-    [Keybind("Input to Reduce the 3rd Person Camera")]
+    [Keybind("Reduce the 3rd Person Camera")]
     public KeyCode altZoomIn = KeyCode.None;
-    [Keybind("Input to Increase the 3rd Person Camera")]
+    [Keybind("Increase the 3rd Person Camera")]
     public KeyCode altZoomOut = KeyCode.None;
-    [Toggle("Hold Sprint to Boost")]
-    public bool holdToBoost = false;
+    [Toggle("Flip Free Horizontal Rotation in Reverse")]
+    public bool flipFreeHorizontalRotationInReverse = true;
+    [Toggle("Flip Free Vertical Rotation in Reverse")]
+    public bool flipFreeVerticalRotationInReverse = false;
+    [Toggle("Default to Free Camera")]
+    public bool defaultToFreeCamera = true;
+
+    //[Toggle("Hold Sprint to Boost")]
+    //public bool holdToBoost = false;
 
 }
