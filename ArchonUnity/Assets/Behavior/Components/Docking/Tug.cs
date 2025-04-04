@@ -106,7 +106,7 @@ public class Tug : MonoBehaviour
                 Renderers.UndoAndClear();
                 Lights.UndoAndClear();
 
-                AnimationStart = Fit.CorrectDocked(Location.FromGlobal(Owner.dockedBounds.transform));
+                AnimationStart = Fit.CorrectDocked(Location.FromLocal(Owner.dockedBounds));
                 AnimationEnd = () => AnimationStart;
                 CheckIntegrity();
                 Local(AnimationStart).ApplyTo(Fit.GameObject.transform);   //just in case
@@ -120,7 +120,7 @@ public class Tug : MonoBehaviour
                 AnimationStart = Location.FromGlobal(fit.Dockable.GameObject.transform);
                 AnimationEnd = () =>
                     Fit.CorrectDocked(
-                        Location.FromLocal(Owner.dockedBounds.transform)
+                        Location.FromLocal(Owner.dockedBounds)
                     );
                 RestartAnimation();
                 break;
