@@ -422,7 +422,7 @@ namespace Subnautica_Archon
 
         public override void PlayerEntry()
         {
-            control.Enter(Helper.GetPlayerReference());
+            control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended);
             pingInstance.SetHudIcon(false);
             base.PlayerEntry();
         }
@@ -471,7 +471,7 @@ namespace Subnautica_Archon
                 Log.Write(nameof(StopPiloting));
 
                 LocalInit();
-                control.ExitControl(Helper.GetPlayerReference(), !exitLimitsSuspended);
+                control.ExitControl(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended);
                 base.StopPiloting();
 
                 if (Player.main.sitting)
@@ -919,8 +919,10 @@ namespace Subnautica_Archon
 
         internal void EnterFromDocking()
         {
+            SuspendAutoLeveling();
             PlayerEntry();
             BeginPiloting();
+            RestoreAutoLeveling();
 
         }
 
@@ -935,11 +937,11 @@ namespace Subnautica_Archon
                 : base.ExitRollLimit;
 
         private bool exitLimitsSuspended = false;
-        internal void SuspendExitLimits()
+        internal void SuspendAutoLeveling()
         {
             exitLimitsSuspended = true;
         }
-        internal void RestoreExitLimits()
+        internal void RestoreAutoLeveling()
         {
             exitLimitsSuspended = false;
         }
@@ -960,9 +962,9 @@ namespace Subnautica_Archon
             //new MethodAdapter<uGUI_ItemIcon, TechType, bool>(qs, "SetBackground")
             //    .Invoke(qs.GetIcon(slot.Index), TechType.None, false);
 
-            SuspendExitLimits();
+            SuspendAutoLeveling();
             base.DeselectSlots();
-            RestoreExitLimits();
+            RestoreAutoLeveling();
             //foreach (var mbehavior in GetComponentsInChildren<MonoBehaviour>())
             //    SimulateUpdate(mbehavior);
             //foreach (var mbehavior in Player.main.GetComponentsInChildren<MonoBehaviour>())

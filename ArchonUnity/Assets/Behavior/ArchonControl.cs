@@ -180,12 +180,16 @@ public class ArchonControl : MonoBehaviour
     }
 
 
-    public void Enter(PlayerReference player)
+    public void Enter(PlayerReference player, bool skipOrientation = false)
     {
         Log.Write($"Boarding");
         RigidbodyUtil.SetKinematic(rb);
 
-        transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+        if (!skipOrientation)
+        {
+            Log.Write("Force-leveling");
+            transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+        }
 
         boardedBy = player;
         boardedLeave = false;
@@ -250,7 +254,7 @@ public class ArchonControl : MonoBehaviour
 
 
 
-    public void ExitControl(PlayerReference player, bool intoShip=true)
+    public void ExitControl(PlayerReference player, bool skipOrientation=false)
     {
         if (currentlyControlled)
         {
@@ -273,8 +277,7 @@ public class ArchonControl : MonoBehaviour
                 trailSpace.parent = transform;
             }
             controlledBy = default;
-            if (intoShip)
-                Enter(player);
+            Enter(player, skipOrientation);
             listeners.SignalExitControlEnd();
         }
     }
