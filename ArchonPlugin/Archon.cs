@@ -287,10 +287,13 @@ namespace Subnautica_Archon
             Log.Write("Archon is not level. Leveling out");
             control.doAutoLevel = true;
             Logger.PDANote($"Leveling out. Please stand by");
-            var timewindow = TimeSpan.FromSeconds(5);
-            var deadline = DateTime.Now + timewindow;
-            while (control.doAutoLevel && !control.IsLevel && deadline > DateTime.Now)
+            //var timewindow = TimeSpan.FromSeconds(5);
+            //var deadline = DateTime.Now + timewindow;
+            float timewindow = 5;
+            var remaining = timewindow;
+            while (control.doAutoLevel && !control.IsLevel && remaining > 0)
             {
+                remaining -= Time.deltaTime;
                 yield return null;
             }
             Log.Write("Archon is level or deadline has passed");
@@ -308,7 +311,7 @@ namespace Subnautica_Archon
                 else
                 {
                     Log.Write("Archon is not level. Not exiting");
-                    Logger.PDANote($"Failed to auto-level in {timewindow}. Cannot exit here. Please navigate to an area where the {VehicleName} can level out and try again.");
+                    Logger.PDANote($"Failed to auto-level in {timewindow} seconds. Cannot exit here. Please navigate to an area where the {VehicleName} can level out and try again.");
                 }
             }
         }
