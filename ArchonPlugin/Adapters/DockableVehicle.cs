@@ -296,7 +296,7 @@ namespace Subnautica_Archon.Adapters
         private void SwitchToUndockingCraft()
         {
 
-            Archon.SuspendExitLimits();
+            Archon.SuspendAutoLeveling();
             try
             {
                 if (Archon.IsPlayerPiloting())
@@ -319,7 +319,7 @@ namespace Subnautica_Archon.Adapters
             }
             finally
             {
-                Archon.RestoreExitLimits();
+                Archon.RestoreAutoLeveling();
             }
         }
 
