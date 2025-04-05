@@ -1,11 +1,14 @@
 using Nautilus.Handlers;
 using Subnautica_Archon.Util;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using VehicleFramework;
 using VehicleFramework.VehicleTypes;
 using static VehicleUpgradeConsoleInput;
+using Object = UnityEngine.Object;
 
 
 namespace Subnautica_Archon.Adapters
@@ -106,7 +109,7 @@ namespace Subnautica_Archon.Adapters
         }
 
 
-        private void MovePlayerToArchon()
+        private IEnumerator SwitchToArchon()
         {
             Log.Write("(Re-)Switching player to archon");
 
@@ -119,9 +122,13 @@ namespace Subnautica_Archon.Adapters
                     v.DeselectSlots();
                     v.PlayerExit();
                 }
+                else
+                {
+                    //for (int i = 0; i < 3; i++)
+                    //yield return null;
+                }
+
             }
-
-
             Player.main.ToNormalMode(findNewPosition: false);
             Log.Write("Zeroing velocity");
             Player.main.rigidBody.angularVelocity = Vector3.zero;
@@ -131,6 +138,8 @@ namespace Subnautica_Archon.Adapters
             Log.Write("Exiting sitting mode");
             Player.main.ExitSittingMode();
 
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForEndOfFrame();
 
             Log.Write($"Cleaning up");
             {
@@ -145,6 +154,10 @@ namespace Subnautica_Archon.Adapters
                 Player.main.sitting = false;
                 Player.main.playerController.ForceControllerSize();
             }
+
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForEndOfFrame();
+
             Log.Write($"Entering archon from transform parent {Player.main.transform.parent}");
             Archon.EnterFromDocking();
             FixParentTo = Player.main.transform.parent;
@@ -161,64 +174,13 @@ namespace Subnautica_Archon.Adapters
 
             //if (Vehicle is ModVehicle mv)
             {
-                Log.Write($"Trying to set module slot for {Vehicle}");
                 //CraftData.
                 //var module = ModVehicleUndockModule.GetPrototypeFor( mv );
 
                 Vehicle.docked = true;
 
-                var pu = Vehicle.gameObject.GetComponent<Pickupable>();
-                if (!pu)
-                {
-                    Log.Write($"Attaching new Pickupable");
-                    pu = Vehicle.gameObject.AddComponent<Pickupable>();
-                }
+                AddToQuickbar();
 
-                //Pickupable pu = new Pickupable();
-                //pu.SetTechTypeOverride(module.TechType);
-                //pu.SetVisible(true);
-
-                CraftDataHandler.SetQuickSlotType(CraftData.GetTechType(Vehicle.gameObject), QuickSlotType.Toggleable);
-                //item.SetTechType(module.TechType);
-                bool found = false;
-                foreach (var slot in Archon.QuickSlots)
-                {
-                    var existing = Archon.modules.GetItemInSlot(slot.ID);
-                    if (existing?.item == pu)
-                    {
-                        found = true;
-                        Log.Write($"Found {pu} in slot {slot}. Not adding but toggling off");
-                        Archon.ToggleSlot(slot, false);
-                        break;
-                    }
-
-                }
-                if (!found)
-                {
-                    Log.Write($"Adding new item to slot");
-                    InventoryItem item = new InventoryItem(pu);
-                    QuickSlot? addedTo = null;
-                    foreach (var slot in Archon.QuickSlots)
-                    {
-                        if (Archon.modules.GetItemInSlot(slot.ID) == null)
-                        {
-                            Archon.modules.AddItem(slot.ID, item, true);
-                            addedTo = slot;
-                            Archon.ToggleSlot(slot, false);
-                            Log.Write($"Added to slot {slot}");
-                            break;
-                        }
-                    }
-                    if (addedTo.HasValue)
-                    {
-                        if (!HasPlayer && !IsPlayerControlledDrone)
-                        {
-                            Archon.SignalQuickslotsChangedWhilePiloting(addedTo.Value);
-                        }
-                    }
-                    else
-                        Log.Error($"Unable to find suitable quickslot for docked sub {pu}. Sub will not be listed in quickbar");
-                }
 
                 Log.Write($"Mod added");
 
@@ -227,7 +189,7 @@ namespace Subnautica_Archon.Adapters
             if (HasPlayer)
             {
 
-                MovePlayerToArchon();
+                Vehicle.StartCoroutine(SwitchToArchon());
 
             }
             //else if (Vehicle is Drone d)
@@ -273,7 +235,7 @@ namespace Subnautica_Archon.Adapters
                     Log.Error($"Player ancencestry broken at update #{UpdateCounter}");
                     if (FixParentTo)
                     {
-                        MovePlayerToArchon();
+                        Vehicle.StartCoroutine(SwitchToArchon());
                         //Player.main.transform.parent = FixParentTo;
 
                         if (VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform))
@@ -384,6 +346,121 @@ namespace Subnautica_Archon.Adapters
                 .Where(x => !x.transform.IsChildOf(Player.mainObject.transform));
         }
 
+        public void Tag(string tag)
+        {
+            var name = Vehicle.GetName();
+            if (!name.Contains(tag))
+            {
+                Log.Write($"Tagging {Vehicle.NiceName()} '{name}' with '{tag}'");
+                name += tag;
+                Vehicle.SetName(name);
+            }
+        }
 
+        public void Untag(string tag)
+        {
+            var name = Vehicle.GetName();
+            var idx = name.IndexOf(tag);
+            if (idx >= 0)
+            {
+                Log.Write($"Stripping tag from {Vehicle.NiceName()} '{name}' ('{tag}')");
+                name = name.Remove(idx, tag.Length);
+                Vehicle.SetName(name);
+            }
+        }
+
+        public bool IsTagged(string tag)
+        {
+            return Vehicle.GetName().Contains(tag);
+        }
+
+        public void OnUndockedForSaving()
+        {
+            Log.Write(nameof(OnUndockedForSaving));
+            try
+            {
+
+                foreach (var slot in Archon.QuickSlots)
+                {
+                    Log.Write($"Checking slot {slot}");
+                    var item = Archon.modules.GetItemInSlot(slot.ID);
+                    if (item != null && item.item && item.item.transform == Vehicle.transform)
+                    {
+                        Log.Write($"Found it. Removing");
+                        Archon.modules.RemoveItem(slot.ID, true, false);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
+        }
+
+        public void OnRedockedAfterSaving()
+        {
+            Log.Write(nameof(OnRedockedAfterSaving));
+            AddToQuickbar();
+        }
+
+
+        private void AddToQuickbar()
+        {
+            Log.Write($"Trying to set module slot for {Vehicle.NiceName()}");
+
+            var pu = Vehicle.gameObject.GetComponent<Pickupable>();
+            if (!pu)
+            {
+                Log.Write($"Attaching new Pickupable");
+                pu = Vehicle.gameObject.AddComponent<Pickupable>();
+            }
+            else
+                Log.Write($"Pickupable existed");
+            //Pickupable pu = new Pickupable();
+            //pu.SetTechTypeOverride(module.TechType);
+            //pu.SetVisible(true);
+
+            CraftDataHandler.SetQuickSlotType(CraftData.GetTechType(Vehicle.gameObject), QuickSlotType.Toggleable);
+            //item.SetTechType(module.TechType);
+            bool found = false;
+            foreach (var slot in Archon.QuickSlots)
+            {
+                var existing = Archon.modules.GetItemInSlot(slot.ID);
+                if (existing?.item == pu)
+                {
+                    found = true;
+                    Log.Write($"Found {pu} in slot {slot}. Not adding but toggling off");
+                    Archon.ToggleSlot(slot, false);
+                    break;
+                }
+
+            }
+            if (!found)
+            {
+                Log.Write($"Adding new item to slot");
+                InventoryItem item = new InventoryItem(pu);
+                QuickSlot? addedTo = null;
+                foreach (var slot in Archon.QuickSlots)
+                {
+                    if (Archon.modules.GetItemInSlot(slot.ID) == null)
+                    {
+                        Archon.modules.AddItem(slot.ID, item, true);
+                        addedTo = slot;
+                        Archon.ToggleSlot(slot, false);
+                        Log.Write($"Added to slot {slot}");
+                        break;
+                    }
+                }
+                if (addedTo.HasValue)
+                {
+                    if (!HasPlayer && !IsPlayerControlledDrone)
+                    {
+                        Archon.SignalQuickslotsChangedWhilePiloting(addedTo.Value);
+                    }
+                }
+                else
+                    Log.Error($"Unable to find suitable quickslot for docked sub {pu}. Sub will not be listed in quickbar");
+            }
+        }
     }
 }

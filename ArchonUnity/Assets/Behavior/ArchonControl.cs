@@ -182,6 +182,23 @@ public class ArchonControl : MonoBehaviour
     }
 
 
+    public void SignalLoading()
+    {
+        bayControl.SignalLoading();
+    }
+    
+
+    public void RedetectDocked()
+    {
+        bayControl.RedetectDocked();
+    }
+
+    public void PrepareForSaving()
+    {
+        Log.Write(nameof(PrepareForSaving));
+        bayControl.PrepareForSaving();
+    }
+
     public void Enter(PlayerReference player, bool skipOrientation = false)
     {
         Log.Write($"Boarding");
@@ -832,6 +849,19 @@ public class ArchonControl : MonoBehaviour
                     evacuateIntruders.enabled = !onLeave;
                 }
 
+            }
+            if (cameraIsInTrailspace && cameraRoot.parent != trailSpaceCameraContainer)
+            {
+                Log.LogWarning("Fixing camera location");
+                cameraRoot.parent = trailSpaceCameraContainer;
+                Location.LocalIdentity.ApplyTo(cameraRoot);
+                Log.Write("Fixed");
+
+            }
+            if (currentlyControlled && trailSpace.parent != transform.parent)
+            {
+                Log.LogWarning("Trail space is not offloaded right now. Fixing");
+                trailSpace.parent = transform.parent;
             }
             hullLightController.lightsEnabled = lights;
         }

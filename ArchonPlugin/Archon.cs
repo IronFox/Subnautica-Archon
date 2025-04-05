@@ -9,6 +9,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UWE;
 using VehicleFramework;
 using VehicleFramework.Engines;
 using VehicleFramework.Localization;
@@ -25,7 +26,7 @@ namespace Subnautica_Archon
 
 
 
-    public class Archon : Submarine, IPowerListener
+    public class Archon : Submarine, IPowerListener, IProtoTreeEventListener
     {
         public static GameObject model;
         private ArchonControl control;
@@ -48,10 +49,17 @@ namespace Subnautica_Archon
         {
             //Log = new MyLogger(this);
             Log.Write($"Constructed");
+            MenuTracker = new MenuTracker(() =>
+            {
+                if (control)
+                    control.PrepareForSaving();
+            }, () => { });
             MaterialFixer = new MaterialFixer(this, Logging.Silent);
         }
 
         public override float ExitVelocityLimit => 100f;    //any speed is good
+
+
 
         public IEnumerable<QuickSlot> QuickSlots
         {
@@ -144,6 +152,7 @@ namespace Subnautica_Archon
 
 
         private bool isInitialized = false;
+        private bool hadUnpausedFrame = false;
 
         public override void SubConstructionComplete()
         {
@@ -154,7 +163,9 @@ namespace Subnautica_Archon
 
         public override void Awake()
         {
+            Log.Write(nameof(Awake));
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
+
 
 
 
@@ -185,12 +196,31 @@ namespace Subnautica_Archon
             control = GetComponent<ArchonControl>();
             control.freeCamera = MainPatcher.PluginConfig.defaultToFreeCamera;
 
+
+            //var loadSave = gameObject.GetComponent<LoadSaveComponent>();
+            //if (!loadSave)
+            //    loadSave = gameObject.AddComponent<LoadSaveComponent>();
+            //loadSave.control = control;
+
             Destroy(modulesRoot);
 
             modulesRoot = control.hangarRoot.gameObject.AddComponent<ChildObjectIdentifier>();
 
 
             base.Awake();
+
+            Log.Write("Checking quickslots");
+            foreach (var s in QuickSlots)
+            {
+                var mod = modules.GetItemInSlot(s.ID);
+                if (mod != null && mod.item == null)
+                {
+                    Log.Error($"Found invalid item in slot {s}. Purging");
+                    modules.RemoveItem(s.ID, true, false);
+                }
+            }
+
+
             var cameraController = gameObject.GetComponentInChildren<VehicleFramework.VehicleComponents.MVCameraController>();
             if (cameraController)
             {
@@ -319,7 +349,7 @@ namespace Subnautica_Archon
         }
 
 
-        private void LocalInit()
+        private void LazyInit()
         {
             if (!isInitialized)
             {
@@ -345,13 +375,18 @@ namespace Subnautica_Archon
 
                     energyInterface = GetComponent<EnergyInterface>();
                     control = GetComponent<ArchonControl>();
+                    //var loadSave = gameObject.GetComponent<LoadSaveComponent>();
+                    //if (!loadSave)
+                    //    loadSave = gameObject.AddComponent<LoadSaveComponent>();
+                    //loadSave.control = control;
+
                     //rotateCamera = GetComponentInChildren<RotateCamera>();
 
                     //if (rotateCamera == null)
                     //    EchLog.Write($"Rotate camera not found");
                     //else
                     //    EchLog.Write($"Found camera rotate {rotateCamera.name}");
-
+                    control.RedetectDocked();
                     if (control != null)
                     {
                         Log.Write("Found control");
@@ -408,10 +443,10 @@ namespace Subnautica_Archon
                 Log.Write(nameof(Start));
 
 
-                LocalInit();
+                LazyInit();
 
                 base.Start();
-                Log.Write(nameof(Start)+" done");
+                Log.Write(nameof(Start) + " done");
 
             }
             catch (Exception ex)
@@ -424,7 +459,8 @@ namespace Subnautica_Archon
 
         public override void PlayerEntry()
         {
-            control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended);
+            Log.Write(nameof(PlayerEntry));
+            control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended || !hadUnpausedFrame);
             pingInstance.SetHudIcon(false);
             base.PlayerEntry();
         }
@@ -450,7 +486,7 @@ namespace Subnautica_Archon
                 }
 
                 Log.Write(nameof(BeginPiloting));
-                LocalInit();
+                LazyInit();
 
                 base.BeginPiloting();
                 control.Control(Helper.GetPlayerReference());
@@ -472,7 +508,7 @@ namespace Subnautica_Archon
             {
                 Log.Write(nameof(StopPiloting));
 
-                LocalInit();
+                LazyInit();
                 control.ExitControl(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended);
                 base.StopPiloting();
 
@@ -523,7 +559,7 @@ namespace Subnautica_Archon
         {
             try
             {
-                LocalInit();
+                LazyInit();
                 stabilizeRoll = false;
 
                 if (worldForces.IsAboveWater() != wasAboveWater)
@@ -551,7 +587,7 @@ namespace Subnautica_Archon
             if (energyInterface != null
                 && !IngameMenu.main.gameObject.activeSelf)
             {
-//                var batteryMk = GetBatteryMark();
+                //                var batteryMk = GetBatteryMark();
 
                 float level = 1;
 
@@ -683,7 +719,7 @@ namespace Subnautica_Archon
 
         private void ProcessTriggers()
         {
-            if (control.IsBeingControlled 
+            if (control.IsBeingControlled
                 && Player.main.pda.state == PDA.State.Closed
                 && !IngameMenu.main.gameObject.activeSelf
                 )
@@ -691,7 +727,7 @@ namespace Subnautica_Archon
                 if (GameInput.GetButtonDown(GameInput.Button.RightHand))
                 {
                     control.lights = !control.lights;
-                    if (control.lights )
+                    if (control.lights)
                     {
                         lightsOnSound.Stop();
                         lightsOnSound.Play();
@@ -761,13 +797,14 @@ namespace Subnautica_Archon
                 : euler;
         }
 
+        private MenuTracker MenuTracker { get; }
         public override void Update()
         {
             try
             {
-                LocalInit();
-
-
+                LazyInit();
+                MenuTracker.Update();
+                hadUnpausedFrame |= Time.deltaTime > 0;
 
                 //if (Player.main.sitting)
                 //{
@@ -926,6 +963,7 @@ namespace Subnautica_Archon
 
         internal void EnterFromDocking()
         {
+            Log.Write(nameof(EnterFromDocking));
             SuspendAutoLeveling();
             PlayerEntry();
             BeginPiloting();
@@ -962,7 +1000,11 @@ namespace Subnautica_Archon
         internal void SignalQuickslotsChangedWhilePiloting(QuickSlot slot)
         {
             Log.Write(nameof(SignalQuickslotsChangedWhilePiloting));
-
+            if (!control.IsBeingControlled)
+            {
+                Log.Write($"Not actually piloting. Ignoring");
+                return;
+            }
             //var qs = uGUI.main.quickSlots;
             //new MethodAdapter<uGUI_ItemIcon, TechType>(qs, "SetForeground")
             //    .Invoke(qs.GetIcon(slot.Index), TechType.None);
@@ -992,7 +1034,7 @@ namespace Subnautica_Archon
             disabledCameras.UndoAll();
         }
 
-        public string VehicleName => subName ? subName.GetName() : vehicleName;
+        public string VehicleName => Helper.GetName(this);
 
         public override int MaxHealth => 2000;
         public override int NumModules => 8;
@@ -1285,5 +1327,8 @@ namespace Subnautica_Archon
                 return tetherSources;
             }
         }
+
     }
+
+
 }

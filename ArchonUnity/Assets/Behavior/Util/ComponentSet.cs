@@ -48,23 +48,21 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
     }
 
     public int VersionNumber {get; private set; }
-    public ComponentSet(UnityEngine.Object owner, Func<T, bool> additionalValidityCheck)
+    public ComponentSet(Func<T, bool> additionalValidityCheck = null)
     {
         AdditionalValidityCheck = additionalValidityCheck ?? (_ => true);
-        Owner = owner;
     }
 
     private Dictionary<int, T> Content { get; } = new Dictionary<int, T>();
 
     private Func<T, bool> AdditionalValidityCheck { get; }
-    private UnityEngine.Object Owner { get; }
 
     private IEnumerator<KeyValuePair<int,T>> CleanEnum { get; set; }
     public DateTime LastChange { get; private set; }
     public DateTime LastCheck { get; private set; }
-    private List<int> RemoveOnNextReset {get; } = new List<int>();
+    private List<KeyValuePair<int, T>> RemoveOnNextReset {get; } = new List<KeyValuePair<int, T>>();
 
-    public void Update()
+    public void Update(Action<int, T> onRemovedDead = null)
     {
         try
         {
@@ -72,8 +70,10 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
             {
                 bool anyChanged = false;
                 foreach (var item in RemoveOnNextReset)
-                    if (Content.Remove(item))
+                    if (Content.Remove(item.Key))
+                    {
                         anyChanged = true;
+                    }
                 RemoveOnNextReset.Clear();
                 if (anyChanged)
                 {
@@ -92,7 +92,8 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
                 var c = CleanEnum.Current;
                 if (!c.Value || !AdditionalValidityCheck(c.Value))
                 {
-                    RemoveOnNextReset.Add(c.Key);
+                    onRemovedDead?.Invoke(c.Key, c.Value);
+                    RemoveOnNextReset.Add(c);
                 }
             }
         }
@@ -113,25 +114,32 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
     //            content.Remove(c);
     //}
 
-    public void Add(T item)
+    public bool Add(T item)
     {
         if (AdditionalValidityCheck(item))
         {
+            var isNew = !Content.ContainsKey(item.GetInstanceID());
             Content[item.GetInstanceID()] = item;
             CleanEnum = null;
             LastChange = DateTime.Now;
             VersionNumber++;
+            return isNew;
         }
+        return false;
     }
 
-    public void Remove(T item)
+    public bool Remove(T item)
     {
+        if (RemoveOnNextReset.Any(x => x.Value == item))
+            return false;
         if (Content.Remove(item.GetInstanceID()))
         {
             CleanEnum = null;
             LastChange = DateTime.Now;
             VersionNumber++;
+            return true;
         }
+        return false;
     }
 
     public IEnumerator<T> GetEnumerator()

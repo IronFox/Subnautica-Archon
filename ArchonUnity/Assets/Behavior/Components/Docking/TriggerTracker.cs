@@ -16,7 +16,7 @@ public class TriggerTracker : MonoBehaviour
     }
 
     public bool logChanges = false;
-    private ComponentSet<Collider> Set { get; }
+    private ComponentSet<Collider> Set { get; } = new ComponentSet<Collider>(c => c.enabled && !c.isTrigger);
 
     private LogConfig logConfig = LogConfig.Default;
 #if DebugTracked
@@ -37,9 +37,7 @@ public class TriggerTracker : MonoBehaviour
     //}
 
     public TriggerTracker()
-    {
-        Set = new ComponentSet<Collider>(this, c => c.enabled && !c.isTrigger);
-    }
+    {}
 
     void Awake()
     {
