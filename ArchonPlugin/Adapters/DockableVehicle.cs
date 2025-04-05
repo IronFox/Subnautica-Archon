@@ -343,6 +343,11 @@ namespace Subnautica_Archon.Adapters
         }
 
 
+
+        public IEnumerable<GameObject> GetAllObjects()
+        {
+            return Vehicle.gameObject.GetAllChildren(x => !x.transform.IsChildOf(Player.mainObject.transform));
+        }
         public IEnumerable<T> GetAllComponents<T>() where T : Component
         {
             return Vehicle.GetComponentsInChildren<T>()
@@ -469,5 +474,6 @@ namespace Subnautica_Archon.Adapters
                 Log.Write($"Mod added");
             }
         }
+
     }
 }

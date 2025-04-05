@@ -402,6 +402,10 @@ namespace Subnautica_Archon
                             Log.Write("This has children: " + Helper.NamesS(Helper.Children(transform)));
                         }
                     }
+
+                    StartCoroutine(RecheckDockedVehicles());
+
+
                     Log.Write($"LocalInit() done");
 
                 }
@@ -411,6 +415,12 @@ namespace Subnautica_Archon
                 }
 
             }
+        }
+
+        private IEnumerator RecheckDockedVehicles()
+        {
+            yield return new WaitUntil(() => VehicleFramework.Admin.GameStateWatcher.isWorldLoaded);
+            control.RedetectDocked();
         }
 
 

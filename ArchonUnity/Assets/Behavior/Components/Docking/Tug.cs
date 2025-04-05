@@ -13,7 +13,7 @@ public class Tug : MonoBehaviour
 
     public static string Tag { get; } = $"Archon Docked "+new Guid("086EA558-170A-4B92-8922-F7456F818D38");
 
-    public bool HasGoodFit => fit.Dockable != null;
+    public bool HasGoodFit => fit.Dockable != null && Status != TugStatus.Undefined;
     public DockingFit Fit 
     {
         get
@@ -104,6 +104,17 @@ public class Tug : MonoBehaviour
 
         switch (status)
         {
+            case TugStatus.WaitingForBayDoorOpen:
+                foreach (var o in fit.Dockable.GetAllObjects())
+                    try
+                    {
+                        o.RequireActive();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogException(ex);
+                    }
+                break;
             case TugStatus.Docking:
                 Do(fit.Dockable.BeginDocking, $"Dockable.BeginDocking()", verifyIntegrity:false);
                 break;
@@ -118,6 +129,15 @@ public class Tug : MonoBehaviour
                 ReDisable = 3;
                 DockedLocation.ApplyTo(Fit.GameObject.transform);
 
+                foreach (var o in fit.Dockable.GetAllObjects())
+                    try
+                    {
+                        o.RequireActive();
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogException(ex);
+                    }
                 //Fit.GetAllComponents<MonoBehaviour>()
                 //    .Where(x => x != this)
                 //    .ToEnabled()
@@ -218,7 +238,7 @@ public class Tug : MonoBehaviour
                 Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
             }
         }
-        ObjectUtil.RequireActive(this, Owner.archon.transform);
+        //ObjectUtil.RequireActive(this, Owner.archon.transform);
         Owner.VerifyIntegrity();
 
     }
@@ -346,12 +366,22 @@ public class Tug : MonoBehaviour
         ParticleSystems.UndoAll();
         Renderers.UndoAll();
         Lights.UndoAll();
-        Fit.Dockable.Tag(Tag);
-        Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
+        foreach (var o in fit.Dockable.GetAllObjects())
+            try
+            {
+                o.RequireActive();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
 
-        DockedLocation.Globalize(Owner.archon.transform).ApplyTo(Fit.GameObject);
+        //Fit.Dockable.Tag(Tag);
+        //Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
 
-        Do(Fit.Dockable.OnUndockedForSaving,$"Fit.Dockable.OnUndockedForSaving",false);
+        //DockedLocation.Globalize(Owner.archon.transform).ApplyTo(Fit.GameObject);
+
+        //Do(Fit.Dockable.OnUndockedForSaving,$"Fit.Dockable.OnUndockedForSaving",false);
     }
 
     // Update is called once per frame
@@ -368,11 +398,11 @@ public class Tug : MonoBehaviour
                 ParticleSystems.RedoAll();
                 Renderers.RedoAll();
                 Lights.RedoAll();
-                Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
-                Fit.Dockable.Untag(Tag);
-                Do(Fit.Dockable.OnRedockedAfterSaving, $"Fit.Dockable.OnRedockedAfterSaving");
+                //Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
+                //Fit.Dockable.Untag(Tag);
+                //Do(Fit.Dockable.OnRedockedAfterSaving, $"Fit.Dockable.OnRedockedAfterSaving");
 
-                DockedLocation.ApplyTo(Fit.GameObject);
+                //DockedLocation.ApplyTo(Fit.GameObject);
 
                 IsSaving = false;
             }
@@ -509,6 +539,7 @@ public class Tug : MonoBehaviour
 
 public enum TugStatus
 {
+    Undefined,
     Docking,
     WaitingForBayDoorClose,
     Docked,

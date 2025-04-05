@@ -90,4 +90,6 @@ public class DebugDockable : MonoBehaviour, IDockable
 
     public void OnRedockedAfterSaving()
     {}
+
+    public IEnumerable<GameObject> GetAllObjects() => gameObject.GetAllChildren();
 }

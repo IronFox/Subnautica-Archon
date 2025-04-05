@@ -105,73 +105,125 @@ public class BayControl : MonoBehaviour
 
     public int RedetectDocked()
     {
+        Log.Write($"RedetectDocked: Found {dockedSubRoot.childCount} children");
 
 
         //NumDockedVehicles = 0;
 
-        var candidates = Physics.OverlapSphere(archon.transform.position, 100);
-        Log.Write($"Checking {candidates.Length} colliders");
-        var rbs = candidates.Select(c => c.attachedRigidbody).Where(x => x).Distinct().ToList();
-        Log.Write($"Down to {rbs.Count} rigidbodies");
-
-
-        foreach (var candidate in rbs)
+        foreach (var candidate in dockedSubRoot.GetChildren())
         {
-            try
+            var tug = Tug.Get(candidate);
+            if (tug)
             {
-                if (!candidate)
-                {
-                    Log.Write($"Found null candidate");
-                    continue;
-                }
-                if (!candidate.transform)
-                {
-                    Log.Write($"Found candidate with null transform");
-                    continue;
-                }
-                if (candidate.transform.IsChildOf(archon.transform))
-                {
-                    Log.Write($"Found local {candidate.NiceName()} in {candidate.transform.PathToString()}");
-                    continue;
-                }
-                Log.Write($"Now checking {candidate.NiceName()}");
+                Log.Write("Tug already existed");
+            }
+            else
+            {
+                tug = Tug.GetOrAdd(candidate);
+                Log.Write("Tug created");
+            }
+            if (!tug.HasGoodFit)
+            {
 
+                Log.Write($"Get dockable");
                 var d = DockingAdapter.ToDockable(candidate.gameObject, archon, DockingAdapter.Filter.All);
                 if (d != null)
                 {
-                    Log.Write("Is dockable");
-                    if (d.IsTagged(Tug.Tag))
+
+                    Log.Write($"Getting fit");
+                    var fit = FindBestFit(d);
+                    if (fit != null)
                     {
-                        Log.Write("Is tagged. Untagging");
-                        d.Untag(Tug.Tag);
-                        var fit = FindBestFit(d);
-                        if (fit != null)
-                        {
-                            Log.Write("Fits. Docking");
-                            var tug = Tug.GetOrAdd(d.GameObject);
-                            tug.Bind(this, fit.Value, TugStatus.Docked);
-                            IncNumDockedVehicles(tug);
-                        }
-                        else
-                        {
-                            d.GameObject.transform.position += M.V3(50); //evacuate the thing out
-                            Log.LogError("Tagged but does not fit. Translated away");
-                        }
+                        Log.Write($"Binding tug");
+                        tug.Bind(this, fit.Value, TugStatus.Docked);
+                        IncNumDockedVehicles(tug);
+                        //NumDockedVehicles++;
                     }
                     else
-                        Log.Write("Is not tagged");
+                    {
+                        Log.LogError($"Could not find fit for {candidate.NiceName()}. Evacuating");
+                        candidate.SetParent(archon.transform.parent);
+                        candidate.position += M.V3(100);
+                    }
                 }
                 else
-                    Log.Write("Is not dockable");
+                {
+                    Log.Write($"{candidate.NiceName()} is not dockable. Ignoring");
+                }
             }
-            catch (Exception e)
+            else
             {
-                Debug.LogException(e);
-            }
+                Log.Write($"{candidate.NiceName()} is already handled");
 
+                //NumDockedVehicles++;
+            }
         }
 
-        return NumDockedVehicles;
+
+
+            //var candidates = Physics.OverlapSphere(archon.transform.position, 100);
+            //Log.Write($"Checking {candidates.Length} colliders");
+            //var rbs = candidates.Select(c => c.attachedRigidbody).Where(x => x).Distinct().ToList();
+            //Log.Write($"Down to {rbs.Count} rigidbodies");
+
+
+            //foreach (var candidate in rbs)
+            //{
+            //    try
+            //    {
+            //        if (!candidate)
+            //        {
+            //            Log.Write($"Found null candidate");
+            //            continue;
+            //        }
+            //        if (!candidate.transform)
+            //        {
+            //            Log.Write($"Found candidate with null transform");
+            //            continue;
+            //        }
+            //        if (candidate.transform.IsChildOf(archon.transform))
+            //        {
+            //            Log.Write($"Found local {candidate.NiceName()} in {candidate.transform.PathToString()}");
+            //            continue;
+            //        }
+            //        Log.Write($"Now checking {candidate.NiceName()}");
+
+            //        var d = DockingAdapter.ToDockable(candidate.gameObject, archon, DockingAdapter.Filter.All);
+            //        if (d != null)
+            //        {
+            //            Log.Write("Is dockable");
+            //            if (d.IsTagged(Tug.Tag))
+            //            {
+            //                Log.Write("Is tagged. Untagging");
+            //                d.Untag(Tug.Tag);
+            //                var fit = FindBestFit(d);
+            //                if (fit != null)
+            //                {
+            //                    Log.Write("Fits. Docking");
+            //                    var tug = Tug.GetOrAdd(d.GameObject);
+            //                    tug.Bind(this, fit.Value, TugStatus.Docked);
+            //                    IncNumDockedVehicles(tug);
+            //                }
+            //                else
+            //                {
+            //                    d.GameObject.transform.position += M.V3(50); //evacuate the thing out
+            //                    Log.LogError("Tagged but does not fit. Translated away");
+            //                }
+            //            }
+            //            else
+            //                Log.Write("Is not tagged");
+            //        }
+            //        else
+            //            Log.Write("Is not dockable");
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        Debug.LogException(e);
+            //    }
+
+            //}
+
+            return NumDockedVehicles;
     }
 
     private ComponentSet<Tug> DockedTugs { get; } = new ComponentSet<Tug>();
@@ -297,14 +349,14 @@ public class BayControl : MonoBehaviour
 
     public void VerifyIntegrity()
     {
-        foreach (var c in dockedSubRoot.GetChildren())
-        {
-            if (!Tug.Get(c))
-            {
-                //new HierarchyAnalyzer().LogToJson(c, @"C:\temp\stray.json");
-                throw new InvalidOperationException($"Found stray {c.NiceName()} in docked sub root");
-            }
-        }
+        //foreach (var c in dockedSubRoot.GetChildren())
+        //{
+        //    if (!Tug.Get(c))
+        //    {
+        //        //new HierarchyAnalyzer().LogToJson(c, @"C:\temp\stray.json");
+        //        throw new InvalidOperationException($"Found stray {c.NiceName()} in docked sub root");
+        //    }
+        //}
 
         //var expectDocked = NumDockedVehicles;
         //if (dockedCountWillIncrease)
@@ -478,7 +530,7 @@ public class BayControl : MonoBehaviour
     public void PrepareForSaving()
     {
         var children = dockedSubRoot.GetChildren().ToList();
-        Log.Write(nameof(PrepareForSaving)+$" on {children.Count} docked sub candidate(s)");
+        Log.Write(nameof(PrepareForSaving) + $" on {children.Count} docked sub candidate(s)");
         for (int i = 0; i < children.Count; i++)
         {
             var tugCandidate = children[i];
@@ -495,7 +547,7 @@ public class BayControl : MonoBehaviour
             }
             catch (Exception ex)
             {
-                Debug.LogException( ex );
+                Debug.LogException(ex);
             }
 
         }
