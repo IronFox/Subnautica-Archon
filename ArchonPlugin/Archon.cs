@@ -484,6 +484,14 @@ namespace Subnautica_Archon
                     ErrorMessage.AddError(string.Format(Language.main.Get("destroyedAndCannotBeBoarded"), VehicleName));
                     return;
                 }
+                if (refreshQuickslotsOnControl.HasValue)
+                {
+                    var v = refreshQuickslotsOnControl.Value;
+                    control.PrepareForSaving();
+                    refreshQuickslotsOnControl = null;
+                    //SignalQuickslotsChangedWhilePiloting(v);
+                }
+
 
                 Log.Write(nameof(BeginPiloting));
                 LazyInit();
@@ -997,6 +1005,11 @@ namespace Subnautica_Archon
         }
 
         private readonly Undoable disabledCameras = new Undoable();
+        private QuickSlot? refreshQuickslotsOnControl;
+        internal void SignalQuickslotsChangedWhileLoading(QuickSlot slot)
+        {
+            refreshQuickslotsOnControl = slot;
+        }
         internal void SignalQuickslotsChangedWhilePiloting(QuickSlot slot)
         {
             Log.Write(nameof(SignalQuickslotsChangedWhilePiloting));

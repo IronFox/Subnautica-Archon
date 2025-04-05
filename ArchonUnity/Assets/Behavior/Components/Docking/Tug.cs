@@ -90,7 +90,7 @@ public class Tug : MonoBehaviour
     }
 
     private Location DockedLocation => Fit.CorrectDocked(Location.FromLocal(Owner.dockedBounds));
-
+    private int ReDisable { get; set; }
     internal void Bind(BayControl bayControl, DockingFit fit, TugStatus status)
     {
         Log = new LogConfig($"Tug[{GetInstanceID()}]<{fit.GameObject.NiceName()}>", true);
@@ -111,12 +111,11 @@ public class Tug : MonoBehaviour
                 DockedLocation.ApplyTo(Fit.GameObject.transform);
 
                 Do(fit.Dockable.RestoreDockedStateFromSaveGame, $"Dockable.RestoreDockedStateFromSaveGame()", verifyIntegrity: false);
-                Status = TugStatus.Docked;
                 ChangeActiveState(false);
                 Fit.Dockable.DisableAllEnabledRenderers(Renderers);
                 Fit.Dockable.DisableAllEnabledLights(Lights);
                 Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
-
+                ReDisable = 3;
                 DockedLocation.ApplyTo(Fit.GameObject.transform);
 
                 //Fit.GetAllComponents<MonoBehaviour>()
@@ -379,7 +378,7 @@ public class Tug : MonoBehaviour
             }
             else
             {
-                Log.Write($"Saving assumed to continue");
+                //Log.Write($"Saving assumed to continue");
                 return;
             }
         }
@@ -391,6 +390,15 @@ public class Tug : MonoBehaviour
         {
             switch (Status)
             {
+                case TugStatus.Docked:
+                    if (--ReDisable > 0)
+                    {
+                        ChangeActiveState(false);
+                        Fit.Dockable.DisableAllEnabledRenderers(Renderers);
+                        Fit.Dockable.DisableAllEnabledLights(Lights);
+                        Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
+                    }
+                    break;
                 case TugStatus.UndockedWaitingForTriggerExit:
                     WaitSeconds += Time.deltaTime;
                     if (WaitSeconds > 1 && !Owner.dockingTrigger.IsTracked(Fit.GameObject))

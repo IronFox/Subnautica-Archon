@@ -113,7 +113,7 @@ namespace Subnautica_Archon.Util
         {
             if (!vehicle)
                 return;
-            Logging.Default.LogMessage($"Changing name of {vehicle.NiceName()} '{vehicle.GetName()}' -> '{name}'");
+            Log.Write($"Changing name of {vehicle.NiceName()} '{vehicle.GetName()}' -> '{name}'");
             if (vehicle.subName)
                 vehicle.subName.SetName(name);
             vehicle.vehicleName = name;
