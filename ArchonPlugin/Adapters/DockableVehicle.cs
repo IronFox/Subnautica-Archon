@@ -60,11 +60,13 @@ namespace Subnautica_Archon.Adapters
         {
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
-            //if (Vehicle is ModVehicle)
-                Vehicle.docked = true;  //vanilla vehicles react oddly
+            Vehicle.docked = true;
+            if (Vehicle is ModVehicle mv)
+                mv.OnVehicleDocked(Vector3.zero);
             if (Vehicle is Drone d)
                 d.isAsleep = true;
-            EndDocking();
+
+            AddToQuickbar(true);
 
         }
 
@@ -95,17 +97,18 @@ namespace Subnautica_Archon.Adapters
                 d.isAsleep = true;
             }
 
+
+            if (Vehicle is ModVehicle || !HasPlayer)    //otherwise the hands are all wrong
+                Vehicle.docked = true;
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             if (Vehicle is ModVehicle mv)
             {
                 mv.pingInstance.SetHudIcon(false);
+                mv.OnVehicleDocked(Vector3.zero);
             }
             else
                 Vehicle.subName.pingInstance.SetHudIcon(false);
-
-            if (Vehicle is ModVehicle || !HasPlayer)    //otherwise the hands are all wrong
-                Vehicle.docked = true;
         }
 
 
@@ -179,10 +182,8 @@ namespace Subnautica_Archon.Adapters
 
                 Vehicle.docked = true;
 
-                AddToQuickbar();
+                AddToQuickbar(false);
 
-
-                Log.Write($"Mod added");
 
             }
 
@@ -328,6 +329,8 @@ namespace Subnautica_Archon.Adapters
             Vehicle.crushDamage.enabled = true;
             //if (Vehicle is ModVehicle)
                 Vehicle.docked = false;
+            if (Vehicle is ModVehicle mv)
+                mv.OnVehicleUndocked();
 
             if (Vehicle is Drone d)
                 d.isAsleep = false;
@@ -400,11 +403,11 @@ namespace Subnautica_Archon.Adapters
         public void OnRedockedAfterSaving()
         {
             Log.Write(nameof(OnRedockedAfterSaving));
-            AddToQuickbar();
+            AddToQuickbar(false);
         }
 
 
-        private void AddToQuickbar()
+        private void AddToQuickbar(bool fromLoading)
         {
             Log.Write($"Trying to set module slot for {Vehicle.NiceName()}");
 
@@ -453,13 +456,17 @@ namespace Subnautica_Archon.Adapters
                 }
                 if (addedTo.HasValue)
                 {
-                    if (!HasPlayer && !IsPlayerControlledDrone)
+                    if (fromLoading)
+                        Archon.SignalQuickslotsChangedWhileLoading(addedTo.Value);
+                    else if (!HasPlayer && !IsPlayerControlledDrone)
                     {
                         Archon.SignalQuickslotsChangedWhilePiloting(addedTo.Value);
                     }
                 }
                 else
                     Log.Error($"Unable to find suitable quickslot for docked sub {pu}. Sub will not be listed in quickbar");
+
+                Log.Write($"Mod added");
             }
         }
     }

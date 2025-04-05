@@ -59,6 +59,8 @@ public class ArchonControl : MonoBehaviour
     public float currentHealth = 0.5f;
     public bool isHealing;
 
+    private float forceAutoLevelInSeconds = float.MaxValue;
+
     private FirstPersonMarkers firstPersonMarkers;
 
     public float rotationDegreesPerSecond = 20;
@@ -206,9 +208,10 @@ public class ArchonControl : MonoBehaviour
 
         if (!skipOrientation)
         {
-            Log.Write("Force-leveling");
-            transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+            forceAutoLevelInSeconds = 0;
         }
+        else
+            forceAutoLevelInSeconds = float.MaxValue;
 
         boardedBy = player;
         boardedLeave = false;
@@ -238,6 +241,7 @@ public class ArchonControl : MonoBehaviour
     {
         wasEverBoarded = true;
         lastOnboarded = DateTime.Now;
+        forceAutoLevelInSeconds = float.MaxValue;
         if (!currentlyControlled)
         {
             Log.Write($"Controlling");
@@ -877,6 +881,15 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
+            forceAutoLevelInSeconds -= Time.deltaTime;
+            if (forceAutoLevelInSeconds < 0)
+            {
+                Log.Write("Force-leveling");
+                transform.eulerAngles = new Vector3(0, transform.eulerAngles.y, 0);
+                forceAutoLevelInSeconds = float.MaxValue;
+            }
+
+
             if (IsBoarded)
             {
                 if (!rb.isKinematic)

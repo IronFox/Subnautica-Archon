@@ -106,44 +106,68 @@ public class BayControl : MonoBehaviour
     public int RedetectDocked()
     {
 
-        Log.Write($"Restoring {dockedSubRoot.childCount} children");
 
         //NumDockedVehicles = 0;
 
         var candidates = Physics.OverlapSphere(archon.transform.position, 100);
-        foreach (var candidate in candidates
-            .Select(c => c.attachedRigidbody)
-            .Where(x => x && !x.transform.IsChildOf(archon.transform))
-            .Distinct())
+        Log.Write($"Checking {candidates.Length} colliders");
+        var rbs = candidates.Select(c => c.attachedRigidbody).Where(x => x).Distinct().ToList();
+        Log.Write($"Down to {rbs.Count} rigidbodies");
+
+
+        foreach (var candidate in rbs)
         {
-            Log.Write($"Checking {candidate.NiceName()}");
-            var d = DockingAdapter.ToDockable(candidate.gameObject,archon, DockingAdapter.Filter.All);
-            if (d != null)
+            try
             {
-                Log.Write("Is dockable");
-                if (d.IsTagged(Tug.Tag))
+                if (!candidate)
                 {
-                    Log.Write("Is tagged. Untagging");
-                    d.Untag(Tug.Tag);
-                    var fit = FindBestFit(d);
-                    if (fit != null)
+                    Log.Write($"Found null candidate");
+                    continue;
+                }
+                if (!candidate.transform)
+                {
+                    Log.Write($"Found candidate with null transform");
+                    continue;
+                }
+                if (candidate.transform.IsChildOf(archon.transform))
+                {
+                    Log.Write($"Found local {candidate.NiceName()} in {candidate.transform.PathToString()}");
+                    continue;
+                }
+                Log.Write($"Now checking {candidate.NiceName()}");
+
+                var d = DockingAdapter.ToDockable(candidate.gameObject, archon, DockingAdapter.Filter.All);
+                if (d != null)
+                {
+                    Log.Write("Is dockable");
+                    if (d.IsTagged(Tug.Tag))
                     {
-                        Log.Write("Fits. Docking");
-                        var tug = Tug.GetOrAdd(d.GameObject);
-                        tug.Bind(this, fit.Value, TugStatus.Docked);
-                        IncNumDockedVehicles(tug);
+                        Log.Write("Is tagged. Untagging");
+                        d.Untag(Tug.Tag);
+                        var fit = FindBestFit(d);
+                        if (fit != null)
+                        {
+                            Log.Write("Fits. Docking");
+                            var tug = Tug.GetOrAdd(d.GameObject);
+                            tug.Bind(this, fit.Value, TugStatus.Docked);
+                            IncNumDockedVehicles(tug);
+                        }
+                        else
+                        {
+                            d.GameObject.transform.position += M.V3(50); //evacuate the thing out
+                            Log.LogError("Tagged but does not fit. Translated away");
+                        }
                     }
                     else
-                    {
-                        d.GameObject.transform.position += M.V3(50); //evacuate the thing out
-                        Log.LogError("Tagged but does not fit. Translated away");
-                    }
+                        Log.Write("Is not tagged");
                 }
                 else
-                    Log.Write("Is not tagged");
+                    Log.Write("Is not dockable");
             }
-            else
-                Log.Write("Is not dockable");
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
 
         }
 
@@ -276,7 +300,10 @@ public class BayControl : MonoBehaviour
         foreach (var c in dockedSubRoot.GetChildren())
         {
             if (!Tug.Get(c))
+            {
+                //new HierarchyAnalyzer().LogToJson(c, @"C:\temp\stray.json");
                 throw new InvalidOperationException($"Found stray {c.NiceName()} in docked sub root");
+            }
         }
 
         //var expectDocked = NumDockedVehicles;
@@ -450,20 +477,28 @@ public class BayControl : MonoBehaviour
 
     public void PrepareForSaving()
     {
-        Log.Write(nameof(PrepareForSaving)+$" on {dockedSubRoot.childCount} docked sub candidate(s)");
-        for (int i = 0; i < dockedSubRoot.childCount; i++)
+        var children = dockedSubRoot.GetChildren().ToList();
+        Log.Write(nameof(PrepareForSaving)+$" on {children.Count} docked sub candidate(s)");
+        for (int i = 0; i < children.Count; i++)
         {
-            var tugCandidate = dockedSubRoot.GetChild(i);
-
-            var tug = Tug.Get(tugCandidate);
-            if (tug && tug.HasGoodFit)
+            var tugCandidate = children[i];
+            try
             {
-                Log.LogWarning($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is valid. Saving");
-                tug.PrepareForSaving();
+                var tug = Tug.Get(tugCandidate);
+                if (tug && tug.HasGoodFit)
+                {
+                    Log.LogWarning($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is valid. Saving");
+                    tug.PrepareForSaving();
+                }
+                else
+                    Log.LogWarning($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is either not a tug ({tug}) or not well fit. Skipping");
             }
-            else
-                Log.LogWarning($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is either not a tug ({tug}) or not well fit. Skipping");
+            catch (Exception ex)
+            {
+                Debug.LogException( ex );
+            }
 
         }
+        Log.Write(nameof(PrepareForSaving) + $" done");
     }
 }
