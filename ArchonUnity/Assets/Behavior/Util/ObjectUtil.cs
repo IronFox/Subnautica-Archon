@@ -112,8 +112,8 @@ public static class ObjectUtil
         var s = o.name;
         int at = s.IndexOf('(');
         if (at >= 0)
-            return s.Substring(0, at);
-        return s;
+            s = s.Substring(0, at);
+        return $"<{o.GetType().Name}> '{s}' [{o.GetInstanceID()}]";
     }
     public static string PathToString(this Transform t)
     {

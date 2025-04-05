@@ -76,7 +76,8 @@ namespace Subnautica_Archon
 
         public override void DrainPower(Vector3 moveDirection)
         {
-
+            if (!MV || !MV.powerMan)
+                return;
             moveDirection = GetEffectiveMoveInput(moveDirection);
             float energyNeeded = lastDrainPerSecond = M.Sqr(moveDirection) * (
                 0.05f

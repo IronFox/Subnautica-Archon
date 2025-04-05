@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UIElements;
 using static UnityEngine.UI.GridLayoutGroup;
 
 public class BayControl : MonoBehaviour
@@ -23,11 +24,11 @@ public class BayControl : MonoBehaviour
     public Transform dockedSubRoot;
     public Transform dockedBounds;
     public Transform dockingColliders;
-    
 
     public int maxDockedVehicles = 2;
 
     private Bounds permittedBounds;
+    private bool isLoading;
 
     public static Action<ArchonControl, IDockable> OnDockingFailedFull { get; set; }
     public static Action<ArchonControl, IDockable> OnDockingFailedTooLarge { get; set; }
@@ -79,7 +80,7 @@ public class BayControl : MonoBehaviour
             return false;
         }
 
-        tug = Tug.GetOf(tugCandidate);
+        tug = Tug.GetOrAdd(tugCandidate);
         //if (!tug)
         //{
         //    Log.LogError($"Tug candidate {tugCandidate} has no tug. Creating");
@@ -91,22 +92,83 @@ public class BayControl : MonoBehaviour
 
     void Awake()
     {
-        permittedBounds = dockedBounds.ComputeScaledLocalBounds(includeRenderers:false, includeColliders:true);
+        Log.Write(nameof(Awake));
+        permittedBounds = dockedBounds.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true);
+        RedetectDocked();
+    }
+
+    public void SignalLoading()
+    {
+        Log.Write(nameof(SignalLoading));
+        isLoading = true;
+    }
+
+    public int RedetectDocked()
+    {
 
         Log.Write($"Restoring {dockedSubRoot.childCount} children");
 
-        NumDockedVehicles = 0;
-        foreach (Transform tugCandidate in dockedSubRoot)
-        {
-            Log.Write($"Restoring {tugCandidate}");
-            if (!TugFromGameObject(tugCandidate, true, out var tug, out var dockable, out _))
-                continue;
+        //NumDockedVehicles = 0;
 
-            NumDockedVehicles++;
-            tug.Bind(this, tug.Fit, TugStatus.Docked);
+        var candidates = Physics.OverlapSphere(archon.transform.position, 100);
+        foreach (var candidate in candidates
+            .Select(c => c.attachedRigidbody)
+            .Where(x => x && !x.transform.IsChildOf(archon.transform))
+            .Distinct())
+        {
+            Log.Write($"Checking {candidate.NiceName()}");
+            var d = DockingAdapter.ToDockable(candidate.gameObject,archon, DockingAdapter.Filter.All);
+            if (d != null)
+            {
+                Log.Write("Is dockable");
+                if (d.IsTagged(Tug.Tag))
+                {
+                    Log.Write("Is tagged. Untagging");
+                    d.Untag(Tug.Tag);
+                    var fit = FindBestFit(d);
+                    if (fit != null)
+                    {
+                        Log.Write("Fits. Docking");
+                        var tug = Tug.GetOrAdd(d.GameObject);
+                        tug.Bind(this, fit.Value, TugStatus.Docked);
+                        IncNumDockedVehicles(tug);
+                    }
+                    else
+                    {
+                        d.GameObject.transform.position += M.V3(50); //evacuate the thing out
+                        Log.LogError("Tagged but does not fit. Translated away");
+                    }
+                }
+                else
+                    Log.Write("Is not tagged");
+            }
+            else
+                Log.Write("Is not dockable");
+
         }
 
+        return NumDockedVehicles;
     }
+
+    private ComponentSet<Tug> DockedTugs { get; } = new ComponentSet<Tug>();
+    private void IncNumDockedVehicles(Tug tug)
+    {
+        if (!DockedTugs.Add(tug))
+        {
+            throw new InvalidOperationException($"Tug {tug.NiceName()} already added");
+        }
+        NumDockedVehicles++;
+    }
+
+    private void DecNumDockedVehicles(Tug tug)
+    {
+        if (!DockedTugs.Remove(tug))
+        {
+            throw new InvalidOperationException($"Tug {tug.NiceName()} not found");
+        }
+        NumDockedVehicles--;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -124,7 +186,7 @@ public class BayControl : MonoBehaviour
         bounds = bounds.TranslateBy(correction);
         if (!permittedBounds.Contains(fit.Bounds))
         {
-            Log.LogError($"Candidate vehicle {d} is too large unrotated. Rotating ({fit.Bounds} exeeds {permittedBounds})");
+            //Log.LogError($"Candidate vehicle {d} is too large unrotated. Rotating ({fit.Bounds} exeeds {permittedBounds})");
 
             bounds = new Bounds(bounds.center, M.V3(bounds.size.x, bounds.size.z, bounds.size.y));
             fit = new DockingFit(d, Quaternion.AngleAxis(90, Vector3.right), -bounds.center, bounds);
@@ -209,15 +271,45 @@ public class BayControl : MonoBehaviour
         active = tug;
     }
 
+    public void VerifyIntegrity()
+    {
+        foreach (var c in dockedSubRoot.GetChildren())
+        {
+            if (!Tug.Get(c))
+                throw new InvalidOperationException($"Found stray {c.NiceName()} in docked sub root");
+        }
+
+        //var expectDocked = NumDockedVehicles;
+        //if (dockedCountWillIncrease)
+        //    expectDocked++;
+        //if (dockedSubRoot.childCount != expectDocked)
+        //{
+        //    int actuallyDocked = 0;
+        //    foreach (var c in dockedSubRoot.GetChildren())
+        //    {
+        //        var tug = Tug.Get(c);
+        //        if (!tug)
+        //            throw new InvalidOperationException($"Found stray child in docked sub root {c.NiceName()}");
+        //        else if (tug.Status != TugStatus.UndockedWaitingForTriggerExit)
+        //            actuallyDocked++;
+        //    }
+        //    if (actuallyDocked != expectDocked)
+        //        throw new InvalidOperationException($"Wrong child count in docked sub root (is actually {actuallyDocked}, should be {expectDocked})");
+        //}
+    }
+
 
     public void ReleaseActive(Tug tug)
     {
-        if (tug.Status == TugStatus.Undocking)
-            NumDockedVehicles--;
+        if (tug.Status == TugStatus.Undocking || tug.Status == TugStatus.UndockedWaitingForTriggerExit)
+            DecNumDockedVehicles(tug);
 
         if (active == tug)
         {
             Log.Write(nameof(ReleaseActive) + $": {tug}");
+
+
+            VerifyIntegrity();
             active = null;
         }
         else
@@ -235,6 +327,22 @@ public class BayControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        DockedTugs.Update((id, tug) =>
+        {
+            Log.LogError($"Lost tug [{id}]");
+            NumDockedVehicles--;
+        });
+        if (isLoading)
+        {
+            if (Time.deltaTime == 0)
+            {
+                Log.Write($"Loading assumed to continue");
+                return;
+            }
+            isLoading = false;
+            Log.Write($"Loading assumed done. Redetecting docked vehicles");
+            RedetectDocked();
+        }
         
         var open = false;
         if (!active)
@@ -274,7 +382,7 @@ public class BayControl : MonoBehaviour
                     OnDockingFailedTooLarge?.Invoke(archon, d);
                     return null;
                 }
-                Log.Write($"Docking fit {fit.Value.Bounds} {fit.Value.Rotation} {permittedBounds}");
+                //Log.Write($"Docking fit {fit.Value.Bounds} {fit.Value.Rotation} {permittedBounds}");
 
                 if (NumDockedVehicles < maxDockedVehicles)
                     return fit;
@@ -290,12 +398,12 @@ public class BayControl : MonoBehaviour
                 if (candidate is null || candidate.Value.Dockable is null)
                     throw new InvalidOperationException($"Dockable not expected to be invalid here");
 
-                var tug = Tug.GetOf(candidate.Value.GameObject);
+                var tug = Tug.GetOrAdd(candidate.Value.GameObject);
                 //Location.LocalIdentity.ApplyTo(tugObj);
-//                var tug = tugObj.GetComponent<Tug>();
+                //                var tug = tugObj.GetComponent<Tug>();
                 tug.Bind(this, candidate.Value, TugStatus.Docking);
                 active = tug;
-                NumDockedVehicles++;
+                IncNumDockedVehicles(tug);
             }
             else if (open)
             {
@@ -340,5 +448,22 @@ public class BayControl : MonoBehaviour
         }
     }
 
+    public void PrepareForSaving()
+    {
+        Log.Write(nameof(PrepareForSaving)+$" on {dockedSubRoot.childCount} docked sub candidate(s)");
+        for (int i = 0; i < dockedSubRoot.childCount; i++)
+        {
+            var tugCandidate = dockedSubRoot.GetChild(i);
 
+            var tug = Tug.Get(tugCandidate);
+            if (tug && tug.HasGoodFit)
+            {
+                Log.LogWarning($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is valid. Saving");
+                tug.PrepareForSaving();
+            }
+            else
+                Log.LogWarning($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is either not a tug ({tug}) or not well fit. Skipping");
+
+        }
+    }
 }

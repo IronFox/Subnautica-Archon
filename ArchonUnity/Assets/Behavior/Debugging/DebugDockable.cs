@@ -16,6 +16,8 @@ public class DebugDockable : MonoBehaviour, IDockable
     public Bounds debugOutBounds2;
     public Bounds LocalBounds { get; private set; }
 
+    public HashSet<string> Tags { get; } = new HashSet<string>();
+
     public void BeginDocking()
     { }
 
@@ -66,5 +68,26 @@ public class DebugDockable : MonoBehaviour, IDockable
     {}
 
     public void RestoreDockedStateFromSaveGame()
+    {}
+
+    public void Tag(string tag)
+    {
+        Tags.Add(tag);
+    }
+
+    public void Untag(string tag)
+    {
+        Tags.Remove(tag);
+    }
+
+    public bool IsTagged(string tag)
+    {
+        return Tags.Contains(tag);
+    }
+
+    public void OnUndockedForSaving()
+    {}
+
+    public void OnRedockedAfterSaving()
     {}
 }

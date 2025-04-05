@@ -75,7 +75,7 @@ namespace Subnautica_Archon.Util
             if (!vehicle)
                 return "<null vehicle>";
 
-            return $"'{GetVehicleName(vehicle)}' ({vehicle.GetType().Name})";
+            return vehicle.NiceName();
         }
     }
 

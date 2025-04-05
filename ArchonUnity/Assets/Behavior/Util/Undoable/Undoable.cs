@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 public interface IBatch
 {
@@ -10,6 +11,7 @@ public interface IAction : IEquatable<IAction>
 {
     bool Do();
     void Undo();
+    bool TargetIsGone { get; }
     UnityEngine.Object Target { get; }
 }
 
@@ -49,36 +51,12 @@ public readonly struct ObjectReference : IEquatable<ObjectReference>
 public class Undoable
 {
 
-    private class CallbackAction : IAction
-    {
-        private readonly Func<bool> @do;
-        private readonly Action undo;
-
-        public CallbackAction(UnityEngine.Object target, Func<bool> @do, Action undo)
-        {
-            Target = target;
-            this.@do = @do;
-            this.undo = undo;
-        }
-
-        public UnityEngine.Object Target { get; }
-
-        public bool Do()
-        {
-            return @do?.Invoke() ?? false;
-        }
-
-        public bool Equals(IAction other) => false;
-
-        public void Undo()
-        {
-            undo?.Invoke();
-        }
-    }
     private class Batch : IBatch, IAction
     {
         private List<IAction> Steps { get; } = new List<IAction>();
         public UnityEngine.Object Target { get; }
+
+        public bool TargetIsGone => !Target;
 
         public Batch(UnityEngine.Object target)
         {
@@ -121,9 +99,18 @@ public class Undoable
     private List<IAction> Actions { get; } = new List<IAction>();
     public bool Do(IAction action, bool forced = false)
     {
-        bool success = action.Do();
-        if (!success && !forced)
+        bool success = true;
+        try
+        {
+            success = action.Do();
+            if (!success && !forced)
+                return false;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogException(ex);
             return false;
+        }
         var key = new ObjectReference(action.Target);
         if (!Map.TryGetValue(key, out var slot))
         {
@@ -175,7 +162,14 @@ public class Undoable
     public void UndoAll()
     {
         foreach (var a in Actions)
-            a.Undo();
+            try
+            {
+                a.Undo();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
     }
 
     public void Clear()
@@ -188,7 +182,14 @@ public class Undoable
     {
         bool rs = false;
         foreach (var a in Actions)
-            rs |= a.Do();
+            try
+            {
+                rs |= a.Do();
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+            }
         return rs;
     }
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -46,6 +47,15 @@ public interface IDockable
     void RestoreDockedStateFromSaveGame();
 
     /// <summary>
+    /// Signals that the dockable has temporarily been removed from the archon
+    /// </summary>
+    void OnUndockedForSaving();
+    /// <summary>
+    /// Signals that the dockable has been re-integrated after being offloaded for saving
+    /// </summary>
+    void OnRedockedAfterSaving();
+
+    /// <summary>
     /// Queries all child components of given type from the local dockable.
     /// Contained player components, if any, should not be returned.
     /// </summary>
@@ -68,4 +78,21 @@ public interface IDockable
     /// Transform scale, if any, should be applied, position or rotation should not
     /// </summary>
     Bounds LocalBounds { get; }
+
+    /// <summary>
+    /// Persistently tags the dockable
+    /// </summary>
+    /// <param name="tag">Tag to add</param>
+    void Tag(string tag);
+    /// <summary>
+    /// Persistently untags the dockable
+    /// </summary>
+    /// <param name="tag">Tag to remove</param>
+    void Untag(string tag);
+    /// <summary>
+    /// Checks if a tag is present in this dockable
+    /// </summary>
+    /// <param name="tag">Tag to check</param>
+    /// <returns>True if the given tag is present</returns>
+    bool IsTagged(string tag);
 }

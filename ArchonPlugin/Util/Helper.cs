@@ -106,5 +106,18 @@ namespace Subnautica_Archon.Util
             pingInstance.SetVisible(visible);
             pingInstance.enabled = visible;
         }
+
+        public static string GetName(this Vehicle vehicle)
+             => vehicle.subName ? vehicle.subName.GetName() : vehicle.vehicleName;
+        public static void SetName(this Vehicle vehicle, string name)
+        {
+            if (!vehicle)
+                return;
+            Logging.Default.LogMessage($"Changing name of {vehicle.NiceName()} '{vehicle.GetName()}' -> '{name}'");
+            if (vehicle.subName)
+                vehicle.subName.SetName(name);
+            vehicle.vehicleName = name;
+        }
+
     }
 }

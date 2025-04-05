@@ -1,4 +1,7 @@
-﻿public enum ArchonModule
+﻿namespace Subnautica_Archon
 {
-    None,
+    public enum ArchonModule
+    {
+        None,
+    }
 }
