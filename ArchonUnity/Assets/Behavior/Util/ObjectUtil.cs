@@ -13,6 +13,18 @@ public static class ObjectUtil
             rs |= undo.Do(new DisableAction(c), forced);
         return rs;
     }
+    public static bool EnableAllDisabled(this IEnumerable<IEnabled> enabled)
+    {
+        bool rs= false;
+        foreach (var c in enabled)
+            if (!c.IsEnabled)
+            {
+                LogConfig.Default.Write($"Enabling {c.Target.NiceName()}.{c.PropertyName}");
+                c.SetEnabled(true);
+                rs = true;
+            }
+        return rs;
+    }
 
     public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<Behaviour> behaviours)
         => behaviours.Select(x => new BehaviourEnabled(x));
@@ -151,32 +163,58 @@ public static class ObjectUtil
     {
         if (c.isActiveAndEnabled)
             return;
-        if (!c.enabled)
+        try
         {
-            LogConfig.Default.LogError($"{c} has been disabled. Re-enabling");
-            c.enabled = true;
-        }
-        if (c.isActiveAndEnabled)
-            return;
-        var current = c.transform;
-        while (current && current != rootTransform)
-        {
-            if (!current.gameObject.activeSelf)
+            if (!c.enabled)
             {
-                LogConfig.Default.LogError($"{current.gameObject} has been deactivate. Re-activating");
-                current.gameObject.SetActive(false);
-
-                if (c.isActiveAndEnabled)
-                    return;
+                LogConfig.Default.LogError($"{c.NiceName()} has been disabled. Re-enabling");
+                c.enabled = true;
             }
-            current = current.parent;
-        }
+            if (c.isActiveAndEnabled)
+                return;
+            var current = c.transform;
+            while (current && current != rootTransform)
+            {
+                if (!current.gameObject.activeSelf)
+                {
+                    LogConfig.Default.LogError($"{current.gameObject.NiceName()} has been deactivated. Re-activating");
+                    current.gameObject.SetActive(false);
 
-        if (!rootTransform.gameObject.activeSelf)
+                    if (c.isActiveAndEnabled)
+                        return;
+                }
+                current = current.parent;
+            }
+
+            if (!rootTransform.gameObject.activeSelf)
+            {
+                LogConfig.Default.LogError($"{rootTransform.gameObject.NiceName()} has been deactivated. Re-activating");
+                rootTransform.gameObject.SetActive(false);
+            }
+        }
+        catch (Exception ex)
         {
-            LogConfig.Default.LogError($"{rootTransform.gameObject} has been deactivate. Re-activating");
-            rootTransform.gameObject.SetActive(false);
+            LogConfig.Default.LogError($"RequireActive failed");
+            Debug.LogException(ex);
         }
+    }
 
+
+    public static void RequireActive(this GameObject o)
+    {
+        if (o.activeSelf)
+            return;
+        LogConfig.Default.LogError($"{o.NiceName()} has been disabled. Re-enabling");
+        o.SetActive(true);
+    }
+
+    public static IEnumerable<GameObject> GetAllChildren(this GameObject o, Func<GameObject, bool> recursionPredicate=null)
+    {
+        if (recursionPredicate != null && !recursionPredicate(o))
+            yield break;
+        yield return o;
+        foreach (var t in o.transform.GetChildren())
+            foreach (var c in t.gameObject.GetAllChildren(recursionPredicate))
+                yield return c;
     }
 }

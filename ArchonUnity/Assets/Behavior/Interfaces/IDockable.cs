@@ -62,7 +62,7 @@ public interface IDockable
     /// <typeparam name="T">Type to query</typeparam>
     /// <returns>All components of given type suitable for manipulation by the docking bay</returns>
     IEnumerable<T> GetAllComponents<T>() where T: Component;
-
+    IEnumerable<GameObject> GetAllObjects();
     GameObject GameObject { get; }
     /// <summary>
     /// True if behaviours should be unfrozen immediately on undock. Vanilla vehicles need this
