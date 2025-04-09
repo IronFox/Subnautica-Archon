@@ -120,7 +120,7 @@ public class ArchonControl : MonoBehaviour
 
     private float PitchDelta => transform.rotation.eulerAngles.x >= 180 ? 360 - transform.rotation.eulerAngles.x : transform.rotation.eulerAngles.x;
     private float RollDelta => transform.rotation.eulerAngles.z >= 180 ? 360 - transform.rotation.eulerAngles.z : transform.rotation.eulerAngles.z;
-    public bool IsLevel => RollDelta < 0.4f && PitchDelta < 0.4f;
+    public bool IsLevel => RollDelta < 0.8f && PitchDelta < 0.8f;
 
 
     private void ChangeState(CameraState state)
