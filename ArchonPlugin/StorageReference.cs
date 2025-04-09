@@ -42,6 +42,7 @@ namespace Subnautica_Archon
                 {
                     rs.storageLabel = reLabelTo;
                     rs.name = reLabelTo;
+                    FieldAdapter.OfNonPublic<string>(rs.container, "_label").Set(reLabelTo);
                 }
                 return rs.container;
             }
