@@ -9,20 +9,26 @@ namespace Subnautica_Archon
 {
     public class StorageReference
     {
-        public StorageReference(Transform biofuel, int width = 8, int height = 10)
+        public StorageReference(
+            Transform biofuel,
+            string storageLabel,
+            IsAllowedToAdd isAllowedToAdd,
+            IsAllowedToRemove isAllowedToRemove,
+            int width = 8, int height = 10)
         {
             Reference = biofuel.gameObject;
+            StorageLabel = storageLabel;
+            IsAllowedToAdd = isAllowedToAdd;
+            IsAllowedToRemove = isAllowedToRemove;
             Width = width;
             Height = height;
-
-            var innate = Reference.GetComponent<InnateStorageContainer>();
-            if (!innate)
-                innate = Reference.AddComponent<InnateStorageContainer>();
-            innate.storageLabel = $"Biofuel";
 
         }
 
         public GameObject Reference { get; }
+        public string StorageLabel { get; }
+        public IsAllowedToAdd IsAllowedToAdd { get; }
+        public IsAllowedToRemove IsAllowedToRemove { get; }
         public int Width { get; }
         public int Height { get; }
 
@@ -32,17 +38,25 @@ namespace Subnautica_Archon
             return new VehicleStorage(Reference, Height, Width);
         }
 
-        public ItemsContainer GetContainer(string reLabelTo)
+        private bool ContainerIsInitialized { get; set; }
+        public ItemsContainer LazyInitGetContainer()
         {
             var rs = Reference.GetComponent<InnateStorageContainer>();
 
             if (rs)
             {
-                if (!string.IsNullOrEmpty(reLabelTo))
+                if (!ContainerIsInitialized)
                 {
-                    rs.storageLabel = reLabelTo;
-                    rs.name = reLabelTo;
-                    FieldAdapter.OfNonPublic<string>(rs.container, "_label").Set(reLabelTo);
+                    ContainerIsInitialized = true;
+                    if (!string.IsNullOrEmpty(StorageLabel))
+                    {
+                        rs.storageLabel = StorageLabel;
+                        rs.name = StorageLabel;
+                        FieldAdapter.OfNonPublic<string>(rs.container, "_label").Set(StorageLabel);
+                    }
+
+                    rs.container.isAllowedToAdd = (IsAllowedToAdd)Delegate.Combine(rs.container.isAllowedToAdd, IsAllowedToAdd);
+                    rs.container.isAllowedToRemove = (IsAllowedToRemove)Delegate.Combine(rs.container.isAllowedToRemove, IsAllowedToRemove);
                 }
                 return rs.container;
             }

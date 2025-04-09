@@ -813,7 +813,7 @@ namespace Subnautica_Archon
                 if (LazyInitBiofuelStorage(out var storage))
                 {
                     
-                    var c = storage.GetContainer($"{VehicleName.ToUpper()} BIOFUEL CRUCIBLE");
+                    var c = storage.LazyInitGetContainer();
                     if (c != null)
                     {
                         
@@ -823,22 +823,22 @@ namespace Subnautica_Archon
                             c.GetItems(t, items);
                             if (!BaseBioReactor.CanAdd(t))
                             {
-                                foreach (var p in items)
-                                {
-                                    if (p != null)
-                                    {
-                                        Logger.PDANote($"Item of type {t} cannot be consumed by the {VehicleName}'s bioreactor");
-                                        Log.Write($"Bioreactor: Evacuating incompatible {t} type from biofuel storage");
-                                        if (!c.RemoveItem(p.item, true))
-                                        {
-                                            Log.Write($"Bioreactor: Failed remove");
-                                            continue;
-                                        }
-                                        Inventory.main.AddPending(p.item);
-                                        Log.Write($"Bioreactor: Inventory moved");
-                                        break;
-                                    }
-                                }
+                                //foreach (var p in items)
+                                //{
+                                //    if (p != null)
+                                //    {
+                                //        Logger.PDANote($"Item of type {t} cannot be consumed by the {VehicleName}'s bioreactor");
+                                //        Log.Write($"Bioreactor: Evacuating incompatible {t} type from biofuel storage");
+                                //        if (!c.RemoveItem(p.item, true))
+                                //        {
+                                //            Log.Write($"Bioreactor: Failed remove");
+                                //            continue;
+                                //        }
+                                //        Inventory.main.AddPending(p.item);
+                                //        Log.Write($"Bioreactor: Inventory moved");
+                                //        break;
+                                //    }
+                                //}
                             }
                             else
                             {
@@ -1385,9 +1385,40 @@ namespace Subnautica_Archon
                     biofuelStorage = null;
                     return false;
                 }
-                BiofuelStorage = new StorageReference(biofuel);
+                BiofuelStorage = new StorageReference(biofuel, $"BIOFUEL CRUCIBLE",
+                    new IsAllowedToAdd(BioreactorIsAllowedToAdd),
+                    new IsAllowedToRemove(BioreactorIsAllowedToRemove)
+                    );
             }
             biofuelStorage = BiofuelStorage;
+            return true;
+        }
+
+        private bool BioreactorIsAllowedToRemove(Pickupable pickupable, bool verbose)
+        {
+            bool canRemove = true;
+            if (pickupable != null)
+            {
+                canRemove = !BaseBioReactor.CanAdd(pickupable.GetTechType());
+            }
+
+            if (!canRemove && verbose)
+            {
+                ErrorMessage.AddMessage(Language.main.Get("BaseBioReactorCantRemoveItem"));
+            }
+
+            return canRemove;
+        }
+
+        private bool BioreactorIsAllowedToAdd(Pickupable pickupable, bool verbose)
+        {
+            TechType techType = pickupable.GetTechType();
+            if (!BaseBioReactor.CanAdd(techType))
+            {
+                if (verbose)
+                    ErrorMessage.AddMessage(Language.main.Get("BaseBioReactorCantAddItem"));
+                return false;
+            }
             return true;
         }
 
