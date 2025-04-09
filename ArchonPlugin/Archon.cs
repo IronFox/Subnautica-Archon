@@ -813,7 +813,7 @@ namespace Subnautica_Archon
                 if (LazyInitBiofuelStorage(out var storage))
                 {
                     
-                    var c = storage.GetContainer($"Biofuel");
+                    var c = storage.GetContainer($"{VehicleName.ToUpper()} BIOFUEL CRUCIBLE");
                     if (c != null)
                     {
                         
