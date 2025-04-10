@@ -1069,7 +1069,7 @@ namespace Subnautica_Archon
 
         public string VehicleName => Helper.GetName(this);
 
-        public override int MaxHealth => 2000;
+        public override int MaxHealth => 20000;
         public override int NumModules => 8;
         public override int BaseCrushDepth => 300;
         public override int CrushDepthUpgrade1 => 200;
