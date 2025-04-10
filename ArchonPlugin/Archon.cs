@@ -13,6 +13,7 @@ using UWE;
 using VehicleFramework;
 using VehicleFramework.Engines;
 using VehicleFramework.Localization;
+using VehicleFramework.VehicleComponents;
 using VehicleFramework.VehicleParts;
 using VehicleFramework.VehicleTypes;
 using static HandReticle;
@@ -205,6 +206,23 @@ namespace Subnautica_Archon
             Destroy(modulesRoot);
 
             modulesRoot = control.hangarRoot.gameObject.AddComponent<ChildObjectIdentifier>();
+
+            var interior = transform.Find("Interior");
+            if (interior)
+            {
+                var reactorTransform = interior.Find("Biofuel Storage");
+                if (reactorTransform)
+                {
+                    var reactor = reactorTransform.gameObject.AddComponent<MaterialReactor>();
+                    reactor.Initialize(this, 10, 8, "Archon Reactor", 0, MaterialReactor.GetBioReactorData());
+                    reactor.canViewWhitelist = false;
+                    reactor.interactText = "Archon Bioreactor";
+                }
+                else
+                    Log.Error("Unable to find Biofuel Storage child");
+            }
+            else
+                Log.Error("Unable to find Interior child");
 
 
             base.Awake();
@@ -805,62 +823,6 @@ namespace Subnautica_Archon
                 : euler;
         }
 
-        private HashSet<int> logged = new HashSet<int>();
-        private void ProcessBiofuelReactor()
-        {
-            try
-            {
-                if (LazyInitBiofuelStorage(out var storage))
-                {
-                    
-                    var c = storage.LazyInitGetContainer();
-                    if (c != null)
-                    {
-                        
-                        foreach (var t in c.GetItemTypes())
-                        {
-                            List<InventoryItem> items = new List<InventoryItem>();
-                            c.GetItems(t, items);
-                            if (!BaseBioReactor.CanAdd(t))
-                            {
-                                //foreach (var p in items)
-                                //{
-                                //    if (p != null)
-                                //    {
-                                //        Logger.PDANote($"Item of type {t} cannot be consumed by the {VehicleName}'s bioreactor");
-                                //        Log.Write($"Bioreactor: Evacuating incompatible {t} type from biofuel storage");
-                                //        if (!c.RemoveItem(p.item, true))
-                                //        {
-                                //            Log.Write($"Bioreactor: Failed remove");
-                                //            continue;
-                                //        }
-                                //        Inventory.main.AddPending(p.item);
-                                //        Log.Write($"Bioreactor: Inventory moved");
-                                //        break;
-                                //    }
-                                //}
-                            }
-                            else
-                            {
-                                var charge = BaseBioReactor.GetCharge(t);
-                                foreach (var p in items)
-                                    if (logged.Add(p.item.GetInstanceID()))
-                                    {
-                                        Log.Write($"Bioreactor: Detected new consumable item {p.item.NiceName()} at charge {charge}");
-                                    }
-                            }
-                        }
-                    }
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Log.Error(nameof(ProcessBiofuelReactor)+": "+ex.Message);
-                Debug.LogException(ex);
-            }
-        }
-
 
         private MenuTracker MenuTracker { get; }
         public override void Update()
@@ -870,8 +832,6 @@ namespace Subnautica_Archon
                 LazyInit();
                 MenuTracker.Update();
                 hadUnpausedFrame |= Time.deltaTime > 0;
-
-                ProcessBiofuelReactor();
 
 
                 //if (Player.main.sitting)
@@ -1365,72 +1325,7 @@ namespace Subnautica_Archon
             }
         }
 
-        private StorageReference BiofuelStorage { get; set; }
 
-        private bool LazyInitBiofuelStorage(out StorageReference biofuelStorage)
-        {
-            if (BiofuelStorage is null)
-            {
-                var interior = transform.Find("Interior");
-                if (!interior)
-                {
-                    Log.Error("Unable to find interior child");
-                    biofuelStorage = null;
-                    return false;
-                }
-                var biofuel = interior.Find("Biofuel Storage");
-                if (!biofuel)
-                {
-                    Log.Error("Unable to find biofuel child");
-                    biofuelStorage = null;
-                    return false;
-                }
-                BiofuelStorage = new StorageReference(biofuel, $"BIOFUEL CRUCIBLE",
-                    new IsAllowedToAdd(BioreactorIsAllowedToAdd),
-                    new IsAllowedToRemove(BioreactorIsAllowedToRemove)
-                    );
-            }
-            biofuelStorage = BiofuelStorage;
-            return true;
-        }
-
-        private bool BioreactorIsAllowedToRemove(Pickupable pickupable, bool verbose)
-        {
-            bool canRemove = true;
-            if (pickupable != null)
-            {
-                canRemove = !BaseBioReactor.CanAdd(pickupable.GetTechType());
-            }
-
-            if (!canRemove && verbose)
-            {
-                ErrorMessage.AddMessage(Language.main.Get("BaseBioReactorCantRemoveItem"));
-            }
-
-            return canRemove;
-        }
-
-        private bool BioreactorIsAllowedToAdd(Pickupable pickupable, bool verbose)
-        {
-            TechType techType = pickupable.GetTechType();
-            if (!BaseBioReactor.CanAdd(techType))
-            {
-                if (verbose)
-                    ErrorMessage.AddMessage(Language.main.Get("BaseBioReactorCantAddItem"));
-                return false;
-            }
-            return true;
-        }
-
-        public override List<VehicleStorage> InnateStorages
-        {
-            get
-            {
-                if (LazyInitBiofuelStorage(out var storage))
-                    return new List<VehicleStorage>() { BiofuelStorage.ToVehicleStorage() };
-                return new List<VehicleStorage>();
-            }
-        }
 
         public override List<GameObject> TetherSources
         {
