@@ -647,7 +647,7 @@ namespace Subnautica_Archon
 
             if (liveMixin != null)
             {
-                var level = 1;// RepairModule.GetRelativeSelfRepair(RepairModule.GetFrom(this));
+                var level = 0.01f;// RepairModule.GetRelativeSelfRepair(RepairModule.GetFrom(this));
 
                 if (liveMixin.health < liveMixin.maxHealth
                     && liveMixin.IsAlive()
