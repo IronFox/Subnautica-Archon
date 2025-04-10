@@ -615,16 +615,16 @@ namespace Subnautica_Archon
             {
                 //                var batteryMk = GetBatteryMark();
 
-                float level = 1;
+                //float level = 1;
 
-                float recharge =
-                      0.4f  //max 1.6 per second
-                    * level;
+                //float recharge =
+                //      0.4f  //max 1.6 per second
+                //    * level;
 
-                energyInterface.ModifyCharge(
-                    Time.deltaTime
-                    * recharge
-                    );
+                //energyInterface.ModifyCharge(
+                //    Time.deltaTime
+                //    * recharge
+                //    );
                 energyInterface.GetValues(out var energyCharge, out var energyCapacity);
                 lowPower = energyCharge < energyCapacity * 0.02f;
                 criticalPower = energyCharge < energyCapacity * 0.01f;
