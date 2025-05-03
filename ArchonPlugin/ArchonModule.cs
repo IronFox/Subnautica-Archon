@@ -3,5 +3,6 @@
     public enum ArchonModule
     {
         None,
+        DockingModule,
     }
 }

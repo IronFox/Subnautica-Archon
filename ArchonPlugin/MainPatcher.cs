@@ -1,27 +1,16 @@
 ﻿using BepInEx;
-using FMODUnity;
 using HarmonyLib;
 using Nautilus.Handlers;
-using Nautilus.Utility;
-using RootMotion.FinalIK;
 using Subnautica_Archon.Adapters;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Assertions;
-using UWE;
 using VehicleFramework;
 using VehicleFramework.Assets;
 using VehicleFramework.Patches;
-using VehicleFramework.VehicleTypes;
-using static OVRHaptics;
 
 namespace Subnautica_Archon
 {
@@ -90,7 +79,7 @@ namespace Subnautica_Archon
 
         public static Atlas.Sprite LoadSprite(string filename)
         {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),filename);
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
             Log.Write($"Trying to load sprite from {path}");
             try
             {
@@ -104,7 +93,7 @@ namespace Subnautica_Archon
         }
         private static Sprite LoadSpriteRaw(string filename)
         {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),filename);
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
             Log.Write($"Trying to load sprite from {path}");
             try
             {
@@ -126,13 +115,14 @@ namespace Subnautica_Archon
                 Log.Write("");
                 Log.Write("model loaded: " + Archon.model.name);
                 var sub = Archon.model.EnsureComponent<Archon>();
-                Log.Write("archon attached: "+sub.name);
+                Log.Write("archon attached: " + sub.name);
 
                 Archon.craftingSprite = LoadSprite("images/archon.png");
                 Archon.pingSprite = LoadSprite("images/outline.png") ?? Archon.emptySprite;
                 Archon.saveFileSprite = LoadSpriteRaw("images/outline.png");
                 Archon.moduleBackground = LoadSpriteRaw("images/moduleBackground.png");
-                started = UWE.CoroutineHost.StartCoroutine(VehicleRegistrar.RegisterVehicle(sub,true));
+                started = UWE.CoroutineHost.StartCoroutine(VehicleRegistrar.RegisterVehicle(sub, true));
+
 
                 //TorpedoModule.RegisterAll();
                 //DriveModule.RegisterAll();
@@ -167,12 +157,16 @@ namespace Subnautica_Archon
 
                 EvacuationAdapter.ShouldEvacuate = go =>
                 {
-                    if (go.transform.IsChildOf( Player.mainObject.transform))
+                    if (go.transform.IsChildOf(Player.mainObject.transform))
                         return false;
                     var rb = go.GetComponent<Rigidbody>();
                     if (!rb || rb.isKinematic)
                         return false;
                     return true;
+                };
+                EvacuationAdapter.ShouldKeep = go =>
+                {
+                    return go.transform.IsChildOf(Player.mainObject.transform);
                 };
 
                 //TargetAdapter.ResolveTarget = (go, rb) =>

@@ -9,16 +9,11 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using UWE;
 using VehicleFramework;
 using VehicleFramework.Engines;
-using VehicleFramework.Localization;
 using VehicleFramework.VehicleComponents;
 using VehicleFramework.VehicleParts;
 using VehicleFramework.VehicleTypes;
-using static HandReticle;
-using static LowOxygenAlert;
-using static VehicleUpgradeConsoleInput;
 using Logger = VehicleFramework.Logger;
 
 
@@ -166,7 +161,7 @@ namespace Subnautica_Archon
         {
             Log.Write(nameof(Awake));
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
-
+            CyclopsHelper.Start();
 
 
 
@@ -1099,7 +1094,7 @@ namespace Subnautica_Archon
                     var entry = hatch.Find("Entry");
                     if (!exit || !entry)
                     {
-                        Log.Error("Hatch children not found of "+hatch);
+                        Log.Error("Hatch children not found of " + hatch);
                         continue;
                     }
                     rs.Add(new VehicleHatchStruct

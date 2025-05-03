@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 25693966}
-  m_IndirectSpecularColor: {r: 0.34388253, g: 0.4343935, b: 0.715955, a: 1}
+  m_IndirectSpecularColor: {r: 0.3491459, g: 0.44458327, b: 0.7804198, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -157,7 +157,7 @@ Light:
   m_CookieSize: 10
   m_Shadows:
     m_Type: 2
-    m_Resolution: -1
+    m_Resolution: 3
     m_CustomResolution: -1
     m_Strength: 1
     m_Bias: 0.05
@@ -187,7 +187,7 @@ Light:
   m_RenderMode: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1342177319
   m_RenderingLayerMask: 1
   m_Lightmapping: 4
   m_LightShadowCasterMode: 0
@@ -206,13 +206,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 25693965}
-  m_LocalRotation: {x: 0.047578685, y: -0.25850484, z: 0.012748664, w: 0.9647533}
-  m_LocalPosition: {x: 0, y: 3, z: 0}
+  m_LocalRotation: {x: 0.3521619, y: -0.24911995, z: -0.0701901, w: 0.8994413}
+  m_LocalPosition: {x: 0, y: 14.06, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 5.6470003, y: -30.000002, z: 0}
+  m_LocalEulerAnglesHint: {x: 36.764, y: -38.397003, z: -22.125002}
 --- !u!1 &69259701
 GameObject:
   m_ObjectHideFlags: 0
@@ -880,7 +880,7 @@ GameObject:
   - component: {fileID: 440110705}
   - component: {fileID: 440110707}
   - component: {fileID: 440110706}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: Quad (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -909,7 +909,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 440110704}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
@@ -1496,6 +1496,9 @@ MonoBehaviour:
   debugOutBounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  debugOutBounds2:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!4 &938009334
 Transform:
   m_ObjectHideFlags: 0
@@ -1686,6 +1689,9 @@ MonoBehaviour:
   debugOutBounds:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  debugOutBounds2:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
 --- !u!4 &1118649590
 Transform:
   m_ObjectHideFlags: 0
@@ -1788,7 +1794,7 @@ GameObject:
   - component: {fileID: 1135177934}
   - component: {fileID: 1135177937}
   - component: {fileID: 1135177936}
-  m_Layer: 0
+  m_Layer: 4
   m_Name: Quad
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1817,7 +1823,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1135177933}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_MotionVectors: 1
@@ -2201,6 +2207,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   undockUpright: 0
   debugOutBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  debugOutBounds2:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
 --- !u!4 &1670704086
@@ -2593,6 +2602,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   undockUpright: 1
   debugOutBounds:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 0, y: 0, z: 0}
+  debugOutBounds2:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
 --- !u!4 &2123857458

@@ -7,114 +7,184 @@ using UnityEngine;
 public class EvacuateIntruders : MonoBehaviour
 {
     public Transform exteriorColliderRoot;
+    public MeshCollider interiorCollider;
     private readonly List<Sphere> localSpheres = new List<Sphere>();
     private Collider[] buffer = new Collider[256];
-    private readonly HashSet<GameObject> shove = new HashSet<GameObject> ();
 
-    private readonly MultiFrameJob myJob;
+    private LogConfig log = new LogConfig("Intruders", true);
+    private Coroutine myRoutine;
 
-    private LogConfig log = new LogConfig("Intruders",true);
 
-    public EvacuateIntruders()
+    private IEnumerator Run()
     {
-        myJob = new MultiFrameJob(
-            _ =>
+        Dictionary<int, TestCandidate> candidates = new Dictionary<int, TestCandidate>();
+        var outerRadius = 500;
+        var allHits = new List<Hit>();
+        while (true)
+        {
+            if (!this.enabled)
             {
-                shove.Clear();
-                return new AdvanceJob(localSpheres);
-            },
-            sphere_ =>
+                yield return null;
+                continue;
+            }
+            candidates.Clear();
+            foreach (var sphere in localSpheres)
             {
-                var sphere = (Sphere)sphere_;
+                yield return null;
                 var hits = Physics.OverlapSphereNonAlloc(transform.TransformPoint(sphere.Center), sphere.Radius, buffer);
-                shove.AddRange(buffer
+                var rs = buffer
                     .Take(hits)
                     .Select(hit => hit.attachedRigidbody
                         ? hit.attachedRigidbody.gameObject
                         : hit.gameObject
-                        ));
+                        );
+
+                foreach (var hit in rs)
+                {
+                    if (!candidates.TryGetValue(hit.GetInstanceID(), out var candidate))
+                    {
+                        candidate = new TestCandidate(hit);
+                        candidates.Add(hit.GetInstanceID(), candidate);
+                    }
+                    candidate.Spheres.Add(sphere);
+                }
+
                 if (hits >= buffer.Length)
                 {
                     buffer = new Collider[buffer.Length * 2];
                     log.LogWarning($"Resized buffer to {buffer.Length}");
                 }
-                return new AdvanceJob(shove);
-            },
-            shove_ =>
+            }
+
+
+            foreach (var candidate in candidates.Values)
             {
+                yield return null;
                 try
                 {
-                    var candidate = (GameObject)shove_;
-                    if (!candidate)
-                        return default;
-
-                    if (!candidate.transform.IsChildOf(transform.parent) && EvacuationAdapter.ShouldEvacuate(candidate))
+                    if (!candidate.GameObject)
+                        continue;
+                    if (EvacuationAdapter.ShouldKeep(candidate.GameObject))
                     {
-                        List<Collider> disabled = new List<Collider>();
-                        var colliders = exteriorColliderRoot.GetComponentsInChildren<Collider>().ToDictionary(x => x.GetInstanceID());
-                        foreach (var exteriorCollider in colliders.Values)
-                        {
-                            var isEnabled = exteriorCollider.enabled;
-                            if (!isEnabled)
-                            {
-                                disabled.Add(exteriorCollider);
-                                exteriorCollider.enabled = true;
-                            }
-                        }
-
                         try
                         {
-                            const float outerRadius = 100;
-
-                            var what = candidate.transform.position;
-                            var from = transform.position;
-
-                            var fromToWhat = what - from;
-                            Vector3 p;
-                            float d2 = fromToWhat.sqrMagnitude;
-                            if (d2 > M.Sqr(outerRadius))
-                                return default;
-                            if (d2 == 0)    //can't push
+                            allHits.Clear();
+                            var what = candidate.GameObject.transform.position;
+                            foreach (var sphere in candidate.Spheres)
                             {
-                                log.LogWarning($"Candidate {candidate} is at distance 0");
-                                return default;
+                                var localSphere = sphere;
+                                var me = transform.TransformPoint(localSphere.Center);
+                                var meToWhat = what - me;
+                                float d2 = meToWhat.sqrMagnitude;
+                                if (d2 == 0)    //can't pull
+                                {
+                                    log.LogWarning($"Pull candidate {candidate} is at distance 0");
+                                    continue;
+                                }
+
+
+                                var distanceToCandidiate = Mathf.Sqrt(d2);
+                                var dir = meToWhat / distanceToCandidiate;
+                                var hits = Physics.RaycastAll(new Ray(me, dir), outerRadius);
+                                var interiorHits = hits.Where(x => x.collider == interiorCollider);
+                                allHits.AddRange(interiorHits.Select(x =>
+                                new Hit(
+                                    x,
+                                    sphere,
+                                    me,
+                                    dir,
+                                    distanceToCandidiate,
+                                    candidate)));
                             }
 
-                            var distanceToCandidiate = Mathf.Sqrt(d2);
-
-                            p = from + fromToWhat * outerRadius / distanceToCandidiate;
-
-                            var inwards = (transform.position - p);
-                            var hits = Physics.RaycastAll(new Ray(p, inwards / outerRadius), outerRadius);
-                            var exteriorHits = hits.Where(x => colliders.ContainsKey( x.collider.GetInstanceID()));
-                            if (exteriorHits.Any())
+                            Vector3 p;
+                            int needsRelocation = 0;
+                            foreach (var hit in allHits)
                             {
-                                var hitDistance = hits.Select(x => x.distance).Max();
-                                var exteriorRadius = outerRadius - hitDistance;
-
-                                var r = 1f;
-                                foreach (var collider in candidate.GetComponentsInChildren<Collider>())
+                                var hitDistance = hit.DistanceToHull;
+                                if (hit.DistanceToHull < hit.DistanceToCandidate)
                                 {
-                                    r = M.Max(r, (M.Abs(candidate.transform.InverseTransformPoint(collider.transform.position)) + collider.bounds.extents).sqrMagnitude);
+                                    needsRelocation++;
                                 }
-                                r = Mathf.Sqrt(r);
-
-                                if (exteriorRadius > distanceToCandidiate - r)
-                                {
-                                    var targetPosition = from + fromToWhat * (outerRadius + r * 1.2f) / distanceToCandidiate;
-                                    log.LogWarning($"Evacuating {candidate} to {targetPosition} at extR={exteriorRadius}, dist={distanceToCandidiate}, r={r} ");
-                                    candidate.transform.position = targetPosition;
-                                }
+                            }
+                            if (allHits.Any() && needsRelocation == allHits.Count)
+                            {
+                                var least = allHits.Where(x => x.DistanceToHull < x.DistanceToCandidate).Least(x => x.DistanceToCandidate);
+                                var targetPosition = least.Origin + least.Direction * (least.DistanceToCandidate - 1);
+                                log.LogWarning($"Re-integrating {candidate.GameObject.NiceName()} to {targetPosition} at intR={least.DistanceToHull}, dist={least.DistanceToCandidate} ");
+                                candidate.GameObject.transform.position = targetPosition;
                             }
                         }
                         catch (Exception ex)
                         {
                             Debug.LogException(ex);
                         }
-                        finally
+                    }
+                    else if (!candidate.GameObject.transform.IsChildOf(transform.parent)
+                        && EvacuationAdapter.ShouldEvacuate(candidate.GameObject))
+                    {
+                        using (var colliders = ReEnableColliders())
                         {
-                            foreach (var c in disabled)
-                                c.enabled = false;
+                            try
+                            {
+                                var what = candidate.GameObject.transform.position;
+                                allHits.Clear();
+                                foreach (var sphere in candidate.Spheres)
+                                {
+                                    var me = transform.TransformPoint(sphere.Center);
+                                    var meToWhat = what - me;
+                                    Vector3 p;
+                                    float candidateDistance2 = meToWhat.sqrMagnitude;
+                                    if (candidateDistance2 > M.Sqr(outerRadius))
+                                        continue;
+                                    if (candidateDistance2 == 0)    //can't push
+                                    {
+                                        log.LogWarning($"Candidate {candidate} is at distance 0");
+                                        continue;
+                                    }
+                                    var distanceToCandidiate = Mathf.Sqrt(candidateDistance2);
+
+                                    var meToWhatDir = meToWhat / distanceToCandidiate;
+
+                                    p = me + meToWhatDir * outerRadius;
+
+                                    var inwards = (me - p).normalized;
+                                    var hits = Physics.RaycastAll(new Ray(p, inwards), outerRadius);
+                                    var exteriorHits = hits.Where(x => colliders.Contains(x.collider));
+                                    allHits.AddRange(exteriorHits.Select(x =>
+                                    new Hit(
+                                        x,
+                                        sphere,
+                                        me,
+                                        inwards,
+                                        distanceToCandidiate,
+                                        candidate)));
+                                }
+
+                                if (allHits.Any())
+                                {
+                                    var hit = allHits.Least(x => x.DistanceToHull);
+                                    var exteriorRadius = outerRadius - hit.DistanceToHull;
+
+                                    var r = 1f;
+                                    foreach (var collider in candidate.GameObject.GetComponentsInChildren<Collider>())
+                                    {
+                                        r = M.Max(r, (M.Abs(candidate.GameObject.transform.InverseTransformPoint(collider.transform.position)) + collider.bounds.extents).sqrMagnitude);
+                                    }
+                                    r = Mathf.Sqrt(r);
+
+                                    if (exteriorRadius > hit.DistanceToCandidate - r)
+                                    {
+                                        var targetPosition = hit.Origin + -hit.Direction * (outerRadius + r * 1.2f);
+                                        log.LogWarning($"Evacuating {candidate} to {targetPosition} at extR={exteriorRadius}, dist={hit.DistanceToCandidate}, r={r} ");
+                                        candidate.GameObject.transform.position = targetPosition;
+                                    }
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                Debug.LogException(ex);
+                            }
                         }
                     }
                 }
@@ -122,12 +192,17 @@ public class EvacuateIntruders : MonoBehaviour
                 {
                     Debug.LogException(ex);
                 }
-                return default;
             }
-
-        );
+        }
     }
 
+
+    ColliderChange ReEnableColliders()
+    {
+        List<Collider> disabled = new List<Collider>();
+        var colliders = exteriorColliderRoot.GetComponentsInChildren<Collider>().ToDictionary(x => x.GetInstanceID());
+        return new ColliderChange(colliders);
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -139,22 +214,91 @@ public class EvacuateIntruders : MonoBehaviour
                 continue;
             localSpheres.Add(new Sphere(sphere.transform.localPosition, sphere.radius * sphere.transform.localScale.x));
         }
-        log.Write($"Identified {localSpheres.Count} local spheres");
+        log.Write($"Identified {localSpheres.Count} local spheres. Starting coroutine");
+        myRoutine = StartCoroutine(Run());
     }
 
+    void OnDestroy()
+    {
+        if (myRoutine != null)
+            StopCoroutine(myRoutine);
+    }
 
 
 
     // Update is called once per frame
     void Update()
     {
-        myJob.Next();
-        
+
         //bool wasEnabled = collider.enabled;
 
         //Physics.OverlapBoxNonAlloc(
 
 
 
+    }
+}
+
+internal class ColliderChange : IDisposable
+{
+
+    public ColliderChange(Dictionary<int, Collider> colliders)
+    {
+        Colliders = colliders;
+        foreach (var exteriorCollider in colliders.Values)
+        {
+            var isEnabled = exteriorCollider.enabled;
+            if (!isEnabled)
+            {
+                disabled.Add(exteriorCollider);
+                exteriorCollider.enabled = true;
+            }
+        }
+    }
+
+    private readonly List<Collider> disabled = new List<Collider>();
+    public Dictionary<int, Collider> Colliders { get; }
+
+    public void Dispose()
+    {
+        foreach (var exteriorCollider in disabled)
+        {
+            exteriorCollider.enabled = false;
+        }
+
+    }
+
+    public bool Contains(Collider c) => Colliders.ContainsKey(c.GetInstanceID());
+}
+
+internal readonly struct Hit
+{
+    public RaycastHit RaycastHit { get; }
+    public Sphere Sphere { get; }
+    public Vector3 Origin { get; }
+    public Vector3 Direction { get; }
+    public float DistanceToHull => RaycastHit.distance;
+    public float DistanceToCandidate { get; }
+    public TestCandidate Candidate { get; }
+
+
+    public Hit(RaycastHit raycastHit, Sphere sphere, Vector3 origin, Vector3 direction, float distanceToCandidiate, TestCandidate candidate)
+    {
+        RaycastHit = raycastHit;
+        Sphere = sphere;
+        Origin = origin;
+        Direction = direction;
+        DistanceToCandidate = distanceToCandidiate;
+        Candidate = candidate;
+    }
+}
+
+internal class TestCandidate
+{
+    public GameObject GameObject { get; }
+    public List<Sphere> Spheres { get; } = new List<Sphere>();
+    public TestCandidate(GameObject gameObject)
+    {
+        GameObject = gameObject;
     }
 }

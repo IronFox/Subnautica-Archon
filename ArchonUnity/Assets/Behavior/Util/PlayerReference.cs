@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public readonly struct PlayerReference
@@ -7,7 +6,7 @@ public readonly struct PlayerReference
     public Transform CameraRoot { get; }
     public bool IsSet => Root;
 
-    public bool HasDetachedHead => !CameraRoot.IsChildOf(Root.transform);
+    public bool HasDetachedHead => CameraRoot && !CameraRoot.IsChildOf(Root.transform);
 
     public PlayerReference(GameObject root, Transform cameraRoot)
     {
