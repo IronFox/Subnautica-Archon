@@ -19,4 +19,23 @@ public static class ListExtensions
         return new HashSet<T>(source);
     }
 
+    public static T Least<T>(this IEnumerable<T> source, Func<T, float> selector)
+    {
+        var enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext())
+            throw new InvalidOperationException("Sequence contains no elements");
+        var min = enumerator.Current;
+        var minValue = selector(min);
+        while (enumerator.MoveNext())
+        {
+            var value = selector(enumerator.Current);
+            if (value < minValue)
+            {
+                minValue = value;
+                min = enumerator.Current;
+            }
+        }
+        return min;
+    }
+
 }

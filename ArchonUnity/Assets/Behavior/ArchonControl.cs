@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.LowLevel;
-using static UnityEngine.GraphicsBuffer;
 
 public class ArchonControl : MonoBehaviour
 {
@@ -16,6 +11,7 @@ public class ArchonControl : MonoBehaviour
     public Transform dockingTrigger;
     public Transform dockedSpace;
     public Transform hangarRoot;
+    public Renderer onEnterDisable;
 
     public float forwardAxis;
     public float rightAxis;
@@ -53,8 +49,8 @@ public class ArchonControl : MonoBehaviour
                     controlledBy;
     private readonly Undoable controlUndo = new Undoable();
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
-    public float maxEnergy=1;
-    public float currentEnergy=0.5f;
+    public float maxEnergy = 1;
+    public float currentEnergy = 0.5f;
     public float maxHealth = 1;
     public float currentHealth = 0.5f;
     public bool isHealing;
@@ -135,7 +131,7 @@ public class ArchonControl : MonoBehaviour
         {
             cameraIsInTrailspace = true;
             Log.Write("Moving camera to trailspace. Setting secondary fallback camera transform");
-            
+
             CameraUtil.secondaryFallbackCameraTransform = trailSpaceCameraContainer;
 
             cameraMove = Parentage.FromLocal(cameraRoot);
@@ -152,7 +148,7 @@ public class ArchonControl : MonoBehaviour
             cameraIsInTrailspace = false;
 
             Log.Write("Moving camera out of trailspace. Unsetting secondary fallback camera transform");
-            
+
             CameraUtil.secondaryFallbackCameraTransform = null;
 
             cameraMove.Restore();
@@ -188,7 +184,7 @@ public class ArchonControl : MonoBehaviour
     {
         bayControl.SignalLoading();
     }
-    
+
 
     public void RedetectDocked()
     {
@@ -217,6 +213,7 @@ public class ArchonControl : MonoBehaviour
         boardedLeave = false;
 
         SetRenderAndCollisionActive(interior, true);
+        onEnterDisable.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
         SetRenderAndCollisionActive(exterior, false);
         evacuateIntruders.enabled = true;
     }
@@ -226,6 +223,7 @@ public class ArchonControl : MonoBehaviour
         Log.Write($"Offboarding");
 
         SetRenderAndCollisionActive(interior, false);
+        onEnterDisable.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
         SetRenderAndCollisionActive(exterior, true);
         evacuateIntruders.enabled = false;
 
@@ -277,7 +275,7 @@ public class ArchonControl : MonoBehaviour
 
 
 
-    public void ExitControl(PlayerReference player, bool skipOrientation=false)
+    public void ExitControl(PlayerReference player, bool skipOrientation = false)
     {
         if (currentlyControlled)
         {
@@ -341,7 +339,7 @@ public class ArchonControl : MonoBehaviour
             rs += "<-" + AllMessages(ex.InnerException);
         return rs;
     }
-    
+
     private void LogComposition(Transform t, Indent indent = default)
     {
         new HierarchyAnalyzer().LogToJson(t, $@"C:\Temp\Logs\snapshot{DateTime.Now:yyyy-MM-dd HH_mm_ss}.json");
@@ -392,7 +390,7 @@ public class ArchonControl : MonoBehaviour
     {
         if (controlledBy)
             ExitControl(controlledBy);
-        
+
         //var explosion = Instantiate(explosionPrefab,transform.position, Quaternion.identity);
         //var control = explosion.GetComponentInChildren<ExplosionController>();
         //control.explosionDamage = 100;
@@ -640,7 +638,7 @@ public class ArchonControl : MonoBehaviour
 
                     }
                 }
-                
+
 
                 if (orientation)
                     orientation.targetOrientation
@@ -697,7 +695,7 @@ public class ArchonControl : MonoBehaviour
                 positionCamera.zoomAxis = 0;
                 if (orientation)
                     orientation.targetOrientation
-                        = outOfWater 
+                        = outOfWater
                             ? (IDirectionSource)fallOrientation
                             : nonCameraOrientation;
 
@@ -705,8 +703,8 @@ public class ArchonControl : MonoBehaviour
 
             if (orientation)
             {
-                orientation.enabled = 
-                    (   doAutoLevel || 
+                orientation.enabled =
+                    (doAutoLevel ||
                         (!IsBoarded && (wasEverBoarded || !outOfWater))
                     )
                     && !batteryDead
@@ -810,14 +808,14 @@ public class ArchonControl : MonoBehaviour
             UpdateConsoleVisibility();
 
             UpdateCameraAndOrientation();
-            
+
             UpdateDrives();
 
             UpdateLighting();
         }
         catch (Exception ex)
         {
-            
+
             Debug.LogException(ex);
         }
     }
@@ -834,7 +832,7 @@ public class ArchonControl : MonoBehaviour
             Debug.LogException(ex);
         }
     }
-    
+
     private void MonitorPlayer()
     {
         try

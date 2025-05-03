@@ -1,13 +1,13 @@
 ﻿using Subnautica_Archon;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using VehicleFramework.UpgradeTypes;
-using System.Linq;
 
 public abstract class ArchonBaseModule : ModVehicleUpgrade
 {
-    public CraftingNode GroupNode { get; }
+    public CraftingNode? GroupNode { get; }
     public ArchonModule Module { get; }
     private Atlas.Sprite icon;
 
@@ -18,7 +18,7 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
     public virtual IReadOnlyCollection<TechType> AutoDisplace { get; }
     public override string ClassId => $"Archon{Module}";
 
-    public override string Description => Language.main.Get("desc_"+Module);
+    public override string Description => Language.main.Get("desc_" + Module);
     public override string DisplayName => Language.main.Get("display_" + Module);
 
     public static CraftingNode RootCraftingNode { get; } = new CraftingNode
@@ -49,7 +49,21 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
         craftingPath = new List<CraftingNode>()
         {
             RootCraftingNode,
-            GroupNode
+            groupNode
+        };
+    }
+
+    public ArchonBaseModule(ArchonModule module)
+    {
+        Module = module;
+        var path = $"images/{module}.png";
+        icon = Subnautica_Archon.MainPatcher.LoadSprite(path);
+        if (icon == null)
+            Debug.LogError($"Error while constructing {module} {this}: File {path} not found");
+
+        craftingPath = new List<CraftingNode>()
+        {
+            RootCraftingNode
         };
     }
 
