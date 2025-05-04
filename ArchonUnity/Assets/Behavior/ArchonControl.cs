@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using UnityEngine;
 
 public class ArchonControl : MonoBehaviour
@@ -11,6 +12,7 @@ public class ArchonControl : MonoBehaviour
     public Transform dockingTrigger;
     public Transform dockedSpace;
     public Transform hangarRoot;
+    public Collider interiorCollider;
     public Renderer onEnterDisable;
 
     public float forwardAxis;
@@ -117,7 +119,7 @@ public class ArchonControl : MonoBehaviour
     private float PitchDelta => transform.rotation.eulerAngles.x >= 180 ? 360 - transform.rotation.eulerAngles.x : transform.rotation.eulerAngles.x;
     private float RollDelta => transform.rotation.eulerAngles.z >= 180 ? 360 - transform.rotation.eulerAngles.z : transform.rotation.eulerAngles.z;
     public bool IsLevel => RollDelta < 0.8f && PitchDelta < 0.8f;
-
+    private float checkFloatingCharacterForSeconds;
 
     private void ChangeState(CameraState state)
     {
@@ -209,6 +211,7 @@ public class ArchonControl : MonoBehaviour
         else
             forceAutoLevelInSeconds = float.MaxValue;
 
+        checkFloatingCharacterForSeconds = 1;
         boardedBy = player;
         boardedLeave = false;
 
@@ -226,7 +229,7 @@ public class ArchonControl : MonoBehaviour
         onEnterDisable.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
         SetRenderAndCollisionActive(exterior, true);
         evacuateIntruders.enabled = false;
-
+        checkFloatingCharacterForSeconds = 0;
         if (boardedBy)
         {
             boardedBy = default;
@@ -238,6 +241,7 @@ public class ArchonControl : MonoBehaviour
     public void Control(PlayerReference player)
     {
         wasEverBoarded = true;
+        checkFloatingCharacterForSeconds = 0;
         lastOnboarded = DateTime.Now;
         forceAutoLevelInSeconds = float.MaxValue;
         if (!currentlyControlled)
@@ -849,6 +853,24 @@ public class ArchonControl : MonoBehaviour
                     SetRenderAndCollisionActive(interior, !onLeave);
                     SetRenderAndCollisionActive(exterior, onLeave);
                     evacuateIntruders.enabled = !onLeave;
+                }
+
+                if (checkFloatingCharacterForSeconds > 0 && !onLeave)
+                {
+                    var player = boardedBy.Root;
+                    if (player && player.transform && interiorCollider && interiorCollider.enabled)
+                    {
+                        var hits = Physics.RaycastAll(new Ray(player.transform.position, Vector3.down), 100);
+                        var hit = hits.Where(h => h.collider == interiorCollider).LeastOrDefault(x => x.distance);
+                        if (hit.collider && hit.distance > 2)
+                        {
+                            var target = hit.point + Vector3.up * 2;
+                            Log.LogWarning($"Floating character detected. Forcing onboard ({player.transform.position} -> {target}) @{checkFloatingCharacterForSeconds}");
+                            player.transform.position = target;
+                            //checkFloatingCharacter = false;
+                        }
+                    }
+                    checkFloatingCharacterForSeconds -= Time.deltaTime;
                 }
 
             }

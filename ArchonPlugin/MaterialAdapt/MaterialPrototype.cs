@@ -53,7 +53,7 @@ namespace Subnautica_Archon.MaterialAdapt
             catch (Exception ex)
             {
                 Debug.LogException(ex);
-                logConfig.LogError($"Failed to set color {name} ({value}) on material {m}");
+                logConfig.LogError($"Failed to set color {name} ({value}) on material {m.NiceName()}");
             }
         }
 
@@ -89,14 +89,62 @@ namespace Subnautica_Archon.MaterialAdapt
             catch (Exception ex)
             {
                 Debug.LogException(ex);
-                logConfig.LogError($"Failed to set {Type} {Name} ({Value}) on material {m}");
+                logConfig.LogError($"Failed to set {Type} {Name} ({Value}) on material {m.NiceName()}");
+            }
+        }
+    }
+
+    internal readonly struct TextureVariable : IShaderVariable
+    {
+        public ShaderPropertyType Type => ShaderPropertyType.Vector;
+
+
+        public Texture Texture { get; }
+        public Vector2 Offset { get; }
+        public Vector2 Scale { get; }
+        public string Name { get; }
+        public TextureVariable(Material m, string n)
+        {
+            Texture = m.GetTexture(n);
+            Offset = m.GetTextureOffset(n);
+            Scale = m.GetTextureScale(n);
+            Name = n;
+        }
+
+        public void SetTo(Material m, Logging logConfig)
+        {
+            try
+            {
+                var oldT = m.GetTexture(Name);
+                var oldO = m.GetTextureOffset(Name);
+                var oldS = m.GetTextureScale(Name);
+                if (oldT != Texture)
+                {
+                    logConfig.LogMaterialVariableSet(Type, Name, oldT, Texture, m);
+                    m.SetTexture(Name, Texture);
+                }
+                if (oldO != Offset)
+                {
+                    logConfig.LogMaterialVariableSet(Type, Name, oldO, Offset, m);
+                    m.SetTextureOffset(Name, Offset);
+                }
+                if (oldS != Scale)
+                {
+                    logConfig.LogMaterialVariableSet(Type, Name, oldS, Scale, m);
+                    m.SetTextureScale(Name, Scale);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+                logConfig.LogError($"Failed to set {Type} {Name} ({Texture.NiceName()}, {Offset}, {Scale}) on material {m.NiceName()}");
             }
         }
     }
 
     internal readonly struct FloatVariable : IShaderVariable
     {
-        public ShaderPropertyType Type => ShaderPropertyType.Float;
+        public ShaderPropertyType Type => ShaderPropertyType.Texture;
 
 
         public float Value { get; }
@@ -141,6 +189,7 @@ namespace Subnautica_Archon.MaterialAdapt
         public MaterialGlobalIlluminationFlags MaterialGlobalIlluminationFlags { get; }
         private ColorVariable[] ColorVariables { get; }
         private VectorVariable[] VectorVariables { get; }
+        private TextureVariable[] TextureVariables { get; }
         private FloatVariable[] FloatVariables { get; }
 
         /// <summary>
@@ -162,6 +211,9 @@ namespace Subnautica_Archon.MaterialAdapt
                 if (variableNamePredicate(v.Name))
                     v.SetTo(m, logConfig);
             foreach (var v in FloatVariables)
+                if (variableNamePredicate(v.Name))
+                    v.SetTo(m, logConfig);
+            foreach (var v in TextureVariables)
                 if (variableNamePredicate(v.Name))
                     v.SetTo(m, logConfig);
 
@@ -190,7 +242,7 @@ namespace Subnautica_Archon.MaterialAdapt
         /// Constructs the prototype from a given material
         /// </summary>
         /// <param name="source">Material to read. Can be null, causing <see cref="IsEmpty"/> to be set true</param>
-        public MaterialPrototype(Material source)
+        public MaterialPrototype(Material source, bool loadTextures = false)
         {
             if (source == null)
             {
@@ -203,6 +255,7 @@ namespace Subnautica_Archon.MaterialAdapt
             var colorVariables = new List<ColorVariable>();
             var floatVariables = new List<FloatVariable>();
             var vectorVariables = new List<VectorVariable>();
+            var textureVariables = new List<TextureVariable>();
 
             for (int v = 0; v < source.shader.GetPropertyCount(); v++)
             {
@@ -223,17 +276,21 @@ namespace Subnautica_Archon.MaterialAdapt
                     case ShaderPropertyType.Vector:
                         vectorVariables.Add(new VectorVariable(source, n));
                         break;
-                        //don't copy textures (does not make sense)
-                        //case UnityEngine.Rendering.ShaderPropertyType.Texture:
-                        //    if (n != "_MainTex" && n != "_BumpMap" && n != "_SpecTex" && n != "_Illum")
-                        //        m.SetTexture(n, seamothMaterial.GetTexture(n));
-                        //    break;
+
+                    case ShaderPropertyType.Texture:
+                        if (loadTextures)
+                        {
+                            if (n != "_MainTex" && n != "_BumpMap" && n != "_SpecTex" && n != "_Illum")
+                                textureVariables.Add(new TextureVariable(source, n));
+                        }
+                        break;
                 }
             }
 
             ColorVariables = colorVariables.ToArray();
             FloatVariables = floatVariables.ToArray();
             VectorVariables = vectorVariables.ToArray();
+            TextureVariables = textureVariables.ToArray();
         }
 
 
@@ -272,7 +329,7 @@ namespace Subnautica_Archon.MaterialAdapt
                 if (glassMaterial != null)
                     break;
             }
-            return new MaterialPrototype(glassMaterial);
+            return new MaterialPrototype(glassMaterial, loadTextures: true);
         }
 
         /// <summary>

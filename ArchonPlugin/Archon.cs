@@ -53,7 +53,7 @@ namespace Subnautica_Archon
                 if (control)
                     control.PrepareForSaving();
             }, () => { });
-            MaterialFixer = new MaterialFixer(this, Logging.Silent);
+            MaterialFixer = new MaterialFixer(this, Logging.Verbose);
         }
 
         public override float ExitVelocityLimit => 100f;    //any speed is good
@@ -584,7 +584,8 @@ namespace Subnautica_Archon
                 {
                     var go = clipProxyParent.GetChild(i).gameObject;
                     foreach (var c in go.GetComponents<Component>())    //clear out anything. Even if disabled, this blocks usage
-                        Destroy(c);
+                        if (!(c is Transform))
+                            Destroy(c);
 
                     if (enable)
                     {

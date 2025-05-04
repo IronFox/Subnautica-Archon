@@ -3297,6 +3297,7 @@ MonoBehaviour:
   dockingTrigger: {fileID: 4625006239438012383}
   dockedSpace: {fileID: 1197983882717610232}
   hangarRoot: {fileID: 2420336263794514219}
+  interiorCollider: {fileID: 2132509985401754836}
   onEnterDisable: {fileID: 6262342996104847680}
   forwardAxis: 0
   rightAxis: 0

@@ -38,4 +38,23 @@ public static class ListExtensions
         return min;
     }
 
+    public static T LeastOrDefault<T>(this IEnumerable<T> source, Func<T, float> selector)
+    {
+        var enumerator = source.GetEnumerator();
+        if (!enumerator.MoveNext())
+            return default;
+        var min = enumerator.Current;
+        var minValue = selector(min);
+        while (enumerator.MoveNext())
+        {
+            var value = selector(enumerator.Current);
+            if (value < minValue)
+            {
+                minValue = value;
+                min = enumerator.Current;
+            }
+        }
+        return min;
+    }
+
 }
