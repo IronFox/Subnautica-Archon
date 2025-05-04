@@ -41,6 +41,9 @@ namespace Subnautica_Archon
         private AutoPilot autopilot;
         private EnergyInterface energyInterface;
         private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
+
+        private bool clippingWater;
+
         public Archon()
         {
             //Log = new MyLogger(this);
@@ -468,13 +471,14 @@ namespace Subnautica_Archon
             }
         }
 
-        private readonly List<MonoBehaviour> reenableOnExit = new List<MonoBehaviour>();
+
 
         public override void PlayerEntry()
         {
             Log.Write(nameof(PlayerEntry));
             control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended || !hadUnpausedFrame);
             pingInstance.SetHudIcon(false);
+
             base.PlayerEntry();
         }
 
@@ -512,8 +516,6 @@ namespace Subnautica_Archon
                 base.BeginPiloting();
                 control.Control(Helper.GetPlayerReference());
 
-                reenableOnExit.Clear();
-
 
                 //playerPosition = Player.main.transform.parent.gameObject;
             }
@@ -542,12 +544,6 @@ namespace Subnautica_Archon
                 else
                     Log.Write($"Sitting not detected");
 
-                foreach (MonoBehaviour behavior in reenableOnExit)
-                {
-                    Log.Write($"Reenabling {behavior.name}");
-                    behavior.enabled = true;
-                }
-
                 Player.main.transform.LookAt(transform.position);
 
             }
@@ -575,12 +571,53 @@ namespace Subnautica_Archon
             ev.release();
         }
 
+        private void SetWaterProxiesEnabled(bool enable)
+        {
+            var clipProxyParent = transform.Find("WaterClipProxy");
+            var seamoth = SeamothHelper.Seamoth;
+
+            if (clipProxyParent && seamoth)
+            {
+                WaterClipProxy seamothWCP = SeamothHelper.Seamoth.GetComponentInChildren<WaterClipProxy>();
+
+                for (int i = 0; i < clipProxyParent.childCount; i++)
+                {
+                    var go = clipProxyParent.GetChild(i).gameObject;
+                    foreach (var c in go.GetComponents<Component>())    //clear out anything. Even if disabled, this blocks usage
+                        Destroy(c);
+
+                    if (enable)
+                    {
+                        WaterClipProxy waterClip = go.AddComponent<WaterClipProxy>();
+                        waterClip.shape = WaterClipProxy.Shape.Box;
+                        //"""Apply the seamoth's clip material. No idea what shader it uses or what settings it actually has, so this is an easier option. Reuse the game's assets.""" -Lee23
+                        waterClip.clipMaterial = seamothWCP.clipMaterial;
+                        //"""You need to do this. By default the layer is 0. This makes it displace everything in the default rendering layer. We only want to displace water.""" -Lee23
+                        waterClip.gameObject.layer = seamothWCP.gameObject.layer;
+                    }
+                }
+                clippingWater = enable;
+                Log.Write($"Water-clip proxies adapted ({enable})");
+
+            }
+            else
+                Log.Write("Clip proxies or seamoth not found. Can't adjust right now");
+        }
+
+        public bool ClipWater => control.IsBoarded && !control.IsBeingControlled;
+
 
         public override void FixedUpdate()
         {
             try
             {
                 LazyInit();
+
+                if (clippingWater != ClipWater)
+                {
+                    SetWaterProxiesEnabled(ClipWater);
+                }
+
                 stabilizeRoll = false;
 
                 if (worldForces.IsAboveWater() != wasAboveWater)
@@ -1151,16 +1188,7 @@ namespace Subnautica_Archon
         {
             get
             {
-                var clipProxyParent = transform.Find("WaterClipProxy");
-                var rs = new List<GameObject>();
-                if (clipProxyParent != null)
-                {
-                    for (int i = 0; i < clipProxyParent.childCount; i++)
-                        rs.Add(clipProxyParent.GetChild(i).gameObject);
-                }
-                else
-                    Log.Write("Clip proxy not found");
-                return rs;
+                return new List<GameObject>();
             }
         }
 
