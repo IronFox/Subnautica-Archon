@@ -114,7 +114,7 @@ namespace Subnautica_Archon.Util
             Material m)
         {
             if (LogMaterialChanges)
-                Debug.Log(MakeMessage($"Setting {type} {name} ({ValueToString(old)} -> {ValueToString(value)}) on material {m}"));
+                Debug.Log(MakeMessage($"Setting {type} {name} ({ValueToString(old)} -> {ValueToString(value)}) on material {m.NiceName()}"));
         }
     }
 
