@@ -166,7 +166,7 @@ namespace Subnautica_Archon
                 };
                 EvacuationAdapter.ShouldKeep = go =>
                 {
-                    return go.transform.IsChildOf(Player.mainObject.transform);
+                    return go == Player.mainObject;// go.transform.IsChildOf(Player.mainObject.transform);
                 };
 
                 //TargetAdapter.ResolveTarget = (go, rb) =>
