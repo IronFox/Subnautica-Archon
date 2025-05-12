@@ -85,7 +85,7 @@ public class EvacuateIntruders : MonoBehaviour
 
                                 var distanceToCandidiate = Mathf.Sqrt(d2);
                                 var dir = meToWhat / distanceToCandidiate;
-                                var hits = Physics.RaycastAll(new Ray(me, dir), outerRadius);
+                                var hits = Physics.RaycastAll(new Ray(me, dir), outerRadius, ArchonControl.OuterShellLayer);
                                 var interiorHits = hits.Where(x => x.collider == interiorCollider);
                                 allHits.AddRange(interiorHits.Select(x =>
                                 new Hit(

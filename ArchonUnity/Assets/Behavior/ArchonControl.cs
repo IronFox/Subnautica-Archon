@@ -23,7 +23,7 @@ public class ArchonControl : MonoBehaviour
     public float lookUpAxis;
     public bool isMovingInReverse;
 
-    private const int OuterShellLayer = 30;
+    public const int OuterShellLayer = 30;
 
     public bool overdriveActive;
     public bool outOfWater;
@@ -836,6 +836,8 @@ public class ArchonControl : MonoBehaviour
             Debug.LogException(ex);
         }
     }
+
+    public bool BoardedByHeadless => boardedBy && boardedLeave;
 
     private void MonitorPlayer()
     {
