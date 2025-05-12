@@ -605,7 +605,7 @@ namespace Subnautica_Archon
                 Log.Write("Clip proxies or seamoth not found. Can't adjust right now");
         }
 
-        public bool ClipWater => control.IsBoarded && !control.IsBeingControlled;
+        public bool ClipWater => control.IsBoarded && !control.IsBeingControlled && !control.BoardedByHeadless;
 
 
         public override void FixedUpdate()
@@ -614,10 +614,6 @@ namespace Subnautica_Archon
             {
                 LazyInit();
 
-                if (clippingWater != ClipWater)
-                {
-                    SetWaterProxiesEnabled(ClipWater);
-                }
 
                 stabilizeRoll = false;
 
@@ -863,6 +859,13 @@ namespace Subnautica_Archon
             try
             {
                 LazyInit();
+
+
+                if (clippingWater != ClipWater)
+                {
+                    SetWaterProxiesEnabled(ClipWater);
+                }
+
                 MenuTracker.Update();
                 hadUnpausedFrame |= Time.deltaTime > 0;
 
@@ -1329,26 +1332,34 @@ namespace Subnautica_Archon
         {
             get
             {
+                var rs = new List<VehiclePilotSeat>();
                 var cockpit = transform.Find("Cockpit");
-                var entry = transform.Find("Interior/Control Entry");
-                var cockpitExit = entry.Find($"Exit");
-                if (!cockpit || !entry || !cockpitExit)
+                if (!cockpit)
                 {
                     Log.Write("Cockpit not found");
-                    return default;
+                    return rs;
                 }
-                return new List<VehiclePilotSeat>() {  new VehiclePilotSeat
+                var entries = transform.Find("Interior/Entries");
+                foreach (var entry in entries.GetChildren())
+                {
+                    var cockpitExit = entry.Find($"Exit");
+                    if (!cockpitExit)
+                    {
+                        Log.Write($"Cockpit exit not found for {entry.NiceName()}");
+                        continue;
+                    }
+                    rs.Add(new VehiclePilotSeat
                     {
                         Seat = entry.gameObject,
                         SitLocation = cockpit.gameObject,
                         ExitLocation = cockpitExit,
                         LeftHandLocation = cockpit,
                         RightHandLocation = cockpit,
-                    }
-                };
+                    });
+                }
+                return rs;
             }
         }
-
 
 
         public override List<GameObject> TetherSources
