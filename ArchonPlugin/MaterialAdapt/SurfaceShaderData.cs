@@ -1,7 +1,6 @@
-﻿using Subnautica_Archon.Util;
+﻿using AVS.Util;
 using System;
 using UnityEngine;
-using static PDAScanner;
 
 namespace Subnautica_Archon.MaterialAdapt
 {

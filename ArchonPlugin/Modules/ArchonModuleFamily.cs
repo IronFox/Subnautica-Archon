@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using VehicleFramework.UpgradeTypes;
+using AVS.UpgradeTypes;
 
 namespace Subnautica_Archon.Modules
 {

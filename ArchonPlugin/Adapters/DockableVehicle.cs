@@ -1,3 +1,4 @@
+using AVS;
 using Nautilus.Handlers;
 using Subnautica_Archon.Util;
 using System;
@@ -5,9 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using VehicleFramework;
-using VehicleFramework.VehicleTypes;
-using static VehicleUpgradeConsoleInput;
 using Object = UnityEngine.Object;
 
 
@@ -21,8 +19,10 @@ namespace Subnautica_Archon.Adapters
         {
             Vehicle = vehicle;
             Archon = archon;
-            HasPlayer = Player.main.currentMountedVehicle == Vehicle && !(Vehicle is Drone);
-            IsPlayerControlledDrone = Vehicle is Drone d && d.IsPlayerControlling();
+            HasPlayer = Player.main.currentMountedVehicle == Vehicle && !Drone.IsOne(Vehicle);
+            IsPlayerControlledDrone =
+                Drone.Access(Vehicle, out var d) &&
+                d.IsPlayerControlling();
             Mode = FieldAdapter.OfNonPublic<Player.Mode>(Player.main, "mode");
         }
         //private Logging Log { get; } = new Logging(false,"Dockable",true,true);
@@ -41,7 +41,7 @@ namespace Subnautica_Archon.Adapters
 
 
         public override string ToString()
-            => $"<Adapter>"+Log.GetVehicleName(Vehicle);
+            => $"<Adapter>" + Log.GetVehicleName(Vehicle);
 
         private Bounds? bounds;
         public Bounds LocalBounds
@@ -63,7 +63,7 @@ namespace Subnautica_Archon.Adapters
             Vehicle.docked = true;
             if (Vehicle is ModVehicle mv)
                 mv.OnVehicleDocked(Vector3.zero);
-            if (Vehicle is Drone d)
+            if (Drone.Access(Vehicle, out var d))
                 d.isAsleep = true;
 
             AddToQuickbar(true);
@@ -78,7 +78,7 @@ namespace Subnautica_Archon.Adapters
             {
                 Helper.ChangeAvatarInput(false);
             }
-            else if (Vehicle is Drone d)
+            else if (Drone.Access(Vehicle, out var d))
             {
                 if (IsPlayerControlledDrone)
                 {
@@ -137,7 +137,7 @@ namespace Subnautica_Archon.Adapters
             Player.main.rigidBody.angularVelocity = Vector3.zero;
             Log.Write("Exiting locked mode");
             Player.main.ExitLockedMode(respawn: false, findNewPosition: false);
-            Player.main.SetPosition(Archon.PilotSeats.First().ExitLocation.position);
+            Player.main.SetPosition(Archon.Com.PilotSeats.First().ExitLocation.position);
             Log.Write("Exiting sitting mode");
             Player.main.ExitSittingMode();
 
@@ -167,7 +167,7 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter = 0;
             Log.Write($"Player transform parent now {Log.PathOf(Player.main.transform.parent)}");
             Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
-            Log.Write($"A-Okay = {VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
+            Log.Write($"A-Okay = {AVS.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
             Helper.ChangeAvatarInput(true);
         }
 
@@ -211,7 +211,7 @@ namespace Subnautica_Archon.Adapters
             {
                 Log.Write($"Player transform parent now {Log.PathOf(Player.main.transform.parent)}");
                 Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
-                Log.Write($"A-Okay = {VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
+                Log.Write($"A-Okay = {AVS.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
             }
             //else if (Vehicle is Drone d)
             //{
@@ -231,7 +231,7 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter++;
             if (HasPlayer)
             {
-                if (!VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform))
+                if (!AVS.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform))
                 {
                     Log.Error($"Player ancencestry broken at update #{UpdateCounter}");
                     if (FixParentTo)
@@ -239,7 +239,7 @@ namespace Subnautica_Archon.Adapters
                         Vehicle.StartCoroutine(SwitchToArchon());
                         //Player.main.transform.parent = FixParentTo;
 
-                        if (VehicleFramework.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform))
+                        if (AVS.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform))
                         {
                             Log.Write($"Fixed to {Log.PathOf(FixParentTo)}");
                         }
@@ -289,7 +289,7 @@ namespace Subnautica_Archon.Adapters
 
         public void PrepareUndocking()
         {
-            if (Vehicle is Drone d)
+            if (Drone.IsOne(Vehicle))
             {
             }
             else
@@ -328,11 +328,11 @@ namespace Subnautica_Archon.Adapters
             Vehicle.liveMixin.shielded = false;
             Vehicle.crushDamage.enabled = true;
             //if (Vehicle is ModVehicle)
-                Vehicle.docked = false;
+            Vehicle.docked = false;
             if (Vehicle is ModVehicle mv)
                 mv.OnVehicleUndocked();
 
-            if (Vehicle is Drone d)
+            if (Drone.Access(Vehicle, out var d))
                 d.isAsleep = false;
             else
                 Helper.ChangeAvatarInput(true);

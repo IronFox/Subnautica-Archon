@@ -1,4 +1,7 @@
-﻿using BepInEx;
+﻿using AVS;
+using AVS.Assets;
+using AVS.Patches;
+using BepInEx;
 using HarmonyLib;
 using Nautilus.Handlers;
 using Subnautica_Archon.Adapters;
@@ -8,9 +11,6 @@ using System.Collections;
 using System.IO;
 using System.Reflection;
 using UnityEngine;
-using VehicleFramework;
-using VehicleFramework.Assets;
-using VehicleFramework.Patches;
 
 namespace Subnautica_Archon
 {
@@ -18,20 +18,21 @@ namespace Subnautica_Archon
 
 
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
-    [BepInDependency(VehicleFramework.PluginInfo.PLUGIN_GUID/*, VehicleFramework.PluginInfo.PLUGIN_VERSION*/)]
     [BepInDependency(Nautilus.PluginInfo.PLUGIN_GUID, Nautilus.PluginInfo.PLUGIN_VERSION)]
-    public class MainPatcher : BaseUnityPlugin
+    public class MainPatcher : AVS.MainPatcher
     {
         internal static ArchonConfig PluginConfig { get; private set; }
         internal const string WorkBenchTab = "Storage";
         internal static string RootFolder { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         internal static string ImagesFolder { get; } = Path.Combine(RootFolder, "images");
 
+        public override string PluginId => PluginInfo.PLUGIN_GUID;
 
-        public void Awake()
+        public override void Awake()
         {
             try
             {
+                base.Awake();
                 Log.Write($"MainPatcher.Awake()");
 
                 RecipePurger.Purge();
@@ -47,10 +48,12 @@ namespace Subnautica_Archon
             }
         }
 
-        public void Start()
+
+        public override void Start()
         {
             try
             {
+                base.Start();
                 Log.Write("MainPatcher.Start()");
                 LanguageHandler.RegisterLocalizationFolder();
                 PluginConfig = OptionsPanelHandler.RegisterModOptions<ArchonConfig>();
@@ -113,8 +116,8 @@ namespace Subnautica_Archon
             {
                 Log.Write("MainPatcher.Register()");
                 Log.Write("");
-                Log.Write("model loaded: " + Archon.model.name);
-                var sub = Archon.model.EnsureComponent<Archon>();
+                Log.Write("model loaded: " + Archon.staticModel.name);
+                var sub = Archon.staticModel.EnsureComponent<Archon>();
                 Log.Write("archon attached: " + sub.name);
 
                 Archon.craftingSprite = LoadSprite("images/archon.png");
@@ -148,7 +151,7 @@ namespace Subnautica_Archon
                         return null; //don't grap docked vehicles
                     //if (v is Drone)
                     //{
-                    //    VehicleFramework.Logger.PDANote("Cannot dock: Drones are currently not supported", 3f);
+                    //    AVS.Logger.PDANote("Cannot dock: Drones are currently not supported", 3f);
                     //    return null;
                     //}
                     var d = new DockableVehicle(v, archon);

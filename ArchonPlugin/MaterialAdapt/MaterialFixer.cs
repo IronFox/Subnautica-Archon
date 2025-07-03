@@ -1,8 +1,9 @@
-﻿using Subnautica_Archon.Util;
+﻿using AVS;
+using AVS.Util;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
-using VehicleFramework;
 
 namespace Subnautica_Archon.MaterialAdapt
 {
@@ -83,7 +84,7 @@ namespace Subnautica_Archon.MaterialAdapt
                 {
                     continue;
                 }
-                if (vehicle.CanopyWindows != null && vehicle.CanopyWindows.Contains(renderer.gameObject))
+                if (vehicle.Com.CanopyWindows != null && vehicle.Com.CanopyWindows.Contains(renderer.gameObject))
                 {
                     continue;
                 }
@@ -135,7 +136,7 @@ namespace Subnautica_Archon.MaterialAdapt
                 {
                     continue;
                 }
-                if (vehicle.CanopyWindows != null && vehicle.CanopyWindows.Contains(renderer.gameObject))
+                if (vehicle.Com.CanopyWindows != null && vehicle.Com.CanopyWindows.Contains(renderer.gameObject))
                 {
                     continue;
                 }
@@ -175,7 +176,7 @@ namespace Subnautica_Archon.MaterialAdapt
         }
 
         private MaterialPrototype HullPrototype { get; set; }
-        private MaterialPrototype GlassPrototype { get; set; }
+        //private MaterialPrototype GlassPrototype { get; set; }
 
         /// <summary>
         /// Fixes materials if necessary/possible.
@@ -189,9 +190,9 @@ namespace Subnautica_Archon.MaterialAdapt
             if (!materialsFixed)
             {
                 HullPrototype = HullPrototype ?? MaterialPrototype.FromSeamoth(Logging);
-                GlassPrototype = GlassPrototype ?? MaterialPrototype.GlassFromExosuit(Logging.Verbose);
+                //GlassPrototype = GlassPrototype ?? MaterialPrototype.GlassFromExosuit(Logging.Verbose);
 
-                if (HullPrototype != null && GlassPrototype != null)
+                if (HullPrototype != null /*&& GlassPrototype != null*/)
                 {
                     materialsFixed = true;
 

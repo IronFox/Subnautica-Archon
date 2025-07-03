@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using VehicleFramework.UpgradeTypes;
+using AVS.UpgradeTypes;
 
 public abstract class ArchonBaseModule : ModVehicleUpgrade
 {
@@ -71,7 +71,7 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
 
     public virtual TechType Register()
     {
-        VehicleFramework.Admin.UpgradeCompat compat = new VehicleFramework.Admin.UpgradeCompat
+        AVS.Admin.UpgradeCompat compat = new AVS.Admin.UpgradeCompat
         {
             skipCyclops = true,
             skipModVehicle = false,
@@ -79,7 +79,7 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
             skipExosuit = true
         };
 
-        var type = VehicleFramework.Admin.UpgradeRegistrar.RegisterUpgrade(this, compat).forModVehicle;
+        var type = AVS.Admin.UpgradeRegistrar.RegisterUpgrade(this, compat).forModVehicle;
         TechType = type;
         All[type] = this;
         AllReverse[Module] = type;

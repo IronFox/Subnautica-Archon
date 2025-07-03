@@ -1,11 +1,11 @@
-﻿using Subnautica_Archon.Util;
+﻿using AVS;
+using AVS.Util;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
-using VehicleFramework;
 
 namespace Subnautica_Archon.MaterialAdapt
 {
@@ -294,43 +294,43 @@ namespace Subnautica_Archon.MaterialAdapt
         }
 
 
-        public static MaterialPrototype GlassFromExosuit(Logging logConfig = default)
-        {
+        //public static MaterialPrototype GlassFromExosuit(Logging logConfig = default)
+        //{
 
-            var exo = PrawnHelper.Prawn;
-            if (exo == null)
-            {
-                //logConfig.LogWarning($"Cyclops not yet available. Keep trying until it is loaded.");
-                return null;
-            }
+        //    var exo = PrawnHelper.Prawn;
+        //    if (exo == null)
+        //    {
+        //        //logConfig.LogWarning($"Cyclops not yet available. Keep trying until it is loaded.");
+        //        return null;
+        //    }
 
-            logConfig.LogExtraStep($"Found Exosuit");
+        //    logConfig.LogExtraStep($"Found Exosuit");
 
-            Material glassMaterial = null;
-            var renderers = exo.GetComponentsInChildren<MeshRenderer>();
-            foreach (var renderer in renderers)
-            {
-                for (int i = 0; i < renderer.materials.Length; i++)
-                {
-                    var material = renderer.materials[i];
-                    //logConfig.LogExtraStep($"Found glass candidate material {material.NiceName()} #{i + 1}/{renderer.materials.Length} which uses shader {material.shader}");
-                    if (material.shader.name == "MarmosetUBER"
-                        && material.name.StartsWith("exosuit_01_glass"))
-                    {
-                        logConfig.LogExtraStep($"Found material prototype: {material.NiceName()}");
-                        glassMaterial = material;
-                        break;
-                    }
-                    else
-                    {
-                        logConfig.LogExtraStep($"(Expected) shader mismatch on material {material.NiceName()} which uses shader {material.shader}");
-                    }
-                }
-                if (glassMaterial != null)
-                    break;
-            }
-            return new MaterialPrototype(glassMaterial, loadTextures: true);
-        }
+        //    Material glassMaterial = null;
+        //    var renderers = exo.GetComponentsInChildren<MeshRenderer>();
+        //    foreach (var renderer in renderers)
+        //    {
+        //        for (int i = 0; i < renderer.materials.Length; i++)
+        //        {
+        //            var material = renderer.materials[i];
+        //            //logConfig.LogExtraStep($"Found glass candidate material {material.NiceName()} #{i + 1}/{renderer.materials.Length} which uses shader {material.shader}");
+        //            if (material.shader.name == "MarmosetUBER"
+        //                && material.name.StartsWith("exosuit_01_glass"))
+        //            {
+        //                logConfig.LogExtraStep($"Found material prototype: {material.NiceName()}");
+        //                glassMaterial = material;
+        //                break;
+        //            }
+        //            else
+        //            {
+        //                logConfig.LogExtraStep($"(Expected) shader mismatch on material {material.NiceName()} which uses shader {material.shader}");
+        //            }
+        //        }
+        //        if (glassMaterial != null)
+        //            break;
+        //    }
+        //    return new MaterialPrototype(glassMaterial, loadTextures: true);
+        //}
 
         /// <summary>
         /// Creates a material prototype for the main material of the Seamoth body.

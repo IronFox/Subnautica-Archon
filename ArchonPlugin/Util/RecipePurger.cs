@@ -13,7 +13,7 @@ namespace Subnautica_Archon.Util
             "{\r\n    \"Ingredients\": [\r\n        {\r\n            \"techType\": \"PowerCell\",\r\n            \"amount\": 1\r\n        },\r\n        {\r\n            \"techType\": \"Welder\",\r\n            \"amount\": 1\r\n        },\r\n        {\r\n            \"techType\": \"AdvancedWiringKit\",\r\n            \"amount\": 2\r\n        },\r\n        {\r\n            \"techType\": \"UraniniteCrystal\",\r\n            \"amount\": 3\r\n        },\r\n        {\r\n            \"techType\": \"Lead\",\r\n            \"amount\": 3\r\n        },\r\n        {\r\n            \"techType\": \"Diamond\",\r\n            \"amount\": 2\r\n        },\r\n        {\r\n            \"techType\": \"PlasteelIngot\",\r\n            \"amount\": 4\r\n        }\r\n    ],\r\n    \"LinkedItems\": [],\r\n    \"craftAmount\": 1\r\n}",
         };
 
-        private const string RecipePath = @"..\VehicleFramework\recipes\Archon_recipe.json";
+        private const string RecipePath = @"..\AVS\recipes\Archon_recipe.json";
 
         public static void Purge()
         {

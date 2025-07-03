@@ -1,4 +1,12 @@
-﻿using FMOD.Studio;
+﻿using AVS;
+using AVS.Composition;
+using AVS.Configuration;
+using AVS.Engines;
+using AVS.Util;
+using AVS.VehicleComponents;
+using AVS.VehicleParts;
+using AVS.VehicleTypes;
+using FMOD.Studio;
 using FMODUnity;
 using Subnautica_Archon.MaterialAdapt;
 using Subnautica_Archon.Util;
@@ -9,12 +17,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
-using VehicleFramework;
-using VehicleFramework.Engines;
-using VehicleFramework.VehicleComponents;
-using VehicleFramework.VehicleParts;
-using VehicleFramework.VehicleTypes;
-using Logger = VehicleFramework.Logger;
+using Logger = AVS.Logger;
 
 
 namespace Subnautica_Archon
@@ -24,14 +27,14 @@ namespace Subnautica_Archon
 
     public class Archon : Submarine, IPowerListener, IProtoTreeEventListener
     {
-        public static GameObject model;
+        public static GameObject staticModel;
         private ArchonControl control;
         public ArchonControl Control => control;
 
         public static readonly Color defaultBaseColor = new Color(0xDE, 0xDE, 0xDE) / 255f;
         public static readonly Color defaultStripeColor = new Color(0x3F, 0x4C, 0x7A) / 255f;
 
-        private List<GameObject> tetherSources;
+        //private List<GameObject> tetherSources;
         //tracks true if vehicle death was ever determined. Can't enter in this state
         private bool wasDead;
         public bool destroyed;
@@ -44,7 +47,25 @@ namespace Subnautica_Archon
 
         private bool clippingWater;
 
-        public Archon()
+        public Archon() : base(new VehicleConfiguration(
+            maxHealth: 20000,
+            numModules: 8,
+            craftingSprite: craftingSprite,
+            pingSprite: pingSprite,
+            saveFileSprite: saveFileSprite,
+            moduleBackgroundImage: moduleBackground,
+            description: Language.main.Get("description"),
+            encyclopediaEntry: Language.main.Get("encyclopedia"),
+            canLeviathanGrab: false,
+            canMoonpoolDock: false,
+            pilotingStyle: PilotingStyle.Other,
+            recipe: new RecipeBuilder()
+                .Add(TechType.PowerCell, 1)
+                .Add(TechType.AdvancedWiringKit, 2)
+                .Add(TechType.Diamond, 2)
+                .Add(TechType.PlasteelIngot, 4)
+                .Build()
+        ))
         {
             //Log = new MyLogger(this);
             Log.Write($"Constructed");
@@ -53,13 +74,13 @@ namespace Subnautica_Archon
                 if (control)
                     control.PrepareForSaving();
             }, () => { });
-            MaterialFixer = new MaterialFixer(this, Logging.Verbose);
+            //MaterialFixer = new MaterialFixer(this, Logging.Verbose);
         }
 
-        public override float ExitVelocityLimit => 100f;    //any speed is good
+        //public override float ExitVelocityLimit => 100f;    //any speed is good
 
-
-
+        protected override bool ExcludeFromMaterialFixing(Renderer renderer, int materialIndex, Material material)
+            => material.name.Contains("[Glass]") || base.ExcludeFromMaterialFixing(renderer, materialIndex, material);
         public IEnumerable<QuickSlot> QuickSlots
         {
             get
@@ -84,23 +105,23 @@ namespace Subnautica_Archon
         public static Sprite saveFileSprite, moduleBackground;
         public static Atlas.Sprite craftingSprite, pingSprite;
         public static Atlas.Sprite emptySprite = new Atlas.Sprite(Texture2D.blackTexture);
-        public override Atlas.Sprite CraftingSprite => craftingSprite ?? base.CraftingSprite;
-        public override Atlas.Sprite PingSprite => pingSprite ?? base.PingSprite;
-        public override Sprite SaveFileSprite => saveFileSprite ?? base.SaveFileSprite;
-        public override Sprite ModuleBackgroundImage => moduleBackground ?? base.ModuleBackgroundImage;
-        public override string Description => Language.main.Get("description");
-        public override string EncyclopediaEntry => Language.main.Get("encyclopedia");
+        //public override Atlas.Sprite CraftingSprite => craftingSprite ?? base.CraftingSprite;
+        //public override Atlas.Sprite PingSprite => pingSprite ?? base.PingSprite;
+        //public override Sprite SaveFileSprite => saveFileSprite ?? base.SaveFileSprite;
+        //public override Sprite ModuleBackgroundImage => moduleBackground ?? base.ModuleBackgroundImage;
+        //public override string Description => Language.main.Get("description");
+        //public override string EncyclopediaEntry => Language.main.Get("encyclopedia");
 
-        public override Dictionary<TechType, int> Recipe =>
-            new Dictionary<TechType, int> {
-                { TechType.PowerCell, 1 },
-                { TechType.AdvancedWiringKit, 2 },
-                //{ TechType.UraniniteCrystal, 3 },
-                //{ TechType.Lead, 3 },
-                { TechType.Diamond, 2 },
-                //{ TechType.Kyanite, 2 },
-                { TechType.PlasteelIngot, 4 },
-            };
+        //public override Dictionary<TechType, int> Recipe =>
+        //    new Dictionary<TechType, int> {
+        //        { TechType.PowerCell, 1 },
+        //        { TechType.AdvancedWiringKit, 2 },
+        //        //{ TechType.UraniniteCrystal, 3 },
+        //        //{ TechType.Lead, 3 },
+        //        { TechType.Diamond, 2 },
+        //        //{ TechType.Kyanite, 2 },
+        //        { TechType.PlasteelIngot, 4 },
+        //    };
 
 
         public static void GetAssets()
@@ -127,10 +148,10 @@ namespace Subnautica_Archon
                         Log.Write("Scanning object: " + obj.name);
                         if (obj.name == "Archon")
                         {
-                            model = (GameObject)obj;
+                            staticModel = (GameObject)obj;
                         }
                     }
-                    if (model == null)
+                    if (staticModel == null)
                         Log.Write("Model not found among: " + string.Join(", ", Helper.Names(assets)));
                 }
                 else
@@ -164,20 +185,19 @@ namespace Subnautica_Archon
         {
             Log.Write(nameof(Awake));
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
-            CyclopsHelper.Start();
 
 
 
             BayControl.OnDockingFailedFull = (archon, d) =>
             {
                 Log.Write($"full");
-                VehicleFramework.Logger.PDANote("Cannot dock: Hangar is full", 3f);
+                AVS.Logger.PDANote("Cannot dock: Hangar is full", 3f);
             };
 
             BayControl.OnDockingFailedTooLarge = (archon, d) =>
             {
                 Log.Write($"too large");
-                VehicleFramework.Logger.PDANote("Cannot dock: Your vehicle is too large", 3f);
+                AVS.Logger.PDANote("Cannot dock: Your vehicle is too large", 3f);
             };
 
             onToggle += OnQuickbarToggle;
@@ -237,12 +257,12 @@ namespace Subnautica_Archon
             }
 
 
-            var cameraController = gameObject.GetComponentInChildren<VehicleFramework.VehicleComponents.MVCameraController>();
-            if (cameraController)
-            {
-                Log.Write($"Destroying camera controller {cameraController}");
-                Destroy(cameraController);
-            }
+            //var cameraController = gameObject.GetComponentInChildren<AVS.VehicleComponents.MVCameraController>();
+            //if (cameraController)
+            //{
+            //    Log.Write($"Destroying camera controller {cameraController}");
+            //    Destroy(cameraController);
+            //}
 
 
         }
@@ -274,7 +294,7 @@ namespace Subnautica_Archon
                             Log.Write($"Undocking {Log.Describe(vehicle)}");
                             control.Undock(vehicle.gameObject);
                             ToggleSlot(slotID, false);
-                            if (vehicle is Drone)
+                            if (Drone.IsOne(vehicle))
                                 SignalQuickslotsChangedWhilePiloting(slotId);
                         }
                         else
@@ -288,8 +308,6 @@ namespace Subnautica_Archon
 
         }
 
-        public override bool AutoApplyShaders => false;
-        public override bool DoesAutolevel => false;
 
         private Coroutine autoLevelRoutine;
         public override void DeselectSlots()
@@ -382,7 +400,10 @@ namespace Subnautica_Archon
                         //"Mikjaw"/"Salli" - just bad
                         //"Turtle" - missing?
                         //autopilot.apVoice.voice = VoiceManager.GetVoice("Salli");
-                        autopilot.apVoice.voice = Helper.Clone(autopilot.apVoice.voice);
+
+                        //var source = autopilot.apVoice.voice;
+                        var source = VoiceManager.GetVoice("ShirubaFoxy");
+                        autopilot.apVoice.voice = Helper.Clone(source);
                         autopilot.apVoice.voice.PowerLow = null;
                         autopilot.apVoice.voice.BatteriesNearlyEmpty = null;
                         autopilot.apVoice.voice.UhOh = null;
@@ -829,11 +850,11 @@ namespace Subnautica_Archon
         public override void OnVehicleUndocked()
         {
             base.OnVehicleUndocked();
-            MaterialFixer.OnVehicleUndocked();
+            //MaterialFixer.OnVehicleUndocked();
         }
 
 
-        private MaterialFixer MaterialFixer;
+        //private MaterialFixer MaterialFixer;
 
         private Color nonBlackBaseColor;
         private Color nonBlackStripeColor;
@@ -882,7 +903,7 @@ namespace Subnautica_Archon
                 if (stripeColor != Color.black)
                     nonBlackStripeColor = stripeColor;
 
-                MaterialFixer.OnUpdate();
+                //MaterialFixer.OnUpdate();
 
                 control.flipFreeHorizontalRotationInReverse = MainPatcher.PluginConfig.flipFreeHorizontalRotationInReverse;
                 control.flipFreeVerticalRotationInReverse = MainPatcher.PluginConfig.flipFreeVerticalRotationInReverse;
@@ -1035,15 +1056,15 @@ namespace Subnautica_Archon
 
         }
 
-        public override float ExitPitchLimit
-            => exitLimitsSuspended
-                ? 360
-                : base.ExitPitchLimit;
+        //public float ExitPitchLimit
+        //    => exitLimitsSuspended
+        //        ? 360
+        //        : base.ExitPitchLimit;
 
-        public override float ExitRollLimit
-            => exitLimitsSuspended
-                ? 360
-                : base.ExitRollLimit;
+        //public float ExitRollLimit
+        //    => exitLimitsSuspended
+        //        ? 360
+        //        : base.ExitRollLimit;
 
         private bool exitLimitsSuspended = false;
         internal void SuspendAutoLeveling()
@@ -1105,30 +1126,15 @@ namespace Subnautica_Archon
 
         public string VehicleName => Helper.GetName(this);
 
-        public override int MaxHealth => 20000;
-        public override int NumModules => 8;
-        public override int BaseCrushDepth => 300;
-        public override int CrushDepthUpgrade1 => 200;
-
-        public override int CrushDepthUpgrade2 => 600;
-
-        public override int CrushDepthUpgrade3 => 600;
-
         public override string vehicleDefaultName => "Archon";
 
 
-
-        public override List<VehicleHatchStruct> Hatches
+        public override SubmarineComposition GetSubmarineComposition()
         {
-            get
+            var hatches = transform.Find("Hatches");
+            var hatchList = new List<VehicleHatchStruct>();
+            if (hatches)
             {
-                var hatches = transform.Find("Hatches");
-                if (!hatches)
-                {
-                    Log.Error("Hatches not found");
-                    return new List<VehicleHatchStruct>();
-                }
-                var rs = new List<VehicleHatchStruct>();
                 foreach (Transform hatch in hatches)
                 {
                     var exit = hatch.Find("Exit");
@@ -1138,207 +1144,110 @@ namespace Subnautica_Archon
                         Log.Error("Hatch children not found of " + hatch);
                         continue;
                     }
-                    rs.Add(new VehicleHatchStruct
-                    {
-                        Hatch = hatch.gameObject,
-                        ExitLocation = exit,
-                        SurfaceExitLocation = exit,
-                        EntryLocation = entry
-                    });
+                    hatchList.Add(new VehicleHatchStruct(
+                        hatch: hatch.gameObject,
+                        exit: exit,
+                        surfaceExit: exit,
+                        entry: entry)
+                    );
                 }
-                Log.Write($"Returning {rs.Count} hatch(es)");
-
-                return rs;
+                Log.Write($"Detected {hatchList.Count} hatch(es)");
             }
-        }
 
-        public override GameObject VehicleModel => model;
-
-        public override GameObject CollisionModel => transform.Find("CollisionModel").gameObject;
-        public override GameObject BoundingBox => transform.Find("EntireBoundingBox").gameObject;
-        public override PilotingStyle pilotingStyle => PilotingStyle.Other;
-
-        public override List<VehicleStorage> ModularStorages
-        {
-            get
+            var storageRootTransform = transform.Find("StorageRoot");
+            var modularStorageList = new List<VehicleStorage>();
+            if (storageRootTransform)
             {
-                var root = transform.Find("StorageRoot").gameObject;
-                var rs = new List<VehicleStorage>();
-                if (root == null)
-                    return rs;
                 for (int i = 0; i < 8; i++)
                 {
                     var name = $"Storage{i}";
-                    var storageTransform = root.transform.Find(name);
+                    var storageTransform = storageRootTransform.Find(name);
                     if (storageTransform == null)
                     {
                         storageTransform = new GameObject(name).transform;
-                        storageTransform.parent = root.transform;
+                        storageTransform.parent = storageRootTransform.transform;
                         storageTransform.localPosition = M.V3(i);
-                        Log.Write($"Creating new storage transform {storageTransform} in {root} @{storageTransform.localPosition} => {storageTransform.position}");
+                        Log.Write($"Creating new storage transform {storageTransform} in {storageRootTransform} @{storageTransform.localPosition} => {storageTransform.position}");
                     }
-                    rs.Add(new VehicleStorage
-                    {
-                        Container = storageTransform.gameObject,
-                        Height = 2,
-                        Width = 2
-                    });
+                    modularStorageList.Add(new VehicleStorage(
+                        container: storageTransform.gameObject,
+                        height: 2,
+                        width: 2
+                        )
+                    );
                 }
-                return rs;
-
             }
-        }
-        public override List<GameObject> WaterClipProxies
-        {
-            get
+            List<GameObject> waterClipProxies = new List<GameObject>();
+            var clipProxies = transform.Find("WaterClipProxy");
+            foreach (Transform proxy in clipProxies)
             {
-                return new List<GameObject>();
-            }
-        }
-
-        public override List<VehicleUpgrades> Upgrades
-        {
-            get
-            {
-                var rs = new List<VehicleUpgrades>();
-                var ui = transform.Find("UpgradesInterface");
-                var plugs = transform.Find("Module Plugs");
-
-                var plugProxies = new List<Transform>();
-                if (plugs != null)
-                {
-                    for (int i = 0; i < plugs.childCount; i++)
-                    {
-                        var plug = plugs.GetChild(i);
-                        var position = plug.Find("Module Position");
-                        if (position != null)
-                            plugProxies.Add(position);
-                        else
-                            Log.Write($"Plug {plug.name} does not have a 'Module Position' child");
-                    }
-                }
-                else
-                    Log.Write($"Plugs not found");
-
-                Log.Write($"Determined {plugProxies.Count} plug(s)");
-
-                if (ui != null)
-                {
-                    rs.Add(new VehicleUpgrades
-                    {
-                        Interface = ui.gameObject,
-                        Flap = ui.gameObject,
-                        ModuleProxies = plugProxies
-                    });
-                }
-                else
-                    Log.Write($"Upgrades interface not found");
-                return rs;
-
+                var go = proxy.gameObject;
+                Destroy(go.GetComponent<MeshRenderer>());
+                Destroy(go.GetComponent<MeshFilter>());
+                waterClipProxies.Add(go);
             }
 
-        }
+            var upgrades = new List<VehicleUpgrades>();
+            var ui = transform.Find("UpgradesInterface");
+            var plugs = transform.Find("Module Plugs");
 
-        public override List<VehicleBattery> Batteries
-        {
-            get
+            var plugProxies = new List<Transform>();
+            if (plugs)
             {
-                var rs = new List<VehicleBattery>();
-
-
-                var batteries = transform.Find("Batteries");
-
-                if (batteries != null)
+                for (int i = 0; i < plugs.childCount; i++)
                 {
-                    for (int i = 0; i < batteries.childCount; i++)
+                    var plug = plugs.GetChild(i);
+                    var position = plug.Find("Module Position");
+                    if (position != null)
+                        plugProxies.Add(position);
+                    else
+                        Log.Write($"Plug {plug.name} does not have a 'Module Position' child");
+                }
+            }
+            else
+                Log.Write($"Plugs not found");
+
+            Log.Write($"Determined {plugProxies.Count} plug(s)");
+
+            if (ui)
+            {
+                upgrades.Add(new VehicleUpgrades(
+                    @interface: ui.gameObject,
+                    flap: ui.gameObject,
+                    Vector3.zero, //ui flap position
+                    Vector3.zero, //ui flap rotation
+                    plugProxies
+                ));
+            }
+            else
+                Log.Write($"Upgrades interface not found");
+
+            var vehicleBatteries = new List<VehicleBattery>();
+
+
+            var batteries = transform.Find("Batteries");
+
+            if (batteries)
+            {
+                for (int i = 0; i < batteries.childCount; i++)
+                {
+                    var b = batteries.GetChild(i);
+                    if (b != null)
                     {
-                        var b = batteries.GetChild(i);
-                        if (b != null)
-                        {
-                            rs.Add(new VehicleBattery
-                            {
-                                BatterySlot = b.gameObject,
-                                BatteryProxy = b
-                            });
-                        }
+                        vehicleBatteries.Add(new VehicleBattery(
+                            batterySlot: b.gameObject,
+                            batteryProxy: b
+                        ));
                     }
                 }
-                else
-                    Log.Write($"Unable to locate 'Batteries' child");
-                return rs;
             }
+            else
+                Log.Write($"Unable to locate 'Batteries' child");
 
-        }
-
-
-        //public override VFEngine VFEngine { get; set; }
-
-        private List<VehicleFloodLight> headLights = new List<VehicleFloodLight>();
-
-        public override List<VehicleFloodLight> HeadLights
-        {
-            get
+            var pilotSeats = new List<VehiclePilotSeat>();
+            var cockpit = transform.Find("Cockpit");
+            if (cockpit)
             {
-                //Log.Write($"Get HeadLights");
-                //if (headLights is null)
-                //{
-
-                //    headLights = new List<VehicleFloodLight>();
-                //    try
-                //    {
-                //        var hl = transform.GetComponentsInChildren<Light>();
-                //        Log.Write($"processing {hl.Length} headlight(s)");
-
-
-                //        if (hl.Length > 0)
-                //        {
-                //            foreach (var light in hl)
-                //                if (light.type == LightType.Spot && light.transform.name != "Center Light")
-                //                {
-                //                    var go = new GameObject($"Light Dummy for {light.name}");
-                //                    go.transform.parent = light.transform.parent;
-                //                    go.transform.localPosition = light.transform.localPosition;
-                //                    go.transform.localRotation = light.transform.localRotation;
-                //                    Log.Write($"Reparenting light {light} to {go}");
-                //                    light.transform.parent = go.transform;
-                //                    light.transform.localPosition = Vector3.zero;
-                //                    light.transform.localRotation = Quaternion.identity;
-                //                    light.transform.name = light.name = "VolumetricLight";
-
-                //                    headLights.Add(new VehicleFloodLight
-                //                    {
-                //                        Angle = light.spotAngle,
-                //                        Color = light.color,
-                //                        Intensity = light.intensity,
-                //                        Light = go,
-                //                        Range = light.range
-                //                    });
-                //                }
-                //        }
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Log.Write("HeadLights", ex);
-                //    }
-                //    Log.Write($"Returning {headLights.Count} headlight(s)");
-                //}
-                return headLights;
-
-            }
-
-        }
-
-        public override List<VehiclePilotSeat> PilotSeats
-        {
-            get
-            {
-                var rs = new List<VehiclePilotSeat>();
-                var cockpit = transform.Find("Cockpit");
-                if (!cockpit)
-                {
-                    Log.Write("Cockpit not found");
-                    return rs;
-                }
                 var entries = transform.Find("Interior/Entries");
                 foreach (var entry in entries.GetChildren())
                 {
@@ -1348,55 +1257,343 @@ namespace Subnautica_Archon
                         Log.Write($"Cockpit exit not found for {entry.NiceName()}");
                         continue;
                     }
-                    rs.Add(new VehiclePilotSeat
-                    {
-                        Seat = entry.gameObject,
-                        SitLocation = cockpit.gameObject,
-                        ExitLocation = cockpitExit,
-                        LeftHandLocation = cockpit,
-                        RightHandLocation = cockpit,
-                    });
+                    pilotSeats.Add(new VehiclePilotSeat
+                    (
+                        seat: entry.gameObject,
+                        sitLocation: cockpit.gameObject,
+                        exitLocation: cockpitExit
+                    ));
                 }
-                return rs;
             }
-        }
+            else
+                Log.Error("Cockpit not found");
 
-
-        public override List<GameObject> TetherSources
-        {
-            get
+            var tetherSources = new List<GameObject>();
+            var tether = transform.Find("Tether");
+            if (!tether)
             {
-                if (tetherSources is null)
-                {
-                    tetherSources = new List<GameObject>();
-                    var tether = transform.Find("Tether");
-                    if (!tether)
-                    {
 
-                        Log.Error("Tether not found. No tethers will be defined");
+                Log.Error("Tether not found. No tethers will be defined");
 
-                    }
-                    else
-                    {
-                        foreach (Transform trans in tether)
-                        {
-                            var t = trans.GetComponent<SphereCollider>();
-                            if (!t)
-                            {
-                                Log.Error($"Tether {trans} does not hace a sphere collider");
-                                continue;
-                            }
-                            t.radius = t.transform.localScale.x;
-                            t.transform.localScale = Vector3.one;
-                            tetherSources.Add(t.gameObject);
-                        }
-                        Log.Write($"Recorded {tetherSources.Count} tether source(s)");
-                    }
-
-                }
-                return tetherSources;
             }
+            else
+            {
+                foreach (Transform trans in tether)
+                {
+                    var t = trans.GetComponent<SphereCollider>();
+                    if (!t)
+                    {
+                        Log.Error($"Tether {trans} does not hace a sphere collider");
+                        continue;
+                    }
+                    t.radius = t.transform.localScale.x;
+                    t.transform.localScale = Vector3.one;
+                    tetherSources.Add(t.gameObject);
+                }
+                Log.Write($"Recorded {tetherSources.Count} tether source(s)");
+            }
+
+
+
+            return new SubmarineComposition(
+                    hatches: hatchList,
+                    collisionModel: transform.Find("CollisionModel").GetGameObject(),
+                    boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
+                    storageRootObject: storageRootTransform.GetGameObject(),
+                    modularStorages: modularStorageList,
+                    waterClipProxies: waterClipProxies,
+                    upgrades: upgrades,
+                    batteries: vehicleBatteries,
+                    tetherSources: tetherSources,
+                    modulesRootObject: GetOrCreateDefaultModulesRootObject(),
+                    pilotSeats: pilotSeats
+                    );
+
+
+
+
         }
+
+
+        //public override List<VehicleHatchStruct> Hatches
+        //{
+        //    get
+        //    {
+        //        var hatches = transform.Find("Hatches");
+        //        if (!hatches)
+        //        {
+        //            Log.Error("Hatches not found");
+        //            return new List<VehicleHatchStruct>();
+        //        }
+        //        var rs = new List<VehicleHatchStruct>();
+        //        foreach (Transform hatch in hatches)
+        //        {
+        //            var exit = hatch.Find("Exit");
+        //            var entry = hatch.Find("Entry");
+        //            if (!exit || !entry)
+        //            {
+        //                Log.Error("Hatch children not found of " + hatch);
+        //                continue;
+        //            }
+        //            rs.Add(new VehicleHatchStruct
+        //            {
+        //                Hatch = hatch.gameObject,
+        //                ExitLocation = exit,
+        //                SurfaceExitLocation = exit,
+        //                EntryLocation = entry
+        //            });
+        //        }
+        //        Log.Write($"Returning {rs.Count} hatch(es)");
+
+        //        return rs;
+        //    }
+        //}
+
+        //public override GameObject VehicleModel => staticModel;
+
+        //public override GameObject CollisionModel => transform.Find("CollisionModel").gameObject;
+        //public override GameObject BoundingBox => transform.Find("EntireBoundingBox").gameObject;
+        //public override PilotingStyle pilotingStyle => PilotingStyle.Other;
+
+        //public override List<VehicleStorage> ModularStorages
+        //{
+        //    get
+        //    {
+        //        var root = transform.Find("StorageRoot").gameObject;
+        //        var rs = new List<VehicleStorage>();
+        //        if (root == null)
+        //            return rs;
+        //        for (int i = 0; i < 8; i++)
+        //        {
+        //            var name = $"Storage{i}";
+        //            var storageTransform = root.transform.Find(name);
+        //            if (storageTransform == null)
+        //            {
+        //                storageTransform = new GameObject(name).transform;
+        //                storageTransform.parent = root.transform;
+        //                storageTransform.localPosition = M.V3(i);
+        //                Log.Write($"Creating new storage transform {storageTransform} in {root} @{storageTransform.localPosition} => {storageTransform.position}");
+        //            }
+        //            rs.Add(new VehicleStorage
+        //            {
+        //                Container = storageTransform.gameObject,
+        //                Height = 2,
+        //                Width = 2
+        //            });
+        //        }
+        //        return rs;
+
+        //    }
+        //}
+        //public override List<GameObject> WaterClipProxies
+        //{
+        //    get
+        //    {
+        //        return new List<GameObject>();
+        //    }
+        //}
+
+        //public override List<VehicleUpgrades> Upgrades
+        //{
+        //    get
+        //    {
+        //        var rs = new List<VehicleUpgrades>();
+        //        var ui = transform.Find("UpgradesInterface");
+        //        var plugs = transform.Find("Module Plugs");
+
+        //        var plugProxies = new List<Transform>();
+        //        if (plugs != null)
+        //        {
+        //            for (int i = 0; i < plugs.childCount; i++)
+        //            {
+        //                var plug = plugs.GetChild(i);
+        //                var position = plug.Find("Module Position");
+        //                if (position != null)
+        //                    plugProxies.Add(position);
+        //                else
+        //                    Log.Write($"Plug {plug.name} does not have a 'Module Position' child");
+        //            }
+        //        }
+        //        else
+        //            Log.Write($"Plugs not found");
+
+        //        Log.Write($"Determined {plugProxies.Count} plug(s)");
+
+        //        if (ui != null)
+        //        {
+        //            rs.Add(new VehicleUpgrades
+        //            {
+        //                Interface = ui.gameObject,
+        //                Flap = ui.gameObject,
+        //                ModuleProxies = plugProxies
+        //            });
+        //        }
+        //        else
+        //            Log.Write($"Upgrades interface not found");
+        //        return rs;
+
+        //    }
+
+        //}
+
+        //public override List<VehicleBattery> Batteries
+        //{
+        //    get
+        //    {
+        //        var rs = new List<VehicleBattery>();
+
+
+        //        var batteries = transform.Find("Batteries");
+
+        //        if (batteries != null)
+        //        {
+        //            for (int i = 0; i < batteries.childCount; i++)
+        //            {
+        //                var b = batteries.GetChild(i);
+        //                if (b != null)
+        //                {
+        //                    rs.Add(new VehicleBattery
+        //                    {
+        //                        BatterySlot = b.gameObject,
+        //                        BatteryProxy = b
+        //                    });
+        //                }
+        //            }
+        //        }
+        //        else
+        //            Log.Write($"Unable to locate 'Batteries' child");
+        //        return rs;
+        //    }
+
+        //}
+
+
+        //public override VFEngine VFEngine { get; set; }
+
+        //private List<VehicleFloodLight> headLights = new List<VehicleFloodLight>();
+
+        //public override List<VehicleFloodLight> HeadLights
+        //{
+        //    get
+        //    {
+        //        //Log.Write($"Get HeadLights");
+        //        //if (headLights is null)
+        //        //{
+
+        //        //    headLights = new List<VehicleFloodLight>();
+        //        //    try
+        //        //    {
+        //        //        var hl = transform.GetComponentsInChildren<Light>();
+        //        //        Log.Write($"processing {hl.Length} headlight(s)");
+
+
+        //        //        if (hl.Length > 0)
+        //        //        {
+        //        //            foreach (var light in hl)
+        //        //                if (light.type == LightType.Spot && light.transform.name != "Center Light")
+        //        //                {
+        //        //                    var go = new GameObject($"Light Dummy for {light.name}");
+        //        //                    go.transform.parent = light.transform.parent;
+        //        //                    go.transform.localPosition = light.transform.localPosition;
+        //        //                    go.transform.localRotation = light.transform.localRotation;
+        //        //                    Log.Write($"Reparenting light {light} to {go}");
+        //        //                    light.transform.parent = go.transform;
+        //        //                    light.transform.localPosition = Vector3.zero;
+        //        //                    light.transform.localRotation = Quaternion.identity;
+        //        //                    light.transform.name = light.name = "VolumetricLight";
+
+        //        //                    headLights.Add(new VehicleFloodLight
+        //        //                    {
+        //        //                        Angle = light.spotAngle,
+        //        //                        Color = light.color,
+        //        //                        Intensity = light.intensity,
+        //        //                        Light = go,
+        //        //                        Range = light.range
+        //        //                    });
+        //        //                }
+        //        //        }
+        //        //    }
+        //        //    catch (Exception ex)
+        //        //    {
+        //        //        Log.Write("HeadLights", ex);
+        //        //    }
+        //        //    Log.Write($"Returning {headLights.Count} headlight(s)");
+        //        //}
+        //        return headLights;
+
+        //    }
+
+        //}
+
+        //public override List<VehiclePilotSeat> PilotSeats
+        //{
+        //    get
+        //    {
+        //        var rs = new List<VehiclePilotSeat>();
+        //        var cockpit = transform.Find("Cockpit");
+        //        if (!cockpit)
+        //        {
+        //            Log.Write("Cockpit not found");
+        //            return rs;
+        //        }
+        //        var entries = transform.Find("Interior/Entries");
+        //        foreach (var entry in entries.GetChildren())
+        //        {
+        //            var cockpitExit = entry.Find($"Exit");
+        //            if (!cockpitExit)
+        //            {
+        //                Log.Write($"Cockpit exit not found for {entry.NiceName()}");
+        //                continue;
+        //            }
+        //            rs.Add(new VehiclePilotSeat
+        //            {
+        //                Seat = entry.gameObject,
+        //                SitLocation = cockpit.gameObject,
+        //                ExitLocation = cockpitExit,
+        //                LeftHandLocation = cockpit,
+        //                RightHandLocation = cockpit,
+        //            });
+        //        }
+        //        return rs;
+        //    }
+        //}
+
+
+        //public override List<GameObject> TetherSources
+        //{
+        //    get
+        //    {
+        //        if (tetherSources is null)
+        //        {
+        //            tetherSources = new List<GameObject>();
+        //            var tether = transform.Find("Tether");
+        //            if (!tether)
+        //            {
+
+        //                Log.Error("Tether not found. No tethers will be defined");
+
+        //            }
+        //            else
+        //            {
+        //                foreach (Transform trans in tether)
+        //                {
+        //                    var t = trans.GetComponent<SphereCollider>();
+        //                    if (!t)
+        //                    {
+        //                        Log.Error($"Tether {trans} does not hace a sphere collider");
+        //                        continue;
+        //                    }
+        //                    t.radius = t.transform.localScale.x;
+        //                    t.transform.localScale = Vector3.one;
+        //                    tetherSources.Add(t.gameObject);
+        //                }
+        //                Log.Write($"Recorded {tetherSources.Count} tether source(s)");
+        //            }
+
+        //        }
+        //        return tetherSources;
+        //    }
+        //}
 
     }
 
