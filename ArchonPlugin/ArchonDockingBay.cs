@@ -107,10 +107,28 @@ namespace Subnautica_Archon
             }
             else if (currentDockedVehicle is ModVehicle)
             {
-                HeadLightsController headlights = (currentDockedVehicle as ModVehicle).headlights;
+                HeadLightsController headlights = (currentDockedVehicle as ModVehicle).HeadlightsController;
                 if (headlights.IsLightsOn)
                 {
-                    (currentDockedVehicle as ModVehicle).headlights.Toggle();
+                    (currentDockedVehicle as ModVehicle).HeadlightsController.Toggle();
+                }
+            }
+            else
+            {
+                var headlights = FieldAdapter.OfPublic<Object>(currentDockedVehicle, "headlights");
+                if (headlights.IsValid)
+                {
+                    PropertyAdapter<bool> isOn = PropertyAdapter.OfPublic<bool>(headlights.Value, "IsLightsOn");
+                    if (isOn.IsValid && isOn.Value)
+                    {
+                        MethodAdapter toggleMethod = new MethodAdapter(headlights.Value, "Toggle", ignoreMissing: true);
+                        toggleMethod.Invoke();
+                        var toggle = FieldAdapter.OfPublic<bool>(headlights.Value, "isOn");
+                        if (toggle.IsValid && toggle.Value)
+                        {
+                            toggle.Set(false);
+                        }
+                    }
                 }
             }
         }

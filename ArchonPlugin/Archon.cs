@@ -1,7 +1,7 @@
 ﻿using AVS;
 using AVS.Composition;
 using AVS.Configuration;
-using AVS.Engines;
+using AVS.Interfaces;
 using AVS.Util;
 using AVS.VehicleComponents;
 using AVS.VehicleParts;
@@ -14,6 +14,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -25,14 +26,14 @@ namespace Subnautica_Archon
 
 
 
-    public class Archon : Submarine, IPowerListener, IProtoTreeEventListener
+    public class Archon : Submarine, IPowerListener, IProtoTreeEventListener, IAutopilotEventListener
     {
         public static GameObject staticModel;
         private ArchonControl control;
         public ArchonControl Control => control;
 
-        public static readonly Color defaultBaseColor = new Color(0xDE, 0xDE, 0xDE) / 255f;
-        public static readonly Color defaultStripeColor = new Color(0x3F, 0x4C, 0x7A) / 255f;
+        public static readonly VehicleColor defaultBaseColor = new VehicleColor(new Color(0xDE, 0xDE, 0xDE) / 255f);
+        public static readonly VehicleColor defaultStripeColor = new VehicleColor(new Color(0x3F, 0x4C, 0x7A) / 255f);
 
         //private List<GameObject> tetherSources;
         //tracks true if vehicle death was ever determined. Can't enter in this state
@@ -41,14 +42,16 @@ namespace Subnautica_Archon
         private float deathAge;
         //private MyLogger Log { get; }
         private MassDrive engine;
-        private AutoPilot autopilot;
         private EnergyInterface energyInterface;
         private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
 
         private bool clippingWater;
 
+        private VoiceLibrary voiceLibrary;
+
         public Archon() : base(new VehicleConfiguration(
             maxHealth: 20000,
+            mass: 20000,
             numModules: 8,
             craftingSprite: craftingSprite,
             pingSprite: pingSprite,
@@ -59,12 +62,16 @@ namespace Subnautica_Archon
             canLeviathanGrab: false,
             canMoonpoolDock: false,
             pilotingStyle: PilotingStyle.Other,
-            recipe: new RecipeBuilder()
-                .Add(TechType.PowerCell, 1)
-                .Add(TechType.AdvancedWiringKit, 2)
-                .Add(TechType.Diamond, 2)
-                .Add(TechType.PlasteelIngot, 4)
-                .Build()
+            recipe: NewRecipe
+                .StartWith(TechType.PowerCell, 1)
+                .Include(TechType.AdvancedWiringKit, 2)
+                .Include(TechType.Diamond, 2)
+                .Include(TechType.PlasteelIngot, 4)
+                .Done(),
+            getVoiceSoundVolume: () => MainPatcher.PluginConfig.voiceVolumePercent / 100f
+            / 5 //the archon uses a shitload of tethers and each is a player in VF/AVS
+            ,
+            getVoiceSubtitlesEnabled: () => MainPatcher.PluginConfig.showVoiceSubtitles
         ))
         {
             //Log = new MyLogger(this);
@@ -93,12 +100,12 @@ namespace Subnautica_Archon
         public override void OnFinishedLoading()
         {
             base.OnFinishedLoading();
-            Log.Write($"Comparing colors {baseColor} and {stripeColor}");
-            if (baseColor == Color.white && stripeColor == Color.white)
+            Log.Write($"Comparing colors {BaseColor} and {StripeColor}");
+            if (BaseColor == VehicleColor.Default && StripeColor == VehicleColor.Default)
             {
-                Log.Write($"Resetting white {VehicleName}");
-                SetBaseColor(Vector3.zero, defaultBaseColor);
-                SetStripeColor(Vector3.zero, defaultStripeColor);
+                Log.Write($"Resetting default color {VehicleName}");
+                SetBaseColor(defaultBaseColor);
+                SetStripeColor(defaultStripeColor);
             }
         }
 
@@ -177,8 +184,8 @@ namespace Subnautica_Archon
         public override void SubConstructionComplete()
         {
             base.SubConstructionComplete();
-            SetBaseColor(Vector3.zero, defaultBaseColor);
-            SetStripeColor(Vector3.zero, defaultStripeColor);
+            SetBaseColor(defaultBaseColor);
+            SetStripeColor(defaultStripeColor);
         }
 
         public override void Awake()
@@ -202,15 +209,7 @@ namespace Subnautica_Archon
 
             onToggle += OnQuickbarToggle;
 
-            var existing = GetComponent<VFEngine>();
-            if (existing != null)
-            {
-                Log.Write($"Removing existing vfEngine {existing}");
-                //HierarchyAnalyzer analyzer = new HierarchyAnalyzer();
-                Destroy(existing);
-            }
-            VFEngine = Engine = engine = gameObject.AddComponent<MassDrive>();
-            Log.Write($"Assigned new engine");
+
 
             control = GetComponent<ArchonControl>();
             control.freeCamera = MainPatcher.PluginConfig.defaultToFreeCamera;
@@ -391,24 +390,23 @@ namespace Subnautica_Archon
                 isInitialized = true;
                 try
                 {
-                    autopilot = GetComponentInChildren<AutoPilot>();
 
-                    if (autopilot)
-                    {
-                        //"Airon" - weird, partially indecipherable low energy voice
-                        //"Chels-E" - high-pitched panicky
-                        //"Mikjaw"/"Salli" - just bad
-                        //"Turtle" - missing?
-                        //autopilot.apVoice.voice = VoiceManager.GetVoice("Salli");
+                    //if (autopilot)
+                    //{
+                    //    //"Airon" - weird, partially indecipherable low energy voice
+                    //    //"Chels-E" - high-pitched panicky
+                    //    //"Mikjaw"/"Salli" - just bad
+                    //    //"Turtle" - missing?
+                    //    //autopilot.apVoice.voice = VoiceManager.GetVoice("Salli");
 
-                        //var source = autopilot.apVoice.voice;
-                        var source = VoiceManager.GetVoice("ShirubaFoxy");
-                        autopilot.apVoice.voice = Helper.Clone(source);
-                        autopilot.apVoice.voice.PowerLow = null;
-                        autopilot.apVoice.voice.BatteriesNearlyEmpty = null;
-                        autopilot.apVoice.voice.UhOh = null;
+                    //    //var source = autopilot.apVoice.voice;
+                    //    //var source = VoiceManager.GetVoice("ShirubaFoxy");
+                    //    //autopilot.apVoice.voice = Helper.Clone(source);
+                    //    //autopilot.apVoice.voice.PowerLow = null;
+                    //    //autopilot.apVoice.voice.BatteriesNearlyEmpty = null;
+                    //    //autopilot.apVoice.voice.UhOh = null;
 
-                    }
+                    //}
 
                     energyInterface = GetComponent<EnergyInterface>();
                     control = GetComponent<ArchonControl>();
@@ -451,25 +449,25 @@ namespace Subnautica_Archon
         }
 
 
-        public override void SetBaseColor(Vector3 hsb, Color color)
+        public override void SetBaseColor(VehicleColor color)
         {
             Log.Write($"Updating sub base color to {color}");
-            base.SetBaseColor(hsb, color);
+            base.SetBaseColor(color);
 
             var listeners = GetComponentsInChildren<IColorListener>();
             foreach (var listener in listeners)
-                listener.SetColors(baseColor, stripeColor);
+                listener.SetColors(BaseColor.RGB, StripeColor.RGB);
 
         }
 
-        public override void SetStripeColor(Vector3 hsb, Color color)
+        public override void SetStripeColor(VehicleColor color)
         {
             Log.Write($"Updating sub stripe color to {color}");
-            base.SetStripeColor(hsb, color);
+            base.SetStripeColor(color);
 
             var listeners = GetComponentsInChildren<IColorListener>();
             foreach (var listener in listeners)
-                listener.SetColors(baseColor, stripeColor);
+                listener.SetColors(BaseColor.RGB, StripeColor.RGB);
         }
 
 
@@ -498,7 +496,7 @@ namespace Subnautica_Archon
         {
             Log.Write(nameof(PlayerEntry));
             control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended || !hadUnpausedFrame);
-            pingInstance.SetHudIcon(false);
+            HudPingInstance.SetHudIcon(false);
 
             base.PlayerEntry();
         }
@@ -506,7 +504,7 @@ namespace Subnautica_Archon
         public override void PlayerExit()
         {
             base.PlayerExit();
-            pingInstance.SetHudIcon(true);
+            HudPingInstance.SetHudIcon(true);
             control.Exit();
 
         }
@@ -724,7 +722,7 @@ namespace Subnautica_Archon
                         * effective //if clamped, cost less
                         ;
 
-                    powerMan.TrySpendEnergy(energyDemand);
+                    PowerManager.TrySpendEnergy(energyDemand);
 
 
                     var actuallyHealed = clamped;
@@ -898,10 +896,10 @@ namespace Subnautica_Archon
                 //    Player.main.playerController.ForceControllerSize();
                 //}
 
-                if (baseColor != Color.black)
-                    nonBlackBaseColor = baseColor;
-                if (stripeColor != Color.black)
-                    nonBlackStripeColor = stripeColor;
+                if (BaseColor.RGB != Color.black)
+                    nonBlackBaseColor = BaseColor.RGB;
+                if (StripeColor.RGB != Color.black)
+                    nonBlackStripeColor = StripeColor.RGB;
 
                 //MaterialFixer.OnUpdate();
 
@@ -1131,6 +1129,11 @@ namespace Subnautica_Archon
 
         public override SubmarineComposition GetSubmarineComposition()
         {
+            voiceLibrary = transform.GetComponentInChildren<VoiceLibrary>();
+            if (!voiceLibrary)
+            {
+                Log.Error("Voice library not found. Autopilot will not have a voice");
+            }
             var hatches = transform.Find("Hatches");
             var hatchList = new List<VehicleHatchStruct>();
             if (hatches)
@@ -1293,9 +1296,12 @@ namespace Subnautica_Archon
                 Log.Write($"Recorded {tetherSources.Count} tether source(s)");
             }
 
+            Log.Write($"Assigned new engine");
+            engine = gameObject.EnsureComponent<MassDrive>();
 
 
             return new SubmarineComposition(
+                    engine: engine,
                     hatches: hatchList,
                     collisionModel: transform.Find("CollisionModel").GetGameObject(),
                     boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
@@ -1312,6 +1318,182 @@ namespace Subnautica_Archon
 
 
 
+        }
+
+        void IAutopilotEventListener.Signal(AutopilotEvent autopilotEvent)
+        {
+            Log.Write($"Received autopilot event {autopilotEvent}");
+            if (!voiceLibrary)
+                return;
+            switch (autopilotEvent)
+            {
+                case AutopilotEvent.PowerUp:
+                    Log.Write("Powering up");
+                    OnPowerUp();
+                    break;
+                case AutopilotEvent.PowerDown:
+                    Log.Write("Powering down");
+                    OnPowerDown();
+                    break;
+                case AutopilotEvent.PlayerEntry:
+                    {
+                        var voices = voiceLibrary.GetRandomWelcome(out var isCombined).ToList();
+                        List<float> gaps = new List<float>();
+
+                        if (voices != null)
+                        {
+                            for (int i = 0; i + 1 < voices.Count; i++)
+                            {
+                                gaps.Add(0.1f);
+                            }
+                            if (Autopilot.HealthStatus == AutopilotStatus.HealthSafe
+                                && Autopilot.PowerStatus == AutopilotStatus.PowerSafe
+                                && Autopilot.DepthStatus == AutopilotStatus.DepthSafe
+
+                                )
+                            {
+                                if (!isCombined) //combined welcome does not blend well with status green voice
+                                {
+                                    gaps.Add(1);
+                                    voices.Add(voiceLibrary.GetRandomAllSystemsGreen());
+                                }
+                            }
+                            else
+                            {
+                                gaps.Add(1);
+                                switch (Autopilot.HealthStatus)
+                                {
+                                    case AutopilotStatus.HealthCritical:
+                                        voices.Add(voiceLibrary.GetRandomHealthCritical());
+                                        break;
+                                    case AutopilotStatus.HealthLow:
+                                        voices.Add(voiceLibrary.GetRandomHealthLow());
+                                        break;
+                                }
+                                switch (Autopilot.PowerStatus)
+                                {
+                                    case AutopilotStatus.PowerCritical:
+                                        voices.Add(voiceLibrary.GetRandomPowerCritical());
+                                        break;
+                                    case AutopilotStatus.PowerLow:
+                                        voices.Add(voiceLibrary.GetRandomPowerLow());
+                                        break;
+                                }
+                                switch (Autopilot.DepthStatus)
+                                {
+                                    case AutopilotStatus.DepthBeyondCrush:
+                                        voices.AddRange(voiceLibrary.GetRandomDepthCritical());
+                                        break;
+                                    case AutopilotStatus.DepthNearCrush:
+                                        voices.Add(voiceLibrary.GetRandomDepthDangerous());
+                                        break;
+                                }
+                            }
+                            VoiceQueue.Play(new VoiceLine(voices, gaps, "voiceWelcome", 0));
+                        }
+                        else
+                            Log.Error("Voice for PlayerEntry not found");
+                    }
+                    break;
+            }
+        }
+
+        void IAutopilotEventListener.Signal(AutopilotStatusChange statusChange)
+        {
+            if (!voiceLibrary)
+                return;
+            switch (statusChange.NewStatus)
+            {
+                case AutopilotStatus.DepthNearCrush:
+                    if (statusChange.PreviousStatus < AutopilotStatus.DepthNearCrush)
+                    {
+                        var voice = voiceLibrary.GetRandomDepthDangerous();
+                        if (voice)
+                        {
+                            VoiceQueue.Play(new VoiceLine(voice, "voiceDepthDangerous", 1));
+                        }
+                        else
+                            Log.Error("Voice for DepthNearCrush not found");
+                    }
+                    break;
+                case AutopilotStatus.DepthBeyondCrush:
+                    if (statusChange.PreviousStatus < AutopilotStatus.DepthBeyondCrush)
+                    {
+                        var voices = voiceLibrary.GetRandomDepthCritical();
+                        if (voices != null)
+                        {
+                            VoiceQueue.Play(new VoiceLine(voices, null, "voiceDepthCritical", 2));
+                        }
+                        else
+                            Log.Error("Voice for DepthBeyondCrush not found");
+                    }
+                    break;
+                case AutopilotStatus.HealthCritical:
+                    if (statusChange.PreviousStatus < AutopilotStatus.HealthCritical)
+                    {
+                        var voice = voiceLibrary.GetRandomHealthCritical();
+                        if (voice)
+                        {
+                            VoiceQueue.Play(new VoiceLine(voice, "voiceHealthCritical", 2));
+                        }
+                        else
+                            Log.Error("Voice for HealthCritical not found");
+                    }
+                    break;
+                case AutopilotStatus.HealthLow:
+                    if (statusChange.PreviousStatus < AutopilotStatus.HealthLow)
+                    {
+                        var voice = voiceLibrary.GetRandomHealthLow();
+                        if (voice)
+                        {
+                            VoiceQueue.Play(new VoiceLine(voice, "voiceHealthLow", 1));
+                        }
+                        else
+                            Log.Error("Voice for HealthLow not found");
+                    }
+                    break;
+                case AutopilotStatus.LeviathanNearby:
+                    //if (statusChange.PreviousStatus < AutopilotStatus.LeviathanNearby)
+                    //{
+                    //    var voice = voiceLibrary.GetRandomLeviathanNearby();
+                    //    if (voice)
+                    //    {
+                    //        VoiceQueue.Play(new VoiceLine(voice, "voiceLeviathanNearby", 1));
+                    //    }
+                    //    else
+                    //        Log.Error("Voice for LeviathanNearby not found");
+                    //}
+                    break;
+                case AutopilotStatus.PowerLow:
+                    if (statusChange.PreviousStatus < AutopilotStatus.PowerLow)
+                    {
+                        var voice = voiceLibrary.GetRandomPowerLow();
+                        if (voice)
+                        {
+                            VoiceQueue.Play(new VoiceLine(voice, "voicePowerLow", 1));
+                        }
+                        else
+                            Log.Error("Voice for PowerLow not found");
+                    }
+                    break;
+                case AutopilotStatus.PowerCritical:
+                case AutopilotStatus.PowerDead:
+                    if (statusChange.PreviousStatus < AutopilotStatus.PowerCritical)
+                    {
+                        var voice = voiceLibrary.GetRandomPowerCritical();
+                        if (voice)
+                        {
+                            VoiceQueue.Play(new VoiceLine(voice, "voicePowerCritical", 2));
+                        }
+                        else
+                            Log.Error("Voice for PowerCritical not found");
+                    }
+                    break;
+                default:
+                    Log.Error($"Unknown autopilot status {statusChange.NewStatus}");
+                    break;
+            }
+            Log.Write($"Received autopilot status change: {statusChange.PreviousStatus} -> {statusChange.NewStatus}");
         }
 
 

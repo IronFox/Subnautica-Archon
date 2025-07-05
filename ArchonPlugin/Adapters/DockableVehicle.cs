@@ -104,11 +104,19 @@ namespace Subnautica_Archon.Adapters
             Vehicle.crushDamage.enabled = false;
             if (Vehicle is ModVehicle mv)
             {
-                mv.pingInstance.SetHudIcon(false);
+                mv.HudPingInstance.SetHudIcon(false);
                 mv.OnVehicleDocked(Vector3.zero);
             }
             else
+            {
+                var pingInstance = FieldAdapter.OfPublic<Object>(Vehicle, "pingInstance");
+                if (pingInstance.IsValid)
+                {
+                    var setHudIcon = new MethodAdapter<bool>(pingInstance.Value, "SetHudIcon");
+                    setHudIcon.Invoke(false);
+                }
                 Vehicle.subName.pingInstance.SetHudIcon(false);
+            }
         }
 
 

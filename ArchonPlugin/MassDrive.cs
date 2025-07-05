@@ -1,16 +1,15 @@
-﻿using Subnautica_Archon.Util;
+﻿using AVS.Engines;
+using Subnautica_Archon.Util;
 using UnityEngine;
-using AVS.Engines;
 
 namespace Subnautica_Archon
 {
-    public class MassDrive : ModVehicleEngine
+    public class MassDrive : AbstractEngine
     {
         private MyLogger Log { get; }
         public MassDrive()
         {
             Log = new MyLogger(this);
-            RB.drag = 0;
             AngularDrag = 1;
         }
 
@@ -28,13 +27,14 @@ namespace Subnautica_Archon
 
         public override void Awake()
         {
-            WhistleFactor = 1.5f;
+            //WhistleFactor = 1.5f;
             base.Awake();
         }
         public override void Start()
         {
             base.Start();
             RB.angularDrag = 1;
+            //RB.drag = 0;
         }
         public override void ControlRotation()
         {
@@ -69,14 +69,11 @@ namespace Subnautica_Archon
             return moveInput;
         }
 
-        protected override void DoEngineSounds(Vector3 moveDirection)
-        {
-            base.DoEngineSounds(GetEffectiveMoveInput(moveDirection));
-        }
+
 
         public override void DrainPower(Vector3 moveDirection)
         {
-            if (!MV || !MV.powerMan)
+            if (!MV || !MV.PowerManager)
                 return;
             moveDirection = GetEffectiveMoveInput(moveDirection);
             float energyNeeded = lastDrainPerSecond = M.Sqr(moveDirection) * (
@@ -84,9 +81,9 @@ namespace Subnautica_Archon
                 //+
                 //1f * overdriveActive /** M.Sqr(BoostRelative)*/
                 );
-            
+
             var neededNow = energyNeeded * Time.fixedDeltaTime;
-            var drained = Mathf.Abs(MV.powerMan.TrySpendEnergy(neededNow));
+            var drained = Mathf.Abs(MV.PowerManager.TrySpendEnergy(neededNow));
             //insufficientPower = drained < neededNow * 0.8f;
         }
 

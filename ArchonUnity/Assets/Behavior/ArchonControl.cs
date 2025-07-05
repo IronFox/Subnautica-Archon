@@ -903,6 +903,15 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
+            if (outOfWater)
+            {
+                drag.density = 0.01f;
+            }
+            else
+            {
+                drag.density = 0.5f;
+            }
+
             forceAutoLevelInSeconds -= Time.deltaTime;
             if (forceAutoLevelInSeconds < 0)
             {

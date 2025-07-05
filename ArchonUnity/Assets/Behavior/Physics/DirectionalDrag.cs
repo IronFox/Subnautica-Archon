@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DirectionalDrag : MonoBehaviour
 {
@@ -10,7 +8,7 @@ public class DirectionalDrag : MonoBehaviour
     private Rigidbody rb;
     public float density = 0.1f;
     private Vector3 dragCoefficient = M.V3(0.7f, 0.7f, 0.1f);
-    private Vector3 linearDrag = M.V3(3f, 3f, 0.5f)*10000f;
+    private Vector3 linearDrag = M.V3(3f, 3f, 0.5f) * 10000f;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,12 +18,13 @@ public class DirectionalDrag : MonoBehaviour
     void FixedUpdate()
     {
         //D = Cd * A * .5 * r * V^2
-        var surfaceArea = M.Mult(entireBoundingBox.size, entireBoundingBox.size)*0.3f;
+        var surfaceArea = M.Mult(entireBoundingBox.size, entireBoundingBox.size) * 0.3f;
         surfaceArea = M.V3(M.Max(surfaceArea.x, surfaceArea.y), M.Max(surfaceArea.x, surfaceArea.y), surfaceArea.z);    //x=y, less weirdness
-        var localVelocity = transform.InverseTransformDirection(rb.velocity);
+        var was = rb.velocity;
+        var localVelocity = transform.InverseTransformDirection(was);
         var quadtraticLocalDragForce = M.Mult(localVelocity, localVelocity, surfaceArea, dragCoefficient) * density * 0.5f;
-        var linearLocalDragForce = M.Mult(localVelocity,linearDrag)* density;
-        var newVelocity = localVelocity.Combine(linearLocalDragForce, quadtraticLocalDragForce , (v,l, q) =>
+        var linearLocalDragForce = M.Mult(localVelocity, linearDrag) * density;
+        var newVelocity = localVelocity.Combine(linearLocalDragForce, quadtraticLocalDragForce, (v, l, q) =>
         {
             bool neg = v < 0;
             if (neg)
@@ -35,7 +34,7 @@ public class DirectionalDrag : MonoBehaviour
             }
 
 
-            float a = (l+q) / rb.mass * Time.fixedDeltaTime;
+            float a = (l + q) / rb.mass * Time.fixedDeltaTime;
             if (v > a)
                 v -= a;
             else
@@ -44,9 +43,11 @@ public class DirectionalDrag : MonoBehaviour
                 v = -v;
             return v;
         });
-        rb.velocity = transform.TransformDirection(newVelocity);
-        
+        var shouldBe = transform.TransformDirection(newVelocity);
+        rb.velocity = shouldBe;
 
+
+        //Debug.Log($"Local Velocity on rb {rb.NiceName()}: {was} -> {shouldBe} = {rb.velocity}");
 
         //rb.AddRelativeForce(-dragForce, ForceMode.Force);
         //Debug.Log(linearLocalDragForce);
@@ -63,6 +64,6 @@ public class DirectionalDrag : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-     
+
     }
 }

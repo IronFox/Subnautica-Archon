@@ -3275,6 +3275,7 @@ GameObject:
   - component: {fileID: 3010197581539057995}
   - component: {fileID: 3915497370116965259}
   - component: {fileID: 7197353428443423573}
+  - component: {fileID: 7575533074063423364}
   - component: {fileID: 8663703723239713063}
   - component: {fileID: 724242510189758999}
   - component: {fileID: 5416333051625933279}
@@ -3397,6 +3398,89 @@ MonoBehaviour:
   trailSpaceCameraContainer: {fileID: 8579245659820934697}
   seat: {fileID: 298617565316992339}
   statusConsole: {fileID: 5266262755269866574}
+--- !u!114 &7575533074063423364
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2489802767637445617}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac78af4924cef394688f41ee807604e5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageDetected:
+  - {fileID: 8300000, guid: 81485695f5f7c894ea27718453d9ec7e, type: 3}
+  - {fileID: 8300000, guid: 84291e3ad27980b47be5df1d9a4af3b1, type: 3}
+  - {fileID: 8300000, guid: 46adc331d43f81545816c7c1f38b2c26, type: 3}
+  - {fileID: 8300000, guid: 5ee84c85479e38849969eee65c0780a9, type: 3}
+  depthCriticalPost:
+  - {fileID: 8300000, guid: 356e1fa2c75b1c74abe54ca658ac2fea, type: 3}
+  - {fileID: 8300000, guid: 4da65ea14b167454eb2a9a1fa2d54119, type: 3}
+  depthCriticalPre:
+  - {fileID: 8300000, guid: 921ff135a005c88489b9a7ab741e1efe, type: 3}
+  - {fileID: 8300000, guid: 8738d09caa62a6847a24c6576e5524ee, type: 3}
+  depthDangerous:
+  - {fileID: 8300000, guid: 79c4cd777c8468d499c5252bd5ae05d1, type: 3}
+  - {fileID: 8300000, guid: d1dfbf1098c8ad644bfb09e4c7b5248f, type: 3}
+  - {fileID: 8300000, guid: 0e0fea068f4e543459b1892685b51dd1, type: 3}
+  - {fileID: 8300000, guid: ddc0763a5fdd2ec478dc658e2bf3c98f, type: 3}
+  - {fileID: 8300000, guid: 6c3d2b165af0eed45a00eccdb32e1093, type: 3}
+  emergencyRepair:
+  - {fileID: 8300000, guid: 2461180133b42504db5a1574cea67672, type: 3}
+  - {fileID: 8300000, guid: 72f55e5e34659b34d927015db1478293, type: 3}
+  - {fileID: 8300000, guid: fd64668a6a61b2446b1244b1020bc7ef, type: 3}
+  healthCritical:
+  - {fileID: 8300000, guid: 633832f2c9977fa41b1653d248a56cb3, type: 3}
+  - {fileID: 8300000, guid: fb9bfb69e6d0a2846b56e80c94c04571, type: 3}
+  healthLow:
+  - {fileID: 8300000, guid: f46c8277334bdf845b710ebc3a88a784, type: 3}
+  - {fileID: 8300000, guid: cf50791a20149d647a8c0e8c3df1ad44, type: 3}
+  - {fileID: 8300000, guid: 318bada18084d75459604347d5d81961, type: 3}
+  - {fileID: 8300000, guid: 57ff36f13c73fdb4a87c36d669188c2d, type: 3}
+  mobilitySuspended:
+  - {fileID: 8300000, guid: 5d7aa4cd463a0574fb60a3593d927c1a, type: 3}
+  - {fileID: 8300000, guid: 8d836ff4972a1d84f92099730fd86998, type: 3}
+  - {fileID: 8300000, guid: dd731ce98ba920b4b9022af9ea1a9503, type: 3}
+  - {fileID: 8300000, guid: b38494fd7e39cd24db0af1322f588cf1, type: 3}
+  - {fileID: 8300000, guid: 2a77e501f711b6c4db0598cee7181b42, type: 3}
+  mobilitySuspendedRepair:
+  - {fileID: 8300000, guid: 9aa4123c62731234da70d0da5b9d6d56, type: 3}
+  powerCritical:
+  - {fileID: 8300000, guid: e5ea660ece6f3c54888d01d5bc090c24, type: 3}
+  - {fileID: 8300000, guid: 1b324f5277aded34cad5faebc4cc6910, type: 3}
+  - {fileID: 8300000, guid: 76072ed8f58077b4cb41597c995514a9, type: 3}
+  powerLow:
+  - {fileID: 8300000, guid: 9b1bf1de3f724a246b5c6c38b34daa2a, type: 3}
+  - {fileID: 8300000, guid: b450fce6fd7c92a48a2599e5f905975f, type: 3}
+  - {fileID: 8300000, guid: 242122bbf0047814cafe80d2c593d063, type: 3}
+  prepareTeleport:
+  - {fileID: 8300000, guid: 12c0091769b7ab64db6a14e2fc7b2232, type: 3}
+  - {fileID: 8300000, guid: 75f317a64f481fc4685c4521a6ae6419, type: 3}
+  - {fileID: 8300000, guid: 47827c75a1f5f334d950f555bd3cb71e, type: 3}
+  - {fileID: 8300000, guid: 56d5287602cc6fb4db282929f8d73187, type: 3}
+  teleport:
+  - {fileID: 8300000, guid: 1480cda54a806e44590264587f1bf90c, type: 3}
+  - {fileID: 8300000, guid: abb84de1e21d2ce4cb51a32dda9325ad, type: 3}
+  allSystemsGreen:
+  - {fileID: 8300000, guid: 8a90703f1f5133f4eb83b8260353cb22, type: 3}
+  - {fileID: 8300000, guid: b72704f027fb7654e8e832178a942f38, type: 3}
+  - {fileID: 8300000, guid: 4ea15f280fa430c469a8f6ddd90f3517, type: 3}
+  - {fileID: 8300000, guid: 4c71926f33153434299e9ff95c02a4cd, type: 3}
+  welcomePre:
+  - {fileID: 8300000, guid: 238fc741283e7244e8db19a7dadbbe73, type: 3}
+  - {fileID: 8300000, guid: 1f28d2b456e60e14886da8ecc19161eb, type: 3}
+  - {fileID: 8300000, guid: 7df10ef13e0dfaa428f8f228634acb25, type: 3}
+  - {fileID: 8300000, guid: 86e09760f34cfa34a8867989c541e32c, type: 3}
+  - {fileID: 8300000, guid: 7ba9dc09ae49eeb49ad5f8a367efd261, type: 3}
+  welcomePost:
+  - {fileID: 8300000, guid: 4e25c9ba742368f4f9c7b77fc012f70a, type: 3}
+  - {fileID: 8300000, guid: d9fc67de7fa4fb249a1411de912502ac, type: 3}
+  - {fileID: 8300000, guid: d38004faec1d0434991712d907b62eeb, type: 3}
+  - {fileID: 8300000, guid: 70d24a94158a7f345911b55b065d7298, type: 3}
+  welcomeCombined:
+  - {fileID: 8300000, guid: 832e4223764d71241b4a9d9dd5d99d69, type: 3}
 --- !u!114 &8663703723239713063
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12999,12 +13083,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d30ddef2dcd175b44add9b8f2ea9d83e, type: 3}
---- !u!4 &2296000529629604880 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2365163742855130585, guid: d30ddef2dcd175b44add9b8f2ea9d83e,
-    type: 3}
-  m_PrefabInstance: {fileID: 4544052540214149577}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &5384714975113005428 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8481947192162732221, guid: d30ddef2dcd175b44add9b8f2ea9d83e,
@@ -13017,6 +13095,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5963bab8ea534ea4cb6e5f7f2fcf76f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &2296000529629604880 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2365163742855130585, guid: d30ddef2dcd175b44add9b8f2ea9d83e,
+    type: 3}
+  m_PrefabInstance: {fileID: 4544052540214149577}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5433361421505039848
 PrefabInstance:
   m_ObjectHideFlags: 0

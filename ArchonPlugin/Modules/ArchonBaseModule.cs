@@ -1,9 +1,9 @@
-﻿using Subnautica_Archon;
+﻿using AVS.UpgradeTypes;
+using Subnautica_Archon;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using AVS.UpgradeTypes;
 
 public abstract class ArchonBaseModule : ModVehicleUpgrade
 {
@@ -79,7 +79,7 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
             skipExosuit = true
         };
 
-        var type = AVS.Admin.UpgradeRegistrar.RegisterUpgrade(this, compat).forModVehicle;
+        var type = AVS.Admin.UpgradeRegistrar.RegisterUpgrade(this, compat).ForModVehicle;
         TechType = type;
         All[type] = this;
         AllReverse[Module] = type;

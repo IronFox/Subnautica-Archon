@@ -55,6 +55,11 @@ namespace Subnautica_Archon.Util
             log.LogError(message);
         }
 
+        public static void Exception(string prefix, Exception ex)
+        {
+            AVS.Logger.Exception(prefix, ex);
+        }
+
         public static void Write(Exception ex)
         {
             Debug.LogException(ex);

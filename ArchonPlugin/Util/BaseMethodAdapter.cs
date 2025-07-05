@@ -27,7 +27,7 @@ namespace Subnautica_Archon.Util
             }
             try
             {
-                Method = target.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, binder: null, parameterTypes, modifiers: null);
+                Method = target.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, binder: null, parameterTypes, modifiers: null);
                 if (Method is null)
                 {
                     if (!ignoreMissing)
@@ -64,7 +64,7 @@ namespace Subnautica_Archon.Util
 
     public class MethodAdapter : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing=false)
+        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
             : base(target, methodName, ignoreMissing, Array.Empty<Type>())
         {
 

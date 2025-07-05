@@ -1,7 +1,6 @@
-using Nautilus.Options.Attributes;
 using Nautilus.Json;
+using Nautilus.Options.Attributes;
 using UnityEngine;
-using System;
 
 [Menu("Archon Options")]
 public class ArchonConfig : ConfigFile
@@ -18,6 +17,10 @@ public class ArchonConfig : ConfigFile
     public bool flipFreeVerticalRotationInReverse = false;
     [Toggle("Default to Free Camera")]
     public bool defaultToFreeCamera = true;
+    [Slider(DefaultValue = 100, Format = "{0:F0} %", Label = "Voice Volume", LabelLanguageId = "optVoiceVolume", Min = 0, Max = 100, Step = 5)]
+    public float voiceVolumePercent = 100;
+    [Toggle("Show voice subtitles", LabelLanguageId = "optShowVoiceSubtitles")]
+    public bool showVoiceSubtitles = false;
 
     //[Toggle("Hold Sprint to Boost")]
     //public bool holdToBoost = false;
