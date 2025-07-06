@@ -37,14 +37,14 @@ namespace Subnautica_Archon.Util
 
     public readonly struct PropertyAdapter<T>
     {
-        public PropertyInfo Property { get; }
+        public PropertyInfo? Property { get; }
         public object Target { get; }
 
         public bool IsValid => Property != null && Target != null;
 
-        public PropertyAdapter(PropertyInfo property, object target)
+        public PropertyAdapter(PropertyInfo? property, object target)
         {
-            if (property.PropertyType != typeof(T))
+            if (property != null && property.PropertyType != typeof(T))
                 throw new ArgumentException($"PropertyAdapter is declared for type {typeof(T)} but property {property.Name} is of type {property.PropertyType}");
             Property = property;
             Target = target;
@@ -55,7 +55,7 @@ namespace Subnautica_Archon.Util
             Property?.SetValue(Target, value);
         }
 
-        public T Value => (T)(Property?.GetValue(Target) ?? default(T));
+        public T Value => (T)(Property?.GetValue(Target) ?? default(T)!);
 
         public static implicit operator T(PropertyAdapter<T> a) => a.Value;
     }

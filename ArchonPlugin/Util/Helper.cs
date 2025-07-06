@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Subnautica_Archon.Util
@@ -64,20 +61,6 @@ namespace Subnautica_Archon.Util
 
         public static string S(IEnumerable<string> source)
             => string.Join(", ", source);
-
-        public static Component FindComponentInChildren(Transform t, string componentTypeName)
-        {
-            var c = t.GetComponent(componentTypeName);
-            if (c != null)
-                return c;
-            for (int i = 0; i < t.childCount; i++)
-            {
-                c = FindComponentInChildren(t.GetChild(i), componentTypeName);
-                if (c != null)
-                    return c;
-            }
-            return null;
-        }
 
 
         public static T Clone<T>(T obj) where T : new()

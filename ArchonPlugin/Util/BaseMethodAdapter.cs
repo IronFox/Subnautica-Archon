@@ -7,7 +7,7 @@ namespace Subnautica_Archon.Util
     public class BaseMethodAdapter
     {
         public bool IsEmpty => Method is null || !Target;
-        protected MethodInfo Method { get; }
+        protected MethodInfo? Method { get; }
         protected UnityEngine.Object Target { get; }
 
 
@@ -41,7 +41,7 @@ namespace Subnautica_Archon.Util
             }
         }
 
-        protected void Invoke(params object[] p)
+        protected void Invoke(params object?[] p)
         {
             if (Method is null)
                 return;

@@ -22,7 +22,7 @@ namespace Subnautica_Archon.Adapters
             HasPlayer = Player.main.currentMountedVehicle == Vehicle && !Drone.IsOne(Vehicle);
             IsPlayerControlledDrone =
                 Drone.Access(Vehicle, out var d) &&
-                d.IsPlayerControlling();
+                d!.IsPlayerControlling();
             Mode = FieldAdapter.OfNonPublic<Player.Mode>(Player.main, "mode");
         }
         //private Logging Log { get; } = new Logging(false,"Dockable",true,true);
@@ -30,7 +30,7 @@ namespace Subnautica_Archon.Adapters
         public Archon Archon { get; }
         public bool HasPlayer { get; }
         public bool IsPlayerControlledDrone { get; }
-        private Transform FixParentTo { get; set; }
+        private Transform? FixParentTo { get; set; }
 
         public GameObject GameObject => Vehicle.gameObject;
         private int UpdateCounter { get; set; }
@@ -64,7 +64,7 @@ namespace Subnautica_Archon.Adapters
             if (Vehicle is ModVehicle mv)
                 mv.OnVehicleDocked(Vector3.zero);
             if (Drone.Access(Vehicle, out var d))
-                d.isAsleep = true;
+                d!.isAsleep = true;
 
             AddToQuickbar(true);
 
@@ -83,7 +83,7 @@ namespace Subnautica_Archon.Adapters
                 if (IsPlayerControlledDrone)
                 {
                     Log.Write($"Stopping drone control");
-                    d.StopControlling();
+                    d!.StopControlling();
 
                     Helper.ChangeAvatarInput(true);
                     if (!Player.main.ToNormalMode(false) && Mode != Player.Mode.Normal)
@@ -94,7 +94,7 @@ namespace Subnautica_Archon.Adapters
                     Player.main.playerController.SetEnabled(true);
                     Player.main.playerController.ForceControllerSize();
                 }
-                d.isAsleep = true;
+                d!.isAsleep = true;
             }
 
 
@@ -341,7 +341,7 @@ namespace Subnautica_Archon.Adapters
                 mv.OnVehicleUndocked();
 
             if (Drone.Access(Vehicle, out var d))
-                d.isAsleep = false;
+                d!.isAsleep = false;
             else
                 Helper.ChangeAvatarInput(true);
         }

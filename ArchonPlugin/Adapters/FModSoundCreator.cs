@@ -13,7 +13,7 @@ namespace Subnautica_Archon.Adapters
     {
         public float halfDistance = 20f;
         private static float Sqr(float value) => value * value;
-        public IInstantiatedSound Instantiate(SoundConfig cfg)
+        public IInstantiatedSound? Instantiate(SoundConfig cfg)
         {
 
             try
@@ -112,7 +112,7 @@ namespace Subnautica_Archon.Adapters
 
     internal class FModComponent : MonoBehaviour
     {
-        public FModSound sound;
+        public FModSound? sound;
 
         public void OnDestroy()
         {
@@ -122,10 +122,10 @@ namespace Subnautica_Archon.Adapters
 
         public void Update()
         {
-            if (!sound.Update(Time.deltaTime))
+            if (sound == null || !sound.Update(Time.deltaTime))
             {
+                Log.Error($"FModComponent.sound({sound?.Channel.handle}).Update() returned false. Self-destructing");
                 sound = null;//there is something going on in this case. better just unset and don't touch it
-                Log.Error($"FModComponent.sound({sound.Channel.handle}).Update() returned false. Self-destructing");
                 Destroy(this);
             }
         }

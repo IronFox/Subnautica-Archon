@@ -9,14 +9,14 @@ namespace Subnautica_Archon.Util
     public static class Log
     {
         private static readonly Logging log = new Logging(true, null, true, true);
-        public static string PathOf(Transform t)
+        public static string PathOf(Transform? t)
         {
-            if (!t)
+            if (t == null)
                 return "<null>";
             var parts = new List<string>();
             try
             {
-                while (t)
+                while (t != null)
                 {
                     parts.Add($"{t.name}[{t.GetInstanceID()}]");
                     t = t.parent;

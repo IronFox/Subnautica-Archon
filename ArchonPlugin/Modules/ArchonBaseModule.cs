@@ -9,13 +9,13 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
 {
     public CraftingNode? GroupNode { get; }
     public ArchonModule Module { get; }
-    private Atlas.Sprite icon;
+    private Atlas.Sprite? icon;
 
     public TechType TechType { get; private set; }
 
-    public List<CraftingNode> craftingPath;
+    public List<CraftingNode>? craftingPath;
 
-    public virtual IReadOnlyCollection<TechType> AutoDisplace { get; }
+    public virtual IReadOnlyCollection<TechType> AutoDisplace { get; } = Array.Empty<TechType>();
     public override string ClassId => $"Archon{Module}";
 
     public override string Description => Language.main.Get("desc_" + Module);
@@ -24,7 +24,7 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
     public static CraftingNode RootCraftingNode { get; } = new CraftingNode
     {
         displayName = $"Archon",
-        icon = Archon.craftingSprite,
+        icon = Archon.craftingSprite!,
         name = $"archonupgradetab"
     };
 
@@ -102,7 +102,7 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
         return TechType.None;
     }
 
-    public override List<CraftingNode> CraftingPath
+    public override List<CraftingNode>? CraftingPath
     {
         get => craftingPath;
         set => craftingPath = value;
@@ -163,6 +163,6 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
         archon.SetModuleCount(Module, GetNumberInstalled(archon));
     }
 
-    public override Atlas.Sprite Icon => icon ?? base.Icon;
+    public override Atlas.Sprite? Icon => icon ?? base.Icon;
 
 }

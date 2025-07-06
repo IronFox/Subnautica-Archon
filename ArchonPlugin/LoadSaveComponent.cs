@@ -4,17 +4,19 @@ namespace Subnautica_Archon
 {
     public class LoadSaveComponent : MonoBehaviour, IProtoTreeEventListener
     {
-        public ArchonControl control;
+        public ArchonControl? control;
 
 
         void IProtoTreeEventListener.OnProtoSerializeObjectTree(ProtobufSerializer serializer)
         {
-            control.PrepareForSaving();
+            if (control != null)
+                control.PrepareForSaving();
         }
 
         void IProtoTreeEventListener.OnProtoDeserializeObjectTree(ProtobufSerializer serializer)
         {
-            control.SignalLoading();
+            if (control != null)
+                control.SignalLoading();
         }
     }
 }

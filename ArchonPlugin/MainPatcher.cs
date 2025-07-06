@@ -21,7 +21,8 @@ namespace Subnautica_Archon
     [BepInDependency(Nautilus.PluginInfo.PLUGIN_GUID, Nautilus.PluginInfo.PLUGIN_VERSION)]
     public class MainPatcher : AVS.MainPatcher
     {
-        internal static ArchonConfig PluginConfig { get; private set; }
+        private static ArchonConfig? config;
+        internal static ArchonConfig PluginConfig => config ?? throw new NullReferenceException("ArchonConfig not initialized");
         internal const string WorkBenchTab = "Storage";
         internal static string RootFolder { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         internal static string ImagesFolder { get; } = Path.Combine(RootFolder, "images");
@@ -56,10 +57,10 @@ namespace Subnautica_Archon
                 base.Start();
                 Log.Write("MainPatcher.Start()");
                 LanguageHandler.RegisterLocalizationFolder();
-                PluginConfig = OptionsPanelHandler.RegisterModOptions<ArchonConfig>();
+                config = OptionsPanelHandler.RegisterModOptions<ArchonConfig>();
                 var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
                 harmony.PatchAll();
-                UWE.CoroutineHost.StartCoroutine(Register());
+                UWE.CoroutineHost.StartCoroutine(Register(Archon.staticModel!));
 
                 Log.Write("MainPatcher.Start() done");
             }
@@ -77,10 +78,10 @@ namespace Subnautica_Archon
             {
                 field.SetValue(copy, field.GetValue(original));
             }
-            return copy as T;
+            return (T)copy;
         }
 
-        public static Atlas.Sprite LoadSprite(string filename)
+        public static Atlas.Sprite? LoadSprite(string filename)
         {
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
             Log.Write($"Trying to load sprite from {path}");
@@ -94,7 +95,7 @@ namespace Subnautica_Archon
                 return null;
             }
         }
-        private static Sprite LoadSpriteRaw(string filename)
+        private static Sprite? LoadSpriteRaw(string filename)
         {
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
             Log.Write($"Trying to load sprite from {path}");
@@ -109,15 +110,15 @@ namespace Subnautica_Archon
             }
         }
 
-        public IEnumerator Register()
+        public IEnumerator Register(GameObject staticModel)
         {
-            Coroutine started = null;
+            Coroutine? started = null;
             try
             {
                 Log.Write("MainPatcher.Register()");
                 Log.Write("");
-                Log.Write("model loaded: " + Archon.staticModel.name);
-                var sub = Archon.staticModel.EnsureComponent<Archon>();
+                Log.Write("model loaded: " + staticModel.name);
+                var sub = staticModel.EnsureComponent<Archon>();
                 Log.Write("archon attached: " + sub.name);
 
                 Archon.craftingSprite = LoadSprite("images/archon.png");

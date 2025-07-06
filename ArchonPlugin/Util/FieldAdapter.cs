@@ -37,14 +37,14 @@ namespace Subnautica_Archon.Util
 
     public readonly struct FieldAdapter<T>
     {
-        public FieldInfo Field { get; }
+        public FieldInfo? Field { get; }
         public object Target { get; }
 
         public bool IsValid => Field != null && Target != null;
 
-        public FieldAdapter(FieldInfo field, object target)
+        public FieldAdapter(FieldInfo? field, object target)
         {
-            if (field.FieldType != typeof(T))
+            if (field != null && field.FieldType != typeof(T))
                 throw new ArgumentException($"FieldAdapter is declared for type {typeof(T)} but field {field.Name} is of type {field.FieldType}");
             Field = field;
             Target = target;
@@ -55,7 +55,7 @@ namespace Subnautica_Archon.Util
             Field?.SetValue(Target, value);
         }
 
-        public T Value => (T)(Field?.GetValue(Target) ?? default(T));
+        public T Value => (T)(Field?.GetValue(Target) ?? default(T)!);
 
         public static implicit operator T(FieldAdapter<T> a) => a.Value;
     }

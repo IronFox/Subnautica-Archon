@@ -13,7 +13,7 @@ namespace Subnautica_Archon.Util
             BindingFlags = bindingFlags;
         }
 
-        private MethodInfo _methodInfo;
+        private MethodInfo? _methodInfo;
         public string MethodName { get; }
         public BindingFlags BindingFlags { get; }
 
@@ -22,7 +22,7 @@ namespace Subnautica_Archon.Util
             if (target is null)
             {
                 Log.Error("Target object is null");
-                return default;
+                return default!;
             }
             if (_methodInfo is null)
             {
@@ -30,7 +30,7 @@ namespace Subnautica_Archon.Util
                 if (_methodInfo is null)
                 {
                     Log.Error($"Unable to find method {MethodName} on {target.GetType()}");
-                    return default;
+                    return default!;
                 }
             }
             try
@@ -38,7 +38,7 @@ namespace Subnautica_Archon.Util
                 if (typeof(ReturnType) == typeof(Void))
                 {
                     _methodInfo.Invoke(target, parameters);
-                    return default;
+                    return default!;
                 }
                 return (ReturnType)_methodInfo.Invoke(target, parameters);
             }
@@ -46,7 +46,7 @@ namespace Subnautica_Archon.Util
             {
                 Log.Error($"Failed to invoke method {MethodName} on {target}: {ex}");
                 Debug.LogException(ex);
-                return default;
+                return default!;
             }
         }
     }
@@ -58,8 +58,8 @@ namespace Subnautica_Archon.Util
             = new SimpleMethodHelper<bool>("IsPlayerControlling");
         private readonly SimpleMethodHelper<Void> _stopControlling
             = new SimpleMethodHelper<Void>("StopControlling");
-        private FieldInfo _isAsleepField;
-        private PropertyInfo _isAsleepProperty;
+        private FieldInfo? _isAsleepField;
+        private PropertyInfo? _isAsleepProperty;
         private Drone(Vehicle vehicle)
         {
             Vehicle = vehicle;
@@ -67,7 +67,7 @@ namespace Subnautica_Archon.Util
 
         public static bool IsOne(Vehicle vehicle)
             => ObjectHelper.IsDrone(vehicle);
-        public static bool Access(Vehicle vehicle, out Drone drone)
+        public static bool Access(Vehicle vehicle, out Drone? drone)
         {
             if (!ObjectHelper.IsDrone(vehicle))
             {
@@ -104,7 +104,7 @@ namespace Subnautica_Archon.Util
                     return false;
                 return _isAsleepField != null
                     ? (bool)_isAsleepField.GetValue(Vehicle)
-                    : (bool)_isAsleepProperty.GetValue(Vehicle);
+                    : (bool)_isAsleepProperty!.GetValue(Vehicle);
             }
             set
             {
@@ -116,7 +116,7 @@ namespace Subnautica_Archon.Util
                 }
                 else
                 {
-                    _isAsleepProperty.SetValue(Vehicle, value);
+                    _isAsleepProperty!.SetValue(Vehicle, value);
                 }
             }
         }
