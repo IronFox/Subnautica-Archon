@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class VoiceLibrary : MonoBehaviour
 {
+    public string voiceName = "Default";
     public AudioClip[] damageDetected;
     public AudioClip[] depthCriticalPost;
     public AudioClip[] depthCriticalPre;
@@ -70,8 +71,8 @@ public class VoiceLibrary : MonoBehaviour
         int combinedCount = combined?.Length ?? 0;
         int preCount = pre?.Length ?? 0;
         int postCount = post?.Length ?? 0;
-        int pairCount = preCount * postCount;
-        int totalOutcomes = combinedCount + pairCount;
+        //int pairCount = preCount * postCount;
+        int totalOutcomes = combinedCount + preCount;
         if (totalOutcomes == 0)
         {
             isCombined = false;
@@ -87,12 +88,11 @@ public class VoiceLibrary : MonoBehaviour
         else
         {
             // Pick a (pre, post) pair
-            int pairIndex = choice - combinedCount;
-            int preIndex = pairIndex / postCount;
-            int postIndex = pairIndex % postCount;
+            int preIndex = choice - combinedCount;
             if (UnityEngine.Random.value < postProbability)
             {
                 isCombined = false;
+                int postIndex = UnityEngine.Random.Range(0, postCount);
                 return new AudioClip[] { pre[preIndex], post[postIndex] };
             }
             isCombined = false;

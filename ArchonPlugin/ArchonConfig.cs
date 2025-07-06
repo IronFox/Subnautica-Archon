@@ -1,5 +1,6 @@
 using Nautilus.Json;
 using Nautilus.Options.Attributes;
+using Subnautica_Archon;
 using UnityEngine;
 
 [Menu("Archon Options")]
@@ -21,7 +22,11 @@ public class ArchonConfig : ConfigFile
     public float voiceVolumePercent = 100;
     [Toggle("Show voice subtitles", LabelLanguageId = "optShowVoiceSubtitles")]
     public bool showVoiceSubtitles = false;
-
+    [Choice("Autopilot voice",
+        "optAutopilotVoiceDefault",
+        LabelLanguageId = "optAutopilotVoice"
+    )]
+    public Voice voice = Voice.Default;
     //[Toggle("Hold Sprint to Boost")]
     //public bool holdToBoost = false;
 
