@@ -42,6 +42,18 @@ ModelImporter:
   - first:
       74: 4916348763353728097
     second: Bay|Open Bay
+  - first:
+      74: 6011648203293697914
+    second: Left Cover|Left CoverAction
+  - first:
+      74: -4558311911757343787
+    second: Left Cover|Left CoverAction.001
+  - first:
+      74: 6033511362500765444
+    second: Right Cover|Left CoverAction
+  - first:
+      74: 806797326581108584
+    second: Right Cover|Left CoverAction.001
   externalObjects: {}
   materials:
     materialImportMode: 1
