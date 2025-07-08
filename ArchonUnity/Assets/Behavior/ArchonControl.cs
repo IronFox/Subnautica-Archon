@@ -13,7 +13,10 @@ public class ArchonControl : MonoBehaviour
     public Transform dockedSpace;
     public Transform hangarRoot;
     public Collider interiorCollider;
-    public Renderer onEnterDisable;
+    public Transform exteriorModel;
+    //public Renderer[] onEnterDisableShadows;
+    public Renderer exteriorInteriorShadowCaster;
+    public Renderer interiorExteriorShadowCaster;
 
     public float forwardAxis;
     public float rightAxis;
@@ -216,7 +219,10 @@ public class ArchonControl : MonoBehaviour
         boardedLeave = false;
 
         SetRenderAndCollisionActive(interior, true);
-        onEnterDisable.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+        exteriorInteriorShadowCaster.enabled = true;
+        interiorExteriorShadowCaster.enabled = true;
+        if (exteriorModel)
+            exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c => c.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off);
         SetRenderAndCollisionActive(exterior, false);
         evacuateIntruders.enabled = true;
     }
@@ -226,7 +232,10 @@ public class ArchonControl : MonoBehaviour
         Log.Write($"Offboarding");
 
         SetRenderAndCollisionActive(interior, false);
-        onEnterDisable.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On;
+        exteriorInteriorShadowCaster.enabled = false;
+        interiorExteriorShadowCaster.enabled = false;
+        if (exteriorModel)
+            exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c => c.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On);
         SetRenderAndCollisionActive(exterior, true);
         evacuateIntruders.enabled = false;
         checkFloatingCharacterForSeconds = 0;
