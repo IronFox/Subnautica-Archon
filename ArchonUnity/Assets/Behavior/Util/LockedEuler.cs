@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 /// <summary>
 /// Euler angles with a locked Z component. Vertical rotation (around the X axis) is limited to [MinX,MaxX],
@@ -20,7 +21,7 @@ public readonly struct LockedEuler
     public const float MinX = -88f;
     public const float MaxX = 88f;
 
-    public override string ToString() => $"({X},{Y})";
+    public override string ToString() => $"({X.ToStr()},{Y.ToStr()})";
 
     public LockedEuler(float x, float y, TransformLocality locality)
     {
@@ -59,6 +60,15 @@ public readonly struct LockedEuler
             return sanitizer(value);
         return sanitizer(constrained);
     }
+
+    public LockedEuler ConstrainedHead()
+        => Locality == TransformLocality.Local
+            ? Constrained(angle => Mathf.Clamp(angle, -70, 70), angle => angle > 90 && angle < 180
+                                ? 90
+                                : angle > 180 && angle < 270 ? 270
+                                : angle)
+        : throw new InvalidOperationException("ConstrainedHead can only be used with Local locality");
+
     public LockedEuler Constrained(
         System.Func<float, float> xConstraint = null,
         System.Func<float, float> yConstraint = null)
@@ -114,4 +124,5 @@ public readonly struct LockedEuler
 
     public static LockedEuler FromForward(Vector3 forward, TransformLocality locality)
         => FromAngles(Quaternion.FromToRotation(Vector3.forward, forward).eulerAngles, locality);
+
 };

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using static UnityEngine.GraphicsBuffer;
+﻿using UnityEngine;
 
 public class PositionCamera : MonoBehaviour
 {
@@ -16,8 +12,9 @@ public class PositionCamera : MonoBehaviour
     private float maxDistanceToTarget;
     public bool positionBelowTarget;
     public Collider shipCollider;
+    public ArchonControl archon;
 
-    
+
     //private float firstPersonRadius = 3.15f;
     public bool isFirstPerson = false;
     private bool wasFirstPerson;
@@ -45,9 +42,9 @@ public class PositionCamera : MonoBehaviour
                                     * referenceBoundingBox.size.z) * -0.5f;
         maxDistanceToTarget = minDistanceToTarget * 5;
         ConsoleControl.Write($"Valid 3rd person camera distance range is [{minDistanceToTarget},{maxDistanceToTarget}]");
-        distanceToTarget = Mathf.Clamp( distanceToTarget, minDistanceToTarget, maxDistanceToTarget );
+        distanceToTarget = Mathf.Clamp(distanceToTarget, minDistanceToTarget, maxDistanceToTarget);
         ConsoleControl.Write($"3rd camera distance set to {distanceToTarget}");
-        verticalOffset = 
+        verticalOffset =
             referenceBoundingBox.size.y * referenceBoundingBox.transform.localScale.y * 1.1f;
     }
 
@@ -60,7 +57,6 @@ public class PositionCamera : MonoBehaviour
             wasFirstPerson = true;
 
 
-            transform.position = target.position + target.forward * (referenceBoundingBox.size.z / 2 + 5);
 
 
             //var local = subRoot.transform.InverseTransformDirection(transform.forward);
@@ -75,6 +71,10 @@ public class PositionCamera : MonoBehaviour
             if (zoomAxis > 0)
             {
                 isFirstPerson = false;
+            }
+            else if (!archon.zoomedInIsCockpit)
+            {
+                transform.position = target.position + target.forward * (referenceBoundingBox.size.z / 2 + 5);
             }
         }
         else
@@ -91,6 +91,10 @@ public class PositionCamera : MonoBehaviour
             {
                 distanceToTarget = minDistanceToTarget;
                 isFirstPerson = true;
+                if (archon.zoomedInIsCockpit)
+                {
+                    archon.RestoreCockpitView(transform.forward);
+                }
                 return;
             }
             distanceToTarget = Mathf.Clamp(distanceToTarget, minDistanceToTarget, maxDistanceToTarget);

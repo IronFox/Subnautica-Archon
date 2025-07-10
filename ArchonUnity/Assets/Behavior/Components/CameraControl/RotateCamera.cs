@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class RotateCamera : MonoBehaviour
 {
@@ -13,6 +11,7 @@ public class RotateCamera : MonoBehaviour
     private Transform transitionTarget;
     private bool transitioning;
     private float transitionProgress;
+    public ArchonControl archon;
 
     // Start is called before the first frame update
     void Start()
@@ -26,6 +25,8 @@ public class RotateCamera : MonoBehaviour
         current = current.RotateBy(-rotationAxisY, rotationAxisX, maxDegreesPerSecond * Time.deltaTime);
         if (!transitioning)
         {
+            archon.CopyCockpitCamera(ref current);
+
             current.ApplyTo(transform);
         }
         else
