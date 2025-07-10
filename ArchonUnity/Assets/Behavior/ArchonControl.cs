@@ -138,7 +138,7 @@ public class ArchonControl : MonoBehaviour
             cameraIsInTrailspace = true;
 
             Log.Write("Moving camera to trailspace. Setting secondary fallback camera transform");
-            SetCameraIsInVehicle(false);
+            SetCameraIsInVehicle(false, false);
 
             CameraUtil.secondaryFallbackCameraTransform = trailSpaceCameraContainer;
 
@@ -149,20 +149,22 @@ public class ArchonControl : MonoBehaviour
         }
     }
 
-    private void MoveCameraOutOfTrailSpace()
+    private void MoveCameraOutOfTrailSpace(bool withColliders)
     {
         if (cameraIsInTrailspace)
         {
             cameraIsInTrailspace = false;
 
             Log.Write("Moving camera out of trailspace. Unsetting secondary fallback camera transform");
-            SetCameraIsInVehicle(true);
+            SetCameraIsInVehicle(true, withColliders);
 
             CameraUtil.secondaryFallbackCameraTransform = null;
 
             cameraMove.Restore();
             Log.Write("Moved");
         }
+        else
+            interiorColliders.gameObject.SetActive(withColliders);
     }
 
 
@@ -230,13 +232,15 @@ public class ArchonControl : MonoBehaviour
         checkFloatingCharacterForSeconds = 1;
         boardedBy = player;
         boardedLeave = false;
-        SetCameraIsInVehicle(true);
+        SetCameraIsInVehicle(true, true);
         //evacuateIntruders.enabled = true;
     }
 
-    private void SetCameraIsInVehicle(bool isInVehicle)
+    private void SetCameraIsInVehicle(bool isInVehicle, bool withColliders)
     {
         interior.gameObject.SetActive(isInVehicle);
+        interiorColliders.gameObject.SetActive(isInVehicle && withColliders);
+
         exteriorInteriorShadowCaster.enabled = isInVehicle;
         interiorExteriorShadowCaster.enabled = isInVehicle;
         if (exteriorModel)
@@ -248,7 +252,7 @@ public class ArchonControl : MonoBehaviour
     {
         Log.Write($"Offboarding");
 
-        SetCameraIsInVehicle(false);
+        SetCameraIsInVehicle(false, false);
 
         evacuateIntruders.enabled = false;
         checkFloatingCharacterForSeconds = 0;
@@ -289,7 +293,7 @@ public class ArchonControl : MonoBehaviour
             if (!currentCameraCenterIsCockpit)
                 MoveCameraToTrailSpace();
             else
-                SetCameraIsInVehicle(true);
+                SetCameraIsInVehicle(true, false);
 
             Log.Write($"Offloading trail space");
             trailSpace.parent = transform.parent;
@@ -317,7 +321,7 @@ public class ArchonControl : MonoBehaviour
 
                 listeners.SignalExitControlBegin();
 
-                MoveCameraOutOfTrailSpace();
+                MoveCameraOutOfTrailSpace(true);
                 Log.Write($"Restoring parentage");
                 onboardLocalizedTransform.Restore();
             }
@@ -581,7 +585,7 @@ public class ArchonControl : MonoBehaviour
             {
                 currentCameraCenterIsCockpit = cameraCenterIsCockpit;
                 if (currentCameraCenterIsCockpit)
-                    MoveCameraOutOfTrailSpace();
+                    MoveCameraOutOfTrailSpace(!currentlyControlled);
                 else
                     MoveCameraToTrailSpace();
             }
