@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using UnityEngine;
 
 public class ArchonControl : MonoBehaviour
@@ -7,12 +6,12 @@ public class ArchonControl : MonoBehaviour
     public KeyCode openConsoleKey = KeyCode.F7;
 
     public Transform interior;
+    public Transform interiorColliders;
     public Transform exterior;
     public Transform controlExit;
     public Transform dockingTrigger;
     public Transform dockedSpace;
     public Transform hangarRoot;
-    public Collider interiorCollider;
     public Transform exteriorModel;
     //public Renderer[] onEnterDisableShadows;
     public Renderer exteriorInteriorShadowCaster;
@@ -38,7 +37,7 @@ public class ArchonControl : MonoBehaviour
 
     public bool positionCameraBelowSub;
 
-    public bool cameraCenterIsCockpit;
+    public bool cameraCenterIsCockpit = true;
     public bool powerOff;
     public bool batteryDead;
     public bool openUpgradeCover;
@@ -104,6 +103,8 @@ public class ArchonControl : MonoBehaviour
 
     private bool wasEverBoarded;
 
+    private bool shouldBeKinematic;
+
     public bool IsBeingControlled => currentlyControlled;
 
     public LogConfig Log { get; } = LogConfig.Default;
@@ -135,7 +136,9 @@ public class ArchonControl : MonoBehaviour
         if (!cameraIsInTrailspace)
         {
             cameraIsInTrailspace = true;
+
             Log.Write("Moving camera to trailspace. Setting secondary fallback camera transform");
+            SetCameraIsInVehicle(false);
 
             CameraUtil.secondaryFallbackCameraTransform = trailSpaceCameraContainer;
 
@@ -153,6 +156,7 @@ public class ArchonControl : MonoBehaviour
             cameraIsInTrailspace = false;
 
             Log.Write("Moving camera out of trailspace. Unsetting secondary fallback camera transform");
+            SetCameraIsInVehicle(true);
 
             CameraUtil.secondaryFallbackCameraTransform = null;
 
@@ -162,14 +166,21 @@ public class ArchonControl : MonoBehaviour
     }
 
 
+    private static void SetCollisionActive(Transform t, bool active)
+    {
+        if (t)
+        {
+            foreach (var r in t.GetComponentsInChildren<Collider>())
+                r.enabled = active;
+        }
+    }
     private static void SetRenderAndCollisionActive(Transform t, bool active)
     {
         if (t)
         {
             foreach (var r in t.GetComponentsInChildren<Renderer>())
                 r.enabled = active;
-            foreach (var r in t.GetComponentsInChildren<Collider>())
-                r.enabled = active;
+            SetCollisionActive(t, active);
         }
 
     }
@@ -206,6 +217,8 @@ public class ArchonControl : MonoBehaviour
     {
         Log.Write($"Boarding");
         RigidbodyUtil.SetKinematic(rb);
+        shouldBeKinematic = true;
+        transform.eulerAngles = M.V3(0, transform.localEulerAngles.y, 0);
 
         if (!skipOrientation)
         {
@@ -217,32 +230,33 @@ public class ArchonControl : MonoBehaviour
         checkFloatingCharacterForSeconds = 1;
         boardedBy = player;
         boardedLeave = false;
+        SetCameraIsInVehicle(true);
+        //evacuateIntruders.enabled = true;
+    }
 
-        SetRenderAndCollisionActive(interior, true);
-        exteriorInteriorShadowCaster.enabled = true;
-        interiorExteriorShadowCaster.enabled = true;
+    private void SetCameraIsInVehicle(bool isInVehicle)
+    {
+        interior.gameObject.SetActive(isInVehicle);
+        exteriorInteriorShadowCaster.enabled = isInVehicle;
+        interiorExteriorShadowCaster.enabled = isInVehicle;
         if (exteriorModel)
-            exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c => c.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off);
-        SetRenderAndCollisionActive(exterior, false);
-        evacuateIntruders.enabled = true;
+            exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c => c.shadowCastingMode = isInVehicle ? UnityEngine.Rendering.ShadowCastingMode.Off : UnityEngine.Rendering.ShadowCastingMode.On);
+        SetRenderAndCollisionActive(exterior, !isInVehicle);
     }
 
     public void Exit()
     {
         Log.Write($"Offboarding");
 
-        SetRenderAndCollisionActive(interior, false);
-        exteriorInteriorShadowCaster.enabled = false;
-        interiorExteriorShadowCaster.enabled = false;
-        if (exteriorModel)
-            exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c => c.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.On);
-        SetRenderAndCollisionActive(exterior, true);
+        SetCameraIsInVehicle(false);
+
         evacuateIntruders.enabled = false;
         checkFloatingCharacterForSeconds = 0;
         if (boardedBy)
         {
             boardedBy = default;
             RigidbodyUtil.UnsetKinematic(rb);
+            shouldBeKinematic = false;
         }
     }
 
@@ -274,6 +288,8 @@ public class ArchonControl : MonoBehaviour
             cameraIsInTrailspace = false;//just in case
             if (!currentCameraCenterIsCockpit)
                 MoveCameraToTrailSpace();
+            else
+                SetCameraIsInVehicle(true);
 
             Log.Write($"Offloading trail space");
             trailSpace.parent = transform.parent;
@@ -292,6 +308,7 @@ public class ArchonControl : MonoBehaviour
     {
         if (currentlyControlled)
         {
+
             Log.Write($"Exiting control");
             controlUndo.UndoAndClear();
             var listeners = BoardingListeners.Of(this, trailSpace);
@@ -615,7 +632,7 @@ public class ArchonControl : MonoBehaviour
 
             positionCamera.positionBelowTarget = positionCameraBelowSub;
 
-            if (currentlyControlled && !cameraCenterIsCockpit)
+            if (currentlyControlled)
             {
                 rotateCamera.enabled = true;
 
@@ -869,18 +886,18 @@ public class ArchonControl : MonoBehaviour
                 if (checkFloatingCharacterForSeconds > 0 && !onLeave)
                 {
                     var player = boardedBy.Root;
-                    if (player && player.transform && interiorCollider && interiorCollider.enabled)
-                    {
-                        var hits = Physics.RaycastAll(new Ray(player.transform.position, Vector3.down), 100);
-                        var hit = hits.Where(h => h.collider == interiorCollider).LeastOrDefault(x => x.distance);
-                        if (hit.collider && hit.distance > 2)
-                        {
-                            var target = hit.point + Vector3.up * 2;
-                            Log.LogWarning($"Floating character detected. Forcing onboard ({player.transform.position} -> {target}) @{checkFloatingCharacterForSeconds}");
-                            player.transform.position = target;
-                            //checkFloatingCharacter = false;
-                        }
-                    }
+                    //if (player && player.transform && interiorCollider && interiorCollider.enabled)
+                    //{
+                    //    var hits = Physics.RaycastAll(new Ray(player.transform.position, Vector3.down), 100);
+                    //    var hit = hits.Where(h => h.collider == interiorCollider).LeastOrDefault(x => x.distance);
+                    //    if (hit.collider && hit.distance > 2)
+                    //    {
+                    //        var target = hit.point + Vector3.up * 2;
+                    //        Log.LogWarning($"Floating character detected. Forcing onboard ({player.transform.position} -> {target}) @{checkFloatingCharacterForSeconds}");
+                    //        player.transform.position = target;
+                    //        //checkFloatingCharacter = false;
+                    //    }
+                    //}
                     checkFloatingCharacterForSeconds -= Time.deltaTime;
                 }
 
@@ -929,20 +946,7 @@ public class ArchonControl : MonoBehaviour
                 forceAutoLevelInSeconds = float.MaxValue;
             }
 
-
-            if (IsBoarded)
-            {
-                if (!rb.isKinematic)
-                {
-                    Log.LogWarning("Re-enabling kinematic state");
-                    rb.SetKinematic();
-                }
-            }
-            else if (rb.isKinematic)
-            {
-                Log.LogWarning("Re-disabling kinematic state");
-                rb.UnsetKinematic();
-            }
+            rb.CheckIsKinematic(shouldBeKinematic);
 
             if (rb.drag != 0)
             {

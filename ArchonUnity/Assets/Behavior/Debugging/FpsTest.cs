@@ -1,6 +1,4 @@
-﻿using System;
-
-using UnityEngine;
+﻿using UnityEngine;
 
 
 public class FpsTest : MonoBehaviour
@@ -8,7 +6,7 @@ public class FpsTest : MonoBehaviour
     private Vector3 preBoardingPosition;
     private LockedEuler preBoardingEuler;
     private Transform preBoardingParent;
-    private bool isAtHelm;
+    private bool IsAtHelm => atHelm != null;
     private bool isOnBoard;
     public ArchonControl subControl;
     public Transform head;
@@ -20,6 +18,8 @@ public class FpsTest : MonoBehaviour
     public KeyCode outOfWaterKey = KeyCode.F;
     public KeyCode bayOpenKey = KeyCode.O;
     public KeyCode testUndock = KeyCode.U;
+    private DebugHelm atHelm;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -31,7 +31,7 @@ public class FpsTest : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (!isAtHelm)
+        if (!IsAtHelm)
         {
             var up = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.C) ? 1 : 0);
             var relativeX = transform.right * Input.GetAxis("Horizontal");
@@ -48,7 +48,7 @@ public class FpsTest : MonoBehaviour
     {
         if (!subControl.IsBeingControlled && Input.GetKeyDown(KeyCode.Mouse0))
         {
-            var hits = Physics.RaycastAll(new Ray(transform.position, transform.forward), 2);
+            var hits = Physics.RaycastAll(new Ray(head.position, head.forward), 2);
 
 
             foreach (var hit in hits)
@@ -58,7 +58,7 @@ public class FpsTest : MonoBehaviour
                     hatch.OnTrigger(subControl, this);
             }
         }
-        if (!isAtHelm)
+        if (!IsAtHelm)
         {
             //Debug.Log(Input.GetAxis("Vertical"));
 
@@ -79,6 +79,17 @@ public class FpsTest : MonoBehaviour
                     .FromLocal(transform)
                     .RotateBy(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), Time.deltaTime * 800)
                     .ApplyTo(transform);
+        }
+        else
+        {
+            LockedEuler
+                .FromLocal(head)
+                .RotateBy(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), Time.deltaTime * 800)
+                .Constrained(angle => Mathf.Clamp(angle, -70, 70), angle => angle > 90 && angle < 180
+                    ? 90
+                    : angle > 180 && angle < 270 ? 270
+                    : angle)
+                .ApplyTo(head);
         }
 
 
@@ -110,38 +121,18 @@ public class FpsTest : MonoBehaviour
             subControl.openBay = !subControl.openBay;
         }
 
-        if (Input.GetKeyDown(controlKey))
+        if (Input.GetKeyDown(controlKey) && IsAtHelm)
         {
             ConsoleControl.Write(controlKey.ToString());
-            if (!isAtHelm)
-            {
-                ConsoleControl.Write("Boarding");
-                try
-                {
-                    preBoardingPosition = transform.position;
-                    preBoardingEuler = LockedEuler.FromGlobal(transform);
-                    preBoardingParent = transform.parent;
-                    subControl.Localize(transform);
-                    subControl.Control(new PlayerReference(gameObject, null));
-                }
-                catch (Exception ex)
-                {
-                    ConsoleControl.WriteException("Onboarding failed", ex);
-                }
-                isAtHelm = true;
-                ConsoleControl.Write("Boarded");
-            }
-            else
-            {
-                ConsoleControl.Write("Offboarding");
-                subControl.ExitControl(new PlayerReference(gameObject, null), false);
-                transform.parent = preBoardingParent;
-                transform.position = preBoardingPosition;
-                preBoardingEuler.ApplyTo(transform);
-                isAtHelm = false;
-                ConsoleControl.Write("Offboarded");
-            }
-
+            ConsoleControl.Write("Offboarding");
+            subControl.ExitControl(new PlayerReference(gameObject, null), false);
+            transform.parent = preBoardingParent;
+            transform.position = preBoardingPosition;
+            preBoardingEuler.ApplyTo(transform);
+            transform.SetParent(null);
+            transform.position = atHelm.exit.position;
+            atHelm = null;
+            ConsoleControl.Write("Offboarded");
         }
     }
 
@@ -171,5 +162,16 @@ public class FpsTest : MonoBehaviour
     internal PlayerReference ToReference()
     {
         return new PlayerReference(gameObject, head);
+    }
+
+    internal void EnterHelm(ArchonControl archon, DebugHelm debugHelm)
+    {
+        atHelm = debugHelm;
+        transform.SetParent(debugHelm.transform);
+        transform.localPosition = M.V3(0, -1.6f, 0);
+        transform.localRotation = Quaternion.identity;
+
+        archon.Control(ToReference());
+
     }
 }

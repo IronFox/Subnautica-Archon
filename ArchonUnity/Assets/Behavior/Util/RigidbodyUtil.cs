@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 public static class RigidbodyUtil
@@ -21,5 +20,23 @@ public static class RigidbodyUtil
         rb.isKinematic = false;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
         rb.interpolation = RigidbodyInterpolation.Extrapolate;
+    }
+
+    public static void CheckIsKinematic(this Rigidbody rb, bool shouldBeKinematic)
+    {
+
+        if (rb.isKinematic != shouldBeKinematic)
+        {
+            if (shouldBeKinematic)
+            {
+                LogConfig.Default.LogWarning("Re-enabling kinematic state");
+                rb.SetKinematic();
+            }
+            else
+            {
+                LogConfig.Default.LogWarning("Re-disabling kinematic state");
+                rb.UnsetKinematic();
+            }
+        }
     }
 }

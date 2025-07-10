@@ -1331,7 +1331,7 @@ namespace Subnautica_Archon
             return new SubmarineComposition(
                     engine: engine,
                     hatches: hatchList,
-                    collisionModel: transform.Find("CollisionModel").SmartGetGameObject(),
+                    collisionModel: transform.Find("CollisionModel").gameObject,
                     boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
                     storageRootObject: storageRootTransform.gameObject,
                     modularStorages: modularStorageList,

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class MotionSimulation : MonoBehaviour
@@ -24,9 +22,10 @@ public class MotionSimulation : MonoBehaviour
         control.rightAxis = Input.GetAxis("Horizontal");
         control.upAxis = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.C) ? 1 : 0);
         control.overdriveActive = Input.GetKey(KeyCode.LeftShift);
-        control.freeCamera = Input.GetMouseButton(1);
+        if (Input.GetKeyDown(KeyCode.F))
+            control.freeCamera = !control.freeCamera;
         control.zoomAxis = -Input.GetAxis("Mouse ScrollWheel");
-        
+
     }
 
     void FixedUpdate()
@@ -44,9 +43,9 @@ public class MotionSimulation : MonoBehaviour
                 return;
             }
             var forwardAccel = control.forwardAxis * 50;
-            var hAccel = control.freeCamera ? 0:
+            var hAccel = control.freeCamera ? 0 :
                             control.rightAxis * 20;
-            var upAccel = control.freeCamera ? 0:
+            var upAccel = control.freeCamera ? 0 :
                             control.upAxis * 20;
 
             try
