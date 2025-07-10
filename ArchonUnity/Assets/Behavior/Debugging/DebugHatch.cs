@@ -1,24 +1,27 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class DebugHatch : MonoBehaviour
+public class DebugHatch : DebugHandTarget
 {
     private Transform exit, entry;
 
-
-    internal void Board(Rigidbody player, ArchonControl subControl)
+    public override void OnTrigger(ArchonControl archon, FpsTest player)
     {
-        subControl.Enter(new PlayerReference(player.gameObject, null));
-        player.useGravity = true;
-        player.transform.position = entry.position;
+        if (!archon.IsBoarded)
+            Board(player, archon);
+        else
+            Exit(player, archon);
+
     }
 
-    internal void Exit(Rigidbody player, ArchonControl subControl)
+    private void Board(FpsTest player, ArchonControl subControl)
     {
-        player.transform.position = exit.position;
-        player.useGravity = false;
+        subControl.Enter(player.ToReference());
+        player.OnBoard(entry.position);
+    }
+
+    private void Exit(FpsTest player, ArchonControl subControl)
+    {
+        player.OnExit(exit.position);
         subControl.Exit();
     }
 
@@ -32,6 +35,6 @@ public class DebugHatch : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 }

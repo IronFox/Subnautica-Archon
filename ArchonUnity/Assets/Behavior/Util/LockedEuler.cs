@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Euler angles with a locked Z component. Vertical rotation (around the X axis) is limited to [MinX,MaxX],
@@ -52,6 +50,25 @@ public readonly struct LockedEuler
         return Mathf.Repeat(y, 360);
     }
 
+    private static float Constraint(float value, System.Func<float, float> constraint, System.Func<float, float> sanitizer)
+    {
+        if (constraint == null)
+            return sanitizer(value);
+        var constrained = constraint(value);
+        if (constrained == float.NaN || constrained == float.PositiveInfinity || constrained == float.NegativeInfinity)
+            return sanitizer(value);
+        return sanitizer(constrained);
+    }
+    public LockedEuler Constrained(
+        System.Func<float, float> xConstraint = null,
+        System.Func<float, float> yConstraint = null)
+    {
+        return new LockedEuler(
+            Constraint(X, xConstraint, SanitizeX),
+            Constraint(Y, yConstraint, SanitizeY),
+            Locality);
+    }
+
     public LockedEuler RotateBy(float x, float y)
     {
         return new LockedEuler(SanitizeX(x + X), SanitizeY(y + Y), Locality);
@@ -74,7 +91,7 @@ public readonly struct LockedEuler
     }
     public static LockedEuler FromAngles(Vector3 e, TransformLocality locality)
     {
-        
+
         return new LockedEuler(SanitizeX(e.x), SanitizeY(e.y), locality);
 
     }
@@ -85,11 +102,11 @@ public readonly struct LockedEuler
     public static LockedEuler From(Quaternion q, TransformLocality locality)
         => FromAngles(q.eulerAngles, locality);
 
-    public Vector3 Forward          => Quaternion * Vector3.forward;
-    public Vector3 Right            => Quaternion * Vector3.right;
-    public Vector3 Up               => Quaternion * Vector3.up;
-    public Quaternion Quaternion    => Quaternion.Euler(X, Y, 0);
-    public Vector3 Vector           => new Vector3(X, Y, 0);
+    public Vector3 Forward => Quaternion * Vector3.forward;
+    public Vector3 Right => Quaternion * Vector3.right;
+    public Vector3 Up => Quaternion * Vector3.up;
+    public Quaternion Quaternion => Quaternion.Euler(X, Y, 0);
+    public Vector3 Vector => new Vector3(X, Y, 0);
 
     public static LockedEuler Slerp(LockedEuler x, LockedEuler y, float t)
         => From(Quaternion.Slerp(x.Quaternion, y.Quaternion, t), x.Locality);

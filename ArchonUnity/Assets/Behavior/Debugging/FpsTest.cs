@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+
 using UnityEngine;
 
 
@@ -9,11 +8,14 @@ public class FpsTest : MonoBehaviour
     private Vector3 preBoardingPosition;
     private LockedEuler preBoardingEuler;
     private Transform preBoardingParent;
-    private bool isOnboarded;
+    private bool isAtHelm;
+    private bool isOnBoard;
     public ArchonControl subControl;
+    public Transform head;
+    public Transform body;
     private Rigidbody rb;
 
-    public KeyCode boardKey = KeyCode.B;
+    public KeyCode controlKey = KeyCode.B;
     public KeyCode centerKey = KeyCode.LeftControl;
     public KeyCode outOfWaterKey = KeyCode.F;
     public KeyCode bayOpenKey = KeyCode.O;
@@ -22,14 +24,22 @@ public class FpsTest : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+
+        OnExit(transform.position);
     }
 
 
     void FixedUpdate()
     {
-        var up = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.C) ? 1 : 0);
+        if (!isAtHelm)
+        {
+            var up = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.C) ? 1 : 0);
+            var relativeX = transform.right * Input.GetAxis("Horizontal");
+            var relativeZ = transform.forward * Input.GetAxis("Vertical");
+            var relativeY = transform.up * up;
 
-        rb.AddRelativeForce(M.V3(Input.GetAxis("Horizontal"), up, Input.GetAxis("Vertical")) * 30);
+            rb.AddForce((relativeX + relativeY + relativeZ) * 30);
+        }
 
     }
 
@@ -43,25 +53,32 @@ public class FpsTest : MonoBehaviour
 
             foreach (var hit in hits)
             {
-                var hatch = hit.collider.gameObject.GetComponent<DebugHatch>();
+                var hatch = hit.collider.gameObject.GetComponent<DebugHandTarget>();
                 if (hatch)
-                {
-                    if (!subControl.IsBoarded)
-                        hatch.Board(rb, subControl);
-                    else
-                        hatch.Exit(rb, subControl);
-                }
+                    hatch.OnTrigger(subControl, this);
             }
         }
-        if (!isOnboarded)
+        if (!isAtHelm)
         {
             //Debug.Log(Input.GetAxis("Vertical"));
 
-
-            LockedEuler
-                .FromLocal(transform)
-                .RotateBy(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), Time.deltaTime * 800)
-                .ApplyTo(transform);
+            if (isOnBoard)
+            {
+                LockedEuler
+                    .FromLocal(transform)
+                    .RotateBy(0, Input.GetAxis("Mouse X"), Time.deltaTime * 800)
+                    .ApplyTo(transform);
+                LockedEuler
+                    .FromLocal(head)
+                    .RotateBy(-Input.GetAxis("Mouse Y"), 0, Time.deltaTime * 800)
+                    .Constrained(angle => Mathf.Clamp(angle, -70, 70), null)
+                    .ApplyTo(head);
+            }
+            else
+                LockedEuler
+                    .FromLocal(transform)
+                    .RotateBy(-Input.GetAxis("Mouse Y"), Input.GetAxis("Mouse X"), Time.deltaTime * 800)
+                    .ApplyTo(transform);
         }
 
 
@@ -93,10 +110,10 @@ public class FpsTest : MonoBehaviour
             subControl.openBay = !subControl.openBay;
         }
 
-        if (Input.GetKeyDown(boardKey))
+        if (Input.GetKeyDown(controlKey))
         {
-            ConsoleControl.Write(boardKey.ToString());
-            if (!isOnboarded)
+            ConsoleControl.Write(controlKey.ToString());
+            if (!isAtHelm)
             {
                 ConsoleControl.Write("Boarding");
                 try
@@ -111,20 +128,48 @@ public class FpsTest : MonoBehaviour
                 {
                     ConsoleControl.WriteException("Onboarding failed", ex);
                 }
-                isOnboarded = true;
+                isAtHelm = true;
                 ConsoleControl.Write("Boarded");
             }
             else
             {
                 ConsoleControl.Write("Offboarding");
-                subControl.ExitControl(new PlayerReference(gameObject, null),false);
+                subControl.ExitControl(new PlayerReference(gameObject, null), false);
                 transform.parent = preBoardingParent;
                 transform.position = preBoardingPosition;
                 preBoardingEuler.ApplyTo(transform);
-                isOnboarded = false;
+                isAtHelm = false;
                 ConsoleControl.Write("Offboarded");
             }
 
         }
+    }
+
+    internal void OnBoard(Vector3 entryPosition)
+    {
+        rb.useGravity = true;
+        rb.transform.position = entryPosition;
+        isOnBoard = true;
+
+        body.localEulerAngles = new Vector3(0, 0, 0);
+        body.localPosition = new Vector3(0, 0.7f, 0);
+        head.localPosition = new Vector3(0, 1.6f, 0);
+        transform.up = Vector3.up;
+    }
+
+    internal void OnExit(Vector3 exitPosition)
+    {
+        rb.transform.position = exitPosition;
+        rb.useGravity = false;
+        isOnBoard = false;
+
+        body.localEulerAngles = new Vector3(90, 0, 0);
+        body.localPosition = new Vector3(0, 0, 0.7f);
+        head.localPosition = new Vector3(0, 0, 1.6f);
+    }
+
+    internal PlayerReference ToReference()
+    {
+        return new PlayerReference(gameObject, head);
     }
 }
