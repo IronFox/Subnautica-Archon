@@ -30,6 +30,7 @@ public class PositionCamera : MonoBehaviour
 
     public float DistanceToTarget => distanceToTarget;
 
+    public bool IsInVehicle => isFirstPerson && archon.zoomedInIsCockpit;
     void Start()
     {
         //scanner= GetComponentInChildren<TargetScanner>();
@@ -54,6 +55,12 @@ public class PositionCamera : MonoBehaviour
     {
         if (isFirstPerson)
         {
+            if (!wasFirstPerson)
+            {
+                if (archon.zoomedInIsCockpit)
+                    archon.ChangeCameraIsInVehicle(true);
+            }
+
             wasFirstPerson = true;
 
 
@@ -76,6 +83,10 @@ public class PositionCamera : MonoBehaviour
             {
                 transform.position = target.position + target.forward * (referenceBoundingBox.size.z / 2 + 5);
             }
+            else
+            {
+                transform.position = archon.GetHelmCameraCenter();
+            }
         }
         else
         {
@@ -84,6 +95,8 @@ public class PositionCamera : MonoBehaviour
                 transform.position = target.position - transform.forward * minDistanceToTarget;
                 wasFirstPerson = false;
                 distanceToTarget = minDistanceToTarget;
+                if (archon.zoomedInIsCockpit)
+                    archon.ChangeCameraIsInVehicle(false);
             }
 
             distanceToTarget *= Mathf.Pow(1.5f, zoomAxis);
@@ -91,10 +104,6 @@ public class PositionCamera : MonoBehaviour
             {
                 distanceToTarget = minDistanceToTarget;
                 isFirstPerson = true;
-                if (archon.zoomedInIsCockpit)
-                {
-                    archon.RestoreCockpitView(transform.forward);
-                }
                 return;
             }
             distanceToTarget = Mathf.Clamp(distanceToTarget, minDistanceToTarget, maxDistanceToTarget);

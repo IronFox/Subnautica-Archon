@@ -25,8 +25,6 @@ public class RotateCamera : MonoBehaviour
         current = current.RotateBy(-rotationAxisY, rotationAxisX, maxDegreesPerSecond * Time.deltaTime);
         if (!transitioning)
         {
-            archon.CopyCockpitCamera(ref current);
-
             current.ApplyTo(transform);
         }
         else

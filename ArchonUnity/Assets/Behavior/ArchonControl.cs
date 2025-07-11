@@ -9,14 +9,14 @@ public class ArchonControl : MonoBehaviour
     public Transform interiorColliders;
     public Transform interiorLights;
     public Material interiorLightMaterial;
-    public Material glassMaterial;
-    public Shader invisibleShader;
+    public GameObject[] glass;
     public Transform exterior;
     public Transform controlExit;
     public Transform dockingTrigger;
     public Transform dockedSpace;
     public Transform hangarRoot;
     public Transform exteriorModel;
+    public Transform helmSeatRoot;
     //public Renderer[] onEnterDisableShadows;
     public Renderer exteriorInteriorShadowCaster;
     public Renderer interiorExteriorShadowCaster;
@@ -73,6 +73,7 @@ public class ArchonControl : MonoBehaviour
     private EnergyLevel energyLevel;
 
     private Transform cameraRoot;
+    private bool helmCameraIsInVehicle;
 
     public DriveControl forwardFacingLeft;
     public DriveControl backFacingLeft;
@@ -83,7 +84,6 @@ public class ArchonControl : MonoBehaviour
 
     public Transform trailSpace;
     public Transform trailSpaceCameraContainer;
-    public Transform seat;
     public StatusConsole statusConsole;
 
     private RotateCamera rotateCamera;
@@ -101,7 +101,7 @@ public class ArchonControl : MonoBehaviour
     private bool currentlyControlled;
 
     private Parentage onboardLocalizedTransform;
-    private Parentage cameraMove;
+    private Parentage cameraMove, seatOrigin;
 
     private bool currentCameraCenterIsCockpit;
     private bool cameraIsInTrailspace;
@@ -111,12 +111,12 @@ public class ArchonControl : MonoBehaviour
     private bool shouldBeKinematic;
     public bool IsBeingControlled => currentlyControlled && !forceCockpitCamera;
 
-    private bool ApplyFreeCamera => (freeCamera || (zoomedInIsCockpit && positionCamera.isFirstPerson));
+    private bool ApplyFreeCamera => freeCamera;// || (zoomedInIsCockpit && positionCamera.isFirstPerson));
 
     /// <summary>
     /// True if the archon assumes the camera is in the cockpit, and the player should be able to turn their head.
     /// </summary>
-    public bool ShouldBeAbleToTurnHead => forceCockpitCamera || (zoomedInIsCockpit && positionCamera.isFirstPerson);
+    public bool ShouldBeAbleToTurnHead => forceCockpitCamera;// || (zoomedInIsCockpit && positionCamera.isFirstPerson);
 
     public LogConfig Log { get; } = LogConfig.Default;
     private enum CameraState
@@ -149,23 +149,33 @@ public class ArchonControl : MonoBehaviour
             cameraIsInTrailspace = true;
 
             Log.Write("Moving camera to trailspace. Setting secondary fallback camera transform");
-            SetCameraIsInVehicle(false, false);
+            SetCameraIsInVehicle(positionCamera.IsInVehicle, false);
 
             CameraUtil.secondaryFallbackCameraTransform = trailSpaceCameraContainer;
 
             cameraMove = Parentage.FromLocal(cameraRoot);
             cameraRoot.parent = trailSpaceCameraContainer;
             Location.LocalIdentity.ApplyTo(cameraRoot);
+
+
+
+            if (helmCameraIsInVehicle)
+            {
+                helmCameraIsInVehicle = false;
+                ChangeCameraIsInVehicle(true);
+            }
+
+
             Log.Write("Moved");
         }
     }
 
-    internal void RestoreCockpitView(Vector3 lookAt)
-    {
-        MoveCameraOutOfTrailSpace(false);
-        if (controlledBy)
-            controlledBy.LookInDirection(lookAt);
-    }
+    //internal void RestoreCockpitView(Vector3 lookAt)
+    //{
+    //    MoveCameraOutOfTrailSpace(false);
+    //    if (controlledBy)
+    //        controlledBy.LookInDirection(lookAt);
+    //}
 
     private Shader glassShader;
 
@@ -173,22 +183,15 @@ public class ArchonControl : MonoBehaviour
     {
         interiorColliders.gameObject.SetActive(enable);
         interiorLights.gameObject.SetActive(enable);
+        glass?.ForEach(g => g.SetActive(enable));
 
         if (enable)
         {
             interiorLightMaterial.SetColor("_EmissionColor", Color.white);
-            if (glassShader)
-            {
-                glassMaterial.shader = glassShader;
-                glassMaterial.SetColor("_Color", new Color(0, 0, 0, 0));
-            }
         }
         else
         {
             interiorLightMaterial.SetColor("_EmissionColor", Color.black);
-            if (!glassShader)
-                glassShader = glassMaterial.shader;
-            glassMaterial.shader = invisibleShader;
         }
 
     }
@@ -205,6 +208,15 @@ public class ArchonControl : MonoBehaviour
             CameraUtil.secondaryFallbackCameraTransform = null;
 
             cameraMove.Restore();
+
+
+            if (helmCameraIsInVehicle)
+            {
+                Log.Write($"Restoring helm seat parentage");
+                seatOrigin.Restore();
+            }
+
+
             Log.Write("Moved");
         }
         else
@@ -283,6 +295,36 @@ public class ArchonControl : MonoBehaviour
         //evacuateIntruders.enabled = true;
     }
 
+    internal void ChangeCameraIsInVehicle(bool isInVehicle)
+    {
+        if (isInVehicle && !helmCameraIsInVehicle)
+        {
+            seatOrigin = Parentage.FromLocal(helmSeatRoot);
+            helmSeatRoot.SetParent(trailSpaceCameraContainer, false);
+            helmSeatRoot.localPosition = Vector3.zero;
+            helmSeatRoot.localRotation = Quaternion.identity;
+        }
+        else if (!isInVehicle && helmCameraIsInVehicle)
+        {
+            seatOrigin.Restore();
+        }
+
+        SetCameraIsInVehicle(isInVehicle, false);
+
+
+
+        helmCameraIsInVehicle = isInVehicle;
+
+    }
+
+
+    internal Vector3 GetHelmCameraCenter()
+    {
+        return helmCameraIsInVehicle
+            ? transform.TransformPoint(seatOrigin.Transform.Position)
+            : helmSeatRoot.position;
+    }
+
     private void SetCameraIsInVehicle(bool isInVehicle, bool withCollidersAndLights)
     {
         interior.gameObject.SetActive(isInVehicle);
@@ -296,7 +338,8 @@ public class ArchonControl : MonoBehaviour
         interiorExteriorShadowCaster.enabled = isInVehicle;
         if (exteriorModel)
             exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c => c.shadowCastingMode = isInVehicle ? UnityEngine.Rendering.ShadowCastingMode.Off : UnityEngine.Rendering.ShadowCastingMode.On);
-        SetRenderAndCollisionActive(exterior, !isInVehicle);
+        SetRenderAndCollisionActive(exterior, !isInVehicle || !withCollidersAndLights);
+        SetCollisionActive(helmSeatRoot, isInVehicle && withCollidersAndLights);
     }
 
     public void Exit()
@@ -341,10 +384,10 @@ public class ArchonControl : MonoBehaviour
             onboardLocalizedTransform = Parentage.FromLocal(cameraRoot);
 
             cameraIsInTrailspace = false;//just in case
-            if (!zoomedInIsCockpit || !positionCamera.isFirstPerson)
-                MoveCameraToTrailSpace();
-            else
-                SetCameraIsInVehicle(true, false);
+                                         //if (!zoomedInIsCockpit || !positionCamera.isFirstPerson)
+            MoveCameraToTrailSpace();
+            //else
+            //    SetCameraIsInVehicle(true, false);
 
             Log.Write($"Offloading trail space");
             trailSpace.parent = transform.parent;
@@ -365,6 +408,7 @@ public class ArchonControl : MonoBehaviour
         {
 
             Log.Write($"Exiting control");
+
             controlUndo.UndoAndClear();
             var listeners = BoardingListeners.Of(this, trailSpace);
             try
@@ -575,11 +619,11 @@ public class ArchonControl : MonoBehaviour
         {
             firstPersonMarkers.overdriveActive = false;
             firstPersonMarkers.show =
-                (positionCamera.isFirstPerson || this.currentCameraCenterIsCockpit)
+                positionCamera.isFirstPerson
                 && IsBeingControlled
                 && !batteryDead
                 && !powerOff;
-            if (firstPersonMarkers.show && currentCameraCenterIsCockpit)
+            if (firstPersonMarkers.show)
                 firstPersonMarkers.transform.position = cameraRoot.position;
         }
         catch (Exception ex)
@@ -636,8 +680,8 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
-            bool cameraCenterIsCockpit = (zoomedInIsCockpit && positionCamera.isFirstPerson)
-                || forceCockpitCamera;
+            bool cameraCenterIsCockpit = //(zoomedInIsCockpit && positionCamera.isFirstPerson) ||
+                forceCockpitCamera;
 
             if (currentCameraCenterIsCockpit != cameraCenterIsCockpit && currentlyControlled)
             {
@@ -872,6 +916,11 @@ public class ArchonControl : MonoBehaviour
     }
 
 
+    void LateUpdate()
+    {
+        UpdateFirstPerson();
+
+    }
 
     void Update()
     {
@@ -889,7 +938,6 @@ public class ArchonControl : MonoBehaviour
 
             UpdateBay();
 
-            UpdateFirstPerson();
 
             UpdateHealingLights();
 
@@ -977,6 +1025,9 @@ public class ArchonControl : MonoBehaviour
                 Log.LogWarning("Trail space is not offloaded right now. Fixing");
                 trailSpace.parent = transform.parent;
             }
+
+
+
             hullLightController.lightsEnabled = lights;
         }
         catch (Exception ex)
@@ -1036,12 +1087,12 @@ public class ArchonControl : MonoBehaviour
         }
     }
 
-    public void Localize(Transform player)
-    {
-        player.parent = seat;
-        player.localPosition = Vector3.zero;
-        player.localEulerAngles = Vector3.zero;
-    }
+    //public void Localize(Transform player)
+    //{
+    //    player.parent = helmSeatRoot;
+    //    player.localPosition = Vector3.zero;
+    //    player.localEulerAngles = Vector3.zero;
+    //}
 
     public void UpdateLowCamera(float oceanY)
     {
@@ -1051,28 +1102,6 @@ public class ArchonControl : MonoBehaviour
             positionCameraBelowSub = false;
     }
 
-    internal bool CopyCockpitCamera(ref LockedEuler current)
-    {
-        if (zoomedInIsCockpit && positionCamera.isFirstPerson)
-        {
-            if (cameraRoot)
-                current = LockedEuler.FromGlobal(cameraRoot);
-            return true;
-        }
-        else
-        {
-            //if (cameraRoot)
-            //{
-
-            //    current.ApplyTo(cameraRoot);
-            //    LockedEuler.FromLocal(cameraRoot)
-            //        .ConstrainedHead()
-            //        .ApplyTo(cameraRoot);
-            //}
-
-        }
-        return false;
-    }
 }
 
 

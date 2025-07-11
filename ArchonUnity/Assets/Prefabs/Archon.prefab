@@ -8267,14 +8267,15 @@ MonoBehaviour:
   interiorLights: {fileID: 8053289794522597}
   interiorLightMaterial: {fileID: 2100000, guid: b63fdba04faac344087a744b857b8095,
     type: 2}
-  glassMaterial: {fileID: 2100000, guid: 96627872eee0da14fa4c4b462b9756bf, type: 2}
-  invisibleShader: {fileID: 4800000, guid: d9989861178bd454abdf8655e2fa8d9f, type: 3}
+  glass:
+  - {fileID: 7518712065979043326}
   exterior: {fileID: 1341443219838386736}
   controlExit: {fileID: 0}
   dockingTrigger: {fileID: 4625006239438012383}
   dockedSpace: {fileID: 1197983882717610232}
   hangarRoot: {fileID: 2420336263794514219}
   exteriorModel: {fileID: 7669125371731321602}
+  helmSeatRoot: {fileID: 7582772590293487394}
   exteriorInteriorShadowCaster: {fileID: 2491679415423529538}
   interiorExteriorShadowCaster: {fileID: 1168869035926576278}
   forwardAxis: 0
@@ -8312,7 +8313,6 @@ MonoBehaviour:
   healingLights: []
   trailSpace: {fileID: 7745366989348154525}
   trailSpaceCameraContainer: {fileID: 8579245659820934697}
-  seat: {fileID: 0}
   statusConsole: {fileID: 5266262755269866574}
 --- !u!114 &7575533074063423364
 MonoBehaviour:
@@ -25415,8 +25415,8 @@ MeshRenderer:
   - {fileID: 2100000, guid: 7366934b842c8cc4c9a5bf9bd0b91d71, type: 2}
   - {fileID: 2100000, guid: b63fdba04faac344087a744b857b8095, type: 2}
   - {fileID: 2100000, guid: c11edd86414e748459c18a0e58ee793f, type: 2}
-  - {fileID: 2100000, guid: 8f9731da7e7589b45b2af102fcff32a8, type: 2}
   - {fileID: 2100000, guid: 3e3bd3417a46a9b4094338db5b81bb9c, type: 2}
+  - {fileID: 2100000, guid: 8f9731da7e7589b45b2af102fcff32a8, type: 2}
   - {fileID: 2100000, guid: 4b780816749c0c24e9b673fafd511418, type: 2}
   - {fileID: 2100000, guid: 46f874e6e22cc6c42898cb83b8f27ba3, type: 2}
   m_StaticBatchInfo:
