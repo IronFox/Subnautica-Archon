@@ -2,16 +2,20 @@
 A mod that adds the Archon submarine to the Subnautica game
 
 ## Requirements
-- Tobey's BepInEx Pack for Subnautica (https://www.nexusmods.com/subnautica/mods/1108)
-- Vehicle Framework (https://www.nexusmods.com/subnautica/mods/859)
+- Tobey's BepInEx Pack for Subnautica (Mod: https://www.nexusmods.com/subnautica/mods/1108)
+- AVS (Library: https://github.com/IronFox/AVS)
 - Unity Editor version 2019.4.36f
 - Visual Studio 2019+ (2022 is current at the time of writing) Community+
 - .NET 4.7.2 developer pack (https://dotnet.microsoft.com/en-us/download/dotnet-framework/net472)
+- Set environment variables:
+	- AVS_PATH=(clone directory of AVS without trailing \ )
+	- SUBNAUTICA_PATH=(Subnautica install directory without trailing \ )
 
 ## Project Composition
-The project is split in two: There is a unity project in the [clone]\ArchonUnity subdirectory. If should be opened with the correct Unity editor. The second directory, [clone]\ArchonPlugin, contains the actual plugin which is loaded by BepInEx.
-While the Unity project should build (and run), the Plugin likely will not.
-See dependencies below. Since the plugin references the DLL produced by Unity, you will need to build those at least once before fixing the dependency issues.
+The project is split in two: There is a unity project in the [clone]\ArchonUnity subdirectory. If should be opened with the correct Unity editor.
+The second directory, [clone]\ArchonPlugin, contains the actual plugin which is loaded by BepInEx.
+While the Unity project should build (and run), the requires AVS to be built first.
+If the environment variables are properly set up and AVS has been compiled in **RELEASE**, ArchonPlugin will also build.
 
 ## Building via Unity
 1) Build assets via Unity: Menu -> Assets -> Build AssetBundles
@@ -24,6 +28,8 @@ Otherwise read on:
 
 The plugin needs the following DLLs to be referenced in the ArchonPlugin project:
 - [build]\Subnautica Archon_Data\Managed\ArchonScripts.dll
+
+The following will be automatically linked if your environment variables are set properly:
 - [Subnautica]\BepInEx\core\0Harmony.dll
 - [Subnautica]\BepInEx\core\BepInEx.dll
 - [Subnautica]\BepInEx\plugins\Nautilus\Nautilus.dll
@@ -39,7 +45,6 @@ The plugin needs the following DLLs to be referenced in the ArchonPlugin project
 - [Subnautica]\Subnautica_Data\Managed\UnityEngine.ParticleSystemModule.dll
 - [Subnautica]\Subnautica_Data\Managed\UnityEngine.PhysicsModule.dll
 
-Once set up, the project should build.
 Compile the ArchonPlugin project for **release**. It cannot be run outside Subnautica. That should produce the DLL we need in [clone]\ArchonPlugin\bin\Release\net4.7.2\Subnautica Archon.dll
 
 ## Assembly

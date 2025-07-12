@@ -10,52 +10,52 @@
 
   <ItemGroup>
     <Reference Include="0Harmony">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\BepInEx\core\0Harmony.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\BepInEx\core\0Harmony.dll</HintPath>
     </Reference>
     <Reference Include="ArchonScripts">
       <HintPath>..\..\BuildTarget\Subnautica Archon_Data\Managed\ArchonScripts.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
     </Reference>
     <Reference Include="AVS">
-      <HintPath>..\..\..\Code\CSProjects\AVS\AVS\bin\Release\net4.7.2\AVS.dll</HintPath>
+      <HintPath>$(AVS_PATH)\AVS\bin\Release\net4.7.2\AVS.dll</HintPath>
     </Reference>
     <Reference Include="BepInEx">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\BepInEx\core\BepInEx.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\BepInEx\core\BepInEx.dll</HintPath>
     </Reference>
     <Reference Include="FMODUnity">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\FMODUnity.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\FMODUnity.dll</HintPath>
     </Reference>
     <Reference Include="Nautilus">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\BepInEx\plugins\Nautilus\Nautilus.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\BepInEx\plugins\Nautilus\Nautilus.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>..\..\..\Code\CSProjects\AVS\AVS\bin\Release\net4.7.2\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>$(AVS_PATH)\AVS\bin\Release\net4.7.2\Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AssetBundleModule">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AudioModule">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.AudioModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.PhysicsModule">
-      <HintPath>G:\SteamLibrary\steamapps\common\Subnautica\Subnautica_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
     </Reference>
   </ItemGroup>
 
