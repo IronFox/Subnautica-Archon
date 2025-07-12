@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -6,9 +5,9 @@ using UnityEngine;
 public static class ObjectUtil
 {
 
-    public static bool DisableAllEnabled(this IEnumerable<IEnabled> enabled, Undoable undo, bool forced=false)
+    public static bool DisableAllEnabled(this IEnumerable<IEnabled> enabled, Undoable undo, bool forced = false)
     {
-        bool rs= false;
+        bool rs = false;
         foreach (var c in enabled)
             rs |= undo.Do(new DisableAction(c), forced);
         return rs;
@@ -16,13 +15,13 @@ public static class ObjectUtil
 
     public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<Behaviour> behaviours)
         => behaviours.Select(x => new BehaviourEnabled(x));
-    
+
     public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<Collider> behaviours)
         => behaviours.Select(x => new ColliderEnabled(x));
-        
+
     public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<Renderer> behaviours)
         => behaviours.Select(x => new RendererEnabled(x));
-            
+
     public static IEnumerable<IEnabled> ToEnabled(this IEnumerable<ParticleSystem> behaviours)
         => behaviours.Select(x => new EmissionEnabled(x));
 
@@ -34,8 +33,8 @@ public static class ObjectUtil
     public static bool DisableAllEnabledColliders(this Transform t, Undoable undo, bool forced = false)
         => t.GetComponentsInChildren<Collider>()
         .ToEnabled()
-        .DisableAllEnabled(undo,forced);
-    public static bool DisableAllEnabledColliders(this IDockable dockable, Undoable undo, bool forced=false)
+        .DisableAllEnabled(undo, forced);
+    public static bool DisableAllEnabledColliders(this IDockable dockable, Undoable undo, bool forced = false)
         => dockable.GetAllComponents<Collider>()
         .ToEnabled()
         .DisableAllEnabled(undo, forced);
@@ -69,7 +68,7 @@ public static class ObjectUtil
         .ToEnabled()
         .DisableAllEnabled(undo, forced);
 
-    
+
     public static bool DisableAllActiveParticleEmitters(this GameObject go, Undoable undo, bool forced = false)
         => go.GetComponentsInChildren<ParticleSystem>()
         .ToEnabled()
@@ -140,7 +139,7 @@ public static class ObjectUtil
         for (int i = 0; i < transform.childCount; i++)
             yield return transform.GetChild(i);
     }
-    public static GameObject GetGameObjectOf(Collider collider)
+    public static GameObject GetGameObject(this Collider collider)
     {
         if (collider.attachedRigidbody)
             return collider.attachedRigidbody.gameObject;

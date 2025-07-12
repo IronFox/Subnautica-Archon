@@ -384,7 +384,7 @@ public class BayControl : MonoBehaviour
 
             var candidate = dockingTrigger.ClosestEnabledNonKinematic(c =>
             {
-                var go = ObjectUtil.GetGameObjectOf(c);
+                var go = ObjectUtil.GetGameObject(c);
                 if (tugGosActive.Contains(go.GetInstanceID()))//being tugged (in or out) or docked
                 {
                     //Log.Write($"{go} is already being tugged");

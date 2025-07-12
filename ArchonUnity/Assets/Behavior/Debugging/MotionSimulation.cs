@@ -21,7 +21,7 @@ public class MotionSimulation : MonoBehaviour
         control.forwardAxis = Input.GetAxis("Vertical");
         control.rightAxis = Input.GetAxis("Horizontal");
         control.upAxis = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.C) ? 1 : 0);
-        control.overdriveActive = Input.GetKey(KeyCode.LeftShift);
+        //control.overdriveActive = Input.GetKey(KeyCode.LeftShift);
         if (Input.GetKeyDown(KeyCode.F))
             control.freeCamera = !control.freeCamera;
         control.zoomAxis = -Input.GetAxis("Mouse ScrollWheel");

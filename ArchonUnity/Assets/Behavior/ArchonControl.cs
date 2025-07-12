@@ -11,7 +11,6 @@ public class ArchonControl : MonoBehaviour
     public Material interiorLightMaterial;
     public GameObject[] glass;
     public Transform exterior;
-    public Transform controlExit;
     public Transform dockingTrigger;
     public Transform dockedSpace;
     public Transform hangarRoot;
@@ -27,11 +26,11 @@ public class ArchonControl : MonoBehaviour
     public float zoomAxis;
     public float lookRightAxis;
     public float lookUpAxis;
-    public bool isMovingInReverse;
+    private bool isMovingInReverse;
 
     public const int OuterShellLayer = 30;
 
-    public bool overdriveActive;
+    //public bool overdriveActive;
     public bool outOfWater;
     public bool freeCamera = true;
     public bool flipFreeHorizontalRotationInReverse = true;
@@ -46,7 +45,6 @@ public class ArchonControl : MonoBehaviour
     public bool powerOff;
     public bool batteryDead;
     public bool openUpgradeCover;
-    public bool openBay;
     public bool lights;
 
     public int maxDockedVehicles = 2;
@@ -453,6 +451,7 @@ public class ArchonControl : MonoBehaviour
         if (orientation)
             orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
         evacuateIntruders.enabled = IsBoarded;
+        SetCameraIsInVehicle(false, false);
     }
 
     private static string TN(RenderTexture rt)
@@ -553,7 +552,7 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.ForwardAxis, forwardAxis);
             statusConsole.Set(StatusProperty.RightAxis, rightAxis);
             statusConsole.Set(StatusProperty.UpAxis, upAxis);
-            statusConsole.Set(StatusProperty.OverdriveActive, overdriveActive);
+            //statusConsole.Set(StatusProperty.OverdriveActive, overdriveActive);
             statusConsole.Set(StatusProperty.CameraDistance, positionCamera.DistanceToTarget);
             statusConsole.Set(StatusProperty.PositionCameraBelowSub, positionCamera.positionBelowTarget);
             statusConsole.Set(StatusProperty.Velocity, rb.velocity.magnitude);
@@ -567,7 +566,6 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.OnboardingCooldown, OnboardingCooldown);
             statusConsole.Set(StatusProperty.OpenUpgradeCover, openUpgradeCover);
             statusConsole.Set(StatusProperty.IsFirstPerson, positionCamera.isFirstPerson);
-            statusConsole.Set(StatusProperty.OpenBay, openBay);
             statusConsole.Set(StatusProperty.Lights, lights);
             statusConsole.Set(StatusProperty.NumDockedVehicles, bayControl.NumDockedVehicles);
         }
@@ -880,21 +878,21 @@ public class ArchonControl : MonoBehaviour
                     backFacingRight.thrust = forwardAxis - orientation.HorizontalRotationIntent * 0.001f;
 
 
-                    if (overdriveActive)
-                    {
-                        float overdriveThreshold = 0.5f;
-                        if (forwardAxis > overdriveThreshold)
-                        {
-                            firstPersonMarkers.overdriveActive = true;
-                            backFacingRight.overdrive =
-                            backFacingLeft.overdrive =
-                                (forwardAxis - overdriveThreshold) / (1f - overdriveThreshold);
-                        }
-                        else
-                            backFacingLeft.overdrive = backFacingRight.overdrive = 0;
-                    }
-                    else
-                        backFacingLeft.overdrive = backFacingRight.overdrive = 0;
+                    //if (overdriveActive)
+                    //{
+                    //    float overdriveThreshold = 0.5f;
+                    //    if (forwardAxis > overdriveThreshold)
+                    //    {
+                    //        firstPersonMarkers.overdriveActive = true;
+                    //        backFacingRight.overdrive =
+                    //        backFacingLeft.overdrive =
+                    //            (forwardAxis - overdriveThreshold) / (1f - overdriveThreshold);
+                    //    }
+                    //    else
+                    //        backFacingLeft.overdrive = backFacingRight.overdrive = 0;
+                    //}
+                    //else
+                    //    backFacingLeft.overdrive = backFacingRight.overdrive = 0;
 
                 }
             }

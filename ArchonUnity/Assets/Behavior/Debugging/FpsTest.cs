@@ -114,10 +114,6 @@ public class FpsTest : MonoBehaviour
         //    subControl.cameraCenterIsCockpit = !subControl.cameraCenterIsCockpit;
         //}
 
-        if (Input.GetKeyDown(bayOpenKey))
-        {
-            subControl.openBay = !subControl.openBay;
-        }
 
         if (Input.GetKeyDown(controlKey) && IsAtHelm)
         {
@@ -163,7 +159,7 @@ public class FpsTest : MonoBehaviour
 
     internal PlayerReference ToReference()
     {
-        return new PlayerReference(gameObject, head, null);
+        return new PlayerReference(gameObject, head);
     }
 
     internal void EnterHelm(ArchonControl archon, DebugHelm debugHelm)

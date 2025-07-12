@@ -34,10 +34,7 @@ public class EvacuateIntruders : MonoBehaviour
                 var hits = Physics.OverlapSphereNonAlloc(transform.TransformPoint(sphere.Center), sphere.Radius, buffer);
                 var rs = buffer
                     .Take(hits)
-                    .Select(hit => hit.attachedRigidbody
-                        ? hit.attachedRigidbody.gameObject
-                        : hit.gameObject
-                        );
+                    .Select(hit => hit.GetGameObject());
 
                 foreach (var hit in rs)
                 {

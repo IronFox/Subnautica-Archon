@@ -87,8 +87,6 @@ namespace Subnautica_Archon
 
         //public override float ExitVelocityLimit => 100f;    //any speed is good
 
-        protected override bool ExcludeFromMaterialFixing(Renderer renderer, int materialIndex, Material material)
-            => material.name.Contains("[Glass]") || base.ExcludeFromMaterialFixing(renderer, materialIndex, material);
         public IEnumerable<QuickSlot> QuickSlots
         {
             get
@@ -955,7 +953,7 @@ namespace Subnautica_Archon
                 ProcessTriggers();
 
                 Control.outOfWater = !GetIsUnderwater();
-                Control.cameraCenterIsCockpit = Player.main.pda.state == PDA.State.Opened;
+                Control.forceCockpitCamera = Player.main.pda.state == PDA.State.Opened;
 
                 if (Player.main.pda.state == PDA.State.Closed && !IngameMenu.main.gameObject.activeSelf)
                 {

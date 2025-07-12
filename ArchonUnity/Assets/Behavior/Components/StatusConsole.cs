@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -12,7 +10,7 @@ public class StatusConsole : CommonBoardingListener
     private Canvas canvas;
 
     private string[] status = new string[Enum.GetValues(typeof(StatusProperty)).Length];
-    
+
     public void SetString(StatusProperty property, string value)
     {
         status[(int)property] = value ?? "<null>";
@@ -113,7 +111,6 @@ public enum StatusProperty
     ForwardAxis,
     RightAxis,
     UpAxis,
-    OverdriveActive,
     CameraDistance,
     PositionCameraBelowSub,
     Velocity,
@@ -127,7 +124,6 @@ public enum StatusProperty
     OnboardingCooldown,
     OpenUpgradeCover,
     IsFirstPerson,
-    OpenBay,
     Lights,
     NumDockedVehicles,
 }

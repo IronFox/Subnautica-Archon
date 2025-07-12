@@ -13,7 +13,7 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
 
     public TechType TechType { get; private set; }
 
-    public List<CraftingNode>? craftingPath;
+    private IReadOnlyList<CraftingNode>? craftingPath;
 
     public virtual IReadOnlyCollection<TechType> AutoDisplace { get; } = Array.Empty<TechType>();
     public override string ClassId => $"Archon{Module}";
@@ -22,11 +22,11 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
     public override string DisplayName => Language.main.Get("display_" + Module);
 
     public static CraftingNode RootCraftingNode { get; } = new CraftingNode
-    {
-        displayName = $"Archon",
-        icon = Archon.craftingSprite!,
-        name = $"archonupgradetab"
-    };
+    (
+        displayName: $"Archon",
+        icon: Archon.craftingSprite!,
+        name: $"archonupgradetab"
+    );
 
     public static string GetMarkFromType(ArchonModule m)
     {
@@ -102,7 +102,7 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
         return TechType.None;
     }
 
-    public override List<CraftingNode>? CraftingPath
+    public override IReadOnlyList<CraftingNode>? CraftingPath
     {
         get => craftingPath;
         set => craftingPath = value;
