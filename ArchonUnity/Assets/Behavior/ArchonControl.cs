@@ -8,7 +8,6 @@ public class ArchonControl : MonoBehaviour
     public Transform interior;
     public Transform interiorColliders;
     public Transform interiorLights;
-    public Material interiorLightMaterial;
     public GameObject[] glass;
     public Transform exterior;
     public Transform dockingTrigger;
@@ -26,6 +25,8 @@ public class ArchonControl : MonoBehaviour
     public float zoomAxis;
     public float lookRightAxis;
     public float lookUpAxis;
+    public float interiorLightScale = 1;
+
     private bool isMovingInReverse;
 
     public const int OuterShellLayer = 30;
@@ -183,15 +184,9 @@ public class ArchonControl : MonoBehaviour
         interiorLights.gameObject.SetActive(enable);
         glass?.ForEach(g => g.SetActive(enable));
 
-        if (enable)
-        {
-            interiorLightMaterial.SetColor("_EmissionColor", Color.white);
-        }
-        else
-        {
-            interiorLightMaterial.SetColor("_EmissionColor", Color.black);
-        }
-
+        GetComponentsInChildren<IInteriorLightListener>().ForEach(
+            listener => listener.SetInteriorLight(enable ? interiorLightScale : 0)
+            );
     }
 
     private void MoveCameraOutOfTrailSpace(bool withCollidersAndLights)
@@ -327,10 +322,6 @@ public class ArchonControl : MonoBehaviour
     {
         interior.gameObject.SetActive(isInVehicle);
         UpdateInteriorCollidersAndLights(isInVehicle && withCollidersAndLights);
-        if (isInVehicle && withCollidersAndLights)
-            interiorLightMaterial.SetColor("_EmissionColor", Color.white);
-        else
-            interiorLightMaterial.SetColor("_EmissionColor", Color.black);
 
         exteriorInteriorShadowCaster.enabled = isInVehicle;
         interiorExteriorShadowCaster.enabled = isInVehicle;

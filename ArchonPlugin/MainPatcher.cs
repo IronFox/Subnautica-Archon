@@ -134,6 +134,10 @@ namespace Subnautica_Archon
                 //RepairModule.RegisterAll();
 
                 AudioPatcher.Patcher = (source) => FreezeTimePatcher.Register(source);
+
+                PlayerAdapter.IsPlayer = go
+                    => go.transform.IsChildOf(Player.mainObject.transform);
+
                 ActorAdapter.IsOutOfWater = (go, pos) =>
                 {
                     var wf = go.GetComponent<WorldForces>();

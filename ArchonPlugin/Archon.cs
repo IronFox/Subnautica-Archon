@@ -2,6 +2,7 @@
 using AVS.Composition;
 using AVS.Configuration;
 using AVS.Interfaces;
+using AVS.MaterialAdapt;
 using AVS.Util;
 using AVS.VehicleComponents;
 using AVS.VehicleParts;
@@ -63,6 +64,7 @@ namespace Subnautica_Archon
             canLeviathanGrab: false,
             canMoonpoolDock: false,
             pilotingStyle: PilotingStyle.Other,
+            materialAdaptConfig: new DefaultMaterialAdaptConfig(Logging.Verbose),
             recipe: NewRecipe
                 .StartWith(TechType.PowerCell, 1)
                 .Include(TechType.AdvancedWiringKit, 2)
@@ -213,7 +215,7 @@ namespace Subnautica_Archon
 
             control = GetComponent<ArchonControl>();
             control.freeCamera = MainPatcher.PluginConfig.defaultToFreeCamera;
-
+            control.interiorLightScale = 0.75f;
 
             //var loadSave = gameObject.GetComponent<LoadSaveComponent>();
             //if (!loadSave)
@@ -910,7 +912,7 @@ namespace Subnautica_Archon
                 Control.flipFreeHorizontalRotationInReverse = MainPatcher.PluginConfig.flipFreeHorizontalRotationInReverse;
                 Control.flipFreeVerticalRotationInReverse = MainPatcher.PluginConfig.flipFreeVerticalRotationInReverse;
 
-                if (Input.GetKeyDown(KeyCode.F6))
+                if (Input.GetKeyDown(KeyCode.F7))
                 {
                     //if (Player.main.currentMountedVehicle != null)
                     //{
@@ -1149,7 +1151,7 @@ namespace Subnautica_Archon
                 }
             }
             var hatches = transform.Find("Hatches");
-            var hatchList = new List<VehicleHatchStruct>();
+            var hatchList = new List<VehicleHatchDefinition>();
             if (hatches)
             {
                 foreach (Transform hatch in hatches)
@@ -1161,7 +1163,7 @@ namespace Subnautica_Archon
                         Log.Error("Hatch children not found of " + hatch);
                         continue;
                     }
-                    hatchList.Add(new VehicleHatchStruct(
+                    hatchList.Add(new VehicleHatchDefinition(
                         hatch: hatch.gameObject,
                         exit: exit,
                         surfaceExit: exit,
@@ -1274,28 +1276,22 @@ namespace Subnautica_Archon
                 Log.Write($"Unable to locate 'Batteries' child");
 
             var pilotSeats = new List<VehiclePilotSeat>();
-            var cockpit = transform.Find("Cockpit");
-            if (cockpit)
+            var helm = transform.Find("Helm");
+            if (helm)
             {
-                var entries = transform.Find("Interior/Entries");
-                foreach (var entry in entries.GetChildren())
-                {
-                    var cockpitExit = entry.Find($"Exit");
-                    if (!cockpitExit)
-                    {
-                        Log.Write($"Cockpit exit not found for {entry.NiceName()}");
-                        continue;
-                    }
-                    pilotSeats.Add(new VehiclePilotSeat
-                    (
-                        seat: entry.gameObject,
-                        sitLocation: cockpit.gameObject,
-                        exitLocation: cockpitExit
-                    ));
-                }
+                var helmExit = helm.Find($"ExitLocation");
+                if (!helmExit)
+                    Log.Write($"Helm exit not found for {helm.NiceName()}");
+
+                pilotSeats.Add(new VehiclePilotSeat
+                (
+                    seat: helm.gameObject,
+                    sitLocation: helm.gameObject,
+                    exitLocation: helmExit
+                ));
             }
             else
-                Log.Error("Cockpit not found");
+                Log.Error("Helm not found");
 
             var tetherSources = new List<GameObject>();
             var tether = transform.Find("Tether");

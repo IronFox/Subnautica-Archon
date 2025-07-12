@@ -290,6 +290,7 @@ GameObject:
   m_Component:
   - component: {fileID: 782810372194976007}
   - component: {fileID: 2763557864932652988}
+  - component: {fileID: 1199807086904191216}
   m_Layer: 0
   m_Name: Bioreactor Back
   m_TagString: Untagged
@@ -323,7 +324,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 165.9
   m_InnerSpotAngle: 21.80208
@@ -372,6 +373,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1199807086904191216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80734824287528414}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &85643703875901574
 GameObject:
   m_ObjectHideFlags: 0
@@ -1343,6 +1356,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8617871836174738562}
   - component: {fileID: 6447685222897473955}
+  - component: {fileID: 2863937144982750054}
   m_Layer: 0
   m_Name: Fake Compartment Light (2)
   m_TagString: Untagged
@@ -1376,7 +1390,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -1425,6 +1439,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2863937144982750054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 412910031256733302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &415520049212126716
 GameObject:
   m_ObjectHideFlags: 0
@@ -1634,6 +1660,7 @@ GameObject:
   m_Component:
   - component: {fileID: 44469971595494173}
   - component: {fileID: 3554817307267290550}
+  - component: {fileID: 1095080589065282689}
   m_Layer: 0
   m_Name: Top Side (19)
   m_TagString: Untagged
@@ -1667,7 +1694,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 16
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -1716,6 +1743,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1095080589065282689
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 460880396916087359}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &494818449210957894
 GameObject:
   m_ObjectHideFlags: 0
@@ -1727,6 +1766,7 @@ GameObject:
   - component: {fileID: 6310708511847937753}
   - component: {fileID: 8695544486433144852}
   - component: {fileID: 7727332851172535302}
+  - component: {fileID: 945964833113169637}
   m_Layer: 0
   m_Name: Bottom Hatches
   m_TagString: Untagged
@@ -1799,6 +1839,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &945964833113169637
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 494818449210957894}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &544087710737986338
 GameObject:
   m_ObjectHideFlags: 0
@@ -2063,6 +2115,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5008821378395301577}
   - component: {fileID: 3498244411271571908}
+  - component: {fileID: 2968001431770817645}
   m_Layer: 0
   m_Name: Bridge Light 1
   m_TagString: Untagged
@@ -2145,6 +2198,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2968001431770817645
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 601326840623192236}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &603493609666947094
 GameObject:
   m_ObjectHideFlags: 0
@@ -2345,6 +2410,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7571686531819240039}
   - component: {fileID: 683660157297552512}
+  - component: {fileID: 4309716842073353175}
   m_Layer: 0
   m_Name: Front Pillar (1)
   m_TagString: Untagged
@@ -2378,7 +2444,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 3
   m_Range: 4
   m_SpotAngle: 148.8
   m_InnerSpotAngle: 21.80208
@@ -2427,6 +2493,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4309716842073353175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 650752091572476188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &684706789563091629
 GameObject:
   m_ObjectHideFlags: 0
@@ -3223,6 +3301,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3588664330741877250}
   - component: {fileID: 5240795729075637085}
+  - component: {fileID: 1243055038936390883}
   m_Layer: 0
   m_Name: Bioreactor Forward
   m_TagString: Untagged
@@ -3256,7 +3335,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 165.9
   m_InnerSpotAngle: 21.80208
@@ -3305,6 +3384,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1243055038936390883
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1001983181413652841}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1029552684097989920
 GameObject:
   m_ObjectHideFlags: 0
@@ -3452,6 +3543,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5212005416379181272}
   - component: {fileID: 983362653379436794}
+  - component: {fileID: 373195971730441966}
   m_Layer: 0
   m_Name: Top Side (4)
   m_TagString: Untagged
@@ -3485,7 +3577,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -3534,6 +3626,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &373195971730441966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1052217455271430986}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1069102792161036828
 GameObject:
   m_ObjectHideFlags: 0
@@ -3802,6 +3906,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5607822153645977384}
   - component: {fileID: 899571282910716798}
+  - component: {fileID: 913000550855615729}
   m_Layer: 0
   m_Name: Fake Compartment Light (5)
   m_TagString: Untagged
@@ -3835,7 +3940,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -3884,6 +3989,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &913000550855615729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144079551501981638}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1152488619302805152
 GameObject:
   m_ObjectHideFlags: 0
@@ -4064,6 +4181,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8356522766222284102}
   - component: {fileID: 1559908251686735486}
+  - component: {fileID: 1760450500643057822}
   m_Layer: 0
   m_Name: Right Down Airlock
   m_TagString: Untagged
@@ -4097,7 +4215,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 177.9
   m_InnerSpotAngle: 21.80208
@@ -4146,6 +4264,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1760450500643057822
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1237183903718547054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1311642453478388179
 GameObject:
   m_ObjectHideFlags: 0
@@ -4504,6 +4634,7 @@ GameObject:
   - component: {fileID: 3248590831356721696}
   - component: {fileID: 4662689119955142503}
   - component: {fileID: 737859045304956428}
+  - component: {fileID: 4759262861862442096}
   m_Layer: 0
   m_Name: Top floor
   m_TagString: Untagged
@@ -4578,6 +4709,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &4759262861862442096
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1520603864578508009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1524889583418608970
 GameObject:
   m_ObjectHideFlags: 0
@@ -4720,6 +4863,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5714981186798320177}
   - component: {fileID: 2106519638865065348}
+  - component: {fileID: 7309589885669804726}
   m_Layer: 0
   m_Name: Fake Compartment Light (7)
   m_TagString: Untagged
@@ -4753,7 +4897,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 3
   m_Range: 3
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -4802,6 +4946,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &7309589885669804726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1528726840622401937}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1539171578226762333
 GameObject:
   m_ObjectHideFlags: 0
@@ -5042,6 +5198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1468245462780870606}
   - component: {fileID: 3136680154458577109}
+  - component: {fileID: 8462347963498477266}
   m_Layer: 0
   m_Name: Spot Light (2)
   m_TagString: Untagged
@@ -5075,7 +5232,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3
+  m_Intensity: 2
   m_Range: 8
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -5124,6 +5281,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8462347963498477266
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1617701949907106271}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1622681472567235595
 GameObject:
   m_ObjectHideFlags: 0
@@ -5297,6 +5466,7 @@ GameObject:
   m_Component:
   - component: {fileID: 155379268880234838}
   - component: {fileID: 8597037349773070421}
+  - component: {fileID: 4303026687803408731}
   m_Layer: 0
   m_Name: Rear Stair
   m_TagString: Untagged
@@ -5330,7 +5500,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 6
   m_SpotAngle: 165.9
   m_InnerSpotAngle: 21.80208
@@ -5379,6 +5549,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4303026687803408731
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1705146728116433979}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1740005340767339655
 GameObject:
   m_ObjectHideFlags: 0
@@ -5588,6 +5770,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1531059486548949376}
   - component: {fileID: 7710944811170376938}
+  - component: {fileID: 7957569523336030881}
   m_Layer: 0
   m_Name: Stair Light Right (5)
   m_TagString: Untagged
@@ -5621,7 +5804,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 4
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -5670,6 +5853,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &7957569523336030881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1750005249603159061}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1815320073998466186
 GameObject:
   m_ObjectHideFlags: 0
@@ -6341,6 +6536,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1892426169841417648}
   - component: {fileID: 3492910055568639019}
+  - component: {fileID: 1406319876943361406}
   m_Layer: 0
   m_Name: Fishtank 2
   m_TagString: Untagged
@@ -6374,7 +6570,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 3
   m_Range: 10
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -6423,6 +6619,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1406319876943361406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1996019191514899833}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2029774941689862845
 GameObject:
   m_ObjectHideFlags: 0
@@ -6765,6 +6973,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8125198240012861920}
   - component: {fileID: 2267443855938717245}
+  - component: {fileID: 3888957591795396966}
   m_Layer: 0
   m_Name: Top Side (10)
   m_TagString: Untagged
@@ -6798,7 +7007,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -6847,6 +7056,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &3888957591795396966
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2094592818055930549}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2130184070698508034
 GameObject:
   m_ObjectHideFlags: 0
@@ -6857,6 +7078,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8027103501901880532}
   - component: {fileID: 7256360987741982788}
+  - component: {fileID: 5292686517088936075}
   m_Layer: 0
   m_Name: Bioreactor Left
   m_TagString: Untagged
@@ -6890,7 +7112,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 165.9
   m_InnerSpotAngle: 21.80208
@@ -6939,6 +7161,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &5292686517088936075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2130184070698508034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2174376701012591297
 GameObject:
   m_ObjectHideFlags: 0
@@ -7231,6 +7465,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6488804178155832611}
   - component: {fileID: 743076708860402792}
+  - component: {fileID: 5380673364006982852}
   m_Layer: 0
   m_Name: Right Side Airlock (2)
   m_TagString: Untagged
@@ -7264,7 +7499,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 148.8
   m_InnerSpotAngle: 21.80208
@@ -7313,6 +7548,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &5380673364006982852
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2245509618018712904}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2251092735711580413
 GameObject:
   m_ObjectHideFlags: 0
@@ -7534,6 +7781,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8852726290104711463}
   - component: {fileID: 3871904826279732076}
+  - component: {fileID: 3733412583506077517}
   m_Layer: 0
   m_Name: Stair Light Left
   m_TagString: Untagged
@@ -7567,7 +7815,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 6
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -7616,6 +7864,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &3733412583506077517
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2325073281195849472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2342229542055974232
 GameObject:
   m_ObjectHideFlags: 0
@@ -7961,6 +8221,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6081509854844642302}
   - component: {fileID: 2559096555908872405}
+  - component: {fileID: 6702668246595883269}
   m_Layer: 0
   m_Name: Main Light Front
   m_TagString: Untagged
@@ -7994,7 +8255,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 18
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -8043,6 +8304,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &6702668246595883269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2476050396989728704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2489034916202851182
 GameObject:
   m_ObjectHideFlags: 0
@@ -8053,6 +8326,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4159584220849681388}
   - component: {fileID: 994955234190920591}
+  - component: {fileID: 2582145746342768303}
   m_Layer: 0
   m_Name: Fake Compartment Light
   m_TagString: Untagged
@@ -8086,7 +8360,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -8135,6 +8409,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2582145746342768303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2489034916202851182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2489395023186856249
 GameObject:
   m_ObjectHideFlags: 0
@@ -8145,6 +8431,7 @@ GameObject:
   m_Component:
   - component: {fileID: 981936228420477409}
   - component: {fileID: 6126021555114913789}
+  - component: {fileID: 6862783908908866831}
   m_Layer: 0
   m_Name: Top Side (26)
   m_TagString: Untagged
@@ -8178,7 +8465,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 12
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -8227,6 +8514,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &6862783908908866831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2489395023186856249}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2489802767637445617
 GameObject:
   m_ObjectHideFlags: 0
@@ -8323,8 +8622,6 @@ MonoBehaviour:
   interior: {fileID: 3054471254611705171}
   interiorColliders: {fileID: 5889753751464879440}
   interiorLights: {fileID: 8053289794522597}
-  interiorLightMaterial: {fileID: 2100000, guid: b63fdba04faac344087a744b857b8095,
-    type: 2}
   glass:
   - {fileID: 7518712065979043326}
   exterior: {fileID: 1341443219838386736}
@@ -8341,6 +8638,7 @@ MonoBehaviour:
   zoomAxis: 0
   lookRightAxis: 0
   lookUpAxis: 0
+  interiorLightScale: 1
   outOfWater: 0
   freeCamera: 0
   flipFreeHorizontalRotationInReverse: 1
@@ -8352,7 +8650,6 @@ MonoBehaviour:
   powerOff: 0
   batteryDead: 0
   openUpgradeCover: 0
-  openBay: 0
   lights: 1
   maxDockedVehicles: 2
   maxEnergy: 1
@@ -9626,6 +9923,7 @@ GameObject:
   m_Component:
   - component: {fileID: 896415196771742180}
   - component: {fileID: 142372928226026184}
+  - component: {fileID: 8078860794832853012}
   m_Layer: 0
   m_Name: Front Pillar
   m_TagString: Untagged
@@ -9659,7 +9957,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 3
   m_Range: 4
   m_SpotAngle: 148.8
   m_InnerSpotAngle: 21.80208
@@ -9708,6 +10006,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8078860794832853012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2905657913272255057}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2915774898848611081
 GameObject:
   m_ObjectHideFlags: 0
@@ -9797,6 +10107,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4209258533587183746}
   - component: {fileID: 7821727967690067334}
+  - component: {fileID: 2902327634224626001}
   m_Layer: 0
   m_Name: Rear Stair (2)
   m_TagString: Untagged
@@ -9830,7 +10141,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 6
   m_SpotAngle: 165.9
   m_InnerSpotAngle: 21.80208
@@ -9879,6 +10190,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2902327634224626001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2935601152331495642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2941226174311784023
 GameObject:
   m_ObjectHideFlags: 0
@@ -10132,6 +10455,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1432198460912405374}
   - component: {fileID: 8216538999476651364}
+  - component: {fileID: 5211038447569831286}
   m_Layer: 0
   m_Name: Top Side (12)
   m_TagString: Untagged
@@ -10165,7 +10489,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -10214,6 +10538,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &5211038447569831286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3005227540646638926}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3010090610352193900
 GameObject:
   m_ObjectHideFlags: 0
@@ -10657,6 +10993,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5561129780591395365}
   - component: {fileID: 8046836103581504567}
+  - component: {fileID: 3725134468010281620}
   m_Layer: 0
   m_Name: Top Side (23)
   m_TagString: Untagged
@@ -10690,7 +11027,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 12
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -10739,6 +11076,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &3725134468010281620
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3139217551041053907}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3143272749623944282
 GameObject:
   m_ObjectHideFlags: 0
@@ -11440,6 +11789,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1012277724920202794}
   - component: {fileID: 6729313237411359475}
+  - component: {fileID: 8300348231593152926}
   m_Layer: 0
   m_Name: Top Side (18)
   m_TagString: Untagged
@@ -11473,7 +11823,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 16
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -11522,6 +11872,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8300348231593152926
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3276916361933167416}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3277870707474907874
 GameObject:
   m_ObjectHideFlags: 0
@@ -11532,6 +11894,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6065034354936765470}
   - component: {fileID: 7133987149591734611}
+  - component: {fileID: 785392412652622348}
   m_Layer: 0
   m_Name: Stair Light Right (3)
   m_TagString: Untagged
@@ -11565,7 +11928,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 6
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -11614,6 +11977,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &785392412652622348
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3277870707474907874}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3301807217512666248
 GameObject:
   m_ObjectHideFlags: 0
@@ -11721,6 +12096,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7099874499145151892}
   - component: {fileID: 68533410828768838}
+  - component: {fileID: 4179279173778464617}
   m_Layer: 0
   m_Name: Left Down Airlock (2)
   m_TagString: Untagged
@@ -11754,7 +12130,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 5
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 61.7
   m_InnerSpotAngle: 21.80208
@@ -11803,6 +12179,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4179279173778464617
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3403043553690739143}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3414581367156927405
 GameObject:
   m_ObjectHideFlags: 0
@@ -11813,6 +12201,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5910251223685211800}
   - component: {fileID: 2808598398232195373}
+  - component: {fileID: 3628417479327027156}
   m_Layer: 0
   m_Name: Fake Compartment Light (1)
   m_TagString: Untagged
@@ -11846,7 +12235,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -11895,6 +12284,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &3628417479327027156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3414581367156927405}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3434771335319419180
 GameObject:
   m_ObjectHideFlags: 0
@@ -12132,6 +12533,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1844859626260625266}
   - component: {fileID: 7121803879221252571}
+  - component: {fileID: 875910764194830066}
   m_Layer: 0
   m_Name: Left Down Airlock
   m_TagString: Untagged
@@ -12165,7 +12567,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 177.9
   m_InnerSpotAngle: 21.80208
@@ -12214,6 +12616,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &875910764194830066
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3534489115277893603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3561210748431125651
 GameObject:
   m_ObjectHideFlags: 0
@@ -12331,6 +12745,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7058090527895439233}
   - component: {fileID: 6120684235786895015}
+  - component: {fileID: 633801856871392674}
   m_Layer: 0
   m_Name: Left Side Airlock (1)
   m_TagString: Untagged
@@ -12364,7 +12779,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 5
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 61.7
   m_InnerSpotAngle: 21.80208
@@ -12413,6 +12828,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &633801856871392674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3652044572877150482}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3660587425637179195
 GameObject:
   m_ObjectHideFlags: 0
@@ -12847,6 +13274,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5067173713396896543}
   - component: {fileID: 8097030436892005797}
+  - component: {fileID: 3822788369989791767}
   m_Layer: 0
   m_Name: Spot Light
   m_TagString: Untagged
@@ -12880,7 +13308,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3
+  m_Intensity: 2
   m_Range: 8
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -12929,6 +13357,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &3822788369989791767
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3683424768813399242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3704893525310248257
 GameObject:
   m_ObjectHideFlags: 0
@@ -13407,6 +13847,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8880910290907209099}
   - component: {fileID: 7571610012071871674}
+  - component: {fileID: 8922941490274208646}
   m_Layer: 0
   m_Name: Top Side (2)
   m_TagString: Untagged
@@ -13440,7 +13881,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -13489,6 +13930,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8922941490274208646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3779607516489715222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3801995348820694174
 GameObject:
   m_ObjectHideFlags: 0
@@ -13684,6 +14137,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2510249706256790849}
   - component: {fileID: 4534685602004938675}
+  - component: {fileID: 2679862863598464097}
   m_Layer: 0
   m_Name: Spot Light (3)
   m_TagString: Untagged
@@ -13766,6 +14220,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2679862863598464097
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3912457607768055439}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3923568233440619706
 GameObject:
   m_ObjectHideFlags: 0
@@ -14015,6 +14481,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1699632520653336388}
   - component: {fileID: 1275822888292493272}
+  - component: {fileID: 1212492529128650144}
   m_Layer: 0
   m_Name: Top Side (6)
   m_TagString: Untagged
@@ -14048,7 +14515,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -14097,6 +14564,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1212492529128650144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3962240401712872156}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3970693298040595765
 GameObject:
   m_ObjectHideFlags: 0
@@ -14186,6 +14665,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9005285603277956726}
   - component: {fileID: 3742183413236226875}
+  - component: {fileID: 4526297235910389499}
   m_Layer: 0
   m_Name: Fake Compartment Light (3)
   m_TagString: Untagged
@@ -14219,7 +14699,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -14268,6 +14748,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4526297235910389499
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3988240159797730518}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3990037536211126823
 GameObject:
   m_ObjectHideFlags: 0
@@ -14357,6 +14849,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3182784891873876229}
   - component: {fileID: 2922089698313568730}
+  - component: {fileID: 4736103077038673644}
   m_Layer: 0
   m_Name: Bridge Light 2
   m_TagString: Untagged
@@ -14439,6 +14932,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4736103077038673644
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4002689990113522336}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4005732323175400573
 GameObject:
   m_ObjectHideFlags: 0
@@ -15155,6 +15660,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7539974759719072014}
   - component: {fileID: 8938099805819795064}
+  - component: {fileID: 5533188521436772626}
   m_Layer: 0
   m_Name: Left Side Airlock
   m_TagString: Untagged
@@ -15188,7 +15694,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 10
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 148.8
   m_InnerSpotAngle: 21.80208
@@ -15237,6 +15743,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &5533188521436772626
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4149711806841743658}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4154290118861606958
 GameObject:
   m_ObjectHideFlags: 0
@@ -15345,6 +15863,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1621341270585728173}
   - component: {fileID: 8550832675577844494}
+  - component: {fileID: 8588214048853392414}
   m_Layer: 0
   m_Name: Right Side Airlock (2)
   m_TagString: Untagged
@@ -15378,7 +15897,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 5
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 61.7
   m_InnerSpotAngle: 21.80208
@@ -15427,6 +15946,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8588214048853392414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4164263294042500943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4166185008401691006
 GameObject:
   m_ObjectHideFlags: 0
@@ -16100,6 +16631,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3880052784399106361}
   - component: {fileID: 83372600267041139}
+  - component: {fileID: 8961739214912495443}
   m_Layer: 0
   m_Name: Spot Light (1)
   m_TagString: Untagged
@@ -16133,7 +16665,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3
+  m_Intensity: 2
   m_Range: 8
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -16182,6 +16714,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8961739214912495443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4305758465258272400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4329950067022306844
 GameObject:
   m_ObjectHideFlags: 0
@@ -16556,6 +17100,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2566900721480873241}
   - component: {fileID: 5091570526310697440}
+  - component: {fileID: 6001571321438518293}
   m_Layer: 0
   m_Name: Fake Compartment Light (6)
   m_TagString: Untagged
@@ -16589,7 +17134,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 3
   m_Range: 3
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -16638,6 +17183,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &6001571321438518293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4398548825396407060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4420864847401934267
 GameObject:
   m_ObjectHideFlags: 0
@@ -17007,6 +17564,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1772187404296796412}
   - component: {fileID: 421198410314422290}
+  - component: {fileID: 3069130031735024811}
   m_Layer: 0
   m_Name: Top Side (11)
   m_TagString: Untagged
@@ -17040,7 +17598,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -17089,6 +17647,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &3069130031735024811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4573340384548340363}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4584150963465059998
 GameObject:
   m_ObjectHideFlags: 0
@@ -17252,6 +17822,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9055883103086442881}
   - component: {fileID: 7448551345595611195}
+  - component: {fileID: 2041480164547366651}
   m_Layer: 0
   m_Name: Fake Compartment Light (4)
   m_TagString: Untagged
@@ -17285,7 +17856,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -17334,6 +17905,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2041480164547366651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4612597745163948686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4625137151970114755
 GameObject:
   m_ObjectHideFlags: 0
@@ -17706,6 +18289,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2223266111536422423}
   - component: {fileID: 732294280314905178}
+  - component: {fileID: 5557129915998484350}
   m_Layer: 0
   m_Name: Top Side (28)
   m_TagString: Untagged
@@ -17739,7 +18323,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 12
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -17788,6 +18372,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &5557129915998484350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4756211836796231843}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4794965138114546975
 GameObject:
   m_ObjectHideFlags: 0
@@ -18648,6 +19244,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6080199818451957419}
   - component: {fileID: 4144758330209435719}
+  - component: {fileID: 6323513578751346324}
   m_Layer: 0
   m_Name: Top Side (24)
   m_TagString: Untagged
@@ -18681,7 +19278,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -18730,6 +19327,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &6323513578751346324
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5077569503709699700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5085582349868834683
 GameObject:
   m_ObjectHideFlags: 0
@@ -18740,6 +19349,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8346364643965826305}
   - component: {fileID: 7191709957231434591}
+  - component: {fileID: 8665486842695478740}
   m_Layer: 0
   m_Name: Rear Stair (1)
   m_TagString: Untagged
@@ -18773,7 +19383,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 6
   m_SpotAngle: 165.9
   m_InnerSpotAngle: 21.80208
@@ -18822,6 +19432,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8665486842695478740
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5085582349868834683}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5106015243519526044
 GameObject:
   m_ObjectHideFlags: 0
@@ -20562,6 +21184,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2833860306378810111}
   - component: {fileID: 1833017577272936231}
+  - component: {fileID: 5650285225113890550}
   m_Layer: 0
   m_Name: Stair Light Left (2)
   m_TagString: Untagged
@@ -20595,7 +21218,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 4
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -20644,6 +21267,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &5650285225113890550
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5696984123335406755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5722713010064528530
 GameObject:
   m_ObjectHideFlags: 0
@@ -20654,6 +21289,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2860898017250955147}
   - component: {fileID: 6802851996149209347}
+  - component: {fileID: 7584100895910053411}
   m_Layer: 0
   m_Name: Fishtank 1
   m_TagString: Untagged
@@ -20687,7 +21323,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 6
+  m_Intensity: 3
   m_Range: 10
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -20736,6 +21372,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &7584100895910053411
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5722713010064528530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5731078276659498794
 GameObject:
   m_ObjectHideFlags: 0
@@ -20938,6 +21586,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4020440611878653258}
   - component: {fileID: 8121639838109458831}
+  - component: {fileID: 898899420122595437}
   m_Layer: 0
   m_Name: Top Side (16)
   m_TagString: Untagged
@@ -20971,7 +21620,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -21020,6 +21669,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &898899420122595437
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5866443181854339628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5867530956169860774
 GameObject:
   m_ObjectHideFlags: 0
@@ -21030,6 +21691,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7016915207978109522}
   - component: {fileID: 7674503139271183841}
+  - component: {fileID: 1369865286104398654}
   m_Layer: 0
   m_Name: Top Side (1)
   m_TagString: Untagged
@@ -21063,7 +21725,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 8
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -21112,6 +21774,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1369865286104398654
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5867530956169860774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5882547483037632122
 GameObject:
   m_ObjectHideFlags: 0
@@ -21302,6 +21976,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1214742413743766430}
   - component: {fileID: 8283649309139258329}
+  - component: {fileID: 2659787384196764664}
   m_Layer: 0
   m_Name: Top Side (15)
   m_TagString: Untagged
@@ -21335,7 +22010,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -21384,6 +22059,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2659787384196764664
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5959983742513433046}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5962412855438673866
 GameObject:
   m_ObjectHideFlags: 0
@@ -21606,6 +22293,7 @@ GameObject:
   - component: {fileID: 3289764057597623825}
   - component: {fileID: 9206506800792529619}
   - component: {fileID: 3107066499276070057}
+  - component: {fileID: 6823492914115260778}
   m_Layer: 0
   m_Name: Front Stairs
   m_TagString: Untagged
@@ -21676,6 +22364,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &6823492914115260778
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6120225863489800836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6132997829566502041
 GameObject:
   m_ObjectHideFlags: 0
@@ -21686,6 +22386,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4934704877798959453}
   - component: {fileID: 4899893096538802037}
+  - component: {fileID: 8455779655717329928}
   m_Layer: 0
   m_Name: Stair Light Right (4)
   m_TagString: Untagged
@@ -21719,7 +22420,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 6
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -21768,6 +22469,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8455779655717329928
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6132997829566502041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6134603831873739471
 GameObject:
   m_ObjectHideFlags: 0
@@ -21954,6 +22667,7 @@ GameObject:
   m_Component:
   - component: {fileID: 959968749113892301}
   - component: {fileID: 8164392414065545997}
+  - component: {fileID: 6855598705623685228}
   m_Layer: 0
   m_Name: Bioreactor Right
   m_TagString: Untagged
@@ -21987,7 +22701,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 3
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 165.9
   m_InnerSpotAngle: 21.80208
@@ -22036,6 +22750,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &6855598705623685228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6184365032995878100}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6189220510164515462
 GameObject:
   m_ObjectHideFlags: 0
@@ -22413,6 +23139,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5982984214644770254}
   - component: {fileID: 2842167701241118075}
+  - component: {fileID: 4221344984283715598}
   m_Layer: 0
   m_Name: Top Side (30)
   m_TagString: Untagged
@@ -22446,7 +23173,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 16
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -22495,6 +23222,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4221344984283715598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6227202314705301285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6249436985808708469
 GameObject:
   m_ObjectHideFlags: 0
@@ -22770,6 +23509,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2729971037746452841}
   - component: {fileID: 4550770521522458836}
+  - component: {fileID: 4010240279670301270}
   m_Layer: 0
   m_Name: Top Side (25)
   m_TagString: Untagged
@@ -22803,7 +23543,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -22852,6 +23592,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4010240279670301270
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6334008658375575000}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6369949997480494702
 GameObject:
   m_ObjectHideFlags: 0
@@ -23882,6 +24634,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2181900957365524097}
   - component: {fileID: 4207352578568319346}
+  - component: {fileID: 8948693425557936421}
   m_Layer: 0
   m_Name: Bridge Light 3
   m_TagString: Untagged
@@ -23964,6 +24717,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8948693425557936421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6815595132408760948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6844712439104828063
 GameObject:
   m_ObjectHideFlags: 0
@@ -24438,7 +25203,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6954035845603025075}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -0.837, z: -1.427}
+  m_LocalPosition: {x: 0, y: -0.837, z: -2.102}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 7582772590293487394}
@@ -24669,6 +25434,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5925840713012265664}
   - component: {fileID: 4189289691707877392}
+  - component: {fileID: 3079708711223033474}
   m_Layer: 0
   m_Name: Stair Light Left (1)
   m_TagString: Untagged
@@ -24702,7 +25468,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 6
   m_SpotAngle: 172.7
   m_InnerSpotAngle: 21.80208
@@ -24751,6 +25517,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &3079708711223033474
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7005276233891902934}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7010810063586518382
 GameObject:
   m_ObjectHideFlags: 0
@@ -25055,6 +25833,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9175317408170972762}
   - component: {fileID: 1752098410647914069}
+  - component: {fileID: 1886289093490590175}
   m_Layer: 0
   m_Name: Top Side (22)
   m_TagString: Untagged
@@ -25088,7 +25867,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 12
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -25137,6 +25916,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1886289093490590175
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7130504286840064286}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7138068503789545226
 GameObject:
   m_ObjectHideFlags: 0
@@ -25200,6 +25991,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6812624192297260124}
   - component: {fileID: 8475168600393486805}
+  - component: {fileID: 2301636934270259955}
   m_Layer: 0
   m_Name: Top Side (9)
   m_TagString: Untagged
@@ -25233,7 +26025,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -25282,6 +26074,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2301636934270259955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7162842340547511691}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7163277014961209558
 GameObject:
   m_ObjectHideFlags: 0
@@ -25584,6 +26388,7 @@ GameObject:
   - component: {fileID: 3725778044891106028}
   - component: {fileID: 413581837215991737}
   - component: {fileID: 62157107025548578}
+  - component: {fileID: 3051062617600829255}
   m_Layer: 0
   m_Name: Rear Stairs
   m_TagString: Untagged
@@ -25654,6 +26459,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &3051062617600829255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7264489066709217293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7268798330491894042
 GameObject:
   m_ObjectHideFlags: 0
@@ -25695,6 +26512,7 @@ GameObject:
   - component: {fileID: 4038850327483294787}
   - component: {fileID: 4137917519634435096}
   - component: {fileID: 8930981844181070840}
+  - component: {fileID: 4944798927880423452}
   m_Layer: 0
   m_Name: Lower floors and walls and ceiling
   m_TagString: Untagged
@@ -25770,6 +26588,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &4944798927880423452
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7299741485287003650}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7310013116928438298
 GameObject:
   m_ObjectHideFlags: 0
@@ -25780,6 +26610,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6467852727319218563}
   - component: {fileID: 8787298745438787938}
+  - component: {fileID: 1161667952407435458}
   m_Layer: 0
   m_Name: Top Side (8)
   m_TagString: Untagged
@@ -25813,7 +26644,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -25862,6 +26693,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1161667952407435458
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7310013116928438298}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7321614400040358920
 GameObject:
   m_ObjectHideFlags: 0
@@ -26111,6 +26954,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5102046050216980285}
   - component: {fileID: 3123338093182983563}
+  - component: {fileID: 7586065164335102981}
   m_Layer: 0
   m_Name: Top Side (3)
   m_TagString: Untagged
@@ -26144,7 +26988,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 8
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -26193,6 +27037,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &7586065164335102981
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7382509803016366897}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7443218108586907684
 GameObject:
   m_ObjectHideFlags: 0
@@ -26299,6 +27155,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1635008343102823353}
   - component: {fileID: 886044591441700188}
+  - component: {fileID: 2569922381542783531}
   m_Layer: 0
   m_Name: Top Side
   m_TagString: Untagged
@@ -26332,7 +27189,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -26381,6 +27238,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2569922381542783531
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7476399797469005559}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7518712065979043326
 GameObject:
   m_ObjectHideFlags: 0
@@ -26624,6 +27493,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8823959087782733144}
   - component: {fileID: 6958209569591931908}
+  - component: {fileID: 6631138615740370665}
   m_Layer: 0
   m_Name: Rear Stair (3)
   m_TagString: Untagged
@@ -26706,6 +27576,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &6631138615740370665
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7574589989211064928}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7590806346207810125
 GameObject:
   m_ObjectHideFlags: 0
@@ -26957,6 +27839,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3311710682247778753}
   - component: {fileID: 6548967606200922684}
+  - component: {fileID: 1896011635643926940}
   m_Layer: 0
   m_Name: Top Side (29)
   m_TagString: Untagged
@@ -26990,7 +27873,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 12
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -27039,6 +27922,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1896011635643926940
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7643106870005731917}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7663783289662958424
 GameObject:
   m_ObjectHideFlags: 0
@@ -27081,6 +27976,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3039130797307390600}
   - component: {fileID: 2637079444577867426}
+  - component: {fileID: 4465143656209791824}
   m_Layer: 0
   m_Name: Top Side (7)
   m_TagString: Untagged
@@ -27114,7 +28010,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -27163,6 +28059,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4465143656209791824
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7686564292280175024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7689349521049884902
 GameObject:
   m_ObjectHideFlags: 0
@@ -28545,6 +29453,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8755096443967871438}
   - component: {fileID: 4599718957101648678}
+  - component: {fileID: 9080446476131989278}
   m_Layer: 0
   m_Name: Top Side (17)
   m_TagString: Untagged
@@ -28578,7 +29487,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -28627,6 +29536,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &9080446476131989278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8259653818847524503}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8275604158134649741
 GameObject:
   m_ObjectHideFlags: 0
@@ -28716,6 +29637,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1780102939425212640}
   - component: {fileID: 4954843917222101136}
+  - component: {fileID: 415784880816872552}
   m_Layer: 0
   m_Name: Top Side (5)
   m_TagString: Untagged
@@ -28749,7 +29671,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 10
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -28798,6 +29720,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &415784880816872552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8341774540464584541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8367622736747252643
 GameObject:
   m_ObjectHideFlags: 0
@@ -28863,6 +29797,7 @@ GameObject:
   - component: {fileID: 3046084613322949859}
   - component: {fileID: 4226443331006462424}
   - component: {fileID: 416060490813003788}
+  - component: {fileID: 7094863443722588879}
   m_Layer: 0
   m_Name: Bioreactor
   m_TagString: Untagged
@@ -28936,6 +29871,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &7094863443722588879
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8380466193209538192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8390029380536883246
 GameObject:
   m_ObjectHideFlags: 0
@@ -29159,6 +30106,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6394052121632951726}
   - component: {fileID: 4279971986606251922}
+  - component: {fileID: 4736959718455857091}
   m_Layer: 0
   m_Name: Right Down Airlock (1)
   m_TagString: Untagged
@@ -29192,7 +30140,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 5
+  m_Intensity: 2
   m_Range: 4
   m_SpotAngle: 61.7
   m_InnerSpotAngle: 21.80208
@@ -29241,6 +30189,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &4736959718455857091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8433258056480311948}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8435010911963662128
 GameObject:
   m_ObjectHideFlags: 0
@@ -29650,6 +30610,7 @@ GameObject:
   - component: {fileID: 2713154825924167601}
   - component: {fileID: 486249520734863285}
   - component: {fileID: 6567695856842377157}
+  - component: {fileID: 5440919822926149712}
   m_Layer: 0
   m_Name: Water Tank
   m_TagString: Untagged
@@ -29723,6 +30684,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &5440919822926149712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8521182010887633533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8576030361932114316
 GameObject:
   m_ObjectHideFlags: 0
@@ -30330,6 +31303,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3802519591415530096}
   - component: {fileID: 2283469709073796790}
+  - component: {fileID: 8039958922010972181}
   m_Layer: 0
   m_Name: Top Side (21)
   m_TagString: Untagged
@@ -30363,7 +31337,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 14
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -30412,6 +31386,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &8039958922010972181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8652489737914516526}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8658982545886944005
 GameObject:
   m_ObjectHideFlags: 0
@@ -30705,6 +31691,7 @@ GameObject:
   - component: {fileID: 2944239372800738637}
   - component: {fileID: 7878006287117212929}
   - component: {fileID: 1421064379478813400}
+  - component: {fileID: 3075967856878060443}
   m_Layer: 0
   m_Name: Top Floor Railing
   m_TagString: Untagged
@@ -30775,6 +31762,18 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &3075967856878060443
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8754610374788159615}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8769145466651971501
 GameObject:
   m_ObjectHideFlags: 0
@@ -30785,6 +31784,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3531001529191318801}
   - component: {fileID: 2525410691529704847}
+  - component: {fileID: 6133790936956650427}
   m_Layer: 0
   m_Name: Top Side (14)
   m_TagString: Untagged
@@ -30818,7 +31818,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -30867,6 +31867,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &6133790936956650427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8769145466651971501}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8803769515701477350
 GameObject:
   m_ObjectHideFlags: 0
@@ -31577,6 +32589,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8646339070095559355}
   - component: {fileID: 2091985496400271142}
+  - component: {fileID: 1331209393625497107}
   m_Layer: 0
   m_Name: Top Side (20)
   m_TagString: Untagged
@@ -31610,7 +32623,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 14
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -31659,6 +32672,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &1331209393625497107
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9043818485092192663}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9043907887618059732
 GameObject:
   m_ObjectHideFlags: 0
@@ -31669,6 +32694,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5874709610094209834}
   - component: {fileID: 2451076371149949984}
+  - component: {fileID: 2224267471914571072}
   m_Layer: 0
   m_Name: Rear Stair (4)
   m_TagString: Untagged
@@ -31702,7 +32728,7 @@ Light:
   m_Type: 2
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 2
+  m_Intensity: 1
   m_Range: 6
   m_SpotAngle: 165.9
   m_InnerSpotAngle: 21.80208
@@ -31751,6 +32777,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &2224267471914571072
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9043907887618059732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9050943231027669016
 GameObject:
   m_ObjectHideFlags: 0
@@ -31854,6 +32892,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3695938185432182790}
   - component: {fileID: 2375021515638799416}
+  - component: {fileID: 5557820181160582393}
   m_Layer: 0
   m_Name: Top Side (13)
   m_TagString: Untagged
@@ -31887,7 +32926,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 20
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -31936,6 +32975,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &5557820181160582393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9059115874910423696}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9071985370190127985
 GameObject:
   m_ObjectHideFlags: 0
@@ -32301,6 +33352,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6918553750445134868}
   - component: {fileID: 9101215187993831169}
+  - component: {fileID: 5371867102046886719}
   m_Layer: 0
   m_Name: Top Side (27)
   m_TagString: Untagged
@@ -32334,7 +33386,7 @@ Light:
   m_Type: 0
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 4
+  m_Intensity: 2
   m_Range: 12
   m_SpotAngle: 68.4
   m_InnerSpotAngle: 21.80208
@@ -32383,6 +33435,18 @@ Light:
   m_UseBoundingSphereOverride: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &5371867102046886719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9195217825239589295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7b043f64cd02e244ab74b05d1a44912, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &9197930470840047458
 GameObject:
   m_ObjectHideFlags: 0
@@ -33375,12 +34439,6 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d30ddef2dcd175b44add9b8f2ea9d83e, type: 3}
---- !u!4 &2296000529629604880 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2365163742855130585, guid: d30ddef2dcd175b44add9b8f2ea9d83e,
-    type: 3}
-  m_PrefabInstance: {fileID: 4544052540214149577}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &5384714975113005428 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8481947192162732221, guid: d30ddef2dcd175b44add9b8f2ea9d83e,
@@ -33393,6 +34451,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5963bab8ea534ea4cb6e5f7f2fcf76f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &2296000529629604880 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2365163742855130585, guid: d30ddef2dcd175b44add9b8f2ea9d83e,
+    type: 3}
+  m_PrefabInstance: {fileID: 4544052540214149577}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5433361421505039848
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -33467,6 +34531,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9432f796e2ab4ac4b8b42bc64a41409d, type: 3}
+--- !u!4 &7741222857342365643 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2308504104145003043, guid: 9432f796e2ab4ac4b8b42bc64a41409d,
+    type: 3}
+  m_PrefabInstance: {fileID: 5433361421505039848}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1095750951304202031 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4923506157778504391, guid: 9432f796e2ab4ac4b8b42bc64a41409d,
@@ -33479,12 +34549,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5963bab8ea534ea4cb6e5f7f2fcf76f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!4 &7741222857342365643 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 2308504104145003043, guid: 9432f796e2ab4ac4b8b42bc64a41409d,
-    type: 3}
-  m_PrefabInstance: {fileID: 5433361421505039848}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &6003321998260500790
 PrefabInstance:
   m_ObjectHideFlags: 0
