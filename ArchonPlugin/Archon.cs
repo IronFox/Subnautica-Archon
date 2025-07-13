@@ -88,7 +88,7 @@ namespace Subnautica_Archon
         }
 
         //public override float ExitVelocityLimit => 100f;    //any speed is good
-
+        public override bool LogDebug => true;
         public IEnumerable<QuickSlot> QuickSlots
         {
             get
@@ -136,7 +136,7 @@ namespace Subnautica_Archon
         {
             try
             {
-                Log.Write(nameof(GetAssets));
+                Util.Log.Write(nameof(GetAssets));
                 var modPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 string bundlePath;
 
@@ -144,38 +144,38 @@ namespace Subnautica_Archon
                     bundlePath = Path.Combine(modPath, "archon.osx");
                 else
                     bundlePath = Path.Combine(modPath, "archon");
-                Log.Write($"Trying to load asset bundle from '{bundlePath}'");
+                Util.Log.Write($"Trying to load asset bundle from '{bundlePath}'");
                 if (!File.Exists(bundlePath))
-                    Log.Write("This file does not appear to exist");
+                    Util.Log.Write("This file does not appear to exist");
                 var bundle = AssetBundle.LoadFromFile(bundlePath);
                 if (bundle != null)
                 {
                     var assets = bundle.LoadAllAssets();
                     foreach (var obj in assets)
                     {
-                        Log.Write("Scanning object: " + obj.name);
+                        Util.Log.Write("Scanning object: " + obj.name);
                         if (obj.name == "Archon")
                         {
                             staticModel = (GameObject)obj;
                         }
                     }
                     if (staticModel == null)
-                        Log.Write("Model not found among: " + string.Join(", ", Helper.Names(assets)));
+                        Util.Log.Write("Model not found among: " + string.Join(", ", Helper.Names(assets)));
                 }
                 else
-                    Log.Write("Unable to loade bundle from path");
-                Log.Write(nameof(GetAssets) + " done");
+                    Util.Log.Write("Unable to loade bundle from path");
+                Util.Log.Write(nameof(GetAssets) + " done");
             }
             catch (Exception ex)
             {
-                Log.Write(nameof(GetAssets), ex);
+                Util.Log.Write(nameof(GetAssets), ex);
             }
             return staticModel.OrThrow(() => throw new IOException("Unable to load Archon model. Please check your installation"));
         }
 
         void OnDestroy()
         {
-            Log.Write($"{VehicleName} " + nameof(OnDestroy));
+            Util.Log.Write($"{VehicleName} " + nameof(OnDestroy));
             destroyed = true;
         }
 
@@ -192,7 +192,7 @@ namespace Subnautica_Archon
 
         public override void Awake()
         {
-            Log.Write(nameof(Awake));
+            Util.Log.Write(nameof(Awake));
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
 
 
@@ -292,7 +292,7 @@ namespace Subnautica_Archon
                             Log.Write($"Removed [{removed}]");
 
 
-                            Log.Write($"Undocking {Log.Describe(vehicle)}");
+                            Log.Write($"Undocking {Util.Log.Describe(vehicle)}");
                             Control.Undock(vehicle.gameObject);
                             ToggleSlot(slotID, false);
                             if (Drone.IsOne(vehicle))
@@ -444,7 +444,7 @@ namespace Subnautica_Archon
                 }
                 catch (Exception e)
                 {
-                    Log.Write("LocalInit()", e);
+                    Log.Error("LocalInit()", e);
                 }
 
             }
@@ -488,7 +488,7 @@ namespace Subnautica_Archon
             }
             catch (Exception ex)
             {
-                Log.Write(nameof(Start), ex);
+                Log.Error(nameof(Start), ex);
             }
         }
 
@@ -542,7 +542,7 @@ namespace Subnautica_Archon
             }
             catch (Exception ex)
             {
-                Log.Write(nameof(BeginPiloting), ex);
+                Log.Error(nameof(BeginPiloting), ex);
             }
         }
 
@@ -570,7 +570,7 @@ namespace Subnautica_Archon
             }
             catch (Exception ex)
             {
-                Log.Write(nameof(StopPiloting), ex);
+                Log.Error(nameof(StopPiloting), ex);
             }
         }
 
@@ -652,7 +652,7 @@ namespace Subnautica_Archon
                 if (!fixedUpdateError)
                 {
                     fixedUpdateError = true;
-                    Log.Write(nameof(FixedUpdate), ex);
+                    Log.Error(nameof(FixedUpdate), ex);
                 }
             }
         }
@@ -986,7 +986,7 @@ namespace Subnautica_Archon
             }
             catch (Exception ex)
             {
-                Log.Write(nameof(Update), ex);
+                Log.Error(nameof(Update), ex);
             }
         }
 
@@ -1343,7 +1343,10 @@ namespace Subnautica_Archon
 
         void IAutopilotEventListener.Signal(AutopilotEvent autopilotEvent)
         {
+
             Log.Write($"Received autopilot event {autopilotEvent}");
+            return;
+
             switch (autopilotEvent)
             {
                 case AutopilotEvent.PlayerEntry:
@@ -1416,6 +1419,9 @@ namespace Subnautica_Archon
 
         void IAutopilotEventListener.Signal(AutopilotStatusChange statusChange)
         {
+            Log.Write($"Received autopilot event {statusChange.NewStatus}");
+
+            return;
             if (VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out var voiceLibrary))
             {
                 switch (statusChange.NewStatus)

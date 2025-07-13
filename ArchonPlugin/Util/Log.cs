@@ -48,11 +48,11 @@ namespace Subnautica_Archon.Util
         }
         public static void Write(string message)
         {
-            log.LogMessage(message);
+            log.Write(message);
         }
         public static void Error(string message)
         {
-            log.LogError(message);
+            log.Error(message);
         }
 
         public static void Exception(string prefix, Exception ex)
@@ -69,7 +69,7 @@ namespace Subnautica_Archon.Util
         }
         public static void Write(string whileDoing, Exception caughtException)
         {
-            log.LogError($"Caught exception during {whileDoing}");
+            log.Error($"Caught exception during {whileDoing}");
             Write(caughtException);
         }
 
