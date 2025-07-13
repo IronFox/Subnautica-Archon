@@ -1130,7 +1130,6 @@ namespace Subnautica_Archon
             disabledCameras.UndoAll();
         }
 
-        public string VehicleName => Helper.GetName(this);
 
         public override string vehicleDefaultName => "Archon";
 

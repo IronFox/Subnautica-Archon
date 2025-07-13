@@ -1,6 +1,6 @@
-set "installPath=G:\SteamLibrary\steamapps\common\Subnautica"
+set "installPath=%SUBNAUTICA_PATH%"
 set "buildPath=..\..\BuildTarget"
-set "avsPath=..\..\..\Code\CSProjects\AVS"
+set "avsPath=%AVS_PATH%"
 
 rmdir /Q /S "%installPath%\BepInEx\plugins\Archon"
 mkdir "%installPath%\BepInEx\plugins\Archon"

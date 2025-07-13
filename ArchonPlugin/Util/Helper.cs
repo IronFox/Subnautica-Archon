@@ -90,8 +90,6 @@ namespace Subnautica_Archon.Util
             pingInstance.enabled = visible;
         }
 
-        public static string GetName(this Vehicle vehicle)
-             => vehicle.subName ? vehicle.subName.GetName() : vehicle.vehicleName;
         public static void SetName(this Vehicle vehicle, string name)
         {
             if (!vehicle)
