@@ -515,6 +515,7 @@ namespace Subnautica_Archon
 
         public override void BeginPiloting()
         {
+            Log.Write(nameof(BeginPiloting));
             try
             {
                 if (!liveMixin.IsAlive() || wasDead)
@@ -879,6 +880,16 @@ namespace Subnautica_Archon
 
 
         private MenuTracker MenuTracker { get; }
+
+        private IEnumerator ReenableColliders()
+        {
+            yield return new WaitForSeconds(0.1f);
+            Log.Write("Reenabling colliders");
+
+            Control.interiorColliders.gameObject.SetActive(true);
+        }
+
+
         public override void Update()
         {
             try
@@ -912,6 +923,12 @@ namespace Subnautica_Archon
                 Control.flipFreeHorizontalRotationInReverse = MainPatcher.PluginConfig.flipFreeHorizontalRotationInReverse;
                 Control.flipFreeVerticalRotationInReverse = MainPatcher.PluginConfig.flipFreeVerticalRotationInReverse;
 
+
+                if (Control.IsBoarded && !Control.IsBeingControlled)
+                {
+
+                }
+
                 if (Input.GetKeyDown(KeyCode.F7))
                 {
                     //if (Player.main.currentMountedVehicle != null)
@@ -920,8 +937,26 @@ namespace Subnautica_Archon
                     //    a.LogToJson(Player.main.currentMountedVehicle.transform, $@"C:\temp\vehicle.json");
                     //}
 
-                    Log.Write($"Reapplying materials");
-                    MaterialFixer.ReApply();
+                    //Log.Write($"Reapplying materials");
+                    //MaterialFixer.ReApply();
+
+                    /*
+                     * Concerning the loss of buildability when entering certain areas around the nose.
+                     * -) When it happens no currently logged events are triggered, neither by the Archon nor by any external routine
+                     * -) There is no loss of other functionality. The player can still walk but no building can be performed
+                     * -) Exiting and re-entering the vehicle fixes the state
+                     * -) Switching off interior colliders and re-enabling them after 10ms is noticable but does not fix the state
+                     * -) Calling base.PlayerExit(), then immediately base.PlayerEntry() fixes it only if the player is
+                     *      not in something of a deadzone where building is always terminated. Only the player's location is relevant,
+                     *      where they aim at can be outside this zone.
+                     */
+                    if (Control.IsBoarded && !Control.IsBeingControlled)
+                    {
+                        Log.Write("Debug action");
+                        TryFixLostBuildFocus();
+                        //Control.interiorColliders.gameObject.SetActive(false);
+                        //StartCoroutine(ReenableColliders());
+                    }
                 }
 
 
