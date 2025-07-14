@@ -24,11 +24,10 @@ public class FpsTest : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-
+        PlayerAdapter.PlayerReference = gameObject;
         OnExit(transform.position);
     }
-
-
+    
     void FixedUpdate()
     {
         if (!IsAtHelm)

@@ -17,7 +17,7 @@ public class HatchControl : MonoBehaviour
     void Update()
     {
         bool play = false;
-        if (closeProximity.hasPlayer)
+        if (closeProximity.HasPlayer)
         {
             if (progress < 1.0f)
             {
@@ -25,7 +25,7 @@ public class HatchControl : MonoBehaviour
                 play = true;
             }
         }
-        else if (proximity.hasPlayer)
+        else if (proximity.HasPlayer)
         {
             if (progress < 1f)
             {

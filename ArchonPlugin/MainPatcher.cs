@@ -135,8 +135,7 @@ namespace Subnautica_Archon
 
                 AudioPatcher.Patcher = (source) => FreezeTimePatcher.Register(source);
 
-                PlayerAdapter.IsPlayer = go
-                    => go.transform.IsChildOf(Player.mainObject.transform);
+                PlayerAdapter.Player = () => Player.mainObject;
 
                 ActorAdapter.IsOutOfWater = (go, pos) =>
                 {
