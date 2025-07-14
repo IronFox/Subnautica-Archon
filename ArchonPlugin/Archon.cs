@@ -953,7 +953,7 @@ namespace Subnautica_Archon
                     if (Control.IsBoarded && !Control.IsBeingControlled)
                     {
                         Log.Write("Debug action");
-                        TryFixLostBuildFocus();
+                        //TryFixLostBuildFocus();
                         //Control.interiorColliders.gameObject.SetActive(false);
                         //StartCoroutine(ReenableColliders());
                     }
