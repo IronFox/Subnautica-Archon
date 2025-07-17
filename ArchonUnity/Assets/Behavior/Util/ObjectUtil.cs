@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -146,26 +147,54 @@ public static class ObjectUtil
         return collider.gameObject;
     }
 
+
+    public static IEnumerable<Collider> GetAllColliders(this Transform t, GameObject exclude)
+    {
+        if (t.gameObject == exclude)
+            yield break;
+        foreach (var c in t.GetComponents<Collider>())
+        {
+            yield return c;
+        }
+        foreach (var child in t.GetChildren())
+        {
+            foreach (var c in GetAllColliders(child, exclude))
+            {
+                yield return c;
+            }
+        }
+    }
+
     public static void RequireActive(this MonoBehaviour c, Transform rootTransform)
     {
         if (c.isActiveAndEnabled)
             return;
         if (!c.enabled)
         {
-            LogConfig.Default.LogError($"{c} has been disabled. Re-enabling");
+            LogConfig.Default.LogError($"{c.NiceName()} has been disabled. Re-enabling");
             c.enabled = true;
         }
         if (c.isActiveAndEnabled)
             return;
-        var current = c.transform;
+        RequireActive(c.gameObject, rootTransform, () => c.isActiveAndEnabled);
+
+
+    }
+
+    public static void RequireActive(this GameObject o, Transform rootTransform, Func<bool> testFunction = null)
+    {
+        if (o.activeInHierarchy)
+            return;
+        testFunction = testFunction ?? (() => o.activeInHierarchy);
+        var current = o.transform;
         while (current && current != rootTransform)
         {
             if (!current.gameObject.activeSelf)
             {
-                LogConfig.Default.LogError($"{current.gameObject} has been deactivate. Re-activating");
+                LogConfig.Default.LogError($"{current.gameObject.NiceName()} has been deactivate. Re-activating");
                 current.gameObject.SetActive(false);
 
-                if (c.isActiveAndEnabled)
+                if (testFunction())
                     return;
             }
             current = current.parent;
@@ -173,8 +202,8 @@ public static class ObjectUtil
 
         if (!rootTransform.gameObject.activeSelf)
         {
-            LogConfig.Default.LogError($"{rootTransform.gameObject} has been deactivate. Re-activating");
-            rootTransform.gameObject.SetActive(false);
+            LogConfig.Default.LogError($"{rootTransform.gameObject.NiceName()} has been deactivate. Re-activating");
+            rootTransform.gameObject.SetActive(true);
         }
 
     }

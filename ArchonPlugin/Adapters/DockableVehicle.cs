@@ -35,7 +35,7 @@ namespace Subnautica_Archon.Adapters
         public GameObject GameObject => Vehicle.gameObject;
         private int UpdateCounter { get; set; }
 
-        public bool ShouldUnfreezeImmediately => !(Vehicle is ModVehicle);
+        public bool ShouldUnfreezeImmediately => !(Vehicle is ModVehicle) && !VFVehicle.IsOne(Vehicle);
 
         public bool UndockUpright => true;
 
@@ -63,6 +63,9 @@ namespace Subnautica_Archon.Adapters
             Vehicle.docked = true;
             if (Vehicle is ModVehicle mv)
                 mv.OnVehicleDocked(Vector3.zero);
+            else if (VFVehicle.Access(Vehicle, out var vf))
+                vf!.OnVehicleDocked(Vector3.zero);
+
             if (Drone.Access(Vehicle, out var d))
                 d!.isAsleep = true;
 
@@ -98,7 +101,9 @@ namespace Subnautica_Archon.Adapters
             }
 
 
-            if (Vehicle is ModVehicle || !HasPlayer)    //otherwise the hands are all wrong
+            if (Vehicle is ModVehicle
+                || VFVehicle.IsOne(Vehicle)
+                || !HasPlayer)    //otherwise the hands are all wrong
                 Vehicle.docked = true;
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
@@ -106,6 +111,11 @@ namespace Subnautica_Archon.Adapters
             {
                 mv.HudPingInstance.SetHudIcon(false);
                 mv.OnVehicleDocked(Vector3.zero);
+            }
+            else if (VFVehicle.Access(Vehicle, out var vf))
+            {
+                vf!.SetHudIcon(false);
+                vf!.OnVehicleDocked(Vector3.zero);
             }
             else
             {
@@ -129,14 +139,19 @@ namespace Subnautica_Archon.Adapters
                 new MethodAdapter(Vehicle, "OnPilotModeEnd").Invoke();
                 if (Vehicle is ModVehicle v)
                 {
-                    Log.Write($"Player is in mod vehicle {v}. Deselecting...");
+                    Log.Write($"Player is in mod vehicle {v.NiceName()}. Deselecting...");
                     v.DeselectSlots();
-                    v.PlayerExit();
+                    v.ClosestPlayerExit(false);
+                }
+                else if (VFVehicle.Access(Vehicle, out var vv))
+                {
+                    Log.Write($"Player is in VFVehicle {Vehicle.NiceName()}. Deselecting...");
+                    Vehicle.DeselectSlots();
+                    vv!.PlayerExit();
                 }
                 else
                 {
-                    //for (int i = 0; i < 3; i++)
-                    //yield return null;
+                    Log.Write($"Player is in vanilla vehicle {Vehicle}. Deselecting...");
                 }
 
             }
@@ -145,7 +160,7 @@ namespace Subnautica_Archon.Adapters
             Player.main.rigidBody.angularVelocity = Vector3.zero;
             Log.Write("Exiting locked mode");
             Player.main.ExitLockedMode(respawn: false, findNewPosition: false);
-            Player.main.SetPosition(Archon.Com.PilotSeats.First().ExitLocation.position);
+            Player.main.SetPosition(Archon.Com.Helms.First().AnyExitLocation);
             Log.Write("Exiting sitting mode");
             Player.main.ExitSittingMode();
 
@@ -273,12 +288,17 @@ namespace Subnautica_Archon.Adapters
                 if (Archon.IsPlayerPiloting())
                     Archon.DeselectSlots();
                 if (Archon.IsPlayerInside())
-                    Archon.PlayerExit();
+                    Archon.ClosestPlayerExit(false);
 
                 if (Vehicle is ModVehicle mv)
                 {
-                    mv.PlayerEntry();
-                    mv.BeginPiloting();
+                    mv.ClosestPlayerEntry();
+                    mv.BeginHelmControl(mv.GetMainHelm());
+                }
+                else if (VFVehicle.Access(Vehicle, out var vf))
+                {
+                    vf!.PlayerEntry();
+                    vf.BeginPiloting();
                 }
                 else
                 {
@@ -302,7 +322,7 @@ namespace Subnautica_Archon.Adapters
             }
             else
             {
-                if (!(Vehicle is ModVehicle))
+                if (!(Vehicle is ModVehicle) && !VFVehicle.IsOne(Vehicle))
                 {
                     Vehicle.docked = false;//early unset for vanilla or hands are all wrong
                 }
@@ -339,6 +359,8 @@ namespace Subnautica_Archon.Adapters
             Vehicle.docked = false;
             if (Vehicle is ModVehicle mv)
                 mv.OnVehicleUndocked();
+            else if (VFVehicle.Access(Vehicle, out var vf))
+                vf!.OnVehicleUndocked();
 
             if (Drone.Access(Vehicle, out var d))
                 d!.isAsleep = false;

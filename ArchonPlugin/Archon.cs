@@ -494,18 +494,18 @@ namespace Subnautica_Archon
 
 
 
-        public override void PlayerEntry()
+        protected override void OnPrePlayerEntry()
         {
             Log.Write(nameof(PlayerEntry));
             Control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended || !hadUnpausedFrame);
             HudPingInstance.SetHudIcon(false);
 
-            base.PlayerEntry();
+            base.OnPrePlayerEntry();
         }
 
-        public override void PlayerExit()
+        protected override void OnPlayerExit()
         {
-            base.PlayerExit();
+            base.OnPlayerExit();
             HudPingInstance.SetHudIcon(true);
             Control.Exit();
 
@@ -513,11 +513,12 @@ namespace Subnautica_Archon
 
 
 
-        public override void BeginPiloting()
+        protected override void OnPreBeginHelmControl(Helm helm)
         {
-            Log.Write(nameof(BeginPiloting));
+            Log.Write(nameof(OnPreBeginHelmControl));
             try
             {
+                base.OnPreBeginHelmControl(helm);
                 if (!liveMixin.IsAlive() || wasDead)
                 {
                     ErrorMessage.AddError(string.Format(Language.main.Get("destroyedAndCannotBeBoarded"), VehicleName));
@@ -531,31 +532,52 @@ namespace Subnautica_Archon
                     //SignalQuickslotsChangedWhilePiloting(v);
                 }
 
-
-                Log.Write(nameof(BeginPiloting));
-                LazyInit();
-
-                base.BeginPiloting();
-                Control.Control(Helper.GetPlayerReference());
-
-
-                //playerPosition = Player.main.transform.parent.gameObject;
             }
             catch (Exception ex)
             {
-                Log.Error(nameof(BeginPiloting), ex);
+                Log.Error(nameof(OnPreBeginHelmControl), ex);
             }
         }
 
-        public override void StopPiloting()
+        protected override void OnBeginHelmControl(Helm helm)
+        {
+            Log.Write(nameof(OnBeginHelmControl));
+            try
+            {
+                base.OnBeginHelmControl(helm);
+                LazyInit();
+
+                Control.Control(Helper.GetPlayerReference());
+            }
+            catch (Exception ex)
+            {
+                Log.Error(nameof(OnBeginHelmControl), ex);
+            }
+
+        }
+
+        protected override void OnPreEndHelmControl()
         {
             try
             {
-                Log.Write(nameof(StopPiloting));
+                Log.Write(nameof(OnPreEndHelmControl));
 
                 LazyInit();
                 Control.ExitControl(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended);
-                base.StopPiloting();
+            }
+            catch (Exception ex)
+            {
+                Log.Error(nameof(OnPreEndHelmControl), ex);
+            }
+        }
+
+        protected override void OnEndHelmControl()
+        {
+            try
+            {
+                Log.Write(nameof(OnEndHelmControl));
+
+                base.OnEndHelmControl();
 
                 if (Player.main.sitting)
                 {
@@ -571,7 +593,7 @@ namespace Subnautica_Archon
             }
             catch (Exception ex)
             {
-                Log.Error(nameof(StopPiloting), ex);
+                Log.Error(nameof(OnEndHelmControl), ex);
             }
         }
 
@@ -1091,8 +1113,8 @@ namespace Subnautica_Archon
         {
             Log.Write(nameof(EnterFromDocking));
             SuspendAutoLeveling();
-            PlayerEntry();
-            BeginPiloting();
+            ClosestPlayerEntry();
+            BeginHelmControl(Com.Helms[0]);
             RestoreAutoLeveling();
 
         }
@@ -1161,7 +1183,7 @@ namespace Subnautica_Archon
         private IEnumerator ReenterNextFrame()
         {
             yield return null;
-            BeginPiloting();
+            BeginHelmControl(Com.Helms[0]);
             disabledCameras.UndoAll();
         }
 
@@ -1309,7 +1331,7 @@ namespace Subnautica_Archon
             else
                 Log.Write($"Unable to locate 'Batteries' child");
 
-            var pilotSeats = new List<VehiclePilotSeat>();
+            var helms = new List<Helm>();
             var helm = transform.Find("Helm");
             if (helm)
             {
@@ -1317,11 +1339,12 @@ namespace Subnautica_Archon
                 if (!helmExit)
                     Log.Write($"Helm exit not found for {helm.NiceName()}");
 
-                pilotSeats.Add(new VehiclePilotSeat
+                helms.Add(new Helm
                 (
-                    seat: helm.gameObject,
-                    sitLocation: helm.gameObject,
-                    exitLocation: helmExit
+                    root: helm.gameObject,
+                    playerControlLocation: helm.gameObject,
+                    exitLocation: helmExit,
+                    isSeated: true
                 ));
             }
             else
@@ -1368,7 +1391,7 @@ namespace Subnautica_Archon
                     batteries: vehicleBatteries,
                     tetherSources: tetherSources,
                     modulesRootObject: GetOrCreateDefaultModulesRootObject(),
-                    pilotSeats: pilotSeats
+                    helms: helms
                     );
 
 

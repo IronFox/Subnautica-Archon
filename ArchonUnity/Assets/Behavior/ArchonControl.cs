@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ArchonControl : MonoBehaviour
@@ -57,6 +58,10 @@ public class ArchonControl : MonoBehaviour
                     controlledBy;
     private readonly Undoable controlUndo = new Undoable();
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
+    private ComponentSet<Collider> EnabledColliders { get; } = new ComponentSet<Collider>();
+    private ComponentSet<Collider> DisabledColliders { get; } = new ComponentSet<Collider>();
+
+
     public float maxEnergy = 1;
     public float currentEnergy = 0.5f;
     public float maxHealth = 1;
@@ -178,9 +183,33 @@ public class ArchonControl : MonoBehaviour
 
     private Shader glassShader;
 
+
+    private void SetCollidersEnabled(IEnumerable<Collider> colliders, bool enable)
+    {
+        foreach (var c in colliders)
+        {
+            if (c)
+            {
+                if (enable)
+                {
+                    EnabledColliders.Add(c);
+                    DisabledColliders.Remove(c);
+                    c.enabled = true;
+                }
+                else
+                {
+                    DisabledColliders.Add(c);
+                    EnabledColliders.Remove(c);
+                    c.enabled = false;
+                }
+            }
+        }
+    }
+
     private void UpdateInteriorCollidersAndLights(bool enable)
     {
-        interiorColliders.gameObject.SetActive(enable);
+        SetCollidersEnabled(interiorColliders.GetAllColliders(PlayerAdapter.Player()), enable);
+
         interiorLights.gameObject.SetActive(enable);
         glass?.ForEach(g => g.SetActive(enable));
 
@@ -220,15 +249,16 @@ public class ArchonControl : MonoBehaviour
     }
 
 
-    private static void SetCollisionActive(Transform t, bool active)
+    private void SetCollisionActive(Transform t, bool active)
     {
         if (t)
         {
-            foreach (var r in t.GetComponentsInChildren<Collider>())
-                r.enabled = active;
+            SetCollidersEnabled(t.GetAllColliders(PlayerAdapter.Player()), active);
+            //foreach (var r in t.GetComponentsInChildren<Collider>())
+            //    r.enabled = active;
         }
     }
-    private static void SetRenderAndCollisionActive(Transform t, bool active)
+    private void SetRenderAndCollisionActive(Transform t, bool active)
     {
         if (t)
         {
@@ -927,7 +957,6 @@ public class ArchonControl : MonoBehaviour
 
             UpdateBay();
 
-
             UpdateHealingLights();
 
             UpdateEnergyLevels();
@@ -1031,6 +1060,30 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
+            foreach (var c in DisabledColliders)
+            {
+                if (c.enabled)
+                {
+                    Log.LogWarning($"Re-disabling collider {c.NiceName()}");
+                    c.enabled = false;
+                }
+            }
+
+            foreach (var c in EnabledColliders)
+            {
+                if (!c.enabled)
+                {
+                    Log.LogWarning($"Re-enabling collider {c.NiceName()}");
+                    c.enabled = true;
+                }
+                if (!c.gameObject.activeInHierarchy)
+                {
+                    Log.LogWarning($"Collider game object {c.gameObject.NiceName()} has been disabled. Fixing");
+                    c.gameObject.RequireActive(transform);
+                }
+            }
+
+
             if (outOfWater)
             {
                 drag.density = 0.01f;

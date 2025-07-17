@@ -31,5 +31,15 @@ namespace Subnautica_Archon.Util
             return GetHierarchyOf(vehicle.GetType())
                 .Any(type => type.Name == "Drone");
         }
+
+        public static bool IsVFVehicle(this Vehicle vehicle)
+        {
+            if (vehicle is null)
+            {
+                return false;
+            }
+            return GetHierarchyOf(vehicle.GetType())
+                .Any(type => type.Name == "ModVehicle");
+        }
     }
 }
