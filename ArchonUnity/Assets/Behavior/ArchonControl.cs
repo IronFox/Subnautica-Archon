@@ -1115,6 +1115,27 @@ public class ArchonControl : MonoBehaviour
                     Log.LogWarning($"Collider game object {c.gameObject.NiceName()} has been disabled. Fixing");
                     c.gameObject.RequireActive(transform);
                 }
+                //somehow collisions between the player and interior mesh colliders
+                //get disabled when the player aims the build-tool at them.
+                //They work fine before that, but after that the player
+                //can walk/fall through the interior mesh collider in question.
+                //doesn't look like it's actually disabled (the above don't trigger).
+                //If the build tool is disabled, the collisions work again.
+                //this is very slow and never triggers:
+                //if (!c.isTrigger)
+                //{
+                //    foreach (var collider in PlayerAdapter.Player().transform.GetAllColliders(null))
+                //    {
+                //        if (!collider.enabled || collider.isTrigger)
+                //            continue;
+                //        if (Physics.GetIgnoreCollision(c, collider))
+                //        {
+                //            Log.LogWarning($"Player collision disabled between {c.NiceName()} and {collider.NiceName()}");
+                //            Physics.IgnoreCollision(c, collider, false);
+                //        }
+                //    }
+                //}
+
             }
 
 

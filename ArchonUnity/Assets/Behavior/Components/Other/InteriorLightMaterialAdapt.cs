@@ -8,7 +8,7 @@ public class InteriorLightMaterialAdapt : MonoBehaviour, IInteriorLightListener
     public void SetInteriorLight(float strength)
     {
         var renderer = GetComponent<Renderer>();
-        float v = strength * 1.2f;
+        float v = strength * 1.4f;
         foreach (var c in change)
         {
             var m = renderer.materials[c];
