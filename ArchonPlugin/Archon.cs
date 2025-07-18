@@ -2,6 +2,7 @@
 using AVS.Composition;
 using AVS.Configuration;
 using AVS.Interfaces;
+using AVS.Log;
 using AVS.MaterialAdapt;
 using AVS.Util;
 using AVS.VehicleComponents;
@@ -33,6 +34,7 @@ namespace Subnautica_Archon
             () =>
             new InvalidOperationException($"Trying to access Control before Awake()"));
 
+        public LogWriter Log { get; }
 
         public static readonly VehicleColor defaultBaseColor = new VehicleColor(new Color(0xDE, 0xDE, 0xDE) / 255f);
         public static readonly VehicleColor defaultStripeColor = new VehicleColor(new Color(0x3F, 0x4C, 0x7A) / 255f);
@@ -64,7 +66,7 @@ namespace Subnautica_Archon
             canLeviathanGrab: false,
             canMoonpoolDock: false,
             pilotingStyle: PilotingStyle.Other,
-            materialAdaptConfig: new DefaultMaterialAdaptConfig(Logging.Verbose),
+            materialAdaptConfig: new DefaultMaterialAdaptConfig(MaterialLog.Verbose),
             recipe: NewRecipe
                 .StartWith(TechType.PowerCell, 1)
                 .Include(TechType.AdvancedWiringKit, 2)
@@ -77,6 +79,10 @@ namespace Subnautica_Archon
             getVoiceSubtitlesEnabled: () => MainPatcher.PluginConfig.showVoiceSubtitles
         ))
         {
+            Log = new LogWriter(
+                prefix: $"V" + Id,
+                tags: new string[] { "Mod" },
+                includeTimestamp: true);
             //Log = new MyLogger(this);
             Log.Write($"Constructed");
             MenuTracker = new MenuTracker(() =>
@@ -642,14 +648,15 @@ namespace Subnautica_Archon
                     }
                 }
                 clippingWater = enable;
-                Log.Write($"Water-clip proxies adapted ({enable})");
+                Log.Write($"Water-clip proxies adapted ({enable} ({ClipWaterS}))");
 
             }
             else
                 Log.Write("Clip proxies or seamoth not found. Can't adjust right now");
         }
 
-        public bool ClipWater => Control.IsBoarded && !Control.IsBeingControlled && !Control.BoardedByHeadless;
+        public bool ClipWater => Control.CameraIsInVehicle && !Control.BoardedByHeadless;
+        public string ClipWaterS => $"CameraIsInVehicle={Control.CameraIsInVehicle} && !(BoardedByHeadless = {Control.BoardedByHeadless})";
 
 
         public override void FixedUpdate()
@@ -945,12 +952,6 @@ namespace Subnautica_Archon
                 Control.flipFreeHorizontalRotationInReverse = MainPatcher.PluginConfig.flipFreeHorizontalRotationInReverse;
                 Control.flipFreeVerticalRotationInReverse = MainPatcher.PluginConfig.flipFreeVerticalRotationInReverse;
 
-
-                if (Control.IsBoarded && !Control.IsBeingControlled)
-                {
-
-                }
-
                 if (Input.GetKeyDown(KeyCode.F7))
                 {
                     //if (Player.main.currentMountedVehicle != null)
@@ -972,7 +973,7 @@ namespace Subnautica_Archon
                      *      not in something of a deadzone where building is always terminated. Only the player's location is relevant,
                      *      where they aim at can be outside this zone.
                      */
-                    if (Control.IsBoarded && !Control.IsBeingControlled)
+                    if (Control.IsBoardedButNotControlled)
                     {
                         Log.Write("Debug action");
                         //TryFixLostBuildFocus();

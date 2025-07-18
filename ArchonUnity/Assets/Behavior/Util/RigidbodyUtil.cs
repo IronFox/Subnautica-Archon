@@ -1,10 +1,11 @@
+using Assets.Behavior.Adapters;
 using UnityEngine;
 
 public static class RigidbodyUtil
 {
     public static void SetKinematic(this Rigidbody rb)
     {
-        LogConfig.Default.Write($"Setting [{rb.NiceName()}].isKinematic := true");
+        Log.Default.Write($"Setting [{rb.NiceName()}].isKinematic := true");
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         rb.interpolation = RigidbodyInterpolation.None;
         rb.isKinematic = true;
@@ -14,7 +15,7 @@ public static class RigidbodyUtil
 
     public static void UnsetKinematic(this Rigidbody rb)
     {
-        LogConfig.Default.Write($"Setting [{rb.NiceName()}].isKinematic := false");
+        Log.Default.Write($"Setting [{rb.NiceName()}].isKinematic := false");
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         rb.interpolation = RigidbodyInterpolation.None;
         rb.isKinematic = false;
@@ -29,12 +30,12 @@ public static class RigidbodyUtil
         {
             if (shouldBeKinematic)
             {
-                LogConfig.Default.LogWarning("Re-enabling kinematic state");
+                Log.Default.LogWarning("Re-enabling kinematic state");
                 rb.SetKinematic();
             }
             else
             {
-                LogConfig.Default.LogWarning("Re-disabling kinematic state");
+                Log.Default.LogWarning("Re-disabling kinematic state");
                 rb.UnsetKinematic();
             }
         }

@@ -1,4 +1,4 @@
-﻿using AVS.Util;
+﻿using AVS.Log;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,7 +8,11 @@ namespace Subnautica_Archon.Util
 
     public static class Log
     {
-        private static readonly Logging log = new Logging(true, true, null, true, true);
+        private static LogWriter Writer { get; } = new LogWriter(
+            prefix: null,
+            tags: new string[] { "Mod" });
+
+
         public static string PathOf(Transform? t)
         {
             if (t == null)
@@ -48,11 +52,15 @@ namespace Subnautica_Archon.Util
         }
         public static void Write(string message)
         {
-            log.Write(message);
+            Writer.Write(message);
+        }
+        public static void Warn(string message)
+        {
+            Writer.Warn(message);
         }
         public static void Error(string message)
         {
-            log.Error(message);
+            Writer.Error(message);
         }
 
         public static void Exception(string prefix, Exception ex)
@@ -69,7 +77,7 @@ namespace Subnautica_Archon.Util
         }
         public static void Write(string whileDoing, Exception caughtException)
         {
-            log.Error($"Caught exception during {whileDoing}");
+            Writer.Error($"Caught exception during {whileDoing}");
             Write(caughtException);
         }
 

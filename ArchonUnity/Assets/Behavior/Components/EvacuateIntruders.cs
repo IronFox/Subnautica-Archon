@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Behavior.Adapters;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ public class EvacuateIntruders : MonoBehaviour
     private readonly List<Sphere> localSpheres = new List<Sphere>();
     private Collider[] buffer = new Collider[256];
 
-    private LogConfig log = new LogConfig("Intruders", true);
+    private ILogAdapter log = Log.New("Intruders");
     private Coroutine myRoutine;
 
 

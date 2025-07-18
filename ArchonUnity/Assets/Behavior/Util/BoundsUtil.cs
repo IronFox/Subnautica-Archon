@@ -1,8 +1,6 @@
-using System;
+using Assets.Behavior.Adapters;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public static class BoundsUtil
 {
@@ -18,31 +16,31 @@ public static class BoundsUtil
 
     public static IEnumerable<Vector3> GetCornerPoints(this Bounds bounds)
     {
-        yield return M.V3( bounds.min.x, bounds.min.y, bounds.min.z );
-        yield return M.V3( bounds.max.x, bounds.min.y, bounds.min.z );
-        yield return M.V3( bounds.min.x, bounds.max.y, bounds.min.z );
-        yield return M.V3( bounds.max.x, bounds.max.y, bounds.min.z );
-        yield return M.V3( bounds.min.x, bounds.min.y, bounds.max.z );
-        yield return M.V3( bounds.max.x, bounds.min.y, bounds.max.z );
-        yield return M.V3( bounds.min.x, bounds.max.y, bounds.max.z );
-        yield return M.V3( bounds.max.x, bounds.max.y, bounds.max.z );
+        yield return M.V3(bounds.min.x, bounds.min.y, bounds.min.z);
+        yield return M.V3(bounds.max.x, bounds.min.y, bounds.min.z);
+        yield return M.V3(bounds.min.x, bounds.max.y, bounds.min.z);
+        yield return M.V3(bounds.max.x, bounds.max.y, bounds.min.z);
+        yield return M.V3(bounds.min.x, bounds.min.y, bounds.max.z);
+        yield return M.V3(bounds.max.x, bounds.min.y, bounds.max.z);
+        yield return M.V3(bounds.min.x, bounds.max.y, bounds.max.z);
+        yield return M.V3(bounds.max.x, bounds.max.y, bounds.max.z);
     }
-    
+
     public static IEnumerable<Vector3> GetCornerPoints(this BoxCollider c)
     {
         var s = c.size / 2;
         var p = c.center;
-        yield return M.V3( p.x + s.x, p.y + s.y, p.z + s.z );
-        yield return M.V3( p.x + s.x, p.y + s.y, p.z - s.z );
-        yield return M.V3( p.x + s.x, p.y - s.y, p.z + s.z );
-        yield return M.V3( p.x + s.x, p.y - s.y, p.z - s.z );
-        yield return M.V3( p.x - s.x, p.y + s.y, p.z + s.z );
-        yield return M.V3( p.x - s.x, p.y + s.y, p.z - s.z );
-        yield return M.V3( p.x - s.x, p.y - s.y, p.z + s.z );
-        yield return M.V3( p.x - s.x, p.y - s.y, p.z - s.z );
+        yield return M.V3(p.x + s.x, p.y + s.y, p.z + s.z);
+        yield return M.V3(p.x + s.x, p.y + s.y, p.z - s.z);
+        yield return M.V3(p.x + s.x, p.y - s.y, p.z + s.z);
+        yield return M.V3(p.x + s.x, p.y - s.y, p.z - s.z);
+        yield return M.V3(p.x - s.x, p.y + s.y, p.z + s.z);
+        yield return M.V3(p.x - s.x, p.y + s.y, p.z - s.z);
+        yield return M.V3(p.x - s.x, p.y - s.y, p.z + s.z);
+        yield return M.V3(p.x - s.x, p.y - s.y, p.z - s.z);
     }
 
-    
+
     public static IEnumerable<Vector3> GetCornerPoints(this CapsuleCollider c)
     {
 
@@ -86,8 +84,8 @@ public static class BoundsUtil
         }
     }
 
-    
-    
+
+
     //public static IEnumerable<Vector3> GetCornerPoints(this Collider c)
     //{
     //    return GetCornerPoints(c.bounds);
@@ -117,7 +115,7 @@ public static class BoundsUtil
                 foreach (var corner in mf.mesh.bounds.GetCornerPoints())
                     bounds.Encapsulate(matrixToRoot * corner);
                 if (!wasTooBig && IsTooBig(bounds))
-                    LogConfig.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using renderer bounds {mf.mesh.bounds} on {t}");
+                    Log.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using renderer bounds {mf.mesh.bounds} on {t}");
             }
 
         }
@@ -135,13 +133,13 @@ public static class BoundsUtil
                         foreach (var corner in mc.sharedMesh.bounds.GetCornerPoints())
                             bounds.Encapsulate(matrixToRoot * corner);
                         if (!wasTooBig && IsTooBig(bounds))
-                            LogConfig.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using collider bounds {mc.sharedMesh.bounds} on {t}");
+                            Log.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using collider bounds {mc.sharedMesh.bounds} on {t}");
                         break;
                     case BoxCollider box:
                         foreach (var corner in box.GetCornerPoints())
                             bounds.Encapsulate(matrixToRoot * corner);
                         if (!wasTooBig && IsTooBig(bounds))
-                            LogConfig.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using collider box {box.center}-{box.size} on {t}");
+                            Log.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using collider box {box.center}-{box.size} on {t}");
                         break;
                     case SphereCollider sphere:
                         {
@@ -149,14 +147,14 @@ public static class BoundsUtil
                             var radius3 = M.Abs((Vector3)(matrixToRoot * M.V4(sphere.radius, 0)));
                             bounds.Encapsulate(new Bounds(center, radius3));
                             if (!wasTooBig && IsTooBig(bounds))
-                                LogConfig.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using collider sphere {sphere.center} r{sphere.radius} on {t}");
+                                Log.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using collider sphere {sphere.center} r{sphere.radius} on {t}");
                         }
                         break;
                     case CapsuleCollider capsule:
                         foreach (var corner in capsule.GetCornerPoints())
                             bounds.Encapsulate(matrixToRoot * corner);
                         if (!wasTooBig && IsTooBig(bounds))
-                            LogConfig.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using collider capsule {capsule.center} r{capsule.radius} h{capsule.height} on {t}");
+                            Log.Default.LogError($"Computed bounds have gotten too large ({bounds}) after using collider capsule {capsule.center} r{capsule.radius} h{capsule.height} on {t}");
                         break;
 
                 }
@@ -175,9 +173,9 @@ public static class BoundsUtil
 
     public static Bounds ComputeScaledLocalBounds(this Transform rootTransform, bool includeRenderers, bool includeColliders)
     {
-        Bounds bounds = new Bounds(Vector3.zero,M.V3(0));
+        Bounds bounds = new Bounds(Vector3.zero, M.V3(0));
 
-        RecurseComputeBounds(Matrix4x4.TRS(Vector3.zero,Quaternion.identity, rootTransform.localScale), rootTransform, ref bounds, includeRenderers: includeRenderers, includeColliders: includeColliders);
+        RecurseComputeBounds(Matrix4x4.TRS(Vector3.zero, Quaternion.identity, rootTransform.localScale), rootTransform, ref bounds, includeRenderers: includeRenderers, includeColliders: includeColliders);
 
         return bounds;
     }

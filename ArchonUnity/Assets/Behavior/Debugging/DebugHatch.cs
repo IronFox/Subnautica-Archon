@@ -6,7 +6,7 @@ public class DebugHatch : DebugHandTarget
 
     public override void OnTrigger(ArchonControl archon, FpsTest player)
     {
-        if (!archon.IsBoarded)
+        if (!archon.IsBoardedButNotControlled)
             Board(player, archon);
         else
             Exit(player, archon);

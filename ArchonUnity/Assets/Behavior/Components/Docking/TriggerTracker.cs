@@ -1,8 +1,7 @@
 ﻿//#define DebugTracked
+using Assets.Behavior.Adapters;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 
@@ -12,13 +11,12 @@ public class TriggerTracker : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     public bool logChanges = false;
     private ComponentSet<Collider> Set { get; } = new ComponentSet<Collider>(c => c.enabled && !c.isTrigger);
 
-    private LogConfig logConfig = LogConfig.Default;
 #if DebugTracked
     private int trackedVersion;
     public Collider[] tracked;
@@ -37,7 +35,7 @@ public class TriggerTracker : MonoBehaviour
     //}
 
     public TriggerTracker()
-    {}
+    { }
 
     void Awake()
     {
@@ -60,7 +58,7 @@ public class TriggerTracker : MonoBehaviour
     {
         Set.Add(other);
         if (logChanges)
-            logConfig.Write("Registered entering "+other);
+            Log.Default.Write("Registered entering " + other);
 #if DebugTracked
         tracked = Set.ToArray();
 #endif
@@ -70,7 +68,7 @@ public class TriggerTracker : MonoBehaviour
     {
         Set.Remove(other);
         if (logChanges)
-            logConfig.Write("Registered leaving " + other);
+            Log.Default.Write("Registered leaving " + other);
 #if DebugTracked
         tracked = Set.ToArray();
 #endif

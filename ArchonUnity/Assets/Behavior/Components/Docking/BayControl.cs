@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using Assets.Behavior.Adapters;
+using System;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEngine.UI.GridLayoutGroup;
 
 public class BayControl : MonoBehaviour
 {
@@ -33,7 +30,6 @@ public class BayControl : MonoBehaviour
     public static Action<ArchonControl, IDockable> OnDockingFailedFull { get; set; }
     public static Action<ArchonControl, IDockable> OnDockingFailedTooLarge { get; set; }
 
-    private LogConfig Log { get; } = LogConfig.Default;
 
     private bool TugFromDocked(GameObject dockedSub, bool destroyIfInvalid, out Tug tug, out IDockable dockable, out UndockingCheckResult undockCheckResult)
         => TugFromGameObject(dockedSub.transform, destroyIfInvalid, out tug, out dockable, out undockCheckResult);
@@ -54,10 +50,10 @@ public class BayControl : MonoBehaviour
         //}
         if (tugCandidate.parent != dockedSubRoot)
         {
-            Log.LogError($"Tug candidate [{tugCandidate}] resides in wrong parent ([{tugCandidate.parent}], should be [{dockedSubRoot}]).");
+            Log.Default.LogError($"Tug candidate [{tugCandidate}] resides in wrong parent ([{tugCandidate.parent}], should be [{dockedSubRoot}]).");
             if (destroyIfInvalid)
             {
-                Log.LogError($"Destroying");
+                Log.Default.LogError($"Destroying");
                 Destroy(tugCandidate);
             }
             tug = null;
@@ -65,11 +61,11 @@ public class BayControl : MonoBehaviour
             undockCheckResult = UndockingCheckResult.NotDocked;
             return false;
         }
-//        var sub = tugCandidate.GetChild(0);
+        //        var sub = tugCandidate.GetChild(0);
         dockable = DockingAdapter.ToDockable(tugCandidate.gameObject, archon, DockingAdapter.Filter.All);
         if (dockable == null)
         {
-            Log.LogError($"Tug candidate [{tugCandidate}] failed to convert to dockable. Probably something else");
+            Log.Default.LogError($"Tug candidate [{tugCandidate}] failed to convert to dockable. Probably something else");
             //if (destroyIfInvalid)
             //{
             //    Log.LogError($"Destroying");
@@ -155,7 +151,7 @@ public class BayControl : MonoBehaviour
                         else
                         {
                             d.GameObject.transform.position += M.V3(50); //evacuate the thing out
-                            Log.LogError("Tagged but does not fit. Translated away");
+                            Log.Default.LogError("Tagged but does not fit. Translated away");
                         }
                     }
                     else
@@ -217,7 +213,7 @@ public class BayControl : MonoBehaviour
 
             if (!permittedBounds.Contains(fit.Bounds))
             {
-                Log.LogError($"Candidate vehicle {d} is still too large to dock ({fit.Bounds} exeeds {permittedBounds})");
+                Log.Default.LogError($"Candidate vehicle {d} is still too large to dock ({fit.Bounds} exeeds {permittedBounds})");
                 return null;
             }
         }
@@ -245,7 +241,7 @@ public class BayControl : MonoBehaviour
         }
         if (!dockedSub)
         {
-            Log.LogError($"Attempted to undock <null> sub");
+            Log.Default.LogError($"Attempted to undock <null> sub");
             return UndockingCheckResult.DoesNotExist;
         }
         if (UndockingIsObstructed())
@@ -279,12 +275,12 @@ public class BayControl : MonoBehaviour
         ObjectUtil.RequireActive(this, archon.transform);
         if (active)
         {
-            Log.LogError($"(Un)docking in progress. Cannot undock right now");
+            Log.Default.LogError($"(Un)docking in progress. Cannot undock right now");
             return;
         }
         if (!dockedSub)
         {
-            Log.LogError($"Requested sub does not exist");
+            Log.Default.LogError($"Requested sub does not exist");
             return;
         }
         if (UndockingIsObstructed())
@@ -340,7 +336,7 @@ public class BayControl : MonoBehaviour
             active = null;
         }
         else
-            Log.LogError($"Cannot release active. Requesting tug is {tug}. Expected tug is {active}");
+            Log.Default.LogError($"Cannot release active. Requesting tug is {tug}. Expected tug is {active}");
     }
 
     public bool DoorsAreOpen => progress == 1;
@@ -356,7 +352,7 @@ public class BayControl : MonoBehaviour
     {
         DockedTugs.Update((id, tug) =>
         {
-            Log.LogError($"Lost tug [{id}]");
+            Log.Default.LogError($"Lost tug [{id}]");
             NumDockedVehicles--;
         });
         if (isLoading)
@@ -370,7 +366,7 @@ public class BayControl : MonoBehaviour
             Log.Write($"Loading assumed done. Redetecting docked vehicles");
             RedetectDocked();
         }
-        
+
         var open = false;
         if (!active)
         {
@@ -478,7 +474,7 @@ public class BayControl : MonoBehaviour
     public void PrepareForSaving()
     {
         var children = dockedSubRoot.GetChildren().ToList();
-        Log.Write(nameof(PrepareForSaving)+$" on {children.Count} docked sub candidate(s)");
+        Log.Write(nameof(PrepareForSaving) + $" on {children.Count} docked sub candidate(s)");
         for (int i = 0; i < children.Count; i++)
         {
             var tugCandidate = children[i];
@@ -495,7 +491,7 @@ public class BayControl : MonoBehaviour
             }
             catch (Exception ex)
             {
-                Debug.LogException( ex );
+                Debug.LogException(ex);
             }
 
         }

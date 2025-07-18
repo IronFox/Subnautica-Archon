@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Behavior.Adapters;
+using System;
 using System.Text;
 using TMPro;
 using UnityEngine;
@@ -29,7 +30,7 @@ public class StatusConsole : CommonBoardingListener
         var camera = CameraUtil.GetCamera(nameof(StatusConsole));
         if (camera == null)
         {
-            Debug.LogError($"Cannot assign camera as worldCamera. Canvas remains off");
+            Log.LogError($"Cannot assign camera as worldCamera. Canvas remains off");
             return;
         }
         ConsoleControl.Write($"Assigning {camera} as worldCamera of {canvas}");

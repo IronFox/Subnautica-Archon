@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections;
+﻿using Assets.Behavior.Adapters;
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 
@@ -9,12 +8,12 @@ public class Tug : MonoBehaviour
 {
     public BayControl Owner { get; private set; }
     public TugStatus Status { get; private set; }
-    public bool IsSaving {get; private set; }
+    public bool IsSaving { get; private set; }
 
-    public static string Tag { get; } = $"Archon Docked "+new Guid("086EA558-170A-4B92-8922-F7456F818D38");
+    public static string Tag { get; } = $"Archon Docked " + new Guid("086EA558-170A-4B92-8922-F7456F818D38");
 
     public bool HasGoodFit => fit.Dockable != null;
-    public DockingFit Fit 
+    public DockingFit Fit
     {
         get
         {
@@ -30,11 +29,11 @@ public class Tug : MonoBehaviour
         }
     }
     private DockingFit fit;
-    private LogConfig Log { get; set; } = LogConfig.Default;
-    
+    private ILogAdapter Log { get; set; } = Assets.Behavior.Adapters.Log.Default;
+
     private float WaitSeconds { get; set; }
     private Undoable UndoTugging { get; } = new Undoable();
-    private Undoable ParticleSystems {get; } = new Undoable();
+    private Undoable ParticleSystems { get; } = new Undoable();
     private Undoable Renderers { get; } = new Undoable();
     private Undoable Lights { get; } = new Undoable();
     private Undoable DisabledBehavioursOnBayDoorCloseWait { get; } = new Undoable();
@@ -43,7 +42,7 @@ public class Tug : MonoBehaviour
     public float AnimationSeconds { get; private set; }
     public float AnimationProgress { get; private set; }
 
-    
+
     public bool WantsDoorsOpen
     {
         get
@@ -70,7 +69,7 @@ public class Tug : MonoBehaviour
         => $"Tug[{GetInstanceID()}]<{Fit}>{{{Status}/{AnimationProgress.ToStr()}/o={Owner.DoorOpenStatus.ToStr()}/{Owner.DoorsAreClosed}/{DateTime.Now - LastUpdate}/e={isActiveAndEnabled}/oe={Owner.isActiveAndEnabled}}}";
 
 
-    private void Do(Action action, string actionDesc, bool verifyIntegrity=true, bool logAction=true)
+    private void Do(Action action, string actionDesc, bool verifyIntegrity = true, bool logAction = true)
     {
         if (verifyIntegrity)
             CheckIntegrity();
@@ -82,7 +81,7 @@ public class Tug : MonoBehaviour
         }
         catch (Exception ex)
         {
-            Log.LogException(actionDesc, ex);
+            Log.LogError(actionDesc, ex);
         }
         if (verifyIntegrity)
             CheckIntegrity();
@@ -93,7 +92,7 @@ public class Tug : MonoBehaviour
     private int ReDisable { get; set; }
     internal void Bind(BayControl bayControl, DockingFit fit, TugStatus status)
     {
-        Log = new LogConfig($"Tug[{GetInstanceID()}]<{fit.GameObject.NiceName()}>", true);
+        Log = Assets.Behavior.Adapters.Log.New($"Tug#{GetInstanceID()}", fit.GameObject.NiceName());
 
         Owner = bayControl;
         Status = status;
@@ -105,7 +104,7 @@ public class Tug : MonoBehaviour
         switch (status)
         {
             case TugStatus.Docking:
-                Do(fit.Dockable.BeginDocking, $"Dockable.BeginDocking()", verifyIntegrity:false);
+                Do(fit.Dockable.BeginDocking, $"Dockable.BeginDocking()", verifyIntegrity: false);
                 break;
             case TugStatus.Docked:
                 DockedLocation.ApplyTo(Fit.GameObject.transform);
@@ -128,7 +127,7 @@ public class Tug : MonoBehaviour
                 Do(fit.Dockable.BeginUndocking, $"Dockable.BeginUndocking()", verifyIntegrity: false);
                 break;
         }
-        fit.Dockable.DisableAllEnabledColliders(UndoTugging, forced:true);
+        fit.Dockable.DisableAllEnabledColliders(UndoTugging, forced: true);
         fit.Dockable.DisableRigidbodies(UndoTugging, forced: true);
 
 
@@ -249,7 +248,7 @@ public class Tug : MonoBehaviour
         //        .Where(x => x != this)
         //        .ToEnabled()
         //        .DisableAllEnabled(DisabledBehavioursOnBayDoorCloseWait);
-        
+
         UndoTugging.RedoAll(); //recheck these, seen falling brawn suits
 
         Do(Fit.Dockable.EndDocking, $"Dockable.EndDocking()");
@@ -309,7 +308,7 @@ public class Tug : MonoBehaviour
                 return desc;
         }
     }
-    
+
 
     private Location Global(Location desc)
     {
@@ -333,7 +332,7 @@ public class Tug : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     public void PrepareForSaving()
@@ -351,7 +350,7 @@ public class Tug : MonoBehaviour
 
         DockedLocation.Globalize(Owner.archon.transform).ApplyTo(Fit.GameObject);
 
-        Do(Fit.Dockable.OnUndockedForSaving,$"Fit.Dockable.OnUndockedForSaving",false);
+        Do(Fit.Dockable.OnUndockedForSaving, $"Fit.Dockable.OnUndockedForSaving", false);
     }
 
     // Update is called once per frame
@@ -536,7 +535,7 @@ public readonly struct DockingFit
         Bounds = bounds;
     }
 
-    public IEnumerable<T> GetAllComponents<T>() where T:Component
+    public IEnumerable<T> GetAllComponents<T>() where T : Component
         => Dockable.GetAllComponents<T>();
 
     public Location CorrectDocked(Location location)

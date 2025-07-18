@@ -1,6 +1,7 @@
+using Assets.Behavior.Adapters;
 using UnityEngine;
 
-public abstract class CommonAction<T> : IAction  where T : Object
+public abstract class CommonAction<T> : IAction where T : Object
 {
     protected T TypedTarget { get; }
     public string TargetName { get; }
@@ -21,7 +22,7 @@ public abstract class CommonAction<T> : IAction  where T : Object
         {
             if (!HaveLoggedGone)
             {
-                LogConfig.Default.LogWarning($"Cannot execute {GetType().Name} operation on {TargetName}: target is gone");
+                Log.Default.LogWarning($"Cannot execute {GetType().Name} operation on {TargetName}: target is gone");
                 HaveLoggedGone = true;
             }
             return false;
@@ -34,7 +35,7 @@ public abstract class CommonAction<T> : IAction  where T : Object
         {
             if (!HaveLoggedGone)
             {
-                LogConfig.Default.LogWarning($"Cannot execute operation {GetType().Name}.Do() on {TargetName}: target is gone");
+                Log.Default.LogWarning($"Cannot execute operation {GetType().Name}.Do() on {TargetName}: target is gone");
                 HaveLoggedGone = true;
             }
             return false;
@@ -51,7 +52,7 @@ public abstract class CommonAction<T> : IAction  where T : Object
         {
             if (!HaveLoggedGone)
             {
-                LogConfig.Default.LogWarning($"Cannot execute operation {GetType().Name}.Undo() on {TargetName}: target is gone");
+                Log.Default.LogWarning($"Cannot execute operation {GetType().Name}.Undo() on {TargetName}: target is gone");
                 HaveLoggedGone = true;
             }
             return;

@@ -1,4 +1,4 @@
-using AVS;
+using AVS.BaseVehicle;
 using Nautilus.Handlers;
 using Subnautica_Archon.Util;
 using System;
@@ -35,7 +35,7 @@ namespace Subnautica_Archon.Adapters
         public GameObject GameObject => Vehicle.gameObject;
         private int UpdateCounter { get; set; }
 
-        public bool ShouldUnfreezeImmediately => !(Vehicle is ModVehicle) && !VFVehicle.IsOne(Vehicle);
+        public bool ShouldUnfreezeImmediately => !(Vehicle is AvsVehicle) && !VFVehicle.IsOne(Vehicle);
 
         public bool UndockUpright => true;
 
@@ -61,7 +61,7 @@ namespace Subnautica_Archon.Adapters
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             Vehicle.docked = true;
-            if (Vehicle is ModVehicle mv)
+            if (Vehicle is AvsVehicle mv)
                 mv.OnVehicleDocked(Vector3.zero);
             else if (VFVehicle.Access(Vehicle, out var vf))
                 vf!.OnVehicleDocked(Vector3.zero);
@@ -101,13 +101,13 @@ namespace Subnautica_Archon.Adapters
             }
 
 
-            if (Vehicle is ModVehicle
+            if (Vehicle is AvsVehicle
                 || VFVehicle.IsOne(Vehicle)
                 || !HasPlayer)    //otherwise the hands are all wrong
                 Vehicle.docked = true;
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
-            if (Vehicle is ModVehicle mv)
+            if (Vehicle is AvsVehicle mv)
             {
                 mv.HudPingInstance.SetHudIcon(false);
                 mv.OnVehicleDocked(Vector3.zero);
@@ -137,7 +137,7 @@ namespace Subnautica_Archon.Adapters
             if (HasPlayer)
             {
                 new MethodAdapter(Vehicle, "OnPilotModeEnd").Invoke();
-                if (Vehicle is ModVehicle v)
+                if (Vehicle is AvsVehicle v)
                 {
                     Log.Write($"Player is in mod vehicle {v.NiceName()}. Deselecting...");
                     v.DeselectSlots();
@@ -190,7 +190,7 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter = 0;
             Log.Write($"Player transform parent now {Log.PathOf(Player.main.transform.parent)}");
             Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
-            Log.Write($"A-Okay = {AVS.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
+            Log.Write($"A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             Helper.ChangeAvatarInput(true);
         }
 
@@ -234,7 +234,7 @@ namespace Subnautica_Archon.Adapters
             {
                 Log.Write($"Player transform parent now {Log.PathOf(Player.main.transform.parent)}");
                 Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
-                Log.Write($"A-Okay = {AVS.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform)}");
+                Log.Write($"A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             }
             //else if (Vehicle is Drone d)
             //{
@@ -254,7 +254,7 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter++;
             if (HasPlayer)
             {
-                if (!AVS.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform))
+                if (!AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>()))
                 {
                     Log.Error($"Player ancencestry broken at update #{UpdateCounter}");
                     if (FixParentTo)
@@ -262,7 +262,7 @@ namespace Subnautica_Archon.Adapters
                         Vehicle.StartCoroutine(SwitchToArchon());
                         //Player.main.transform.parent = FixParentTo;
 
-                        if (AVS.Admin.Utils.IsAnAncestorTheCurrentMountedVehicle(Player.main.transform))
+                        if (AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>()))
                         {
                             Log.Write($"Fixed to {Log.PathOf(FixParentTo)}");
                         }
@@ -290,7 +290,7 @@ namespace Subnautica_Archon.Adapters
                 if (Archon.IsPlayerInside())
                     Archon.ClosestPlayerExit(false);
 
-                if (Vehicle is ModVehicle mv)
+                if (Vehicle is AvsVehicle mv)
                 {
                     mv.ClosestPlayerEntry();
                     mv.BeginHelmControl(mv.GetMainHelm());
@@ -322,7 +322,7 @@ namespace Subnautica_Archon.Adapters
             }
             else
             {
-                if (!(Vehicle is ModVehicle) && !VFVehicle.IsOne(Vehicle))
+                if (!(Vehicle is AvsVehicle) && !VFVehicle.IsOne(Vehicle))
                 {
                     Vehicle.docked = false;//early unset for vanilla or hands are all wrong
                 }
@@ -357,7 +357,7 @@ namespace Subnautica_Archon.Adapters
             Vehicle.crushDamage.enabled = true;
             //if (Vehicle is ModVehicle)
             Vehicle.docked = false;
-            if (Vehicle is ModVehicle mv)
+            if (Vehicle is AvsVehicle mv)
                 mv.OnVehicleUndocked();
             else if (VFVehicle.Access(Vehicle, out var vf))
                 vf!.OnVehicleUndocked();

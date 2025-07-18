@@ -127,6 +127,8 @@ namespace Subnautica_Archon
                 Archon.moduleBackground = LoadSpriteRaw("images/moduleBackground.png");
                 started = UWE.CoroutineHost.StartCoroutine(VehicleRegistrar.RegisterVehicle(sub, true));
 
+                Assets.Behavior.Adapters.Log.AdapterFactory =
+                    tags => new LogAdapter(tags);
 
                 //TorpedoModule.RegisterAll();
                 //DriveModule.RegisterAll();

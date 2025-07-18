@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+﻿using Assets.Behavior.Adapters;
 using UnityEngine;
 
 internal class DisableAction : IAction
@@ -20,7 +20,7 @@ internal class DisableAction : IAction
         {
             if (!HaveLoggedGone)
             {
-                LogConfig.Default.LogWarning($"Cannot do {Enabled.PropertyName} on {TargetName}: target is gone");
+                Log.Default.LogWarning($"Cannot do {Enabled.PropertyName} on {TargetName}: target is gone");
                 HaveLoggedGone = true;
             }
             return false;
@@ -28,7 +28,7 @@ internal class DisableAction : IAction
         if (Enabled.IsEnabled)
         {
             if (Enabled.LogChange)
-                LogConfig.Default.Write($"Setting {Enabled.PropertyName}:=false on {Enabled.Target.NiceName()}");
+                Log.Default.Write($"Setting {Enabled.PropertyName}:=false on {Enabled.Target.NiceName()}");
             Enabled.SetEnabled(false);
             return true;
         }
@@ -43,7 +43,7 @@ internal class DisableAction : IAction
         {
             if (!HaveLoggedGone)
             {
-                LogConfig.Default.LogWarning($"Cannot undo {Enabled.PropertyName} on {TargetName}: target is gone");
+                Log.Default.LogWarning($"Cannot undo {Enabled.PropertyName} on {TargetName}: target is gone");
                 HaveLoggedGone = true;
             }
             return;
@@ -51,8 +51,9 @@ internal class DisableAction : IAction
         if (!Enabled.IsEnabled)
         {
             if (Enabled.LogChange)
-                LogConfig.Default.Write($"Setting {Enabled.PropertyName}:=true on {Enabled.Target.NiceName()} [{Enabled.Target.GetInstanceID()}]");
+                Log.Default.Write($"Setting {Enabled.PropertyName}:=true on {Enabled.Target.NiceName()} [{Enabled.Target.GetInstanceID()}]");
             Enabled.SetEnabled(true);
-        };
+        }
+        ;
     }
 }

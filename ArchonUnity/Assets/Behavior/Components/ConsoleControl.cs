@@ -1,14 +1,12 @@
-﻿using System.Collections;
+﻿using Assets.Behavior.Adapters;
+using System;
 using System.Collections.Generic;
-
-using UnityEngine;
 using System.Text;
 using TMPro;
-using System;
+using UnityEngine;
 
-using System.IO;
-
-public readonly struct Line {
+public readonly struct Line
+{
     public string Input { get; }
     public string Message { get; }
     public DateTimeOffset Captured { get; }
@@ -22,7 +20,7 @@ public readonly struct Line {
     }
 
     public override string ToString() => Message;
-    
+
 
     public bool IsOutdated(int lineRetentionSeconds) => DateTimeOffset.Now - Captured > TimeSpan.FromSeconds(lineRetentionSeconds);
 }
@@ -60,10 +58,10 @@ public class ConsoleControl : MonoBehaviour
 
     public static void WriteException(string whileDoing, Exception ex)
     {
-        Debug.LogError($"Caught exception during {whileDoing}: {ex.Message}");
+        Log.LogError($"Caught exception during {whileDoing}: {ex.Message}", ex);
         //Write(ex.StackTrace);
-        
-        Debug.LogException(ex);
+
+        //Debug.LogException(ex);
     }
 
 
@@ -71,7 +69,7 @@ public class ConsoleControl : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(text))
             return;
-        Debug.Log(text);
+        Log.Write(text);
         var line = new Line(text);
         foreach (var control in Instances)
             control.AddLine(line);
@@ -90,7 +88,7 @@ public class ConsoleControl : MonoBehaviour
 
     private readonly Queue<Line> fullLines = new Queue<Line>();
     private readonly Queue<Line> pendingLines = new Queue<Line>();
-    
+
     private int lineAnimationAt = 0;
 
     private Line? currentLine;
@@ -99,9 +97,9 @@ public class ConsoleControl : MonoBehaviour
     public void AddLine(Line line)
     {
         Debug.Log("Adding " + line);
-        while (fullLines.Count > 0 && fullLines.Count + pendingLines.Count+1 > maxLines)
+        while (fullLines.Count > 0 && fullLines.Count + pendingLines.Count + 1 > maxLines)
             fullLines.Dequeue();
-        while (pendingLines.Count+1 > maxLines)
+        while (pendingLines.Count + 1 > maxLines)
             pendingLines.Dequeue();
 
         pendingLines.Enqueue(line);
@@ -214,7 +212,7 @@ public class ConsoleControl : MonoBehaviour
         if (accumulatedSeconds > secondsPerCharacter)
         {
             int numCharacters = Mathf.FloorToInt(accumulatedSeconds / secondsPerCharacter);
-            accumulatedSeconds -= numCharacters *secondsPerCharacter;
+            accumulatedSeconds -= numCharacters * secondsPerCharacter;
             AnimateNextCharacters(numCharacters);
         }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public abstract class ArchonBaseModule : ModVehicleUpgrade
+public abstract class ArchonBaseModule : AvsVehicleUpgrade
 {
     public CraftingNode? GroupNode { get; }
     public ArchonModule Module { get; }
@@ -71,15 +71,9 @@ public abstract class ArchonBaseModule : ModVehicleUpgrade
 
     public virtual TechType Register()
     {
-        AVS.Admin.UpgradeCompat compat = new AVS.Admin.UpgradeCompat
-        {
-            skipCyclops = true,
-            skipModVehicle = false,
-            skipSeamoth = true,
-            skipExosuit = true
-        };
+        AVS.Admin.UpgradeCompat compat = AVS.Admin.UpgradeCompat.AvsVehiclesOnly;
 
-        var type = AVS.Admin.UpgradeRegistrar.RegisterUpgrade(this, compat).ForModVehicle;
+        var type = AVS.Admin.UpgradeRegistrar.RegisterUpgrade(this, compat).ForAvsVehicle;
         TechType = type;
         All[type] = this;
         AllReverse[Module] = type;

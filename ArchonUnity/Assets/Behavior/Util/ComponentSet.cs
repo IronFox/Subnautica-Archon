@@ -1,3 +1,4 @@
+using Assets.Behavior.Adapters;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,7 +10,7 @@ using UnityEngine;
 /// Call Clean() once per
 /// </summary>
 /// <typeparam name="T"></typeparam>
-public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
+public class ComponentSet<T> : IDisposable, IEnumerable<T> where T : Component
 {
     private class ValidEnumerator : IEnumerator<T>
     {
@@ -47,7 +48,7 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
         }
     }
 
-    public int VersionNumber {get; private set; }
+    public int VersionNumber { get; private set; }
     public ComponentSet(Func<T, bool> additionalValidityCheck = null)
     {
         AdditionalValidityCheck = additionalValidityCheck ?? (_ => true);
@@ -57,10 +58,10 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
 
     private Func<T, bool> AdditionalValidityCheck { get; }
 
-    private IEnumerator<KeyValuePair<int,T>> CleanEnum { get; set; }
+    private IEnumerator<KeyValuePair<int, T>> CleanEnum { get; set; }
     public DateTime LastChange { get; private set; }
     public DateTime LastCheck { get; private set; }
-    private List<KeyValuePair<int, T>> RemoveOnNextReset {get; } = new List<KeyValuePair<int, T>>();
+    private List<KeyValuePair<int, T>> RemoveOnNextReset { get; } = new List<KeyValuePair<int, T>>();
 
     public void Update(Action<int, T> onRemovedDead = null)
     {
@@ -99,7 +100,7 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
         }
         catch (Exception ex)
         {
-            LogConfig.Default.LogException($"ComponentSet.Update()",ex);
+            Log.Default.LogError($"ComponentSet.Update()", ex);
         }
     }
 
@@ -149,7 +150,7 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T:Component
 
     public void Dispose()
     {
-        LogConfig.Default.LogWarning($"ComponentSet dispose");
+        Log.Default.LogWarning($"ComponentSet dispose");
     }
 
     public void UpdateIfChanged(ref int versionNumber, ref T[] array)

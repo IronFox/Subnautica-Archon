@@ -1,3 +1,4 @@
+using Assets.Behavior.Adapters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -171,7 +172,7 @@ public static class ObjectUtil
             return;
         if (!c.enabled)
         {
-            LogConfig.Default.LogError($"{c.NiceName()} has been disabled. Re-enabling");
+            Log.Default.LogError($"{c.NiceName()} has been disabled. Re-enabling");
             c.enabled = true;
         }
         if (c.isActiveAndEnabled)
@@ -191,7 +192,7 @@ public static class ObjectUtil
         {
             if (!current.gameObject.activeSelf)
             {
-                LogConfig.Default.LogError($"{current.gameObject.NiceName()} has been deactivate. Re-activating");
+                Log.Default.LogError($"{current.gameObject.NiceName()} has been deactivate. Re-activating");
                 current.gameObject.SetActive(false);
 
                 if (testFunction())
@@ -202,7 +203,7 @@ public static class ObjectUtil
 
         if (!rootTransform.gameObject.activeSelf)
         {
-            LogConfig.Default.LogError($"{rootTransform.gameObject.NiceName()} has been deactivate. Re-activating");
+            Log.Default.LogError($"{rootTransform.gameObject.NiceName()} has been deactivate. Re-activating");
             rootTransform.gameObject.SetActive(true);
         }
 

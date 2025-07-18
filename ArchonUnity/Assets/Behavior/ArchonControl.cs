@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Behavior.Adapters;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -60,7 +61,8 @@ public class ArchonControl : MonoBehaviour
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
     private ComponentSet<Collider> EnabledColliders { get; } = new ComponentSet<Collider>();
     private ComponentSet<Collider> DisabledColliders { get; } = new ComponentSet<Collider>();
-
+    private bool cameraIsInVehicle;
+    public bool CameraIsInVehicle => cameraIsInVehicle;
 
     public float maxEnergy = 1;
     public float currentEnergy = 0.5f;
@@ -122,7 +124,6 @@ public class ArchonControl : MonoBehaviour
     /// </summary>
     public bool ShouldBeAbleToTurnHead => forceCockpitCamera;// || (zoomedInIsCockpit && positionCamera.isFirstPerson);
 
-    public LogConfig Log { get; } = LogConfig.Default;
     private enum CameraState
     {
         IsFree,
@@ -133,7 +134,7 @@ public class ArchonControl : MonoBehaviour
     private CameraState state = CameraState.IsBound;
 
 
-    public bool IsBoarded => boardedBy.IsSet;
+    public bool IsBoardedButNotControlled => boardedBy.IsSet;
 
     private float PitchDelta => transform.rotation.eulerAngles.x >= 180 ? 360 - transform.rotation.eulerAngles.x : transform.rotation.eulerAngles.x;
     private float RollDelta => transform.rotation.eulerAngles.z >= 180 ? 360 - transform.rotation.eulerAngles.z : transform.rotation.eulerAngles.z;
@@ -337,7 +338,10 @@ public class ArchonControl : MonoBehaviour
 
 
         helmCameraIsInVehicle = isInVehicle;
-
+        if (helmCameraIsInVehicle)
+            ReintegrationTrailSpace();
+        else
+            OffloadTrailSpace();
     }
 
 
@@ -350,6 +354,7 @@ public class ArchonControl : MonoBehaviour
 
     private void SetCameraIsInVehicle(bool isInVehicle, bool withCollidersAndLights)
     {
+        cameraIsInVehicle = isInVehicle;
         interior.gameObject.SetActive(isInVehicle);
         UpdateInteriorCollidersAndLights(isInVehicle && withCollidersAndLights);
 
@@ -407,9 +412,8 @@ public class ArchonControl : MonoBehaviour
             MoveCameraToTrailSpace();
             //else
             //    SetCameraIsInVehicle(true, false);
-
-            Log.Write($"Offloading trail space");
-            trailSpace.parent = transform.parent;
+            if (!helmCameraIsInVehicle)
+                OffloadTrailSpace();
 
             currentlyControlled = true;
 
@@ -418,8 +422,29 @@ public class ArchonControl : MonoBehaviour
             listeners.SignalEnterControlEnd();
         }
     }
+    private void OffloadTrailSpace()
+    {
+        if (trailSpace.parent != transform.parent)
+        {
+            Log.Write($"Offloading trail space");
+            trailSpace.parent = transform.parent;
+        }
 
+    }
 
+    private void ReintegrationTrailSpace()
+    {
+        if (trailSpace.parent != transform)
+        {
+            Log.Write($"Reintegrating trail space");
+            trailSpace.parent = transform;
+        }
+    }
+
+    private bool TrailSpaceShouldBeOffloaded
+        => currentlyControlled && !helmCameraIsInVehicle;
+    private bool TrailSpaceIsOffloaded
+        => trailSpace.parent == transform.parent;
 
     public bool ExitControl(PlayerReference player, bool skipOrientation = false)
     {
@@ -442,8 +467,7 @@ public class ArchonControl : MonoBehaviour
             finally
             {
                 currentlyControlled = false;
-                Log.Write($"Reintegration trail space");
-                trailSpace.parent = transform;
+                ReintegrationTrailSpace();
             }
             controlledBy = default;
             Enter(player, skipOrientation);
@@ -471,7 +495,7 @@ public class ArchonControl : MonoBehaviour
         bayControl = GetComponentInChildren<BayControl>();
         if (orientation)
             orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
-        evacuateIntruders.enabled = IsBoarded;
+        evacuateIntruders.enabled = IsBoardedButNotControlled;
         SetCameraIsInVehicle(false, false);
     }
 
@@ -860,7 +884,7 @@ public class ArchonControl : MonoBehaviour
             {
                 orientation.enabled =
                     (doAutoLevel ||
-                        (!IsBoarded && (wasEverBoarded || !outOfWater))
+                        (!IsBoardedButNotControlled && (wasEverBoarded || !outOfWater))
                     )
                     && !batteryDead
                     && !powerOff
@@ -1038,10 +1062,20 @@ public class ArchonControl : MonoBehaviour
                 Log.Write("Fixed");
 
             }
-            if (currentlyControlled && trailSpace.parent != transform.parent)
+            if (TrailSpaceShouldBeOffloaded != TrailSpaceIsOffloaded)
             {
-                Log.LogWarning("Trail space is not offloaded right now. Fixing");
-                trailSpace.parent = transform.parent;
+                if (TrailSpaceShouldBeOffloaded)
+                {
+                    Log.LogWarning("Trail space should be offloaded. Offloading");
+                    OffloadTrailSpace();
+                }
+                else
+                {
+                    Log.LogWarning("Trail space should not be offloaded. Moving back to transform");
+                    ReintegrationTrailSpace();
+                }
+                if (TrailSpaceShouldBeOffloaded != TrailSpaceIsOffloaded)
+                    Log.LogError("Trail space offloading failed. Please report this bug");
             }
 
 
