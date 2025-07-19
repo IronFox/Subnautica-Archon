@@ -27,7 +27,7 @@ public class FpsTest : MonoBehaviour
         PlayerAdapter.PlayerReference = gameObject;
         OnExit(transform.position);
     }
-    
+
     void FixedUpdate()
     {
         if (!IsAtHelm)
@@ -45,16 +45,20 @@ public class FpsTest : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!subControl.IsBeingControlled && Input.GetKeyDown(KeyCode.Mouse0))
+        if (!subControl.IsBeingControlled)
         {
             var hits = Physics.RaycastAll(new Ray(head.position, head.forward), 2);
 
+            var click = Input.GetKeyDown(KeyCode.Mouse0);
 
             foreach (var hit in hits)
             {
-                var hatch = hit.collider.gameObject.GetComponent<DebugHandTarget>();
-                if (hatch)
-                    hatch.OnTrigger(subControl, this);
+                var target = hit.collider.gameObject.GetComponent<DebugHandTarget>();
+                if (target)
+                    if (click)
+                        target.OnTrigger(subControl, this);
+                    else
+                        target.OnHandOver(subControl, this);
             }
         }
         if (!IsAtHelm)

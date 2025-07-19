@@ -1,6 +1,8 @@
 ﻿using Assets.Behavior.Adapters;
+using Assets.Behavior.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class ArchonControl : MonoBehaviour
@@ -52,7 +54,10 @@ public class ArchonControl : MonoBehaviour
 
     public int maxDockedVehicles = 2;
 
+    public string noDockableTitle = "Nothing docked";
+
     private DateTime lastOnboarded;
+    private IDockable selectedDockable;
 
     private bool boardedLeave;
     private PlayerReference boardedBy,
@@ -96,7 +101,7 @@ public class ArchonControl : MonoBehaviour
     private PositionCamera positionCamera;
     private NonCameraOrientation nonCameraOrientation;
     private FallOrientation fallOrientation;
-    private BayControl bayControl;
+    public BayControl bayControl;
     private HullLightController hullLightController;
 
     private DirectionalDrag drag;
@@ -214,7 +219,7 @@ public class ArchonControl : MonoBehaviour
         interiorLights.gameObject.SetActive(enable);
         glass?.ForEach(g => g.SetActive(enable));
 
-        GetComponentsInChildren<IInteriorLightListener>().ForEach(
+        GetComponentsInChildren<IInteriorLightListener>(true).ForEach(
             listener => listener.SetInteriorLight(enable ? interiorLightScale : 0)
             );
     }
@@ -492,7 +497,7 @@ public class ArchonControl : MonoBehaviour
         fallOrientation = GetComponent<FallOrientation>();
         energyLevel = GetComponentInChildren<EnergyLevel>();
         firstPersonMarkers = GetComponentInChildren<FirstPersonMarkers>();
-        bayControl = GetComponentInChildren<BayControl>();
+        //bayControl = GetComponentInChildren<BayControl>();
         if (orientation)
             orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
         evacuateIntruders.enabled = IsBoardedButNotControlled;
@@ -1199,6 +1204,26 @@ public class ArchonControl : MonoBehaviour
             positionCameraBelowSub = false;
     }
 
+    public void SignalDockedChange()
+    {
+        if (selectedDockable == null)
+        {
+            selectedDockable = bayControl?.Docked.FirstOrDefault();
+            GetComponentsInChildren<IDockableSelectionListener>(true).ForEach(
+                listener => listener.OnDockableSelectedOrChanged(selectedDockable)
+                );
+        }
+        else
+        {
+            if (!bayControl.Docked.Contains(selectedDockable))
+            {
+                selectedDockable = bayControl?.Docked.FirstOrDefault();
+                GetComponentsInChildren<IDockableSelectionListener>(true).ForEach(
+                    listener => listener.OnDockableSelectedOrChanged(selectedDockable)
+                    );
+            }
+        }
+    }
 }
 
 

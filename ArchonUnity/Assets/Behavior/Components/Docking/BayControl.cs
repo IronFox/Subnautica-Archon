@@ -1,5 +1,6 @@
 ﻿using Assets.Behavior.Adapters;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -166,11 +167,17 @@ public class BayControl : MonoBehaviour
             }
 
         }
-
+        archon.SignalDockedChange();
         return NumDockedVehicles;
     }
 
     private ComponentSet<Tug> DockedTugs { get; } = new ComponentSet<Tug>();
+
+    public IEnumerable<IDockable> Docked =>
+        DockedTugs
+            .Where(x => x.Status == TugStatus.Docked)
+            .Select(x => x.Fit.Dockable);
+
     private void IncNumDockedVehicles(Tug tug)
     {
         if (!DockedTugs.Add(tug))
@@ -178,6 +185,7 @@ public class BayControl : MonoBehaviour
             throw new InvalidOperationException($"Tug {tug.NiceName()} already added");
         }
         NumDockedVehicles++;
+        archon.SignalDockedChange();
     }
 
     private void DecNumDockedVehicles(Tug tug)
@@ -187,6 +195,7 @@ public class BayControl : MonoBehaviour
             throw new InvalidOperationException($"Tug {tug.NiceName()} not found");
         }
         NumDockedVehicles--;
+        archon.SignalDockedChange();
     }
 
     // Start is called before the first frame update

@@ -7,7 +7,18 @@ using UnityEngine;
 public class Tug : MonoBehaviour
 {
     public BayControl Owner { get; private set; }
-    public TugStatus Status { get; private set; }
+    public TugStatus Status
+    {
+        get => _status;
+        private set
+        {
+            if (_status == value)
+                return;
+            _status = value;
+            Owner.archon.SignalDockedChange();
+        }
+    }
+    private TugStatus _status;
     public bool IsSaving { get; private set; }
 
     public static string Tag { get; } = $"Archon Docked " + new Guid("086EA558-170A-4B92-8922-F7456F818D38");

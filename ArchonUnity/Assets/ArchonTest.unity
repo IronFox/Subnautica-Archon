@@ -1486,6 +1486,16 @@ MonoBehaviour:
   debugOutBounds2:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  health: 100
+  maxHealth: 100
+  vehicleName: Archon
+  texture: {fileID: 2800000, guid: d6d66cd08ac99ac47921b7f6c8ba5ee0, type: 3}
+  moduleTextures: []
+  crushDepth: 300
+  storageCapacity: 16
+  storageUsage: 3
+  power: 64
+  powerCapacity: 100
 --- !u!4 &938009334
 Transform:
   m_ObjectHideFlags: 0
@@ -1679,6 +1689,16 @@ MonoBehaviour:
   debugOutBounds2:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  health: 100
+  maxHealth: 100
+  vehicleName: Unnamed
+  texture: {fileID: 0}
+  moduleTextures: []
+  crushDepth: 300
+  storageCapacity: 16
+  storageUsage: 3
+  power: 64
+  powerCapacity: 100
 --- !u!4 &1118649590
 Transform:
   m_ObjectHideFlags: 0
@@ -2385,6 +2405,16 @@ MonoBehaviour:
   debugOutBounds2:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  health: 100
+  maxHealth: 100
+  vehicleName: Unnamed
+  texture: {fileID: 0}
+  moduleTextures: []
+  crushDepth: 300
+  storageCapacity: 16
+  storageUsage: 3
+  power: 64
+  powerCapacity: 100
 --- !u!4 &1670704086
 Transform:
   m_ObjectHideFlags: 0
@@ -2870,6 +2900,16 @@ MonoBehaviour:
   debugOutBounds2:
     m_Center: {x: 0, y: 0, z: 0}
     m_Extent: {x: 0, y: 0, z: 0}
+  health: 100
+  maxHealth: 100
+  vehicleName: Unnamed
+  texture: {fileID: 0}
+  moduleTextures: []
+  crushDepth: 300
+  storageCapacity: 16
+  storageUsage: 3
+  power: 64
+  powerCapacity: 100
 --- !u!4 &2123857458
 Transform:
   m_ObjectHideFlags: 0

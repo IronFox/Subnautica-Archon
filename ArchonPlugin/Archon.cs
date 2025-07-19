@@ -215,7 +215,7 @@ namespace Subnautica_Archon
                 AVS.Logger.PDANote("Cannot dock: Your vehicle is too large", 3f);
             };
 
-            onToggle += OnQuickbarToggle;
+            //onToggle += OnQuickbarToggle;
 
 
 
@@ -274,46 +274,46 @@ namespace Subnautica_Archon
 
         }
 
-        private void OnQuickbarToggle(int slotID, bool state)
-        {
-            if (state == true)
-            {
-                var slotId = new QuickSlot(slotID, slotIDs[slotID]);
-                var item = modules.GetItemInSlot(slotId.ID)?.item;
-                if (item == null)
-                    Log.Error($"No item found in slot {slotID}/{slotId}");
-                else
-                {
-                    var vehicle = item.gameObject.GetComponent<Vehicle>();
-                    if (!vehicle)
-                        Log.Error($"Item found in slot {slotID}/{slotId} ({item.gameObject}) is not a vehicle");
-                    else
-                    {
-                        var cr = Control.CheckUndocking(vehicle.gameObject);
-                        if (cr == UndockingCheckResult.Ok)
-                        {
-                            AbortAutoLeveling();
-                            Log.Write($"Removing quick bar item in slot [{slotId}]");
-                            var removed = modules.RemoveItem(slotId.ID, true, true);
-                            Log.Write($"Removed [{removed}]");
+        //private void OnQuickbarToggle(int slotID, bool state)
+        //{
+        //    if (state == true)
+        //    {
+        //        var slotId = new QuickSlot(slotID, slotIDs[slotID]);
+        //        var item = modules.GetItemInSlot(slotId.ID)?.item;
+        //        if (item == null)
+        //            Log.Error($"No item found in slot {slotID}/{slotId}");
+        //        else
+        //        {
+        //            var vehicle = item.gameObject.GetComponent<Vehicle>();
+        //            if (!vehicle)
+        //                Log.Error($"Item found in slot {slotID}/{slotId} ({item.gameObject}) is not a vehicle");
+        //            else
+        //            {
+        //                var cr = Control.CheckUndocking(vehicle.gameObject);
+        //                if (cr == UndockingCheckResult.Ok)
+        //                {
+        //                    AbortAutoLeveling();
+        //                    Log.Write($"Removing quick bar item in slot [{slotId}]");
+        //                    var removed = modules.RemoveItem(slotId.ID, true, true);
+        //                    Log.Write($"Removed [{removed}]");
 
 
-                            Log.Write($"Undocking {Util.Log.Describe(vehicle)}");
-                            Control.Undock(vehicle.gameObject);
-                            ToggleSlot(slotID, false);
-                            if (Drone.IsOne(vehicle))
-                                SignalQuickslotsChangedWhilePiloting(slotId);
-                        }
-                        else
-                        {
-                            ToggleSlot(slotID, false);
-                            ErrorMessage.AddError($"Cannot undock right now ({cr})");
-                        }
-                    }
-                }
-            }
+        //                    Log.Write($"Undocking {Util.Log.Describe(vehicle)}");
+        //                    Control.Undock(vehicle.gameObject);
+        //                    ToggleSlot(slotID, false);
+        //                    if (Drone.IsOne(vehicle))
+        //                        SignalQuickslotsChangedWhilePiloting(slotId);
+        //                }
+        //                else
+        //                {
+        //                    ToggleSlot(slotID, false);
+        //                    ErrorMessage.AddError($"Cannot undock right now ({cr})");
+        //                }
+        //            }
+        //        }
+        //    }
 
-        }
+        //}
 
 
         private Coroutine? autoLevelRoutine;

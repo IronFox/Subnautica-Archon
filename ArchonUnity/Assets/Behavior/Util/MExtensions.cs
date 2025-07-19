@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public static class MExtensions
@@ -20,5 +19,11 @@ public static class MExtensions
             combiner(a.y, b.y, c.y),
             combiner(a.z, b.z, c.z)
             );
+    }
+
+    public static string Percentage(this int x, int max)
+    {
+        return ((float)x / max)
+            .ToString("#.##%", CultureInfo.InvariantCulture);
     }
 }

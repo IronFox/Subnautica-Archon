@@ -1,3 +1,4 @@
+using AVS.Assets;
 using AVS.BaseVehicle;
 using Nautilus.Handlers;
 using Subnautica_Archon.Util;
@@ -69,7 +70,7 @@ namespace Subnautica_Archon.Adapters
             if (Drone.Access(Vehicle, out var d))
                 d!.isAsleep = true;
 
-            AddToQuickbar(true);
+            //AddToQuickbar(true);
 
         }
 
@@ -205,7 +206,7 @@ namespace Subnautica_Archon.Adapters
 
                 Vehicle.docked = true;
 
-                AddToQuickbar(false);
+                //AddToQuickbar(false);
 
 
             }
@@ -335,8 +336,8 @@ namespace Subnautica_Archon.Adapters
                 //    ChangeAvatarInput(false);
             }
 
-            Log.Write($"Destroying pickupable (if any)");
-            Object.Destroy(Vehicle.GetComponent<Pickupable>());
+            //Log.Write($"Destroying pickupable (if any)");
+            //Object.Destroy(Vehicle.GetComponent<Pickupable>());
         }
 
 
@@ -433,13 +434,14 @@ namespace Subnautica_Archon.Adapters
         public void OnRedockedAfterSaving()
         {
             Log.Write(nameof(OnRedockedAfterSaving));
-            AddToQuickbar(false);
+            //AddToQuickbar(false);
         }
 
 
         private void AddToQuickbar(bool fromLoading)
         {
             Log.Write($"Trying to set module slot for {Vehicle.NiceName()}");
+
 
             var pu = Vehicle.gameObject.GetComponent<Pickupable>();
             if (!pu)
@@ -449,6 +451,12 @@ namespace Subnautica_Archon.Adapters
             }
             else
                 Log.Write($"Pickupable existed");
+            TechType myTT = pu.GetTechType();
+            var tt = CraftData.GetTechType(Vehicle.gameObject);
+            Atlas.Sprite thisAtlasSprite = SpriteManager.Get(myTT);
+
+            var sprite = SpriteHelper.CreateSpriteFromAtlasSprite(thisAtlasSprite);
+
             //Pickupable pu = new Pickupable();
             //pu.SetTechTypeOverride(module.TechType);
             //pu.SetVisible(true);

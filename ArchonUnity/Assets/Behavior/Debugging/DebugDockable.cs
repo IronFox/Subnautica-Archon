@@ -1,5 +1,6 @@
-﻿using System.Collections;
+﻿using Assets.Behavior.TransferTypes;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class DebugDockable : MonoBehaviour, IDockable
@@ -14,9 +15,43 @@ public class DebugDockable : MonoBehaviour, IDockable
 
     public Bounds debugOutBounds;
     public Bounds debugOutBounds2;
+    public int health = 100;
+    public int maxHealth = 100;
+    public string vehicleName = "Unnamed";
     public Bounds LocalBounds { get; private set; }
 
     public HashSet<string> Tags { get; } = new HashSet<string>();
+
+    public Texture2D texture;
+    public Texture2D[] moduleTextures;
+    public int crushDepth = 300;
+
+    public AtlasTexture Image => AtlasTexture.FromFullTexture(texture);
+
+    public int storageCapacity = 16;
+    public int storageUsage = 3;
+
+    public int power = 64;
+    public int powerCapacity = 100;
+
+
+    public AtlasTexture[] Modules => moduleTextures.Select(AtlasTexture.FromFullTexture).ToArray();
+
+    public string Name => vehicleName;
+
+    public string ClassName => nameof(DebugDockable);
+
+    public Text HealthText
+        => Text.Info($"Health: {health.Percentage(maxHealth)}");
+
+    public Text PowerText
+        => Text.Warning($"Power: {power.Percentage(powerCapacity)}");
+
+    public Text CrushText
+        => Text.Info($"Crush: {M.Round(-transform.position.y, 0).ToStr()}/{crushDepth}m");
+
+    public Text StorageText
+        => Text.Info($"Storage: {storageUsage}/{storageCapacity}");
 
     public void BeginDocking()
     { }
@@ -36,39 +71,44 @@ public class DebugDockable : MonoBehaviour, IDockable
 
     void Awake()
     {
-        LocalBounds = debugOutBounds = transform.ComputeScaledLocalBounds(includeRenderers: false, includeColliders:true);
+        LocalBounds = debugOutBounds = transform.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true);
         debugOutBounds2 = transform.ComputeScaledLocalBounds(includeRenderers: true, includeColliders: false);
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
+    public void OpenStorage()
+    { }
+    public void OpenModules()
+    { }
+
     public void OnDockingDone()
-    {}
+    { }
 
     public void UpdateWaitingForBayDoorClose()
-    {}
+    { }
 
     public void PrepareUndocking()
-    {}
+    { }
 
     public void UpdateWaitingForBayDoorOpen()
-    {}
+    { }
 
     public void OnUndockingDone()
-    {}
+    { }
 
     public void RestoreDockedStateFromSaveGame()
-    {}
+    { }
 
     public void Tag(string tag)
     {
@@ -86,8 +126,8 @@ public class DebugDockable : MonoBehaviour, IDockable
     }
 
     public void OnUndockedForSaving()
-    {}
+    { }
 
     public void OnRedockedAfterSaving()
-    {}
+    { }
 }
