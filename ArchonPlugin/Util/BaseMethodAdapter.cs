@@ -52,6 +52,7 @@ namespace Subnautica_Archon.Util
             }
             try
             {
+                Log.Debug($"Invoking method {Method.Name} on {Target} with parameters {string.Join(", ", p)}");
                 Method.Invoke(Target, p);
             }
             catch (Exception ex)

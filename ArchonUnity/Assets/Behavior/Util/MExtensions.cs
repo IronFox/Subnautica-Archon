@@ -23,7 +23,17 @@ public static class MExtensions
 
     public static string Percentage(this int x, int max)
     {
+        if (max == 0)
+            return "??%";
         return ((float)x / max)
+            .ToString("#.##%", CultureInfo.InvariantCulture);
+    }
+
+    public static string Percentage(this float x, float max)
+    {
+        if (max == 0)
+            return "??%";
+        return (x / max)
             .ToString("#.##%", CultureInfo.InvariantCulture);
     }
 }

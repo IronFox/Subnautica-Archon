@@ -41,13 +41,13 @@
         {
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex);// * _Color;
-            o.Albedo = (float3)_Color.rgb;
-            o.Emission = c.rgb;
+            o.Albedo = (float3)_Color.rgb * c.a;
+            o.Emission = c.rgb * c.a;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
             o.Alpha = c.a;
-            clip(c.a-0.05);
+            clip(c.a-0.5);
         }
         ENDCG
     }

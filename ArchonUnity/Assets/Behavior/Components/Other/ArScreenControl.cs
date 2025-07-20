@@ -16,14 +16,28 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
         healthText,
         powerText,
         crushText,
-        storageText;
+        storageText,
+        nothingDockedText;
+
+    private ArchonControl Archon
+    {
+        get
+        {
+            if (archon == null)
+            {
+                archon = GetComponentInParent<ArchonControl>();
+            }
+            return archon;
+        }
+    }
 
     public void OnDockableSelectedOrChanged(IDockable dockable)
     {
         this.dockable = dockable;
 
         var mod = dockable?.Modules ?? Array.Empty<AtlasTexture>();
-        for (int i = 0; i < mod.Length; i++)
+        //mod = mod.Repeat(4).ToArray();
+        for (int i = 0; i < mod.Length && i < 8; i++)   //only space for 8
         {
             if (i < moduleContainer.childCount)
             {
@@ -37,14 +51,22 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
             var instance = Instantiate(modulePrefab, moduleContainer);
             var img = instance.GetComponent<AtlasImage>();
             img.Texture = mod[i];
-            instance.transform.localPosition += new Vector3(i * instance.transform.localScale.x, 0, 0);
+            instance.transform.localPosition = new Vector3(i * instance.transform.localScale.x, 0, 0);
         }
         while (mod.Length < moduleContainer.childCount)
-            Destroy(moduleContainer.GetChild(mod.Length));
+        {
+            var c = moduleContainer.GetChild(mod.Length);
+            c.parent = null;
+            Destroy(c.gameObject);
+        }
 
 
-        nameText.SetText(dockable?.Name ?? archon.noDockableTitle);
-        typeText.SetText(dockable?.ClassName ?? "");
+        nothingDockedText.SetText(dockable == null ? Archon.noDockableTitle : "");
+        nameText.SetText(dockable?.Name);
+        if (dockable == null)
+            typeText.SetText("");
+        else
+            typeText.SetText($"#{Archon.SelectedDockedIndex + 1}/{Archon.bayControl.NumUndockableVehicles}: {dockable?.ClassName}");
         Apply(healthText, dockable?.HealthText);
         Apply(powerText, dockable?.PowerText);
         Apply(crushText, dockable?.CrushText);
@@ -67,9 +89,12 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
     }
 
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
-
+        if (archon == null)
+        {
+            archon = GetComponentInParent<ArchonControl>();
+        }
     }
     private float nextUpdateInSeconds = 1;
     private IDockable dockable;
@@ -80,9 +105,10 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
         nextUpdateInSeconds -= Time.deltaTime;
         if (nextUpdateInSeconds <= 0 && dockable != null)
         {
+            nothingDockedText.SetText("");
             nextUpdateInSeconds = 1;
             nameText.SetText(dockable.Name);
-            typeText.SetText(dockable.ClassName);
+            typeText.SetText($"#{Archon.SelectedDockedIndex + 1}/{Archon.bayControl.NumUndockableVehicles}: {dockable.ClassName}");
             Apply(healthText, dockable?.HealthText);
             Apply(powerText, dockable?.PowerText);
             Apply(crushText, dockable?.CrushText);

@@ -10,6 +10,7 @@ using AVS.VehicleParts;
 using AVS.VehicleTypes;
 using FMOD.Studio;
 using FMODUnity;
+using Subnautica_Archon.Components;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections;
@@ -66,7 +67,7 @@ namespace Subnautica_Archon
             canLeviathanGrab: false,
             canMoonpoolDock: false,
             pilotingStyle: PilotingStyle.Other,
-            materialAdaptConfig: new DefaultMaterialAdaptConfig(MaterialLog.Verbose),
+            materialAdaptConfig: new DefaultMaterialAdaptConfig(MaterialLog.Silent),
             recipe: NewRecipe
                 .StartWith(TechType.PowerCell, 1)
                 .Include(TechType.AdvancedWiringKit, 2)
@@ -81,8 +82,7 @@ namespace Subnautica_Archon
         {
             Log = new LogWriter(
                 prefix: $"V" + Id,
-                tags: new string[] { "Mod" },
-                includeTimestamp: true);
+                "Mod");
             //Log = new MyLogger(this);
             Log.Write($"Constructed");
             MenuTracker = new MenuTracker(() =>
@@ -252,16 +252,16 @@ namespace Subnautica_Archon
 
             base.Awake();
 
-            Log.Write("Checking quickslots");
-            foreach (var s in QuickSlots)
-            {
-                var mod = modules.GetItemInSlot(s.ID);
-                if (mod != null && mod.item == null)
-                {
-                    Log.Error($"Found invalid item in slot {s}. Purging");
-                    modules.RemoveItem(s.ID, true, false);
-                }
-            }
+            //Log.Write("Checking quickslots");
+            //foreach (var s in QuickSlots)
+            //{
+            //    var mod = modules.GetItemInSlot(s.ID);
+            //    if (mod != null && mod.item == null)
+            //    {
+            //        Log.Error($"Found invalid item in slot {s}. Purging");
+            //        modules.RemoveItem(s.ID, true, false);
+            //    }
+            //}
 
 
             //var cameraController = gameObject.GetComponentInChildren<AVS.VehicleComponents.MVCameraController>();
@@ -530,13 +530,13 @@ namespace Subnautica_Archon
                     ErrorMessage.AddError(string.Format(Language.main.Get("destroyedAndCannotBeBoarded"), VehicleName));
                     return;
                 }
-                if (refreshQuickslotsOnControl.HasValue)
-                {
-                    var v = refreshQuickslotsOnControl.Value;
-                    Control.PrepareForSaving();
-                    refreshQuickslotsOnControl = null;
-                    //SignalQuickslotsChangedWhilePiloting(v);
-                }
+                //if (refreshQuickslotsOnControl.HasValue)
+                //{
+                //    var v = refreshQuickslotsOnControl.Value;
+                //    Control.PrepareForSaving();
+                //    refreshQuickslotsOnControl = null;
+                //    //SignalQuickslotsChangedWhilePiloting(v);
+                //}
 
             }
             catch (Exception ex)
@@ -1114,8 +1114,23 @@ namespace Subnautica_Archon
         {
             Log.Write(nameof(EnterFromDocking));
             SuspendAutoLeveling();
-            ClosestPlayerEntry();
-            BeginHelmControl(Com.Helms[0]);
+
+            var dockingHatchEntry = transform.Find("Docking Hatch/Exit");
+            if (dockingHatchEntry)
+            {
+                Log.Write($"Docking hatch entry found at {dockingHatchEntry.position}");
+                PlayerEntry(new VehicleHatchDefinition(gameObject, dockingHatchEntry, dockingHatchEntry, dockingHatchEntry));
+                //Player.main.transform.position = dockingHatchEntry.position;
+                //Player.main.transform.rotation = dockingHatchEntry.rotation;
+            }
+            else
+            {
+                Log.Error($"Docking hatch entry not found. Entering helm");
+                ClosestPlayerEntry();
+                BeginHelmControl(Com.Helms[0]);
+            }
+            AnticipatePlayerIssues = true;
+
             RestoreAutoLeveling();
 
         }
@@ -1140,46 +1155,46 @@ namespace Subnautica_Archon
             exitLimitsSuspended = false;
         }
 
-        public void ToggleSlot(QuickSlot slot, bool enabled)
-        {
-            base.ToggleSlot(slot.Index, enabled);
-        }
+        //public void ToggleSlot(QuickSlot slot, bool enabled)
+        //{
+        //    base.ToggleSlot(slot.Index, enabled);
+        //}
 
         private readonly Undoable disabledCameras = new Undoable();
-        private QuickSlot? refreshQuickslotsOnControl;
-        internal void SignalQuickslotsChangedWhileLoading(QuickSlot slot)
-        {
-            refreshQuickslotsOnControl = slot;
-        }
-        internal void SignalQuickslotsChangedWhilePiloting(QuickSlot slot)
-        {
-            Log.Write(nameof(SignalQuickslotsChangedWhilePiloting));
-            if (!Control.IsBeingControlled)
-            {
-                Log.Write($"Not actually piloting. Ignoring");
-                return;
-            }
-            //var qs = uGUI.main.quickSlots;
-            //new MethodAdapter<uGUI_ItemIcon, TechType>(qs, "SetForeground")
-            //    .Invoke(qs.GetIcon(slot.Index), TechType.None);
-            //new MethodAdapter<uGUI_ItemIcon, TechType, bool>(qs, "SetBackground")
-            //    .Invoke(qs.GetIcon(slot.Index), TechType.None, false);
+        //private QuickSlot? refreshQuickslotsOnControl;
+        //internal void SignalQuickslotsChangedWhileLoading(QuickSlot slot)
+        //{
+        //    refreshQuickslotsOnControl = slot;
+        //}
+        //internal void SignalQuickslotsChangedWhilePiloting(QuickSlot slot)
+        //{
+        //    Log.Write(nameof(SignalQuickslotsChangedWhilePiloting));
+        //    if (!Control.IsBeingControlled)
+        //    {
+        //        Log.Write($"Not actually piloting. Ignoring");
+        //        return;
+        //    }
+        //    //var qs = uGUI.main.quickSlots;
+        //    //new MethodAdapter<uGUI_ItemIcon, TechType>(qs, "SetForeground")
+        //    //    .Invoke(qs.GetIcon(slot.Index), TechType.None);
+        //    //new MethodAdapter<uGUI_ItemIcon, TechType, bool>(qs, "SetBackground")
+        //    //    .Invoke(qs.GetIcon(slot.Index), TechType.None, false);
 
-            SuspendAutoLeveling();
-            base.DeselectSlots();
-            RestoreAutoLeveling();
-            //foreach (var mbehavior in GetComponentsInChildren<MonoBehaviour>())
-            //    SimulateUpdate(mbehavior);
-            //foreach (var mbehavior in Player.main.GetComponentsInChildren<MonoBehaviour>())
-            //    SimulateUpdate(mbehavior);
-            //BeginPiloting();
+        //    SuspendAutoLeveling();
+        //    base.DeselectSlots();
+        //    RestoreAutoLeveling();
+        //    //foreach (var mbehavior in GetComponentsInChildren<MonoBehaviour>())
+        //    //    SimulateUpdate(mbehavior);
+        //    //foreach (var mbehavior in Player.main.GetComponentsInChildren<MonoBehaviour>())
+        //    //    SimulateUpdate(mbehavior);
+        //    //BeginPiloting();
 
-            Player.main.camRoot
-                .GetComponentsInChildren<Camera>()
-                .ToEnabled()
-                .DisableAllEnabled(disabledCameras);
-            StartCoroutine(ReenterNextFrame());
-        }
+        //    Player.main.camRoot
+        //        .GetComponentsInChildren<Camera>()
+        //        .ToEnabled()
+        //        .DisableAllEnabled(disabledCameras);
+        //    StartCoroutine(ReenterNextFrame());
+        //}
 
         private IEnumerator ReenterNextFrame()
         {
@@ -1230,6 +1245,14 @@ namespace Subnautica_Archon
                 Log.Write($"Detected {hatchList.Count} hatch(es)");
             }
 
+            var arButtons = transform.GetComponentsInChildren<ArButton>(true);
+            foreach (var arButton in arButtons)
+            {
+                Log.Write($"Found AR button {arButton.name} at {arButton.transform.position}");
+                var helper = arButton.gameObject.EnsureComponent<ArchonArButton>();
+                helper.arButton = arButton;
+            }
+
             var storageRootTransform = transform.Find("StorageRoot");
             if (storageRootTransform == null)
             {
@@ -1242,6 +1265,7 @@ namespace Subnautica_Archon
             {
                 Log.Write($"Found storage root {storageRootTransform}");
             }
+
 
             var modularStorageList = new List<VehicleStorage>();
             if (storageRootTransform)

@@ -1,6 +1,6 @@
-using AVS.Assets;
+using Assets.Behavior.TransferTypes;
 using AVS.BaseVehicle;
-using Nautilus.Handlers;
+using AVS.Log;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections;
@@ -16,8 +16,13 @@ namespace Subnautica_Archon.Adapters
     public class DockableVehicle : IDockable
     {
         private FieldAdapter<Player.Mode> Mode { get; }
+
+        public LogWriter Log { get; }
         public DockableVehicle(Vehicle vehicle, Archon archon)
         {
+            Log = new LogWriter(
+                prefix: "Dockable#" + Id,
+                "Mod");
             Vehicle = vehicle;
             Archon = archon;
             HasPlayer = Player.main.currentMountedVehicle == Vehicle && !Drone.IsOne(Vehicle);
@@ -35,6 +40,9 @@ namespace Subnautica_Archon.Adapters
 
         public GameObject GameObject => Vehicle.gameObject;
         private int UpdateCounter { get; set; }
+        private static int idCounter = 0;
+        public int Id { get; } = ++idCounter;
+
 
         public bool ShouldUnfreezeImmediately => !(Vehicle is AvsVehicle) && !VFVehicle.IsOne(Vehicle);
 
@@ -42,7 +50,7 @@ namespace Subnautica_Archon.Adapters
 
 
         public override string ToString()
-            => $"<Adapter>" + Log.GetVehicleName(Vehicle);
+            => $"<Adapter>" + Vehicle.GetVehicleName();
 
         private Bounds? bounds;
         public Bounds LocalBounds
@@ -55,7 +63,137 @@ namespace Subnautica_Archon.Adapters
             }
         }
 
+        private AtlasTexture? image;
+        public AtlasTexture Image
+        {
+            get
+            {
+                if (image is null)
+                {
+                    var tt = CraftData.GetTechType(Vehicle.gameObject);
+                    if (tt != TechType.None)
+                    {
+                        var sprite = SpriteManager.Get(tt);
+                        image = sprite.ToAtlasTexture();
+                        if (!image.Value.Exists)
+                        {
+                            Log.Error($"Image for {Vehicle.NiceName()} does not exist. Using empty atlas texture.");
+                        }
+                    }
+                    else
+                    {
+                        Log.Error($"Unable to get TechType for {Vehicle.NiceName()}");
+                        image = new AtlasTexture();
+                    }
+                }
+                return image.Value;
+            }
+        }
 
+        public AtlasTexture[] Modules
+        {
+            get
+            {
+                List<AtlasTexture> textures = new List<AtlasTexture>();
+                foreach (InventoryItem mod in (IItemsContainer)Vehicle.modules)
+                {
+                    if (mod.techType != TechType.None)
+                    {
+                        var sprite = SpriteManager.Get(mod.techType);
+                        var tex = sprite.ToAtlasTexture();
+                        if (tex.Exists)
+                            textures.Add(tex);
+                    }
+                }
+                return textures.ToArray();
+            }
+        }
+
+        public string Name => Vehicle.GetVehicleName();
+
+        public string ClassName => Vehicle.GetType().Name + " Class";
+
+        private static Text Classify(string name, float current, float max)
+        {
+            var text = $"{name}: {current.Percentage(max)}";
+            if (current < max * 0.25f)
+                return Text.Error(text);
+            if (current < max * 0.5f)
+                return Text.Warning(text);
+            return Text.Info(text);
+        }
+        private static Text ClassifyDepth(string name, float current, float max)
+        {
+            //if (current <= 0)
+            //    return Text.Error($"{name}: {current}/{max}");
+            var text = $"{name}: {M.Round(current, 0)}/{M.Round(max, 0)}m";
+            if (current > max)
+                return Text.Error(text);
+            if (current > max * 0.95f)
+                return Text.Warning(text);
+            return Text.Info(text);
+        }
+
+        public Text HealthText
+        {
+            get
+            {
+                var mixin = Vehicle.liveMixin;
+                if (mixin == null)
+                {
+                    return Text.Error("Health: Unknown");
+                }
+                return Classify($"Health", mixin.health, mixin.maxHealth);
+            }
+        }
+        public Text PowerText
+        {
+            get
+            {
+                var energy = Vehicle.GetComponent<EnergyInterface>();
+                if (energy == null)
+                {
+                    return Text.Error("Power: Unknown");
+                }
+                energy.GetValues(out var charge, out var capacity);
+                return Classify($"Power", charge, capacity);
+            }
+        }
+
+
+        public Text CrushText
+        {
+            get
+            {
+                var d = Vehicle.crushDamage.GetDepth();
+                var max = Vehicle.crushDamage.crushDepth;
+                return ClassifyDepth($"Depth", d, max);
+            }
+        }
+
+        public Text StorageText
+        {
+            get
+            {
+                int count = 0;
+                int total = 0;
+                for (int i = 0; i < 20; i++)
+                {
+                    try
+                    {
+                        var storage = Vehicle.GetStorageInSlot(i, TechType.VehicleStorageModule);
+                        if (storage != null)
+                        {
+                            count += storage.sizeX * storage.sizeY;
+                            total += storage.Sum(x => x.width * x.height);
+                        }
+                    }
+                    catch (IndexOutOfRangeException)
+                    { }//odd but w/e
+                }
+                return Text.Info($"Storage: {count}/{total}");
+            }
+        }
 
         public void RestoreDockedStateFromSaveGame()
         {
@@ -74,7 +212,50 @@ namespace Subnautica_Archon.Adapters
 
         }
 
+        private void CheckPingInstanceIsDeactivated()
+        {
+            Log.Debug($"Checking ping instance for {Vehicle.NiceName()}");
+            if (Vehicle is AvsVehicle mv)
+            {
+                if (mv.HudPingInstance.enabled)
+                {
+                    Log.Write($"HudPingInstance on {mv.NiceName()} is still enabled. Disabling it");
+                    mv.HudPingInstance.SetHudIcon(false);
+                }
+            }
+            else if (VFVehicle.Access(Vehicle, out var vf))
+            {
+                Log.Debug($"Is VF vehicle");
+                if (vf!.HudIconIsEnabled())
+                {
+                    Log.Write($"HudPingInstance on {Vehicle.NiceName()} is still enabled. Disabling it");
+                    vf!.SetHudIcon(false);
+                }
+            }
+            else
+            {
+                var pingInstance = FieldAdapter.OfPublic<Object>(Vehicle, "pingInstance");
+                if (pingInstance.IsValid)
+                {
+                    var setHudIcon = new MethodAdapter<bool>(pingInstance.Value, "SetHudIcon");
+                    setHudIcon.Invoke(false);
+                }
+                Vehicle.subName.pingInstance.SetHudIcon(false);
+            }
+        }
 
+        private void SignalVehicleDocked()
+        {
+            if (Vehicle is AvsVehicle mv)
+            {
+                mv.OnVehicleDocked(Vector3.zero);
+            }
+            else if (VFVehicle.Access(Vehicle, out var vf))
+            {
+                vf!.OnVehicleDocked(Vector3.zero);
+            }
+            CheckPingInstanceIsDeactivated();
+        }
 
         public void BeginDocking()
         {
@@ -111,12 +292,10 @@ namespace Subnautica_Archon.Adapters
             if (Vehicle is AvsVehicle mv)
             {
                 mv.HudPingInstance.SetHudIcon(false);
-                mv.OnVehicleDocked(Vector3.zero);
             }
             else if (VFVehicle.Access(Vehicle, out var vf))
             {
                 vf!.SetHudIcon(false);
-                vf!.OnVehicleDocked(Vector3.zero);
             }
             else
             {
@@ -138,61 +317,79 @@ namespace Subnautica_Archon.Adapters
             if (HasPlayer)
             {
                 new MethodAdapter(Vehicle, "OnPilotModeEnd").Invoke();
-                if (Vehicle is AvsVehicle v)
-                {
-                    Log.Write($"Player is in mod vehicle {v.NiceName()}. Deselecting...");
-                    v.DeselectSlots();
-                    v.ClosestPlayerExit(false);
-                }
-                else if (VFVehicle.Access(Vehicle, out var vv))
-                {
-                    Log.Write($"Player is in VFVehicle {Vehicle.NiceName()}. Deselecting...");
-                    Vehicle.DeselectSlots();
-                    vv!.PlayerExit();
-                }
-                else
-                {
-                    Log.Write($"Player is in vanilla vehicle {Vehicle}. Deselecting...");
-                }
+                SignalVehicleDocked();
+                Vehicle.DeselectSlots();
+                //if (Vehicle is AvsVehicle v)
+                //{
+                //    Log.Write($"Player is in mod vehicle {v.NiceName()}. Deselecting...");
+                //    v.ClosestPlayerExit(false);
+                //}
+                //else if (VFVehicle.Access(Vehicle, out var vv))
+                //{
+                //    Log.Write($"Player is in VFVehicle {Vehicle.NiceName()}. Deselecting...");
+                //    vv!.PlayerExit();
+                //}
+                //else
+                //{
+                //    Log.Write($"Player is in vanilla vehicle {Vehicle}. Deselecting...");
+                //}
 
             }
-            Player.main.ToNormalMode(findNewPosition: false);
-            Log.Write("Zeroing velocity");
-            Player.main.rigidBody.angularVelocity = Vector3.zero;
-            Log.Write("Exiting locked mode");
-            Player.main.ExitLockedMode(respawn: false, findNewPosition: false);
-            Player.main.SetPosition(Archon.Com.Helms.First().AnyExitLocation);
-            Log.Write("Exiting sitting mode");
-            Player.main.ExitSittingMode();
+            else
+                Log.Warn($"Docking vehicle does not have the player");
 
             yield return new WaitForFixedUpdate();
             yield return new WaitForEndOfFrame();
 
-            Log.Write($"Cleaning up");
-            {
-                GameInput.ClearInput();
-                Player.main.transform.parent = null;
-                Player.main.transform.localScale = Vector3.one;
-                Player.main.currentMountedVehicle = null;
-                Player.main.playerController.SetEnabled(enabled: true);
-                Mode.Set(Player.Mode.Normal);
-                //Player.main.mode = Player.Mode.Normal;
-                Player.main.playerModeChanged?.Trigger(Player.Mode.Normal);
-                Player.main.sitting = false;
-                Player.main.playerController.ForceControllerSize();
-            }
-
-            yield return new WaitForFixedUpdate();
-            yield return new WaitForEndOfFrame();
-
-            Log.Write($"Entering archon from transform parent {Player.main.transform.parent}");
+            Log.Write($"Entering archon from transform parent {Player.main.transform.parent.NiceName()}");
             Archon.EnterFromDocking();
+            Log.Write($"Registering fix parent {Player.main.transform.parent.NiceName()}");
             FixParentTo = Player.main.transform.parent;
             UpdateCounter = 0;
-            Log.Write($"Player transform parent now {Log.PathOf(Player.main.transform.parent)}");
-            Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
-            Log.Write($"A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
+            Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
+            Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
+            Log.Write($" A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             Helper.ChangeAvatarInput(true);
+            yield break;
+
+            //Archon.SuspendTetherChecks();
+            //Player.main.ToNormalMode(findNewPosition: false);
+            //Log.Write("Zeroing velocity");
+            //Player.main.rigidBody.angularVelocity = Vector3.zero;
+            //Log.Write("Exiting locked mode");
+            //Player.main.ExitLockedMode(respawn: false, findNewPosition: false);
+            //Player.main.SetPosition(Archon.Com.Helms.First().AnyExitLocation);
+            //Log.Write("Exiting sitting mode");
+            //Player.main.ExitSittingMode();
+
+            //yield return new WaitForFixedUpdate();
+            //yield return new WaitForEndOfFrame();
+
+            //Log.Write($"Cleaning up");
+            //{
+            //    GameInput.ClearInput();
+            //    Player.main.transform.parent = null;
+            //    Player.main.transform.localScale = Vector3.one;
+            //    Player.main.currentMountedVehicle = null;
+            //    Player.main.playerController.SetEnabled(enabled: true);
+            //    Mode.Set(Player.Mode.Normal);
+            //    //Player.main.mode = Player.Mode.Normal;
+            //    Player.main.playerModeChanged?.Trigger(Player.Mode.Normal);
+            //    Player.main.sitting = false;
+            //    Player.main.playerController.ForceControllerSize();
+            //}
+
+            //yield return new WaitForFixedUpdate();
+            //yield return new WaitForEndOfFrame();
+
+            //Log.Write($"Entering archon from transform parent {Player.main.transform.parent}");
+            //Archon.EnterFromDocking();
+            //FixParentTo = Player.main.transform.parent;
+            //UpdateCounter = 0;
+            //Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
+            //Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
+            //Log.Write($"A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
+            //Helper.ChangeAvatarInput(true);
         }
 
 
@@ -217,6 +414,8 @@ namespace Subnautica_Archon.Adapters
                 Vehicle.StartCoroutine(SwitchToArchon());
 
             }
+            else
+                Log.Write($"Not switching to archon, no player present");
             //else if (Vehicle is Drone d)
             //{
             //    if (d.gameObject.activeSelf)
@@ -233,8 +432,8 @@ namespace Subnautica_Archon.Adapters
             Log.Write("Docking done");
             if (HasPlayer)
             {
-                Log.Write($"Player transform parent now {Log.PathOf(Player.main.transform.parent)}");
-                Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Log.PathOf(Player.main.GetVehicle().transform)}");
+                Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
+                Log.Write($"Player vehicle now {Player.main.GetVehicle().NiceName()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
                 Log.Write($"A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             }
             //else if (Vehicle is Drone d)
@@ -255,26 +454,27 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter++;
             if (HasPlayer)
             {
-                if (!AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>()))
+                CheckPingInstanceIsDeactivated();
+                if (!AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out var v, new List<Transform>()))
                 {
-                    Log.Error($"Player ancencestry broken at update #{UpdateCounter}");
-                    if (FixParentTo)
-                    {
-                        Vehicle.StartCoroutine(SwitchToArchon());
-                        //Player.main.transform.parent = FixParentTo;
+                    Log.Error($"Unable to find mounted vehicle in player parent(s) at update #{UpdateCounter}. Did find {v.NiceName()}");
+                    //if (FixParentTo)
+                    //{
+                    //    Vehicle.StartCoroutine(SwitchToArchon());
+                    //    //Player.main.transform.parent = FixParentTo;
 
-                        if (AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>()))
-                        {
-                            Log.Write($"Fixed to {Log.PathOf(FixParentTo)}");
-                        }
-                        else
-                        {
-                            Log.Error($"Fix failed (tried {Log.PathOf(FixParentTo)})");
-                            FixParentTo = null;
-                        }
-                    }
-                    else
-                        Log.Error($"Cannot fix. No correction target memorized");
+                    //    if (AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>()))
+                    //    {
+                    //        Log.Write($"Fixed to {FixParentTo.GetPath()}");
+                    //    }
+                    //    else
+                    //    {
+                    //        Log.Error($"Fix failed (tried {FixParentTo.GetPath()})");
+                    //        FixParentTo = null;
+                    //    }
+                    //}
+                    //else
+                    //    Log.Error($"Cannot fix. No correction target memorized");
                 }
             }
 
@@ -437,7 +637,7 @@ namespace Subnautica_Archon.Adapters
             //AddToQuickbar(false);
         }
 
-
+#if false
         private void AddToQuickbar(bool fromLoading)
         {
             Log.Write($"Trying to set module slot for {Vehicle.NiceName()}");
@@ -505,6 +705,60 @@ namespace Subnautica_Archon.Adapters
                     Log.Error($"Unable to find suitable quickslot for docked sub {pu}. Sub will not be listed in quickbar");
 
                 Log.Write($"Mod added");
+            }
+        }
+#endif
+
+        public void OpenStorage()
+        {
+            try
+            {
+                for (int i = 0; i < 20; i++)
+                {
+                    var storage = Vehicle.GetStorageInSlot(i, TechType.VehicleStorageModule);
+                    if (storage != null)
+                    {
+                        PDA pda = Player.main.GetPDA();
+                        Inventory.main.SetUsedStorage(storage);
+                        pda.Open(PDATab.Inventory);
+                        return;
+                    }
+                }
+                Log.Warn($"No storage found in {Vehicle.NiceName()} to open");
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while opening storage", ex);
+            }
+        }
+
+        private void OnClosePDA(PDA pda)
+        {
+            Log.Write($"PDA closed after opening modules");
+            try
+            {
+                Archon.Control.SignalDockedChange(this);
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while signaling docked change after closing PDA", ex);
+            }
+        }
+        public void OpenModules()
+        {
+            try
+            {
+
+                PDA pDA = Player.main.GetPDA();
+                Inventory.main.SetUsedStorage(Vehicle.modules);
+                if (!pDA.Open(PDATab.Inventory, onCloseCallback: OnClosePDA))
+                {
+                    OnClosePDA(pDA);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error($"Error while opening modules", ex);
             }
         }
     }

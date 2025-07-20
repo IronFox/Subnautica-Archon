@@ -1,6 +1,5 @@
 ﻿using AVS.Log;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Subnautica_Archon.Util
@@ -9,47 +8,9 @@ namespace Subnautica_Archon.Util
     public static class Log
     {
         private static LogWriter Writer { get; } = new LogWriter(
-            prefix: null,
-            tags: new string[] { "Mod" });
+            prefix: null, "Mod");
 
 
-        public static string PathOf(Transform? t)
-        {
-            if (t == null)
-                return "<null>";
-            var parts = new List<string>();
-            try
-            {
-                while (t != null)
-                {
-                    parts.Add($"{t.name}[{t.GetInstanceID()}]");
-                    t = t.parent;
-                }
-            }
-            catch (UnityException)  //odd, but okay, don't care
-            { }
-            parts.Reverse();
-            return string.Join("/", parts);
-
-        }
-        public static string PathOf(Component c)
-        {
-            try
-            {
-                return PathOf(c.transform) + $":{c.name}[{c.GetInstanceID()}]({c.GetType()})";
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    return c.name;
-                }
-                catch (Exception ex)
-                {
-                    return ex.Message;
-                }
-            }
-        }
         public static void Write(string message)
         {
             Writer.Write(message);
@@ -62,26 +23,23 @@ namespace Subnautica_Archon.Util
         {
             Writer.Error(message);
         }
+        public static void Debug(string message)
+            => Writer.Debug(message);
 
         public static void Exception(string prefix, Exception ex)
         {
-            AVS.Logger.Exception(prefix, ex);
+            Writer.Error(prefix, ex);
         }
 
         public static void Write(Exception ex)
         {
-            Debug.LogException(ex);
+            Writer.Error($"Exception caught", ex);
             //Write(ex.GetType().Name);
             //Write(ex.Message);
             //Write(ex.StackTrace);
         }
         public static void Write(string whileDoing, Exception caughtException)
-        {
-            Writer.Error($"Caught exception during {whileDoing}");
-            Write(caughtException);
-        }
-
-        public static string GetVehicleName(Vehicle v) => v.subName ? v.subName.GetName() : v.vehicleName;
+            => Writer.Error(whileDoing, caughtException);
 
         internal static string Describe(Vehicle vehicle)
         {
@@ -129,11 +87,11 @@ namespace Subnautica_Archon.Util
         }
         public void Write(string msg)
         {
-            Log.Write(Log.PathOf(Owner) + $": {msg}");
+            Log.Write(Owner.GetPath() + $": {msg}");
         }
         public void Error(string msg)
         {
-            Log.Error(Log.PathOf(Owner) + $": {msg}");
+            Log.Error(Owner.GetPath() + $": {msg}");
         }
     }
 

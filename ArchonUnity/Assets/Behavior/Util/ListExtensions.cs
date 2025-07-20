@@ -57,4 +57,31 @@ public static class ListExtensions
         return min;
     }
 
+    public static int IndexOf<T>(this IEnumerable<T> source, T item)
+    {
+        if (source == null)
+            return -1;
+        if (item == null)
+            return -1;
+        int index = 0;
+        foreach (var element in source)
+        {
+            if (EqualityComparer<T>.Default.Equals(element, item))
+                return index;
+            index++;
+        }
+        return -1; // Item not found
+    }
+
+    public static IEnumerable<T> Repeat<T>(this IEnumerable<T> item, int count)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            foreach (var element in item)
+            {
+                yield return element;
+            }
+        }
+    }
+
 }

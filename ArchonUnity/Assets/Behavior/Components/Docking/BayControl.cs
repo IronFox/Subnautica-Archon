@@ -302,14 +302,16 @@ public class BayControl : MonoBehaviour
 
     public void VerifyIntegrity()
     {
-        foreach (var c in dockedSubRoot.GetChildren())
-        {
-            if (!Tug.Get(c))
-            {
-                //new HierarchyAnalyzer().LogToJson(c, @"C:\temp\stray.json");
-                throw new InvalidOperationException($"Found stray {c.NiceName()} in docked sub root");
-            }
-        }
+        //the Echelon produces a 'stray' object because it offloads its 3rd person camera, so we can't check this
+        //should be harmless, though, as it reintegrates this object after docking has completed
+        //foreach (var c in dockedSubRoot.GetChildren())
+        //{
+        //    if (!Tug.Get(c))
+        //    {
+        //        //new HierarchyAnalyzer().LogToJson(c, @"C:\temp\stray.json");
+        //        throw new InvalidOperationException($"Found stray {c.NiceName()} in docked sub root");
+        //    }
+        //}
 
         //var expectDocked = NumDockedVehicles;
         //if (dockedCountWillIncrease)
@@ -354,6 +356,7 @@ public class BayControl : MonoBehaviour
 
     public float DoorOpenStatus => progress;
 
+    public int NumUndockableVehicles => Docked.Count();
     public int NumDockedVehicles { get; private set; }
 
     // Update is called once per frame

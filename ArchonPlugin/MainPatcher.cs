@@ -5,6 +5,7 @@ using BepInEx;
 using HarmonyLib;
 using Nautilus.Handlers;
 using Subnautica_Archon.Adapters;
+using Subnautica_Archon.Components;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections;
@@ -155,13 +156,9 @@ namespace Subnautica_Archon
                         return null;
                     if (filter == DockingAdapter.Filter.CurrentlyDockable && v.docked)
                         return null; //don't grap docked vehicles
-                    //if (v is Drone)
-                    //{
-                    //    AVS.Logger.PDANote("Cannot dock: Drones are currently not supported", 3f);
-                    //    return null;
-                    //}
-                    var d = new DockableVehicle(v, archon);
-                    return d;
+                    var dmem = go.EnsureComponent<DockableMemory>();
+                    dmem.Dockable = dmem.Dockable ?? new DockableVehicle(v, archon);
+                    return dmem.Dockable;
                 };
 
                 EvacuationAdapter.ShouldEvacuate = go =>

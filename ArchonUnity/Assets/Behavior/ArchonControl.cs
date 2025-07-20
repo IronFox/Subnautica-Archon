@@ -1204,23 +1204,79 @@ public class ArchonControl : MonoBehaviour
             positionCameraBelowSub = false;
     }
 
+
+    public bool HasSelectedDockable => selectedDockable != null;
+    public void SignalDockedChange(IDockable dockable)
+    {
+        if (selectedDockable == dockable)
+            SignalDockableSelectedOrChanged();
+    }
+
+    public void UndockSelected()
+    {
+        if (selectedDockable == null)
+        {
+            Log.LogWarning("UndockSelected called without selected dockable");
+            return;
+        }
+        bayControl.Undock(selectedDockable.GameObject);
+    }
+
+    public void SelectLeft()
+    {
+        if (selectedDockable == null)
+            return;
+        var docked = bayControl.Docked.ToList();
+        int idx = docked.IndexOf(selectedDockable);
+        if (idx < 0)
+        {
+            selectedDockable = docked.FirstOrDefault();
+        }
+        else
+        {
+            selectedDockable = docked[(idx - 1 + docked.Count) % docked.Count];
+        }
+        SignalDockableSelectedOrChanged();
+    }
+
+    public int SelectedDockedIndex =>
+        bayControl.Docked.IndexOf(selectedDockable);
+    public void SelectRight()
+    {
+        if (selectedDockable == null)
+            return;
+        var docked = bayControl.Docked.ToList();
+        int idx = docked.IndexOf(selectedDockable);
+        if (idx < 0)
+        {
+            selectedDockable = docked.FirstOrDefault();
+        }
+        else
+        {
+            selectedDockable = docked[(idx + 1) % docked.Count];
+        }
+        SignalDockableSelectedOrChanged();
+    }
+
+    private void SignalDockableSelectedOrChanged()
+    {
+        GetComponentsInChildren<IDockableSelectionListener>(true).ForEach(
+            listener => listener.OnDockableSelectedOrChanged(selectedDockable)
+            );
+    }
     public void SignalDockedChange()
     {
         if (selectedDockable == null)
         {
-            selectedDockable = bayControl?.Docked.FirstOrDefault();
-            GetComponentsInChildren<IDockableSelectionListener>(true).ForEach(
-                listener => listener.OnDockableSelectedOrChanged(selectedDockable)
-                );
+            selectedDockable = bayControl.Docked.FirstOrDefault();
+            SignalDockableSelectedOrChanged();
         }
         else
         {
             if (!bayControl.Docked.Contains(selectedDockable))
             {
-                selectedDockable = bayControl?.Docked.FirstOrDefault();
-                GetComponentsInChildren<IDockableSelectionListener>(true).ForEach(
-                    listener => listener.OnDockableSelectedOrChanged(selectedDockable)
-                    );
+                selectedDockable = bayControl.Docked.FirstOrDefault();
+                SignalDockableSelectedOrChanged();
             }
         }
     }

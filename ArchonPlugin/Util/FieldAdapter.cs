@@ -33,6 +33,20 @@ namespace Subnautica_Archon.Util
                 return default;
             return OfPublic<T>((object)target, name);
         }
+        public static FieldAdapter<T> Of<T>(object target, string name)
+        {
+            var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            if (f == null)
+                Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+            return new FieldAdapter<T>(f, target);
+        }
+
+        public static FieldAdapter<T> Of<T>(UnityEngine.Object target, string name)
+        {
+            if (!target)
+                return default;
+            return Of<T>((object)target, name);
+        }
     }
 
     public readonly struct FieldAdapter<T>

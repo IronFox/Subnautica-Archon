@@ -5,7 +5,8 @@ public static class RigidbodyUtil
 {
     public static void SetKinematic(this Rigidbody rb)
     {
-        Log.Default.Write($"Setting [{rb.NiceName()}].isKinematic := true");
+        if (!rb.isKinematic)
+            Log.Default.Write($"Setting [{rb.NiceName()}].isKinematic := true");
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         rb.interpolation = RigidbodyInterpolation.None;
         rb.isKinematic = true;
@@ -15,7 +16,8 @@ public static class RigidbodyUtil
 
     public static void UnsetKinematic(this Rigidbody rb)
     {
-        Log.Default.Write($"Setting [{rb.NiceName()}].isKinematic := false");
+        if (rb.isKinematic)
+            Log.Default.Write($"Setting [{rb.NiceName()}].isKinematic := false");
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
         rb.interpolation = RigidbodyInterpolation.None;
         rb.isKinematic = false;

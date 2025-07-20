@@ -24,16 +24,30 @@ namespace Assets.Behavior.TransferTypes
         /// </summary>
         public bool Exists => Texture != null && Rect.width > 0 && Rect.height > 0;
 
-
-
+        /// <summary>
+        /// Calculates the effective width of the texture based on the rectangle and the texture's width.
+        /// </summary>
+        public float EffectiveWidth => Rect.width * (Texture?.width ?? 0);
+        /// <summary>
+        /// Gets the effective height of the element, calculated as the product of the rectangle's height and the
+        /// texture's height.
+        /// </summary>
+        public float EffectiveHeight => Rect.height * (Texture?.height ?? 0);
         public static AtlasTexture Empty => new AtlasTexture(null, new Rect(0, 0, 0, 0));
+
+        /// <summary>
+        /// Calculates the aspect ratio of the texture based on its effective width and height.
+        /// If the effective height is zero, it defaults to 1 to avoid division by zero.
+        /// </summary>
+        public float AspectRatio => EffectiveHeight != 0
+            ? EffectiveWidth / EffectiveHeight
+            : 1;
+
         public static AtlasTexture FromFullTexture(Texture2D texture)
         {
             if (texture == null)
                 return Empty;
-            float h = 1f / Math.Min(1f, texture.height / (float)texture.width);
-            float w = 1f / Math.Min(1f, texture.width / (float)texture.height);
-            return new AtlasTexture(texture, new Rect(0.5f - w / 2, 0.5f - h / 2, w, h));
+            return new AtlasTexture(texture, new Rect(0, 0, 1, 1));
         }
 
         public AtlasTexture(Texture2D texture, Rect rect)
