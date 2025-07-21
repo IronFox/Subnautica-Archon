@@ -67,7 +67,7 @@ namespace Subnautica_Archon
             canLeviathanGrab: false,
             canMoonpoolDock: false,
             pilotingStyle: PilotingStyle.Other,
-            materialAdaptConfig: new DefaultMaterialAdaptConfig(MaterialLog.Silent),
+            materialAdaptConfig: new DefaultMaterialAdaptConfig(MaterialLog.Verbose),
             recipe: NewRecipe
                 .StartWith(TechType.PowerCell, 1)
                 .Include(TechType.AdvancedWiringKit, 2)

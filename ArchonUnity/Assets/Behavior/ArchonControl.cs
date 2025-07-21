@@ -214,6 +214,7 @@ public class ArchonControl : MonoBehaviour
 
     private void UpdateInteriorCollidersAndLights(bool enable)
     {
+        Log.Write($"Updating interior colliders and lights: {enable}");
         SetCollidersEnabled(interiorColliders.GetAllColliders(PlayerAdapter.Player()), enable);
 
         interiorLights.gameObject.SetActive(enable);
@@ -359,6 +360,7 @@ public class ArchonControl : MonoBehaviour
 
     private void SetCameraIsInVehicle(bool isInVehicle, bool withCollidersAndLights)
     {
+        Log.Write($"Setting camera is in vehicle: {isInVehicle}, withCollidersAndLights = {withCollidersAndLights}");
         cameraIsInVehicle = isInVehicle;
         interior.gameObject.SetActive(isInVehicle);
         UpdateInteriorCollidersAndLights(isInVehicle && withCollidersAndLights);
@@ -367,6 +369,7 @@ public class ArchonControl : MonoBehaviour
         interiorExteriorShadowCaster.enabled = isInVehicle;
         if (exteriorModel)
             exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c => c.shadowCastingMode = isInVehicle ? UnityEngine.Rendering.ShadowCastingMode.Off : UnityEngine.Rendering.ShadowCastingMode.On);
+        Log.Write($"Setting exterior colliders to {!isInVehicle || !withCollidersAndLights}");
         SetRenderAndCollisionActive(exterior, !isInVehicle || !withCollidersAndLights);
         SetCollisionActive(helmSeatRoot, isInVehicle && withCollidersAndLights);
     }
