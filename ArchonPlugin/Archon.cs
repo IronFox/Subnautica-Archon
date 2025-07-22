@@ -3,7 +3,6 @@ using AVS.Composition;
 using AVS.Configuration;
 using AVS.Interfaces;
 using AVS.Log;
-using AVS.MaterialAdapt;
 using AVS.Util;
 using AVS.VehicleComponents;
 using AVS.VehicleParts;
@@ -67,7 +66,7 @@ namespace Subnautica_Archon
             canLeviathanGrab: false,
             canMoonpoolDock: false,
             pilotingStyle: PilotingStyle.Other,
-            materialAdaptConfig: new DefaultMaterialAdaptConfig(MaterialLog.Verbose),
+            materialAdaptConfig: new MaterialAdaptConfig(),
             recipe: NewRecipe
                 .StartWith(TechType.PowerCell, 1)
                 .Include(TechType.AdvancedWiringKit, 2)
