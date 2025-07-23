@@ -22,6 +22,7 @@ public class ArchonControl : MonoBehaviour
     //public Renderer[] onEnterDisableShadows;
     public Renderer exteriorInteriorShadowCaster;
     public Renderer interiorExteriorShadowCaster;
+    public Material mapHologramMaterial;
 
     public float forwardAxis;
     public float rightAxis;

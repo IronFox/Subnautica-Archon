@@ -7,7 +7,7 @@ public class PositionCamera : MonoBehaviour
     public BoxCollider referenceBoundingBox;
     public Rigidbody subRoot;
     private float distanceToTarget;
-    private Transform target;
+    private Vector3 target;
     private float minDistanceToTarget;
     private float maxDistanceToTarget;
     public bool positionBelowTarget;
@@ -34,13 +34,13 @@ public class PositionCamera : MonoBehaviour
     void Start()
     {
         //scanner= GetComponentInChildren<TargetScanner>();
-        target = subRoot.transform;
+        target = subRoot.transform.TransformPoint(referenceBoundingBox.center);
         distanceToTarget = Vector3.Distance(referenceBoundingBox.transform.position, transform.transform.position);
 
 
         minDistanceToTarget = (referenceBoundingBox.transform.localPosition.z
                                 - referenceBoundingBox.transform.localScale.z
-                                    * referenceBoundingBox.size.z) * -0.5f;
+                                    * referenceBoundingBox.size.z) * -0.55f;
         maxDistanceToTarget = minDistanceToTarget * 5;
         ConsoleControl.Write($"Valid 3rd person camera distance range is [{minDistanceToTarget},{maxDistanceToTarget}]");
         distanceToTarget = Mathf.Clamp(distanceToTarget, minDistanceToTarget, maxDistanceToTarget);
@@ -53,6 +53,9 @@ public class PositionCamera : MonoBehaviour
 
     void LateUpdate()
     {
+
+        target = referenceBoundingBox.transform.TransformPoint(referenceBoundingBox.center);
+
         if (isFirstPerson)
         {
             if (!wasFirstPerson)
@@ -81,7 +84,7 @@ public class PositionCamera : MonoBehaviour
             }
             else if (!archon.zoomedInIsCockpit)
             {
-                transform.position = target.position + target.forward * (referenceBoundingBox.size.z / 2 + 5);
+                transform.position = target + subRoot.transform.forward * (referenceBoundingBox.size.z / 2 + 5);
             }
             else
             {
@@ -92,7 +95,7 @@ public class PositionCamera : MonoBehaviour
         {
             if (wasFirstPerson)
             {
-                transform.position = target.position - transform.forward * minDistanceToTarget;
+                transform.position = target - transform.forward * minDistanceToTarget;
                 wasFirstPerson = false;
                 distanceToTarget = minDistanceToTarget;
                 if (archon.zoomedInIsCockpit)
@@ -115,7 +118,7 @@ public class PositionCamera : MonoBehaviour
 
             h += (wantH - h) * 2f * Mathf.Min(Time.deltaTime, 1f);
 
-            var lookAtTarget = target.position + /*referenceBoundingBox.transform.up*/Vector3.up * h;
+            var lookAtTarget = target + /*referenceBoundingBox.transform.up*/Vector3.up * h;
 
             var wantPosition = lookAtTarget - transform.forward * distanceToTarget;
             Vector3 targetPosition;
@@ -124,19 +127,19 @@ public class PositionCamera : MonoBehaviour
             var dir = -transform.forward;
             //var hits = Physics.RaycastAll(lookAtTarget, dir, distanceToTarget);
 
-            var dir2 = wantPosition - target.position;
+            var dir2 = wantPosition - target;
             var dist2 = dir2.magnitude;
             dir2 /= dist2;
 
 
-            var hits2 = Physics.RaycastAll(target.position, dir2, dist2);
+            var hits2 = Physics.RaycastAll(target, dir2, dist2);
 
 
             float closestHit2 = Mathf.Infinity;
             Transform closest2 = null;
             foreach (RaycastHit hit in hits2)
             {
-                if (hit.transform.IsChildOf(target)
+                if (hit.transform.IsChildOf(subRoot.transform)
                     || hit.transform.IsChildOf(transform)
                     || Physics.GetIgnoreCollision(hit.collider, shipCollider)
                     || !hit.collider.enabled
@@ -161,7 +164,7 @@ public class PositionCamera : MonoBehaviour
 
 
             if (closest2 != null)
-                targetPosition = target.position + dir2 * Mathf.Max(3f, closestHit2 - 0.5f);
+                targetPosition = target + dir2 * Mathf.Max(3f, closestHit2 - 0.5f);
             else
                 targetPosition = wantPosition;
 
@@ -172,5 +175,6 @@ public class PositionCamera : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
     }
 }

@@ -201,7 +201,6 @@ namespace Subnautica_Archon
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
 
 
-
             BayControl.OnDockingFailedFull = (archon, d) =>
             {
                 Log.Write($"full");
@@ -247,6 +246,27 @@ namespace Subnautica_Archon
             }
             else
                 Log.Error("Unable to find Interior child");
+
+
+
+            var mapWorld = transform.Find("Interior/Map Table/Display/World");
+            if (mapWorld != null)
+            {
+                Log.Write($"Found map world {mapWorld.NiceName()}. Trying to build mini-world");
+                try
+                {
+                    SpawnMiniWorld(mapWorld, Control.mapHologramMaterial);
+                    Log.Write($"Map instantiated");
+                }
+                catch (Exception ex)
+                {
+                    Log.Error($"Error instantiating map", ex);
+                }
+            }
+            else
+            {
+                Log.Write($"Water tank not found");
+            }
 
 
             base.Awake();
@@ -1221,6 +1241,28 @@ namespace Subnautica_Archon
                     VoiceLibraries[voiceLibrary.voiceName] = voiceLibrary;
                 }
             }
+
+            IFloatZone? floatzone = null;
+
+            var mapFloat = transform.Find("Interior/Map Table/Player Detector");
+            if (mapFloat != null)
+            {
+                var det = mapFloat.GetComponent<PlayerDetector>();
+                if (det != null)
+                {
+                    Log.Write($"Found player detector {det.NiceName()}");
+                    floatzone = new DetectorFloatZone(det);
+                }
+                else
+                {
+                    Log.Error($"Player detector not found in {mapFloat.NiceName()}");
+                }
+            }
+            else
+                Log.Error($"Map table player detector not found");
+
+
+
             var hatches = transform.Find("Hatches");
             var hatchList = new List<VehicleHatchDefinition>();
             if (hatches)
@@ -1404,19 +1446,20 @@ namespace Subnautica_Archon
 
 
             return new SubmarineComposition(
-                    engine: engine,
-                    hatches: hatchList,
-                    collisionModel: transform.Find("CollisionModel").gameObject,
-                    boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
-                    storageRootObject: storageRootTransform.gameObject,
-                    modularStorages: modularStorageList,
-                    waterClipProxies: waterClipProxies,
-                    upgrades: upgrades,
-                    batteries: vehicleBatteries,
-                    tetherSources: tetherSources,
-                    modulesRootObject: GetOrCreateDefaultModulesRootObject(),
-                    helms: helms
-                    );
+                floatZone: floatzone,
+                engine: engine,
+                hatches: hatchList,
+                collisionModel: transform.Find("CollisionModel").gameObject,
+                boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
+                storageRootObject: storageRootTransform.gameObject,
+                modularStorages: modularStorageList,
+                waterClipProxies: waterClipProxies,
+                upgrades: upgrades,
+                batteries: vehicleBatteries,
+                tetherSources: tetherSources,
+                modulesRootObject: GetOrCreateDefaultModulesRootObject(),
+                helms: helms
+                );
 
 
 

@@ -113,11 +113,14 @@ namespace Subnautica_Archon
 
         public IEnumerator Register(GameObject staticModel)
         {
+            Log.Write("Loading water park");
+            yield return WaterPark.InitializeAsync();
+            Log.Write("Water park loaded");
+
             Coroutine? started = null;
             try
             {
                 Log.Write("MainPatcher.Register()");
-                Log.Write("");
                 Log.Write("model loaded: " + staticModel.name);
                 var sub = staticModel.EnsureComponent<Archon>();
                 Log.Write("archon attached: " + sub.name);
