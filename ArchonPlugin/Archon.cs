@@ -255,7 +255,7 @@ namespace Subnautica_Archon
                 Log.Write($"Found map world {mapWorld.NiceName()}. Trying to build mini-world");
                 try
                 {
-                    SpawnMiniWorld(mapWorld, Control.mapHologramMaterial);
+                    SpawnMiniWorld(mapWorld, Control.mapHologramMaterial, 500);
                     Log.Write($"Map instantiated");
                 }
                 catch (Exception ex)
@@ -1242,26 +1242,6 @@ namespace Subnautica_Archon
                 }
             }
 
-            IFloatZone? floatzone = null;
-
-            var mapFloat = transform.Find("Interior/Map Table/Player Detector");
-            if (mapFloat != null)
-            {
-                var det = mapFloat.GetComponent<PlayerDetector>();
-                if (det != null)
-                {
-                    Log.Write($"Found player detector {det.NiceName()}");
-                    floatzone = new DetectorFloatZone(det);
-                }
-                else
-                {
-                    Log.Error($"Player detector not found in {mapFloat.NiceName()}");
-                }
-            }
-            else
-                Log.Error($"Map table player detector not found");
-
-
 
             var hatches = transform.Find("Hatches");
             var hatchList = new List<VehicleHatchDefinition>();
@@ -1446,7 +1426,6 @@ namespace Subnautica_Archon
 
 
             return new SubmarineComposition(
-                floatZone: floatzone,
                 engine: engine,
                 hatches: hatchList,
                 collisionModel: transform.Find("CollisionModel").gameObject,

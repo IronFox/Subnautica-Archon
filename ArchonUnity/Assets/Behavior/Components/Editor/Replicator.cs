@@ -9,9 +9,16 @@ public class Replicator : MonoBehaviour
     public string objectNamePrefix = "";
     public bool redo = false;
     public GameObject prototype;
+    public bool started = false;
+    void Start()
+    {
+        started = true;
+    }
     // Update is called once per frame
     void Update()
     {
+        if (started)
+            return;
         if (redo)
         {
             redo = false;

@@ -46,6 +46,14 @@
         fixed4 _LineColor;
         float3 _MapCenterWorldPos;
 
+        float lineOpacity(float r, float minR, float maxR)
+        {
+            float3 d = max(abs(ddx(r)), abs(ddy(r)));
+
+            //return saturate((r - minR) / (maxR - minR));
+            return smoothstep(minR-d*2, minR, r) * (1 - smoothstep(maxR, maxR + d*2,r));
+        }
+
         // Add instancing support for this shader. You need to check 'Enable Instancing' on materials that use the shader.
         // See https://docs.unity3d.com/Manual/GPUInstancing.html for more information about instancing.
         // #pragma instancing_options assumeuniformscaling
@@ -64,16 +72,18 @@
             else
                 o.Normal = float3(0,0,1);
 
-            float3 realWorld = (IN.worldPos - _MapCenterWorldPos)*100.0 + _MapCenterWorldPos;
+            float3 relative = IN.worldPos - _MapCenterWorldPos;
+            float r = length(relative.xz);
+            float3 realWorld = (relative)*100.0 + _MapCenterWorldPos;
 
             float lineEvery = 10;
-            float3 rel = fmod(realWorld + 10000 + lineEvery /2, lineEvery) / lineEvery;
+            float3 mod = fmod(realWorld + 10000 + lineEvery /2, lineEvery) / lineEvery;
             float3 d = max(abs(ddx(realWorld)), abs(ddy(realWorld)))*0.1;
             float l0 = 0.499;
             float l1 = 0.501;
-            float3 lo = smoothstep(l0 - d*2, l0, rel) * (1.0 - smoothstep(l1, l1+d*2, rel));
-            lo.x *= rel.z > 0.4 && rel.z < 0.6;
-            lo.z *= rel.x > 0.4 && rel.x < 0.6;
+            float3 lo = smoothstep(l0 - d*2, l0, mod) * (1.0 - smoothstep(l1, l1+d*2, mod));
+            lo.x *= mod.z > 0.4 && mod.z < 0.6;
+            lo.z *= mod.x > 0.4 && mod.x < 0.6;
 
             float3 view = IN.worldPos - _WorldSpaceCameraPos;
             float3 normal = WorldNormalVector (IN, o.Normal);
@@ -85,6 +95,12 @@
                 o.Emission = fresnel*_FresnelColor.rgb;
 
             o.Emission += max(lo.y,0.5 * max(lo.x, lo.z))*_LineColor.rgb * (!frontFace ? 0.25 : 1);
+            o.Emission += lineOpacity(r,4.07,4.1);
+            o.Emission += lineOpacity(relative.y,0.25,0.254);
+            o.Emission += lineOpacity(relative.y,-2.03,-2);
+            if (r > 4.09 || relative.y > 0.253 || relative.y < -2.02)
+                clip(-1);
+
             o.Albedo = _BaseColor.rgb;
             //_BaseColor.rgb;
             // Metallic and smoothness come from slider variables
