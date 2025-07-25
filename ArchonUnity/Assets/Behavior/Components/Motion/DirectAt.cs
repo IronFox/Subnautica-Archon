@@ -1,8 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using static TMPro.SpriteAssetUtilities.TexturePacker_JsonArray;
-using static UnityEngine.GraphicsBuffer;
+﻿using UnityEngine;
 
 public class DirectAt : MonoBehaviour
 {
@@ -12,9 +8,10 @@ public class DirectAt : MonoBehaviour
 
     float rotX = 0;
 
+    public float leanIntensity;
     public bool isMovingInReverse;
+    public bool isOutOfWater;
     public bool rotateUpDown = true;
-    public bool rotateZ = true;
     public float rotationDegreesPerSecond = 30f;
 
     // Start is called before the first frame update
@@ -43,15 +40,15 @@ public class DirectAt : MonoBehaviour
         //=> Vector3.ang
         //return Mathf.Atan2(vector.y, Vector2.Dot(Flat(vector),forward)) * 180f / Mathf.PI;
     }
-    
+
     // Update is called once per frame
     void FixedUpdate()
     {
         Intention = new ProjectedMotionSpace(transform.position);
         rotX = RotateHorizontal();
         //RotateDirect();
-        if (rotateZ)
-            RotateZ(rb, Mathf.Clamp( -rotX*3,-45,45), targetOrientation.ZImpact);
+        if (!isOutOfWater)
+            RotateZ(rb, Mathf.Clamp(-rotX * 3, -45 * leanIntensity, 45 * leanIntensity), targetOrientation.ZImpact);
         if (rotateUpDown)
             RotateUpDown();
 
@@ -80,7 +77,7 @@ public class DirectAt : MonoBehaviour
         while (delta > 180)
             delta -= 360;
 
-        var (accel, _) = Adjust(delta, M.RadToDeg(M.Dot(rb.angularVelocity, axis)),axis, isZ: true);
+        var (accel, _) = Adjust(delta, M.RadToDeg(M.Dot(rb.angularVelocity, axis)), axis, isZ: true);
 
         //float wantTurn = -delta * 1.5f;
         //if (Mathf.Abs(delta) < 0.1f)
@@ -97,9 +94,9 @@ public class DirectAt : MonoBehaviour
 
     private (float Acceleration, float AngleError) Adjust(float angleError, float haveTurn, Vector3 axis, bool isZ = false)
     {
-        float wantTurn = M.SignedMin(angleError/10, 1) * rotationDegreesPerSecond;
+        float wantTurn = M.SignedMin(angleError / 10, 1) * rotationDegreesPerSecond;
         if (isZ)
-            wantTurn *= 1.5f;
+            wantTurn *= 1.5f * (0.5f + 0.5f * leanIntensity);
         if (Mathf.Abs(wantTurn) < 1f)
         {
             wantTurn = 0;
@@ -108,7 +105,7 @@ public class DirectAt : MonoBehaviour
         float error = (wantTurn - haveTurn) * targetOrientation.Impact;
 
 
-        float accel = M.SignedMin( error * 0.1f, 10f);
+        float accel = M.SignedMin(error * 0.1f, 10f);
         if (isZ)
             accel *= 1.5f;
 
@@ -123,13 +120,13 @@ public class DirectAt : MonoBehaviour
     private void RotateUpDown()
     {
         var axis = -M.UnFlat(M.FlatNormal(Flat(rb.transform.forward)));
-//            Unflat(Flat(rb.transform.right));
-            //Vector3.Cross(Vector3.up, rb.transform.forward);
+        //            Unflat(Flat(rb.transform.right));
+        //Vector3.Cross(Vector3.up, rb.transform.forward);
         float have = UpAngle(rb.transform.forward, Flat(axis));
         float want = UpAngle(targetOrientation.Forward, Flat(targetOrientation.Right));
 
         var delta = Mathf.DeltaAngle(have, want);
-        var (accel, _) = Adjust(delta, M.RadToDeg( M.Dot(rb.angularVelocity, axis)),axis);
+        var (accel, _) = Adjust(delta, M.RadToDeg(M.Dot(rb.angularVelocity, axis)), axis);
 
 
     }
@@ -157,6 +154,7 @@ public class DirectAt : MonoBehaviour
         //+45 .. -45
         if (isMovingInReverse)
             currentZAngle = -currentZAngle;
+        //this code increases horizontal acceleration based on lean angle.
         float zError = Mathf.Abs(Mathf.Clamp(currentZAngle / 45, -1, 1) + Mathf.Clamp(error / 10, -1, 1));
         float zModifier = (2f - zError) * 0.5f;
         float accel;

@@ -45,6 +45,7 @@ public class ArchonControl : MonoBehaviour
     public bool doAutoLevel;
 
     public bool positionCameraBelowSub;
+    public float environmentalLeanIntensity = 1;
 
     public bool zoomedInIsCockpit = true;
     public bool forceCockpitCamera;
@@ -634,7 +635,8 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
-            orientation.rotateZ = !outOfWater;
+            orientation.leanIntensity = doAutoLevel ? 1 : environmentalLeanIntensity;
+            orientation.isOutOfWater = outOfWater;
             if (orientation.Intention != null)
             {
                 var projection = orientation.Intention.TranslateBy(rb.velocity, isMovingInReverse);

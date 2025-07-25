@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Behavior.Components.Motion;
+using System;
 using UnityEngine;
 
 public class MotionSimulation : MonoBehaviour
@@ -30,8 +31,13 @@ public class MotionSimulation : MonoBehaviour
 
     void FixedUpdate()
     {
+
         if (oceanSurface != null)
         {
+            control.environmentalLeanIntensity = LeanIntensityCalculator.CalculateLeanIntensity(
+                oceanSurface.position.y - control.transform.position.y,
+                rb.velocity.magnitude,
+                70);
             control.outOfWater = control.transform.position.y >= oceanSurface.position.y;
 
             control.UpdateLowCamera(oceanSurface.position.y);

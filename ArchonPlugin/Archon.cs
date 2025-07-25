@@ -1,4 +1,5 @@
-﻿using AVS;
+﻿using Assets.Behavior.Components.Motion;
+using AVS;
 using AVS.Composition;
 using AVS.Configuration;
 using AVS.Interfaces;
@@ -1032,6 +1033,11 @@ namespace Subnautica_Archon
                 ProcessTriggers();
 
                 Control.outOfWater = !GetIsUnderwater();
+                GetDepth(out var depth, out var crush);
+                Control.environmentalLeanIntensity = LeanIntensityCalculator.CalculateLeanIntensity(
+                    depth,
+                    useRigidbody.velocity.magnitude,
+                    30);
                 Control.forceCockpitCamera = Player.main.pda.state == PDA.State.Opened;
 
                 if (Player.main.pda.state == PDA.State.Closed && !IngameMenu.main.gameObject.activeSelf)
