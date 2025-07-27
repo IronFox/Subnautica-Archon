@@ -1,6 +1,7 @@
 before release:
 
 * remove remaining VF assets
+* add vehicle images and icons
 * add basic sounds
 * add innate fish/egg storage for water tank
 * improve glass visuals of water tank
