@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using UnityEngine;
 
 namespace Subnautica_Archon.Util
 {
+
     internal struct Void { };
     internal class SimpleMethodHelper<ReturnType>
     {
@@ -67,7 +69,7 @@ namespace Subnautica_Archon.Util
 
         public static bool IsOne(Vehicle vehicle)
             => ObjectHelper.IsDrone(vehicle);
-        public static bool Access(Vehicle vehicle, out Drone? drone)
+        public static bool Access(Vehicle vehicle, [NotNullWhen(true)] out Drone? drone)
         {
             if (!ObjectHelper.IsDrone(vehicle))
             {

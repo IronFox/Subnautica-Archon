@@ -28,7 +28,7 @@ namespace Subnautica_Archon.Adapters
             HasPlayer = Player.main.currentMountedVehicle == Vehicle && !Drone.IsOne(Vehicle);
             IsPlayerControlledDrone =
                 Drone.Access(Vehicle, out var d) &&
-                d!.IsPlayerControlling();
+                d.IsPlayerControlling();
             Mode = FieldAdapter.OfNonPublic<Player.Mode>(Player.main, "mode");
         }
         //private Logging Log { get; } = new Logging(false,"Dockable",true,true);
@@ -206,7 +206,7 @@ namespace Subnautica_Archon.Adapters
                 vf!.OnVehicleDocked(Vector3.zero);
 
             if (Drone.Access(Vehicle, out var d))
-                d!.isAsleep = true;
+                d.isAsleep = true;
 
             //AddToQuickbar(true);
 
@@ -268,7 +268,7 @@ namespace Subnautica_Archon.Adapters
                 if (IsPlayerControlledDrone)
                 {
                     Log.Write($"Stopping drone control");
-                    d!.StopControlling();
+                    d.StopControlling();
 
                     Helper.ChangeAvatarInput(true);
                     if (!Player.main.ToNormalMode(false) && Mode != Player.Mode.Normal)
@@ -279,7 +279,7 @@ namespace Subnautica_Archon.Adapters
                     Player.main.playerController.SetEnabled(true);
                     Player.main.playerController.ForceControllerSize();
                 }
-                d!.isAsleep = true;
+                d.isAsleep = true;
             }
 
 
@@ -564,7 +564,7 @@ namespace Subnautica_Archon.Adapters
                 vf!.OnVehicleUndocked();
 
             if (Drone.Access(Vehicle, out var d))
-                d!.isAsleep = false;
+                d.isAsleep = false;
             else
                 Helper.ChangeAvatarInput(true);
         }
