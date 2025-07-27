@@ -3,6 +3,7 @@
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
+        _BaseColor ("Base Color", Color) = (0,0,0,0)
     }
     SubShader
     {
@@ -40,6 +41,7 @@
             };
 
             float4 _Color;
+            float4 _BaseColor;
 
             v2f vert (appdata v)
             {
@@ -56,7 +58,10 @@
                 float3 view = i.world - _WorldSpaceCameraPos;
                 float fresnel = saturate(1+dot(view, i.normal) / length(view));
                 fresnel = pow(fresnel, 2.0);
-                return float4(_Color.rgb,fresnel);
+                fresnel *=  _Color.a;
+                float4 c = _BaseColor * _BaseColor.a * (1.0 - fresnel) + _Color * fresnel;
+                //c.a = 1;//min(1,_BaseColor.a + fresnel * _Color.a);
+                return c;
             }
             ENDCG
         }

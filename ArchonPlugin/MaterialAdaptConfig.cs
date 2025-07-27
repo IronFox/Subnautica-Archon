@@ -7,7 +7,7 @@ namespace Subnautica_Archon
     public class MaterialAdaptConfig : DefaultMaterialAdaptConfig
     {
         public MaterialAdaptConfig()
-            : base(MaterialLog.Silent)
+            : base(MaterialLog.Verbose)
         { }
 
         public override UnityMaterialData ConvertUnityMaterial(UnityMaterialData materialData)
@@ -15,6 +15,7 @@ namespace Subnautica_Archon
             if (materialData.MaterialName.ToLower().Contains("[gold]"))
             {
                 return new UnityMaterialData(
+                    MaterialType.Opaque,
                     materialData.MaterialName,
                     color: new Color(255, 167, 0) / 255 / 3,
                     specularColor: new Color(191, 80, 13) / 255 * 4f,

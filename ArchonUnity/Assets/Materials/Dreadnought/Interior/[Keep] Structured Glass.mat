@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: '[Glass] Structured Glass'
+  m_Name: '[Keep] Structured Glass'
   m_Shader: {fileID: 4800000, guid: e4e7c9a867e8fe84eb484773a2d36bd0, type: 3}
   m_ShaderKeywords: _ALPHAPREMULTIPLY_ON
   m_LightmapFlags: 4

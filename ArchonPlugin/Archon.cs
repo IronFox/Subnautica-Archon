@@ -1,5 +1,6 @@
 ﻿using Assets.Behavior.Components.Motion;
 using AVS;
+using AVS.Assets;
 using AVS.Composition;
 using AVS.Configuration;
 using AVS.Interfaces;
@@ -668,8 +669,12 @@ namespace Subnautica_Archon
         private void SetWaterProxiesEnabled(bool enable)
         {
             var clipProxyParent = transform.Find("WaterClipProxy");
-            var seamoth = SeamothHelper.Seamoth;
-
+            var seamoth = PrefabLoader.Request(TechType.Seamoth).Instance;
+            if (seamoth == null)
+            {
+                Log.Write("Seamoth prefab not found. Can't adjust clip proxies right now");
+                return;
+            }
             if (clipProxyParent && seamoth != null)
             {
                 WaterClipProxy seamothWCP = seamoth.GetComponentInChildren<WaterClipProxy>();

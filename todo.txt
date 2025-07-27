@@ -1,6 +1,7 @@
 before release:
 
 * remove remaining VF assets
+* docked vehicle depth value does not update
 * add vehicle images and icons
 * add basic sounds
 * add innate fish/egg storage for water tank
@@ -15,6 +16,7 @@ before release:
 * evacuate fish
 * add localization
 * fix hatches and bay door after loading not fully closed unless player/submarine approaches
+* fix vehicle rotating down in non-free camera mode and the menu open
 * model and replace seat
 
 maybe not?
