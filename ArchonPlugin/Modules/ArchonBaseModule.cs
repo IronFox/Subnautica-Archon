@@ -1,4 +1,5 @@
-﻿using AVS.UpgradeTypes;
+﻿using AVS.Crafting;
+using AVS.UpgradeModules;
 using Subnautica_Archon;
 using System;
 using System.Collections.Generic;
@@ -13,7 +14,7 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
 
     public TechType TechType { get; private set; }
 
-    private IReadOnlyList<CraftingNode>? craftingPath;
+    private Path<CraftingNode>? tabPath;
 
     public virtual IReadOnlyCollection<TechType> AutoDisplace { get; } = Array.Empty<TechType>();
     public override string ClassId => $"Archon{Module}";
@@ -46,11 +47,11 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
         if (icon == null)
             Debug.LogError($"Error while constructing {module} {this}: File {path} not found");
 
-        craftingPath = new List<CraftingNode>()
-        {
+        tabPath = new Path<CraftingNode>
+        (
             RootCraftingNode,
             groupNode
-        };
+        );
     }
 
     public ArchonBaseModule(ArchonModule module)
@@ -61,19 +62,19 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
         if (icon == null)
             Debug.LogError($"Error while constructing {module} {this}: File {path} not found");
 
-        craftingPath = new List<CraftingNode>()
-        {
+        tabPath = new Path<CraftingNode>
+        (
             RootCraftingNode
-        };
+        );
     }
 
 
 
     public virtual TechType Register()
     {
-        AVS.Admin.UpgradeCompat compat = AVS.Admin.UpgradeCompat.AvsVehiclesOnly;
+        var compat = UpgradeCompat.AvsVehiclesOnly;
 
-        var type = AVS.Admin.UpgradeRegistrar.RegisterUpgrade(this, compat).ForAvsVehicle;
+        var type = UpgradeRegistrar.RegisterUpgrade(this, compat).ForAvsVehicle;
         TechType = type;
         All[type] = this;
         AllReverse[Module] = type;
@@ -96,10 +97,10 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
         return TechType.None;
     }
 
-    public override IReadOnlyList<CraftingNode>? CraftingPath
+    public override Path<CraftingNode>? TabPath
     {
-        get => craftingPath;
-        set => craftingPath = value;
+        get => tabPath;
+        set => tabPath = value;
     }
 
     public override bool IsVehicleSpecific => true;

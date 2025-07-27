@@ -25,16 +25,21 @@ namespace Subnautica_Archon.Adapters
                 "Mod");
             Vehicle = vehicle;
             Archon = archon;
-            HasPlayer = Player.main.currentMountedVehicle == Vehicle && !Drone.IsOne(Vehicle);
+            IsDrone = Drone.IsOne(Vehicle);
             IsPlayerControlledDrone =
                 Drone.Access(Vehicle, out var d) &&
                 d.IsPlayerControlling();
+            //if (!HasPlayer && !IsPlayerControlledDrone)
+            //    Log.Warn($"DockableVehicle(): Vehicle {Vehicle.NiceName()} does not have a player mounted. mounted vehicle = {Player.main.currentMountedVehicle.NiceName()}, testing = {Vehicle.NiceName()}, IsDrone = {Drone.IsOne(Vehicle)}");
+            //else
+            //    Log.Write($"DockableVehicle(): HasPlayer={HasPlayer}, IsPlayerControlledDrone={IsPlayerControlledDrone}");
             Mode = FieldAdapter.OfNonPublic<Player.Mode>(Player.main, "mode");
         }
         //private Logging Log { get; } = new Logging(false,"Dockable",true,true);
         public Vehicle Vehicle { get; }
         public Archon Archon { get; }
-        public bool HasPlayer { get; }
+        public bool IsDrone { get; }
+        public bool HasPlayer => !IsDrone && Player.main.currentMountedVehicle == Vehicle;
         public bool IsPlayerControlledDrone { get; }
         private Transform? FixParentTo { get; set; }
 
