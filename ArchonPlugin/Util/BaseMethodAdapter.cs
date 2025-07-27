@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
@@ -31,7 +32,7 @@ namespace Subnautica_Archon.Util
                 if (Method is null)
                 {
                     if (!ignoreMissing)
-                        Log.Error($"Unable to find method {methodName} on object of type {target.GetType()}");
+                        Log.Error($"Unable to find method {methodName} with parameters ({string.Join(", ", parameterTypes.Select(x => x.ToString()))}) on object of type {target.GetType()}");
                 }
             }
             catch (Exception ex)
@@ -52,7 +53,7 @@ namespace Subnautica_Archon.Util
             }
             try
             {
-                Log.Debug($"Invoking method {Method.Name} on {Target} with parameters {string.Join(", ", p)}");
+                Log.Debug($"Invoking method {Method.Name} on {Target} with parameters ({string.Join(", ", p)})");
                 Method.Invoke(Target, p);
             }
             catch (Exception ex)

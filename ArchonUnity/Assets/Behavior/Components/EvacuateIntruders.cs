@@ -95,7 +95,6 @@ public class EvacuateIntruders : MonoBehaviour
                                     candidate)));
                             }
 
-                            Vector3 p;
                             int needsRelocation = 0;
                             foreach (var hit in allHits)
                             {

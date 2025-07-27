@@ -60,11 +60,11 @@ public class Tug : MonoBehaviour
         {
             switch (Status)
             {
-                case TugStatus.WaitingForBayDoorClose:
+                case TugStatus.DockingWaitingForBayDoorClose:
                 case TugStatus.Docked:
                 case TugStatus.UndockedWaitingForTriggerExit:
                     return false;
-                case TugStatus.WaitingForBayDoorOpen:
+                case TugStatus.UndockingWaitingForBayDoorOpen:
                 case TugStatus.Undocking:
                 case TugStatus.Docking:
                     return true;
@@ -145,7 +145,7 @@ public class Tug : MonoBehaviour
 
         switch (status)
         {
-            case TugStatus.WaitingForBayDoorOpen:
+            case TugStatus.UndockingWaitingForBayDoorOpen:
 
                 ChangeActiveState(true);
 
@@ -253,7 +253,7 @@ public class Tug : MonoBehaviour
     private void TransitionToWaitingForBayDoorClose()
     {
         Log.Write($"WaitingForBayDoorClose");
-        Status = TugStatus.WaitingForBayDoorClose;
+        Status = TugStatus.DockingWaitingForBayDoorClose;
 
         //Fit.GetAllComponents<MonoBehaviour>()
         //        .Where(x => x != this)
@@ -356,7 +356,7 @@ public class Tug : MonoBehaviour
         ParticleSystems.UndoAll();
         Renderers.UndoAll();
         Lights.UndoAll();
-        Fit.Dockable.Tag(Tag);
+        //Fit.Dockable.Tag(Tag);
         Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
 
         DockedLocation.Globalize(Owner.archon.transform).ApplyTo(Fit.GameObject);
@@ -379,7 +379,7 @@ public class Tug : MonoBehaviour
                 Renderers.RedoAll();
                 Lights.RedoAll();
                 Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
-                Fit.Dockable.Untag(Tag);
+                //Fit.Dockable.Untag(Tag);
                 Do(Fit.Dockable.OnRedockedAfterSaving, $"Fit.Dockable.OnRedockedAfterSaving");
 
                 DockedLocation.ApplyTo(Fit.GameObject);
@@ -431,7 +431,7 @@ public class Tug : MonoBehaviour
                         Destroy(this);
                     }
                     break;
-                case TugStatus.WaitingForBayDoorClose:
+                case TugStatus.DockingWaitingForBayDoorClose:
                     if (Owner.DoorsAreClosed)
                     {
                         Owner.ReleaseActive(this);
@@ -449,7 +449,7 @@ public class Tug : MonoBehaviour
                         Do(Fit.Dockable.UpdateWaitingForBayDoorClose, "Dockable.UpdateWaitingForBayDoorClose()", logAction: false);
                     }
                     break;
-                case TugStatus.WaitingForBayDoorOpen:
+                case TugStatus.UndockingWaitingForBayDoorOpen:
                     if (Owner.DoorsAreSufficientlyOpen)
                     {
                         Log.Write($"Doors open wide enough. Undocking");
@@ -520,9 +520,9 @@ public class Tug : MonoBehaviour
 public enum TugStatus
 {
     Docking,
-    WaitingForBayDoorClose,
+    DockingWaitingForBayDoorClose,
     Docked,
-    WaitingForBayDoorOpen,
+    UndockingWaitingForBayDoorOpen,
     Undocking,
     UndockedWaitingForTriggerExit
 }

@@ -11,6 +11,8 @@ public class DebugDockable : MonoBehaviour, IDockable
 
     public bool ShouldUnfreezeImmediately => false;
 
+    public bool IsDocked { get; private set; } = false;
+
     public bool UndockUpright => undockUpright;
 
     public Bounds debugOutBounds;
@@ -53,14 +55,19 @@ public class DebugDockable : MonoBehaviour, IDockable
     public Text StorageText
         => Text.Info($"Storage: {storageUsage}/{storageCapacity}");
 
+
     public void BeginDocking()
-    { }
+    {
+        IsDocked = true;
+    }
 
     public void EndDocking()
     { }
 
     public void BeginUndocking()
-    { }
+    {
+        IsDocked = false;
+    }
 
     public void EndUndocking()
     { }

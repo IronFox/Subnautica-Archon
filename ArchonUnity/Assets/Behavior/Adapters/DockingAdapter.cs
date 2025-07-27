@@ -7,9 +7,10 @@ public static class DockingAdapter
     public enum Filter
     {
         All,
-        CurrentlyDockable
+        CurrentlyDockable,
+        CurrentlyDockedBySaveGame
     }
-    public static Func<GameObject, ArchonControl, Filter, IDockable> ToDockable { get; set; } = (go,ctrl, filter) => go.GetComponent<IDockable>();
+    public static Func<GameObject, ArchonControl, Filter, IDockable> ToDockable { get; set; } = (go, ctrl, filter) => go.GetComponent<IDockable>();
 
 }
 

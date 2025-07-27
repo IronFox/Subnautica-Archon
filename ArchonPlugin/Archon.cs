@@ -4,6 +4,7 @@ using AVS.Composition;
 using AVS.Configuration;
 using AVS.Interfaces;
 using AVS.Log;
+using AVS.SaveLoad;
 using AVS.Util;
 using AVS.VehicleComponents;
 using AVS.VehicleParts;
@@ -93,6 +94,27 @@ namespace Subnautica_Archon
             //MaterialFixer = new MaterialFixer(this, Logging.Verbose);
         }
 
+
+        protected override void CreateDataBlocks(Action<DataBlock> addBlock)
+        {
+            addBlock(new DataBlock(
+                "Archon",
+                    Persistable.Property("Docked",
+                        () => Control.bayControl.Docked
+                            .Select(x => x.GameObject.PrefabId())
+                            .Where(x => x != null)
+                            .Select(x => x!.Id)
+                            .ToList(),
+                        list =>
+                        {
+                            DockedSubPrefabIds = list;
+                            Log.Write($"Docked sub prefabs restored from file: {string.Join(", ", list)}");
+                        }
+                        )
+                ));
+            base.CreateDataBlocks(addBlock);
+        }
+
         //public override float ExitVelocityLimit => 100f;    //any speed is good
         public override bool LogDebug => true;
         public IEnumerable<QuickSlot> QuickSlots
@@ -114,6 +136,8 @@ namespace Subnautica_Archon
                 SetBaseColor(defaultBaseColor);
                 SetStripeColor(defaultStripeColor);
             }
+
+            Control.RedetectDocked();
         }
 
         public static Sprite? saveFileSprite, moduleBackground;
@@ -1231,6 +1255,10 @@ namespace Subnautica_Archon
 
         public override string vehicleDefaultName => "Archon";
 
+        /// <summary>
+        /// The prefab IDs of submarines declared docked during saving, restored during loading.
+        /// </summary>
+        public IReadOnlyList<string>? DockedSubPrefabIds { get; private set; }
 
         public override SubmarineComposition GetSubmarineComposition()
         {
@@ -1624,6 +1652,26 @@ namespace Subnautica_Archon
                 }
                 Log.Write($"Received autopilot status change: {statusChange.PreviousStatus} -> {statusChange.NewStatus}");
             }
+        }
+
+        internal bool IsDockedBySavegame(PrefabIdentifier? prefabIdentifier)
+        {
+            if (DockedSubPrefabIds == null)
+            {
+                Log.Write($"No docked vehicles restored from last load operation");
+                return false;
+            }
+            if (prefabIdentifier == null)
+            {
+                Log.Error($"Candidate has no PrefabIdentifier");
+                return false;
+            }
+            if (!DockedSubPrefabIds.Contains(prefabIdentifier.Id))
+            {
+                Log.Error($"Prefab ID {prefabIdentifier.Id} is not declared in list of docked prefab IDs");
+                return false;
+            }
+            return true;
         }
 
 

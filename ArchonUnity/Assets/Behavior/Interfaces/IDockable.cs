@@ -130,20 +130,4 @@ public interface IDockable
     /// </summary>
     void OpenModules();
 
-    /// <summary>
-    /// Persistently tags the dockable
-    /// </summary>
-    /// <param name="tag">Tag to add</param>
-    void Tag(string tag);
-    /// <summary>
-    /// Persistently untags the dockable
-    /// </summary>
-    /// <param name="tag">Tag to remove</param>
-    void Untag(string tag);
-    /// <summary>
-    /// Checks if a tag is present in this dockable
-    /// </summary>
-    /// <param name="tag">Tag to check</param>
-    /// <returns>True if the given tag is present</returns>
-    bool IsTagged(string tag);
 }

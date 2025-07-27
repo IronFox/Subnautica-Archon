@@ -1,6 +1,7 @@
 ﻿using AVS;
 using AVS.Assets;
 using AVS.Patches;
+using AVS.Util;
 using BepInEx;
 using HarmonyLib;
 using Nautilus.Handlers;
@@ -159,6 +160,8 @@ namespace Subnautica_Archon
                         return null;
                     if (filter == DockingAdapter.Filter.CurrentlyDockable && v.docked)
                         return null; //don't grap docked vehicles
+                    if (filter == DockingAdapter.Filter.CurrentlyDockedBySaveGame && !archon.IsDockedBySavegame(go.PrefabId()))
+                        return null; //don't grab vehicles that are not docked by this save game
                     var dmem = go.EnsureComponent<DockableMemory>();
                     dmem.Dockable = dmem.Dockable ?? new DockableVehicle(v, archon);
                     return dmem.Dockable;

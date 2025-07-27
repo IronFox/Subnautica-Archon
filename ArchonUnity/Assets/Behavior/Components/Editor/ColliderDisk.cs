@@ -13,13 +13,17 @@ public class ColliderDisk : MonoBehaviour
     private bool renderersBuilt = false;
 
 
-    void Awake()
+
+#if !UNITY_EDITOR
+    public void Awake()
     {
+
         enabled = false;
     }
+#else
 
     // Update is called once per frame
-    void Update()
+    public void Update()
     {
         if (build != built || renderers != renderersBuilt)
         {
@@ -59,4 +63,5 @@ public class ColliderDisk : MonoBehaviour
             }
         }
     }
+#endif
 }

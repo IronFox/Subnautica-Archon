@@ -1,4 +1,6 @@
-﻿using UnityEditor;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 [ExecuteInEditMode]
@@ -9,10 +11,12 @@ public class ToggleMeshRenderer : MonoBehaviour
 
     private bool? hasMeshRenderer = null;
 
+#if !UNITY_EDITOR
     void Awake()
     {
         enabled = false;
     }
+#else
 
     // Update is called once per frame
     void Update()
@@ -76,4 +80,6 @@ public class ToggleMeshRenderer : MonoBehaviour
             }
         }
     }
+#endif
+
 }

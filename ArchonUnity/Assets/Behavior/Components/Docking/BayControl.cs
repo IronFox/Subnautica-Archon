@@ -106,7 +106,7 @@ public class BayControl : MonoBehaviour
 
         //NumDockedVehicles = 0;
 
-        var candidates = Physics.OverlapSphere(archon.transform.position, 100);
+        var candidates = Physics.OverlapSphere(archon.transform.position, 1000);
         Log.Write($"Checking {candidates.Length} colliders");
         var rbs = candidates.Select(c => c.attachedRigidbody).Where(x => x).Distinct().ToList();
         Log.Write($"Down to {rbs.Count} rigidbodies");
@@ -133,33 +133,26 @@ public class BayControl : MonoBehaviour
                 }
                 Log.Write($"Now checking {candidate.NiceName()}");
 
-                var d = DockingAdapter.ToDockable(candidate.gameObject, archon, DockingAdapter.Filter.All);
+                var d = DockingAdapter.ToDockable(candidate.gameObject, archon, DockingAdapter.Filter.CurrentlyDockedBySaveGame);
                 if (d != null)
                 {
                     Log.Write("Is dockable");
-                    if (d.IsTagged(Tug.Tag))
+                    var fit = FindBestFit(d);
+                    if (fit != null)
                     {
-                        Log.Write("Is tagged. Untagging");
-                        d.Untag(Tug.Tag);
-                        var fit = FindBestFit(d);
-                        if (fit != null)
-                        {
-                            Log.Write("Fits. Docking");
-                            var tug = Tug.GetOrAdd(d.GameObject);
-                            tug.Bind(this, fit.Value, TugStatus.Docked);
-                            IncNumDockedVehicles(tug);
-                        }
-                        else
-                        {
-                            d.GameObject.transform.position += M.V3(50); //evacuate the thing out
-                            Log.Default.LogError("Tagged but does not fit. Translated away");
-                        }
+                        Log.Write("Fits. Docking");
+                        var tug = Tug.GetOrAdd(d.GameObject);
+                        tug.Bind(this, fit.Value, TugStatus.Docked);
+                        IncNumDockedVehicles(tug);
                     }
                     else
-                        Log.Write("Is not tagged");
+                    {
+                        d.GameObject.transform.position += M.V3(50); //evacuate the thing out
+                        Log.Default.LogError("Tagged but does not fit. Translated away");
+                    }
                 }
                 else
-                    Log.Write("Is not dockable");
+                    Log.Write("Is not dockable or not docked");
             }
             catch (Exception e)
             {
@@ -175,7 +168,10 @@ public class BayControl : MonoBehaviour
 
     public IEnumerable<IDockable> Docked =>
         DockedTugs
-            .Where(x => x.Status == TugStatus.Docked)
+            .Where(x =>
+            x.Status == TugStatus.Docked
+            || x.Status == TugStatus.Docking
+            || x.Status == TugStatus.DockingWaitingForBayDoorClose)
             .Select(x => x.Fit.Dockable);
 
     private void IncNumDockedVehicles(Tug tug)
@@ -296,7 +292,7 @@ public class BayControl : MonoBehaviour
             return;
         if (!TugFromDocked(dockedSub, false, out var tug, out var dockable, out _))
             return;
-        tug.Bind(this, tug.Fit, TugStatus.WaitingForBayDoorOpen);
+        tug.Bind(this, tug.Fit, TugStatus.UndockingWaitingForBayDoorOpen);
         active = tug;
     }
 

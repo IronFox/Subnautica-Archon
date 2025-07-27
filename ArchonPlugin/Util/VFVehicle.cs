@@ -41,9 +41,9 @@ namespace Subnautica_Archon.Util
         public void OnVehicleDocked(Vector3 exitLocation)
         {
             if (_onVehicleDocked0 is null)
-                _onVehicleDocked0 = new MethodAdapter<Vehicle, Vector3>(Vehicle, "OnVehicleDocked");
+                _onVehicleDocked0 = new MethodAdapter<Vehicle, Vector3>(Vehicle, "OnVehicleDocked", ignoreMissing: true);
             if (_onVehicleDocked1 is null)
-                _onVehicleDocked1 = new MethodAdapter<Vector3>(Vehicle, "OnVehicleDocked");
+                _onVehicleDocked1 = new MethodAdapter<Vector3>(Vehicle, "OnVehicleDocked", ignoreMissing: true);
             if (_onVehicleDocked0 != null)
                 _onVehicleDocked0.Invoke(Vehicle, exitLocation);
             else if (_onVehicleDocked1 != null)
