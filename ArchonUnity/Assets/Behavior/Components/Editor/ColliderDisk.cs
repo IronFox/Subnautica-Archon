@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 [ExecuteInEditMode]
@@ -22,6 +22,18 @@ public class ColliderDisk : MonoBehaviour
     }
 #else
 
+    private void DeleteChildren()
+    {
+        List<Transform> children = new List<Transform>(transform.childCount);
+        foreach (Transform child in transform)
+            children.Add(child);
+        foreach (Transform child in children)
+        {
+            DestroyImmediate(child.gameObject);
+        }
+    }
+
+
     // Update is called once per frame
     public void Update()
     {
@@ -29,10 +41,7 @@ public class ColliderDisk : MonoBehaviour
         {
             built = build;
             renderersBuilt = renderers;
-            foreach (var child in transform.GetChildren().ToList())
-            {
-                DestroyImmediate(child.gameObject);
-            }
+            DeleteChildren();
 
             if (build)
             {
