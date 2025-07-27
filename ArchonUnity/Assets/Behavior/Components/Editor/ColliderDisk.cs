@@ -13,7 +13,7 @@ public class ColliderDisk : MonoBehaviour
     private bool renderersBuilt = false;
     public bool started = false;
 
-    void Start()
+    void Awake()
     {
         started = true;
     }
