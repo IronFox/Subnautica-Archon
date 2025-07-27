@@ -5,7 +5,6 @@ before release:
 * add vehicle images and icons
 * add basic sounds
 * add innate fish/egg storage for water tank
-* improve glass visuals of water tank
 * add upgrade panel
 * fix bioreactor
 * add AVS fabricator to pre-built mesh
@@ -37,3 +36,4 @@ done:
 * fix AVS localization
 * revise save/load
 * fix fabricator tree
+* improve glass visuals of water tank
