@@ -1,0 +1,34 @@
+before release:
+
+* fix fabricator tree
+* remove VF assets
+* add basic sounds
+* add innate fish/egg storage for water tank
+* add upgrade access
+* fix bioreactor
+* add AVS fabricator to pre-built mesh
+* even upper front inner hull shape
+* revise front side inner colliders around airlock
+* self repair
+* immobility if power or health critical
+* emergency teleportation
+* evacuate fish
+* add localization
+* fix hatches after loading not fully closed unless player approaches
+* model and replace seat
+
+maybe not?
+* add battery access
+* ability to exit craft if autoleveling could not be established
+
+later:
+
+* horizontal rotation control sluggish when not leaning
+* add hud speed display + GPS + map
+* add vertical submarine shadow to map
+* add storage and upgrade panel access for docked subs
+* implement fish tank
+
+done:
+* fix AVS localization
+* revise save/load
