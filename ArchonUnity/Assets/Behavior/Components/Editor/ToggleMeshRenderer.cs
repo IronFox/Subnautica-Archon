@@ -8,17 +8,16 @@ public class ToggleMeshRenderer : MonoBehaviour
     public bool requireMeshRenderer = true;
 
     private bool? hasMeshRenderer = null;
-    public bool started = false;
 
     void Awake()
     {
-        started = true;
+        enabled = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!started && requireMeshRenderer != hasMeshRenderer)
+        if (requireMeshRenderer != hasMeshRenderer)
         {
             hasMeshRenderer = requireMeshRenderer;
             var mrs = GetComponentsInChildren<MeshRenderer>(true);

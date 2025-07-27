@@ -11,19 +11,16 @@ public class ColliderDisk : MonoBehaviour
     public bool renderers = true;
     private bool built = false;
     private bool renderersBuilt = false;
-    public bool started = false;
+
 
     void Awake()
     {
-        started = true;
+        enabled = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (started)
-            return;
-
         if (build != built || renderers != renderersBuilt)
         {
             built = build;
