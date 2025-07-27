@@ -24,13 +24,11 @@ public class ColliderDisk : MonoBehaviour
 
     private void DeleteChildren()
     {
-        List<Transform> children = new List<Transform>(transform.childCount);
+        var children = new List<Transform>(transform.childCount);
         foreach (Transform child in transform)
             children.Add(child);
         foreach (Transform child in children)
-        {
             DestroyImmediate(child.gameObject);
-        }
     }
 
 
