@@ -51,7 +51,7 @@ internal class DisableAction : IAction
         if (!Enabled.IsEnabled)
         {
             if (Enabled.LogChange)
-                Log.Default.Write($"Setting {Enabled.PropertyName}:=true on {Enabled.Target.NiceName()} [{Enabled.Target.GetInstanceID()}]");
+                Log.Default.Write($"Setting {Enabled.PropertyName}:=true on {Enabled.Target.NiceName()}");
             Enabled.SetEnabled(true);
         }
         ;
