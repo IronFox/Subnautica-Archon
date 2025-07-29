@@ -260,13 +260,13 @@ namespace Subnautica_Archon
             var interior = transform.Find("Interior");
             if (interior)
             {
-                var reactorTransform = interior.Find("Biofuel Storage");
+                var reactorTransform = interior.Find("Bioreactor");
                 if (reactorTransform)
                 {
-                    var reactor = reactorTransform.gameObject.AddComponent<MaterialReactor>();
-                    reactor.Initialize(this, 10, 8, "Archon Reactor", 0, MaterialReactor.GetBioReactorData());
+                    var reactor = reactorTransform.gameObject.EnsureComponent<MaterialReactor>();
+                    reactor.Initialize(this, 6, 6, AVS.Localization.Text.Translated("Component.ArchonBioreactor"), 0, MaterialReactor.GetBioReactorData());
                     reactor.canViewWhitelist = false;
-                    reactor.interactText = "Archon Bioreactor";
+                    reactor.localizeInteractText = true;
                 }
                 else
                     Log.Error("Unable to find Biofuel Storage child");
@@ -1343,6 +1343,7 @@ namespace Subnautica_Archon
                         Log.Write($"Creating new storage transform {storageTransform} in {storageRootTransform} @{storageTransform.localPosition} => {storageTransform.position}");
                     }
                     modularStorageList.Add(new VehicleStorage(
+                        displayName: AVS.Localization.Text.Translated("Component.ModularStorage"),
                         container: storageTransform.gameObject,
                         height: 2,
                         width: 2
@@ -1350,6 +1351,24 @@ namespace Subnautica_Archon
                     );
                 }
             }
+
+
+            var innateStorages = new List<VehicleStorage>();
+            var waterTank = transform.Find("Interior/Water Tank");
+            if (waterTank != null)
+            {
+                innateStorages.Add(new VehicleStorage(
+                    displayName: AVS.Localization.Text.Translated("Component.WaterTank"),
+                    container: waterTank.gameObject,
+                    height: 10,
+                    width: 8
+                ));
+            }
+            else
+            {
+                Log.Write($"Water tank not found");
+            }
+
             List<GameObject> waterClipProxies = new List<GameObject>();
             var clipProxies = transform.Find("WaterClipProxy");
             foreach (Transform proxy in clipProxies)
@@ -1461,8 +1480,15 @@ namespace Subnautica_Archon
                 Log.Write($"Recorded {tetherSources.Count} tether source(s)");
             }
 
+
+
+
+
             Log.Write($"Assigned new engine");
             engine = gameObject.EnsureComponent<MassDrive>();
+
+
+
 
 
             return new SubmarineComposition(
@@ -1472,6 +1498,7 @@ namespace Subnautica_Archon
                 boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
                 storageRootObject: storageRootTransform.gameObject,
                 modularStorages: modularStorageList,
+                innateStorages: innateStorages,
                 waterClipProxies: waterClipProxies,
                 upgrades: upgrades,
                 batteries: vehicleBatteries,

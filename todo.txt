@@ -1,27 +1,27 @@
 before release:
 
-* docked vehicle depth value does not update
 * add basic sounds
 * add innate fish/egg storage for water tank
 * add upgrade panel
 * fix bioreactor
-* add AVS fabricator to pre-built mesh
 * even upper front inner hull shape
-* revise front side inner colliders around airlock
 * self repair
 * immobility if power or health critical
-* evacuate fish
 * add localization
 * fix hatches and bay door after loading not fully closed unless player/submarine approaches
 * fix vehicle rotating down in non-free camera mode and the menu open
 * model and replace seat
+* add front railing support
 
 maybe not?
 * add battery panel
 * ability to exit craft if autoleveling could not be established
+* add AVS fabricator to pre-built mesh
 
 later:
 
+* revise front side inner colliders around airlock
+* evacuate fish
 * emergency teleportation
 * increase interior shadow caster resolution
 * horizontal rotation control sluggish when not leaning near ocean surface or at low speed
@@ -31,6 +31,7 @@ later:
 * implement fish tank
 
 done:
+* docked vehicle depth value does not update
 * add vehicle images and icons
 * remove remaining VF assets
 * improve glass visuals of water tank
