@@ -15,7 +15,10 @@ namespace Subnautica_Archon
             depthModule1Icon: Load("images/depth_module_1.png"),
             depthModule2Icon: Load("images/depth_module_2.png"),
             depthModule3Icon: Load("images/depth_module_3.png"),
-            depthModuleNodeIcon: Load("images/depth_module_node.png"))
+            depthModuleNodeIcon: Load("images/depth_module_node.png"),
+            fabricatorIcon: Load("images/fabricator.png")
+
+            )
         {
             ArchonCraftingSprite = Load("images/archon_crafting_sprite.png");
             ArchonPingSprite = Load("images/archon_ping_sprite.png");
