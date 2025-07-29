@@ -1,4 +1,4 @@
-﻿using AVS.Crafting;
+﻿using AVS.UpgradeModules;
 using System;
 using System.Collections.Generic;
 
@@ -8,7 +8,7 @@ namespace Subnautica_Archon.Modules
     public abstract class ArchonModuleFamily<T> : ArchonBaseModule
         where T : ArchonModuleFamily<T>
     {
-        protected ArchonModuleFamily(ArchonModule module, CraftingNode groupNode) : base(module, groupNode)
+        protected ArchonModuleFamily(ArchonModule module) : base(module)
         {
         }
         private static Dictionary<TechType, T> Family { get; } = new Dictionary<TechType, T>();
@@ -16,9 +16,9 @@ namespace Subnautica_Archon.Modules
 
         public override IReadOnlyCollection<TechType> AutoDisplace => Family.Keys;
 
-        public override TechType Register()
+        public override TechType Register(Node node)
         {
-            var type = base.Register();
+            var type = base.Register(node);
 
             Family[type] = (T)this;
             return type;

@@ -1,6 +1,8 @@
 ﻿using AVS.Crafting;
 using AVS.UpgradeModules;
 using Subnautica_Archon;
+using Subnautica_Archon.Exceptions;
+using Subnautica_Archon.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,13 +10,11 @@ using UnityEngine;
 
 public abstract class ArchonBaseModule : AvsVehicleUpgrade
 {
-    public CraftingNode? GroupNode { get; }
     public ArchonModule Module { get; }
     private Atlas.Sprite? icon;
 
     public TechType TechType { get; private set; }
 
-    private Path<CraftingNode>? tabPath;
 
     public virtual IReadOnlyCollection<TechType> AutoDisplace { get; } = Array.Empty<TechType>();
     public override string ClassId => $"Archon{Module}";
@@ -22,12 +22,12 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
     public override string Description => Language.main.Get("desc_" + Module);
     public override string DisplayName => Language.main.Get("display_" + Module);
 
-    public static CraftingNode RootCraftingNode { get; } = new CraftingNode
-    (
-        displayName: $"Archon",
-        icon: Archon.craftingSprite!,
-        name: $"archonupgradetab"
-    );
+    //public static CraftingNode RootCraftingNode { get; } = new CraftingNode
+    //(
+    //    displayName: $"Archon",
+    //    icon: Archon.craftingSprite!,
+    //    name: $"archonupgradetab"
+    //);
 
     public static string GetMarkFromType(ArchonModule m)
     {
@@ -38,43 +38,22 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
 
     public string MarkFromType => GetMarkFromType(Module);
 
-    public ArchonBaseModule(ArchonModule module, CraftingNode groupNode)
-    {
-        GroupNode = groupNode;
-        Module = module;
-        var path = $"images/{module}.png";
-        icon = Subnautica_Archon.MainPatcher.LoadSprite(path);
-        if (icon == null)
-            Debug.LogError($"Error while constructing {module} {this}: File {path} not found");
-
-        tabPath = new Path<CraftingNode>
-        (
-            RootCraftingNode,
-            groupNode
-        );
-    }
-
     public ArchonBaseModule(ArchonModule module)
     {
         Module = module;
         var path = $"images/{module}.png";
-        icon = Subnautica_Archon.MainPatcher.LoadSprite(path);
+        icon = MainPatcher.LoadSprite(path);
         if (icon == null)
-            Debug.LogError($"Error while constructing {module} {this}: File {path} not found");
-
-        tabPath = new Path<CraftingNode>
-        (
-            RootCraftingNode
-        );
+            throw new InitializationException($"Error while constructing {module} {this}: File {path} not found");
     }
 
 
 
-    public virtual TechType Register()
+    public virtual TechType Register(Node node)
     {
         var compat = UpgradeCompat.AvsVehiclesOnly;
 
-        var type = UpgradeRegistrar.RegisterUpgrade(this, compat).ForAvsVehicle;
+        var type = node.RegisterUpgrade(this, compat).ForAvsVehicle;
         TechType = type;
         All[type] = this;
         AllReverse[Module] = type;
@@ -97,21 +76,16 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
         return TechType.None;
     }
 
-    public override Path<CraftingNode>? TabPath
-    {
-        get => tabPath;
-        set => tabPath = value;
-    }
-
     public override bool IsVehicleSpecific => true;
     public override void OnAdded(AddActionParams param)
     {
         var now = DateTime.Now;
-        Debug.Log($"[{now:HH:mm:ss.fff}] ArchonBaseModule[{Module}].OnAdded(vehicle={param.vehicle},isAdded={param.isAdded},slot={param.slotID})");
+
+        Log.Write($"ArchonBaseModule[{Module}].OnAdded(vehicle={param.vehicle},isAdded={param.isAdded},slot={param.slotID})");
         var archon = param.vehicle as Archon;
         if (archon == null)
         {
-            Debug.LogError($"Added to incompatible vehicle {param.vehicle}");
+            Log.Error($"Added to incompatible vehicle {param.vehicle}");
             ErrorMessage.AddWarning("This is an Archon upgrade and will not work on other subs!");
             return;
         }
@@ -158,6 +132,6 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
         archon.SetModuleCount(Module, GetNumberInstalled(archon));
     }
 
-    public override Atlas.Sprite? Icon => icon ?? base.Icon;
+    public override Atlas.Sprite Icon => icon ?? throw new InitializationException("Module Icon should have been loaded by now");
 
 }

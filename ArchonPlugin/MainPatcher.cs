@@ -23,6 +23,10 @@ namespace Subnautica_Archon
     [BepInDependency(Nautilus.PluginInfo.PLUGIN_GUID, Nautilus.PluginInfo.PLUGIN_VERSION)]
     public class MainPatcher : AVS.MainPatcher
     {
+        private static StaticImages? staticImages;
+        public static StaticImages StaticImages => staticImages ?? throw new NullReferenceException("StaticImages not initialized");
+
+
         private static ArchonConfig? config;
         internal static ArchonConfig PluginConfig => config ?? throw new NullReferenceException("ArchonConfig not initialized");
         internal const string WorkBenchTab = "Storage";
@@ -31,15 +35,13 @@ namespace Subnautica_Archon
 
         public override string PluginId => PluginInfo.PLUGIN_GUID;
 
+
         public override void Awake()
         {
             try
             {
                 base.Awake();
                 Log.Write($"MainPatcher.Awake()");
-
-                RecipePurger.Purge();
-
 
                 Archon.GetAssets();
                 Log.Write($"MainPatcher.Awake() done");
@@ -97,20 +99,7 @@ namespace Subnautica_Archon
                 return null;
             }
         }
-        private static Sprite? LoadSpriteRaw(string filename)
-        {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
-            Log.Write($"Trying to load sprite from {path}");
-            try
-            {
-                return SpriteHelper.GetSpriteRaw(path);
-            }
-            catch (Exception ex)
-            {
-                Log.Write(ex);
-                return null;
-            }
-        }
+
 
         public IEnumerator Register(GameObject staticModel)
         {
@@ -126,10 +115,6 @@ namespace Subnautica_Archon
                 var sub = staticModel.EnsureComponent<Archon>();
                 Log.Write("archon attached: " + sub.name);
 
-                Archon.craftingSprite = LoadSprite("images/archon.png");
-                Archon.pingSprite = LoadSprite("images/outline.png") ?? Archon.emptySprite;
-                Archon.saveFileSprite = LoadSpriteRaw("images/outline.png");
-                Archon.moduleBackground = LoadSpriteRaw("images/moduleBackground.png");
                 started = UWE.CoroutineHost.StartCoroutine(VehicleRegistrar.RegisterVehicle(sub, true));
 
                 Assets.Behavior.Adapters.Log.AdapterFactory =
@@ -232,6 +217,10 @@ namespace Subnautica_Archon
             yield return started;
         }
 
-
+        protected override PatcherImages LoadImages()
+        {
+            staticImages = new StaticImages();
+            return staticImages;
+        }
     }
 }

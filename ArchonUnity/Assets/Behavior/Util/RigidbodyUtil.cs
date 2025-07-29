@@ -5,6 +5,11 @@ public static class RigidbodyUtil
 {
     public static void SetKinematic(this Rigidbody rb)
     {
+        if (rb == null)
+        {
+            Log.Default.LogError("Rigidbody is null, cannot set kinematic state.");
+            return;
+        }
         if (!rb.isKinematic)
             Log.Default.Write($"Setting [{rb.NiceName()}].isKinematic := true");
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
@@ -16,6 +21,11 @@ public static class RigidbodyUtil
 
     public static void UnsetKinematic(this Rigidbody rb)
     {
+        if (rb == null)
+        {
+            Log.Default.LogError("Rigidbody is null, cannot unset kinematic state.");
+            return;
+        }
         if (rb.isKinematic)
             Log.Default.Write($"Setting [{rb.NiceName()}].isKinematic := false");
         rb.collisionDetectionMode = CollisionDetectionMode.Discrete;

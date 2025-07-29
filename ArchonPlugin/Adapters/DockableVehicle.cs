@@ -353,7 +353,7 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter = 0;
             Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
             Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
-            Log.Write($" A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
+            Log.Write($" A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             Helper.ChangeAvatarInput(true);
             yield break;
 
@@ -439,7 +439,7 @@ namespace Subnautica_Archon.Adapters
             {
                 Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
                 Log.Write($"Player vehicle now {Player.main.GetVehicle().NiceName()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
-                Log.Write($"A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
+                Log.Write($"A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             }
             //else if (Vehicle is Drone d)
             //{
@@ -460,7 +460,7 @@ namespace Subnautica_Archon.Adapters
             if (HasPlayer)
             {
                 CheckPingInstanceIsDeactivated();
-                if (!AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out var v, new List<Transform>()))
+                if (!AvsUtils.FindVehicleInParents(Player.main.transform, out var v, new List<Transform>()))
                 {
                     Log.Error($"Unable to find mounted vehicle in player parent(s) at update #{UpdateCounter}. Did find {v.NiceName()}");
                     //if (FixParentTo)
@@ -491,7 +491,7 @@ namespace Subnautica_Archon.Adapters
             Archon.SuspendAutoLeveling();
             try
             {
-                if (Archon.IsPlayerPiloting())
+                if (Archon.IsPlayerControlling())
                     Archon.DeselectSlots();
                 if (Archon.IsPlayerInside())
                     Archon.ClosestPlayerExit(false);

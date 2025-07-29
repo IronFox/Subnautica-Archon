@@ -57,13 +57,14 @@ namespace Subnautica_Archon
         private Dictionary<string, VoiceLibrary> VoiceLibraries { get; } = new Dictionary<string, VoiceLibrary>();
 
         public Archon() : base(new VehicleConfiguration(
+            unlockedSprite: MainPatcher.StaticImages.ArchonCraftingSprite.Sprite,
             maxHealth: 20000,
             mass: 20000,
             numModules: 8,
-            craftingSprite: craftingSprite,
-            pingSprite: pingSprite,
-            saveFileSprite: saveFileSprite,
-            moduleBackgroundImage: moduleBackground,
+            craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite.AtlasSprite,
+            pingSprite: MainPatcher.StaticImages.ArchonPingSprite.AtlasSprite,
+            saveFileSprite: MainPatcher.StaticImages.ArchonPingSprite.Sprite,
+            moduleBackgroundImage: MainPatcher.StaticImages.ArchonModuleBackground.Sprite,
             description: Language.main.Get("description"),
             encyclopediaEntry: Language.main.Get("encyclopedia"),
             canLeviathanGrab: false,
@@ -141,9 +142,9 @@ namespace Subnautica_Archon
             Control.RedetectDocked();
         }
 
-        public static Sprite? saveFileSprite, moduleBackground;
-        public static Atlas.Sprite? craftingSprite, pingSprite;
-        public static Atlas.Sprite emptySprite = new Atlas.Sprite(Texture2D.blackTexture);
+        //public static Sprite? saveFileSprite, moduleBackground;
+        //public static Atlas.Sprite? craftingSprite, pingSprite;
+        //public static Atlas.Sprite emptySprite = new Atlas.Sprite(Texture2D.blackTexture);
         //public override Atlas.Sprite CraftingSprite => craftingSprite ?? base.CraftingSprite;
         //public override Atlas.Sprite PingSprite => pingSprite ?? base.PingSprite;
         //public override Sprite SaveFileSprite => saveFileSprite ?? base.SaveFileSprite;
@@ -1265,7 +1266,7 @@ namespace Subnautica_Archon
         /// </summary>
         public IReadOnlyList<string>? DockedSubPrefabIds { get; private set; }
 
-        public override SubmarineComposition GetSubmarineComposition()
+        protected override SubmarineComposition GetSubmarineComposition()
         {
             var voiceLibraries = transform.GetComponentsInChildren<VoiceLibrary>();
             if (voiceLibraries.Length == 0)
