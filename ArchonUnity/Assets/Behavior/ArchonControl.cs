@@ -538,7 +538,6 @@ public class ArchonControl : MonoBehaviour
     }
 
     private bool OnboardingCooldown => DateTime.Now - lastOnboarded < TimeSpan.FromSeconds(1);
-    private bool coverWasOpen = true;   //call SignalCoverClosed() at start
 
     private void ProcessUpgradeCover()
     {

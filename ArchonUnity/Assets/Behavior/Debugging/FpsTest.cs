@@ -3,9 +3,6 @@
 
 public class FpsTest : MonoBehaviour
 {
-    private Vector3 preBoardingPosition;
-    private LockedEuler preBoardingEuler;
-    private Transform preBoardingParent;
     private bool IsAtHelm => atHelm != null;
     private bool isOnBoard;
     public ArchonControl subControl;
@@ -124,9 +121,9 @@ public class FpsTest : MonoBehaviour
             ConsoleControl.Write("Offboarding");
             if (subControl.ExitControl(ToReference(), false))
             {
-                transform.parent = preBoardingParent;
-                transform.position = preBoardingPosition;
-                preBoardingEuler.ApplyTo(transform);
+                transform.parent = null;
+                transform.position = Vector3.zero;
+                transform.localRotation = Quaternion.identity;
                 transform.SetParent(null);
                 transform.position = atHelm.exit.position;
                 atHelm = null;
