@@ -65,8 +65,8 @@ namespace Subnautica_Archon
             pingSprite: MainPatcher.StaticImages.ArchonPingSprite.AtlasSprite,
             saveFileSprite: MainPatcher.StaticImages.ArchonPingSprite.Sprite,
             moduleBackgroundImage: MainPatcher.StaticImages.ArchonModuleBackground.Sprite,
-            description: Language.main.Get("description"),
-            encyclopediaEntry: Language.main.Get("encyclopedia"),
+            description: Language.main.Get("General.Description"),
+            encyclopediaEntry: Language.main.Get("General.Encyclopedia"),
             canLeviathanGrab: false,
             canMoonpoolDock: false,
             pilotingStyle: PilotingStyle.Other,
@@ -1386,7 +1386,7 @@ namespace Subnautica_Archon
             }
 
             var upgrades = new List<VehicleUpgrades>();
-            var ui = transform.Find("UpgradesInterface");
+            var ui = transform.Find("Interior/Upgrade Panel");
             var plugs = transform.Find("Module Plugs");
 
             var plugProxies = new List<Transform>();

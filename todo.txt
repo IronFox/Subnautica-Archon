@@ -1,14 +1,11 @@
 before release:
 
 * add basic sounds
-* add innate fish/egg storage for water tank
 * add upgrade panel
-* fix bioreactor
 * even upper front inner hull shape
 * self repair
 * immobility if power or health critical
 * add localization
-* fix hatches and bay door after loading not fully closed unless player/submarine approaches
 * fix vehicle rotating down in non-free camera mode and the menu open
 * model and replace seat
 * add front railing support
@@ -31,6 +28,9 @@ later:
 * implement fish tank
 
 done:
+* fix hatches and bay door after loading not fully closed unless player/submarine approaches
+* fix bioreactor
+* add innate fish/egg storage for water tank
 * docked vehicle depth value does not update
 * add vehicle images and icons
 * remove remaining VF assets
