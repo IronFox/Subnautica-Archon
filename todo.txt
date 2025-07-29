@@ -1,8 +1,6 @@
 before release:
 
-* remove remaining VF assets
 * docked vehicle depth value does not update
-* add vehicle images and icons
 * add basic sounds
 * add innate fish/egg storage for water tank
 * add upgrade panel
@@ -33,7 +31,9 @@ later:
 * implement fish tank
 
 done:
-* fix AVS localization
-* revise save/load
-* fix fabricator tree
+* add vehicle images and icons
+* remove remaining VF assets
 * improve glass visuals of water tank
+* fix fabricator tree
+* revise save/load
+* fix AVS localization
