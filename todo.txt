@@ -1,12 +1,10 @@
 before release:
 
-* add basic sounds
-* add upgrade panel
-* even upper front inner hull shape
 * self repair
 * immobility if power or health critical
+* add basic sounds
+* add upgrade panel
 * add localization
-* fix vehicle rotating down in non-free camera mode and the menu open
 * model and replace seat
 * add front railing support
 
@@ -28,6 +26,8 @@ later:
 * implement fish tank
 
 done:
+* even upper front inner hull shape
+* fix vehicle rotating down in non-free camera mode and the menu open
 * fix hatches and bay door after loading not fully closed unless player/submarine approaches
 * fix bioreactor
 * add innate fish/egg storage for water tank
