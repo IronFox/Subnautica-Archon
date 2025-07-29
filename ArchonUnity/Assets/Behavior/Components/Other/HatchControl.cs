@@ -7,6 +7,7 @@ public class HatchControl : MonoBehaviour
     private Animation hatchAnimation;
     public float progress = 0;
     public float openSeconds = 1.0f;
+    public bool wasPlaying = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -16,7 +17,8 @@ public class HatchControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        bool play = false;
+        bool play = false;// (--forcePlayFor) >= 0;
+
         if (closeProximity.HasPlayer)
         {
             if (progress < 1.0f)
@@ -43,13 +45,26 @@ public class HatchControl : MonoBehaviour
                 play = true;
             }
         }
-        if (hatchAnimation.isPlaying != play)
-            if (play)
-                hatchAnimation.Play();
-            else
-                hatchAnimation.Stop();
+
+        if (!play && !wasPlaying)
+        {
+            hatchAnimation.Stop();
+            return;
+        }
+
+        if (!hatchAnimation.isPlaying)
+            hatchAnimation.Play();
+        //if (hatchAnimation.isPlaying != play)
+        //    if (play)
+        //    {
+        //        hatchAnimation.Play();
+        //    }
+        //    else
+        //        hatchAnimation.Stop();
+        //if (play)
         foreach (AnimationState state in hatchAnimation)
             state.normalizedTime = progress;
+        wasPlaying = play;
 
     }
 
