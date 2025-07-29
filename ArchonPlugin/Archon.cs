@@ -1053,9 +1053,15 @@ namespace Subnautica_Archon
 
                 //ArchonControl.targetArrows = MainPatcher.PluginConfig.targetArrows;
 
+
                 Vector2 lookDelta = GameInput.GetLookDelta();
-                Control.lookRightAxis = lookDelta.x * 0.1f;
-                Control.lookUpAxis = lookDelta.y * 0.1f;
+                if (Character.IsAnyMenuOpen)
+                    Control.lookRightAxis = Control.lookUpAxis = 0;
+                else
+                {
+                    Control.lookRightAxis = lookDelta.x * 0.1f;
+                    Control.lookUpAxis = lookDelta.y * 0.1f;
+                }
 
                 ProcessEnergyRecharge(out var lowPower, out var criticalPower);
                 ProcessRegeneration(criticalPower);
