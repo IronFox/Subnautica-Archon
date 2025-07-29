@@ -170,7 +170,7 @@ namespace Subnautica_Archon.Adapters
         {
             get
             {
-                var d = Vehicle.crushDamage.GetDepth();
+                var d = Archon.crushDamage.GetDepth();
                 var max = Vehicle.crushDamage.crushDepth;
                 return ClassifyDepth($"Depth", d, max);
             }
