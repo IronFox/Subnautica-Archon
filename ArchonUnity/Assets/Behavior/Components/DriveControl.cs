@@ -1,25 +1,26 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class DriveControl : MonoBehaviour
 {
     // Start is called before the first frame update
-    
+
     public Transform[] propellers;
     public float maxRPS = 100;
+    private float initialLevel;
+    private float initialPitch;
     public ParticleSystem regularParticleSystem;
     public ParticleSystem overdriveParticleSystem;
-    public AudioSource regularAudioSource;
-    public AudioSource overdriveAudioSource;
+    public SoundAdapter regularAudioSource;
+    public SoundAdapter overdriveAudioSource;
     public float thrust;
     public float overdrive;
-    
-    
+
+
     private float emissionSpeed;
     private float emissionRate;
 
     private Vector3 lastPosition;
+    private Vector3 lastMainPosition;
 
     void Start()
     {
@@ -29,25 +30,36 @@ public class DriveControl : MonoBehaviour
             emissionRate = regularParticleSystem.emission.rateOverTimeMultiplier;
             lastPosition = regularParticleSystem.transform.position;
         }
+        lastMainPosition = transform.position;
+        if (regularAudioSource != null)
+        {
+            initialLevel = regularAudioSource.volume;
+            initialPitch = regularAudioSource.pitch;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        thrust = Mathf.Clamp(thrust, -1,1);
+        thrust = Mathf.Clamp(thrust, -1, 1);
 
-        //if (regularAudioSource != null)
-        //{
-        //    var audioThrust = Mathf.Abs(thrust);
-        //    if (audioThrust > 0)
-        //    {
-        //        regularAudioSource.volume = audioThrust;
-        //        regularAudioSource.pitch = 1 + audioThrust;
-        //        regularAudioSource.enabled = true;
-        //    }
-        //    else
-        //        regularAudioSource.enabled = false;
-        //}
+        if (regularAudioSource != null)
+        {
+            if (Time.deltaTime > 0)
+            {
+                float speed = (transform.position - lastMainPosition).magnitude / Time.deltaTime;
+
+                var audioThrust = speed / 30;
+                //if (audioThrust > 0)
+                {
+                    regularAudioSource.volume = initialLevel * (0.1f + 0.9f * audioThrust);
+                    regularAudioSource.pitch = initialPitch * (1 + audioThrust * 0.5f);
+                    //regularAudioSource.enabled = true;
+                }
+            }
+            //else
+            //  regularAudioSource.enabled = false;
+        }
 
         if (overdrive > 0)
         {
@@ -91,10 +103,12 @@ public class DriveControl : MonoBehaviour
             var velocity = regularParticleSystem.transform.position - lastPosition;
 
             em.enabled = thrust > 0 && Vector3.Dot(velocity, regularParticleSystem.transform.forward) < 0;
-            em.rateOverTimeMultiplier = emissionRate * 5* (M.Abs(thrust) + overdrive);
+            em.rateOverTimeMultiplier = emissionRate * 5 * (M.Abs(thrust) + overdrive);
 
             lastPosition = regularParticleSystem.transform.position;
         }
+        if (Time.deltaTime > 0)
+            lastMainPosition = transform.position;
         //foreach (var p in propellers)
         //    p.Rotate(0, 0, thrust * maxRPS * Time.deltaTime);
     }

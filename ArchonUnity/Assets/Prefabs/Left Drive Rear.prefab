@@ -110,6 +110,57 @@ Transform:
   m_Father: {fileID: 2365163742855130585}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3032764450399027889
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3269955068853287721}
+  - component: {fileID: 1359016929581568206}
+  m_Layer: 0
+  m_Name: Sound
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3269955068853287721
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3032764450399027889}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: -10.49}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2365163742855130585}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1359016929581568206
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3032764450399027889}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56534fd16a4420046924e3771b758cdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clip: {fileID: 8300000, guid: 7a7b0d3a01148aa47b91955115d098b4, type: 3}
+  volume: 0.45
+  play: 1
+  minDistance: 20
+  maxDistance: 500
+  is3D: 1
+  pitch: 0.7
+  loop: 1
 --- !u!1 &4907512589469381798
 GameObject:
   m_ObjectHideFlags: 0
@@ -379,6 +430,7 @@ Transform:
   - {fileID: 8473974936824132540}
   - {fileID: 2138822949476977184}
   - {fileID: 1097945070664676619}
+  - {fileID: 3269955068853287721}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -400,7 +452,7 @@ MonoBehaviour:
   maxRPS: 100
   regularParticleSystem: {fileID: 0}
   overdriveParticleSystem: {fileID: 0}
-  regularAudioSource: {fileID: 0}
+  regularAudioSource: {fileID: 1359016929581568206}
   overdriveAudioSource: {fileID: 0}
   thrust: 0
   overdrive: 0

@@ -38,7 +38,7 @@ namespace Subnautica_Archon.Adapters
                     float distance = Sqr((float)ix / 10) * range + cfg.MinDistance;
                     float worldDistance = distance;
 
-                    distance /= halfDistance / M.Sqrt2;
+                    distance /= (cfg.MinDistance + halfDistance) / M.Sqrt2;
                     //Log.Write($"Distance modified by halfDistance({halfDistance}): {distance}");
 
                     float volume = M.Saturate(1f / (distance * distance) - (1f / (cfg.MaxDistance * cfg.MaxDistance)));
@@ -208,6 +208,7 @@ namespace Subnautica_Archon.Adapters
             {
                 if (Recovered)
                 {
+                    //Log.Debug($"FModSound.ApplyLiveChanges({cfg.Volume}, {cfg.Pitch}) - Recovered, applying changes");
                     FModSoundCreator.Check($"Channel.setVolume({cfg.Volume})", Channel.setVolume(cfg.Volume));
                     FModSoundCreator.Check($"Channel.setPitch({cfg.Pitch})", Channel.setPitch(cfg.Pitch));
                 }
