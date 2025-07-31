@@ -8,10 +8,22 @@ public class HatchControl : MonoBehaviour
     public float progress = 0;
     public float openSeconds = 1.0f;
     public bool wasPlaying = false;
+    public SoundAdapter whirlSound;
+    public SoundAdapter slideSound;
     // Start is called before the first frame update
     void Start()
     {
         hatchAnimation = GetComponent<Animation>();
+    }
+
+    private float Interval(float value, float min, float max)
+    {
+        if (value < min || value > max)
+            return 0;
+        if (min == max) return 1;
+        float smooth = (max - min) / 4;
+        return M.Smoothstep(min, min + smooth, value)
+            * (1f - M.Smoothstep(max - smooth, max, value));
     }
 
     // Update is called once per frame
@@ -44,6 +56,18 @@ public class HatchControl : MonoBehaviour
                 progress = Mathf.Clamp01(progress);
                 play = true;
             }
+        }
+
+        if (whirlSound != null)
+        {
+            whirlSound.volume = Interval(progress, 0, 0.7f);
+            whirlSound.pitch = 2 + 2 * progress;
+            whirlSound.play = true;
+        }
+        if (slideSound != null)
+        {
+            slideSound.volume = Interval(progress, 0.5f, 0.99f);
+            slideSound.play = true;
         }
 
         if (!play && !wasPlaying)
