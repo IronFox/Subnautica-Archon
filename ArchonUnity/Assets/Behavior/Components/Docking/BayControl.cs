@@ -22,6 +22,10 @@ public class BayControl : MonoBehaviour
     public Transform dockedSubRoot;
     public Transform dockedBounds;
     public Transform dockingColliders;
+    public SoundAdapter bayDoorSound;
+    public SoundAdapter bayDoorLockSound;
+    public SoundAdapter bayDoorUnlockSound;
+
 
     public int maxDockedVehicles = 2;
 
@@ -448,20 +452,23 @@ public class BayControl : MonoBehaviour
             open = active.WantsDoorsOpen;
         }
 
-
         var wasClosed = progress == 0;
+        var lastProgress = progress;
         if (open)
-            progress += Time.deltaTime / secondsToOpen;
+            progress = Math.Min(1, progress + Time.deltaTime / secondsToOpen);
         else
-            progress -= Time.deltaTime / secondsToOpen;
+            progress = Math.Max(0, progress - Time.deltaTime / secondsToOpen);
 
 
-        progress = M.Saturate(progress);
-        var nowClosed = progress == 0;
+        //progress = M.Saturate(progress);
+        var nowClosed = !open && progress <= 0;
 
         if (wasClosed && nowClosed)
         {
             openAnimation.Stop();
+            if (bayDoorSound != null)
+                bayDoorSound.volume = 0;
+            //bayDoorSound.play = false;
             progress = 0;
             return;
         }
@@ -470,12 +477,37 @@ public class BayControl : MonoBehaviour
             SetBayVisible(!nowClosed);
         }
 
+        if (wasClosed && !nowClosed)
+        {
+            progress = -0.5f / secondsToOpen;
+            Log.Write(nameof(Update) + $": Bay doors opening. Playing lock sound");
+            bayDoorUnlockSound.Play();
+        }
+        else
+            if (lastProgress > 0.1f && progress <= 0.1f)
+        {
+            Log.Write(nameof(Update) + $": Bay doors closing. Playing lock sound");
+
+            bayDoorLockSound.Play();
+        }
+
+
+        if (bayDoorSound != null)
+        {
+            if (!bayDoorSound.play)
+                bayDoorSound.volume = 0;
+            else
+                bayDoorSound.volume = 1f - M.Sqr((progress - 0.5f) * 2f);
+            bayDoorSound.play = true;
+
+        }
+
 
         if (!openAnimation.isPlaying)
             openAnimation.Play();
         foreach (AnimationState state in openAnimation)
         {
-            state.normalizedTime = progress;
+            state.normalizedTime = M.Saturate(progress);
         }
     }
 

@@ -10,7 +10,11 @@ public static class DockingAdapter
         CurrentlyDockable,
         CurrentlyDockedBySaveGame
     }
-    public static Func<GameObject, ArchonControl, Filter, IDockable> ToDockable { get; set; } = (go, ctrl, filter) => go.GetComponent<IDockable>();
+    public static Func<GameObject, ArchonControl, Filter, IDockable> ToDockable { get; set; } =
+        (go, ctrl, filter) =>
+            filter == DockingAdapter.Filter.CurrentlyDockedBySaveGame
+                ? null
+                : go.GetComponent<IDockable>();
 
 }
 
