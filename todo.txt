@@ -1,6 +1,5 @@
 before release:
 
-* add basic sounds
 * self repair
 * immobility if power or health critical
 * add upgrade panel
@@ -10,7 +9,12 @@ before release:
 * check location of docked subs, seems to be off
 * model and replace seat
 * make lights and light strip fade in/out
+* make light strips pulse when the bioreactor is active
 * keep 3rd person camera center above the submarine
+* recheck that vehicles receive undock event when undocked for saving
+* rotating drive blades
+* improve airlock sounds
+* make ping icon code modification coexist with itself (daisy chain)
 
 maybe not?
 * add battery panel
@@ -22,7 +26,7 @@ later:
 * velocity upgrades
 * revise front side inner colliders around airlock
 * evacuate fish
-* increase interior shadow caster resolution
+* increase interior shadow caster triangle resolution
 * horizontal rotation control sluggish when not leaning near ocean surface or at low speed
 * add vertical submarine shadow to map
 * add hud speed display + GPS + map
@@ -30,6 +34,7 @@ later:
 * implement fish tank
 
 done:
+* add basic sounds
 * even upper front inner hull shape
 * fix vehicle rotating down in non-free camera mode and the menu open
 * fix hatches and bay door after loading not fully closed unless player/submarine approaches
@@ -42,3 +47,11 @@ done:
 * fix fabricator tree
 * revise save/load
 * fix AVS localization
+
+
+
+sound references:
+bay door slide:
+	https://freesound.org/people/tompallant/sounds/208721/
+airlock whirl:
+	https://freesound.org/people/pkri/sounds/587511/
