@@ -15,11 +15,18 @@ before release:
 * rotating drive blades
 * improve airlock sounds
 * make ping icon code modification coexist with itself (daisy chain)
-
-maybe not?
 * add battery panel
-* ability to exit craft if autoleveling could not be established
-* add AVS fabricator to pre-built mesh
+* add docking slot upgrade module(s)
+* limit water tank to Creature/CreatureEgg
+	+ maybe check for presence of WaterParkCreature
+* close 3rd person camera clips into hull at rear end
+* apply airlock sounds to right side
+* add reactor sound
+
+
+no:
+* ability to exit craft if autoleveling could not be established (use emergency teleport)
+* add AVS fabricator to pre-built mesh (every spot is potentially bad)
 
 later:
 
@@ -32,6 +39,18 @@ later:
 * add hud speed display + GPS + map
 * add storage and upgrade panel access for docked subs
 * implement fish tank
+	+ for reference: 
+		WaterPark.GetBreedingPartner
+		WaterPark.UpdateInfectionSpreading
+		WaterPark.GetRandomSwimTarget
+		WaterParkCreature
+		CreateEgg
+		Creature
+		Creature.actions(CreatureAction)
+		Creature.UpdateBehaviour()
+		Creature.ScanCreatureActions()
+		SwimRandom:CreatureAction
+		CreatureAction.swimBehaviour (SwimBehaviour)
 
 done:
 * add basic sounds
@@ -50,8 +69,40 @@ done:
 
 
 
+energy health concept:
+
+health:
++ regular sub self repair requires module
+	- consumes moderate amount of energy
++ emergency self repair (with or without module) sets in at < 1% health
+	- consumes high amount of energy
+	- repairs to 5% health
+	- sub invulnerable while <1% health (will require testing)
+	- remain mobile if sufficient energy remains
+	- may kill batteries
+
+energy:
++ cricial power when batteries dead or removed
+	- critical power:
+		lighting dim pulsing red, light strips pulse red
+		external lights offline
+		oxygen production offline
+		non-emergency self repair suspended (emergency repair _will_ work)
+		mobility suspended (can still emergency teleport and auto-level)
+		
+light strip:
+	+ high power: white
+	+ <50%, >10%: yellowish
+	+ <10%: orange-red
+charging: slow pulse
+
+
 sound references:
 bay door slide:
 	https://freesound.org/people/tompallant/sounds/208721/
 airlock whirl:
 	https://freesound.org/people/pkri/sounds/587511/
+	
+	
+	185, 200, 255
+	

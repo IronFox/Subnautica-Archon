@@ -7,6 +7,7 @@ using HarmonyLib;
 using Nautilus.Handlers;
 using Subnautica_Archon.Adapters;
 using Subnautica_Archon.Components;
+using Subnautica_Archon.Modules;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections;
@@ -123,7 +124,7 @@ namespace Subnautica_Archon
                 //TorpedoModule.RegisterAll();
                 //DriveModule.RegisterAll();
                 //NuclearBatteryModule.RegisterAll();
-                //RepairModule.RegisterAll();
+                RepairModule.RegisterAll();
 
                 AudioPatcher.Patcher = (source) => FreezeTimePatcher.Register(source);
 

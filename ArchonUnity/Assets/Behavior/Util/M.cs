@@ -190,6 +190,19 @@ public static class M
     public static string ToStr(this float v)
         => v.ToString(CultureInfo.InvariantCulture);
 
+    public static Color Gray(float intensity)
+        => new Color(intensity, intensity, intensity, 1f);
+
+    public static Color Color(Color color, float alpha)
+        => new Color(color.r, color.g, color.b, alpha);
+
+    public static Color ScaleRGB(Color color, float scale)
+        => new Color(
+            color.r * scale,
+            color.g * scale,
+            color.b * scale,
+            color.a
+        );
 }
 
 

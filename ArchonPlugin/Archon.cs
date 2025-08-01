@@ -13,6 +13,7 @@ using AVS.VehicleTypes;
 using FMOD.Studio;
 using FMODUnity;
 using Subnautica_Archon.Components;
+using Subnautica_Archon.Modules;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections;
@@ -45,6 +46,9 @@ namespace Subnautica_Archon
         //private List<GameObject> tetherSources;
         //tracks true if vehicle death was ever determined. Can't enter in this state
         private bool wasDead;
+        /// <summary>
+        /// True if this component has been destroyed and is no longer usable.
+        /// </summary>
         public bool destroyed;
         private float deathAge;
         //private MyLogger Log { get; }
@@ -53,12 +57,13 @@ namespace Subnautica_Archon
         private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
 
         private bool clippingWater;
-
+        private bool isInCriticalRecovery = false;
         private Dictionary<string, VoiceLibrary> VoiceLibraries { get; } = new Dictionary<string, VoiceLibrary>();
 
         public Archon() : base(new VehicleConfiguration(
             unlockedSprite: MainPatcher.StaticImages.ArchonCraftingSprite.Sprite,
             maxHealth: 20000,
+            crushDamage: 20000 / (60 * 2),    //damage so that total failure is achieved after 2 minutes at crush depth
             mass: 20000,
             numModules: 8,
             craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite.AtlasSprite,
@@ -88,11 +93,11 @@ namespace Subnautica_Archon
                 "Mod");
             //Log = new MyLogger(this);
             Log.Write($"Constructed");
-            MenuTracker = new MenuTracker(() =>
+            MenuTracker.OnOpen += () =>
             {
                 if (control != null)
                     control.PrepareForSaving();
-            }, () => { });
+            };
             //MaterialFixer = new MaterialFixer(this, Logging.Verbose);
         }
 
@@ -101,6 +106,10 @@ namespace Subnautica_Archon
         {
             addBlock(new DataBlock(
                 "Archon",
+                    Persistable.Property("IsInCriticalRecovery",
+                        () => isInCriticalRecovery,
+                        b => isInCriticalRecovery = b
+                        ),
                     Persistable.Property("Docked",
                         () => Control.bayControl.Docked
                             .Select(x => x.GameObject.PrefabId())
@@ -571,11 +580,11 @@ namespace Subnautica_Archon
             try
             {
                 base.OnPreBeginHelmControl(helm);
-                if (!liveMixin.IsAlive() || wasDead)
-                {
-                    ErrorMessage.AddError(string.Format(Language.main.Get("destroyedAndCannotBeBoarded"), VehicleName));
-                    return;
-                }
+                //if (!liveMixin.IsAlive() || wasDead)
+                //{
+                //    ErrorMessage.AddError(string.Format(Language.main.Get("destroyedAndCannotBeBoarded"), VehicleName));
+                //    return;
+                //}
                 //if (refreshQuickslotsOnControl.HasValue)
                 //{
                 //    var v = refreshQuickslotsOnControl.Value;
@@ -737,11 +746,10 @@ namespace Subnautica_Archon
             }
         }
 
-        private void ProcessEnergyRecharge(out bool lowPower, out bool criticalPower)
+        private void ProcessEnergyRecharge()
         {
 
-            if (energyInterface != null
-                && !IngameMenu.main.gameObject.activeSelf)
+            if (energyInterface != null)
             {
                 //                var batteryMk = GetBatteryMark();
 
@@ -756,20 +764,14 @@ namespace Subnautica_Archon
                 //    * recharge
                 //    );
                 energyInterface.GetValues(out var energyCharge, out var energyCapacity);
-                lowPower = energyCharge < energyCapacity * 0.02f;
-                criticalPower = energyCharge < energyCapacity * 0.01f;
+                Control.currentEnergy = energyCharge;
+                Control.maxEnergy = energyCapacity;
 
 
             }
-            else
-            {
-                lowPower = false;
-                criticalPower = false;
-            }
-
         }
 
-        private void ProcessRegeneration(bool criticalPower)
+        private void ProcessRegeneration()
         {
             Control.isHealing = false;
 
@@ -777,43 +779,80 @@ namespace Subnautica_Archon
 
             if (liveMixin != null)
             {
-                var level = 0.01f;// RepairModule.GetRelativeSelfRepair(RepairModule.GetFrom(this));
 
-                if (liveMixin.health < liveMixin.maxHealth
-                    && liveMixin.IsAlive()
-                    && !criticalPower
-                    && !IngameMenu.main.gameObject.activeSelf
-                    //&& MainPatcher.PluginConfig.selfHealingSpeed > 0
-                    && delta > 0
-                    && level > 0)
+                if (delta > 0)
                 {
-                    var healing = liveMixin.maxHealth
-                        * delta
-                        * level
-                        //* 0.02f //max = 2% of max health per second
-                        //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //default will be 5 seconds per 1%
-                        ;
 
-                    var clamped = Mathf.Min(healing, liveMixin.maxHealth - liveMixin.health);
-                    var effective = clamped / healing;
-                    //Debug.Log($"Healing at delta={Time.deltaTime}");
-                    float energyDemand =
-                        1 //max 1 energy per second
-                        * delta
-                        //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //if slower, cost less
-                        * effective //if clamped, cost less
-                        ;
+                    var criticalHealingLimit = liveMixin.maxHealth * 0.05f;
+                    var critical = liveMixin.health < liveMixin.maxHealth * 0.01f;
+                    if (critical && !isInCriticalRecovery)
+                    {
+                        ErrorMessage.AddMessage(Language.main.Get($"CriticalHealth.RepairEnabled"));
+                        Log.Warn($"Vehicle at critical health. Reviving. Setting invincible. Enabling emergency self healing");
+                        liveMixin.invincible = true;
+                        isInCriticalRecovery = true;
+                    }
 
-                    PowerManager.TrySpendEnergy(energyDemand);
+                    if (liveMixin.health < criticalHealingLimit && isInCriticalRecovery)
+                    {
+                        var healing = liveMixin.maxHealth
+                            * delta
+                            * 0.01f;
+                        var clamped = Mathf.Min(healing, criticalHealingLimit - liveMixin.health);
+                        var effective = clamped / healing;
+                        //Debug.Log($"Healing at delta={Time.deltaTime}");
+                        float energyDemand =
+                            20
+                            * delta
+                            //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //if slower, cost less
+                            * effective //if clamped, cost less
+                            ;
+                        PowerManager.TrySpendEnergy(energyDemand);
+
+                        liveMixin.AddHealth(clamped);
+                        Control.isHealing = true;
+
+                    }
+                    else if (isInCriticalRecovery)
+                    {
+                        ErrorMessage.AddMessage(Language.main.Get($"CriticalHealth.RepairDone"));
+
+                        Log.Warn($"Emergency healing concluded switching off");
+                        isInCriticalRecovery = false;
+                        liveMixin.invincible = false;
+                    }
 
 
-                    var actuallyHealed = clamped;
-                    liveMixin.AddHealth(actuallyHealed);
-                    Control.isHealing = true;
+                    else if (!Control.batteryDead)
+                    {
+                        float level = RepairModule.GetRelativeSelfRepair(RepairModule.GetFrom(this));
 
+                        if (liveMixin.health < liveMixin.maxHealth && level > 0)
+                        {
+                            var healing = liveMixin.maxHealth
+                                * delta
+                                * level
+                                //* 0.02f //max = 2% of max health per second
+                                //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //default will be 5 seconds per 1%
+                                ;
+
+                            var clamped = Mathf.Min(healing, liveMixin.maxHealth - liveMixin.health);
+                            var effective = clamped / healing;
+                            //Debug.Log($"Healing at delta={Time.deltaTime}");
+                            float energyDemand =
+                                10
+                                * delta
+                                //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //if slower, cost less
+                                * effective //if clamped, cost less
+                                ;
+
+                            PowerManager.TrySpendEnergy(energyDemand);
+                            var actuallyHealed = clamped;
+                            liveMixin.AddHealth(actuallyHealed);
+                            Control.isHealing = true;
+                        }
+                    }
                 }
-
-
                 Control.maxHealth = liveMixin.maxHealth;
                 Control.currentHealth = liveMixin.health;
 
@@ -836,14 +875,14 @@ namespace Subnautica_Archon
             }
         }
 
-        private void ProcessEngine(bool lowPower)
+        private void ProcessEngine()
         {
             if (engine == null)
             {
                 return;
             }
             engine.overdriveActive = 0;
-            engine.doNotAccelerate = Control.doAutoLevel;
+            engine.doNotAccelerate = Control.doAutoLevel || Control.batteryDead;
             engine.freeCamera = Control.freeCamera;
             //return;
 
@@ -886,21 +925,32 @@ namespace Subnautica_Archon
             {
                 if (GameInput.GetButtonDown(GameInput.Button.RightHand))
                 {
-                    Control.lights = !Control.lights;
-                    if (Control.lights)
-                    {
-                        LightsOnSound.Stop();
-                        LightsOnSound.Play();
-                    }
-                    else
-                    {
-                        LightsOffSound.Stop();
-                        LightsOffSound.Play();
-                    }
-
+                    SetLights(!Control.lights);
                 }
             }
 
+        }
+
+        private void SetLights(bool on)
+        {
+            if (Control.lights == on)
+                return;
+            if (on && !Control.lights && Control.batteryDead)
+            {
+                Log.Warn($"Battery dead. Cannot turn lights on");
+                return;
+            }
+            Control.lights = on;
+            if (on)
+            {
+                LightsOnSound.Stop();
+                LightsOnSound.Play();
+            }
+            else
+            {
+                LightsOffSound.Stop();
+                LightsOffSound.Play();
+            }
         }
 
         /// <summary>
@@ -958,7 +1008,7 @@ namespace Subnautica_Archon
         }
 
 
-        private MenuTracker MenuTracker { get; }
+        private MenuTracker MenuTracker { get; } = new MenuTracker();
 
         private IEnumerator ReenableColliders()
         {
@@ -1026,6 +1076,7 @@ namespace Subnautica_Archon
                     if (Control.IsBoardedButNotControlled)
                     {
                         Log.Write("Debug action");
+                        Log.Write($"@{transform.position}");
                         //TryFixLostBuildFocus();
                         //Control.interiorColliders.gameObject.SetActive(false);
                         //StartCoroutine(ReenableColliders());
@@ -1037,24 +1088,29 @@ namespace Subnautica_Archon
 
                 if (!liveMixin.IsAlive() || wasDead)
                 {
-                    wasDead = true;
-                    deathAge += Time.deltaTime;
-                    if (deathAge > 1.5f)
-                    {
-                        Log.Write($"Emitting pseudo self destruct");
-                        Control.SelfDestruct(true);
-                        Log.Write($"Calling OnSalvage");
-                        OnSalvage();
-                        enabled = false;
-                        Log.Write($"Done?");
-                        return;
-                    }
+                    Log.Warn($"Vehicle reported as dead. Reviving. Setting invincible");
+                    wasDead = false;
+                    liveMixin.health = liveMixin.maxHealth * 0.01f;
+                    liveMixin.invincible = true;    //archon is immortal
+                    //                    wasDead = true;
+                    //deathAge += Time.deltaTime;
+                    //if (deathAge > 1.5f)
+                    //{
+                    //    Log.Write($"Emitting pseudo self destruct");
+                    //    Control.SelfDestruct(true);
+                    //    Log.Write($"Calling OnSalvage");
+                    //    OnSalvage();
+                    //    enabled = false;
+                    //    Log.Write($"Done?");
+                    //    return;
+                    //}
                 }
 
                 //ArchonControl.targetArrows = MainPatcher.PluginConfig.targetArrows;
 
 
                 Vector2 lookDelta = GameInput.GetLookDelta();
+
                 if (Character.IsAnyMenuOpen)
                     Control.lookRightAxis = Control.lookUpAxis = 0;
                 else
@@ -1063,8 +1119,8 @@ namespace Subnautica_Archon
                     Control.lookUpAxis = lookDelta.y * 0.1f;
                 }
 
-                ProcessEnergyRecharge(out var lowPower, out var criticalPower);
-                ProcessRegeneration(criticalPower);
+                ProcessEnergyRecharge();
+                ProcessRegeneration();
                 ForwardControlAxes();
                 ProcessTriggers();
 
@@ -1090,7 +1146,7 @@ namespace Subnautica_Archon
                     && engine != null)
                     engine.freeCamera = Control.freeCamera = !Control.freeCamera;
 
-                ProcessEngine(lowPower);
+                ProcessEngine();
                 RepositionCamera();
 
                 if (energyInterface != null)
@@ -1123,11 +1179,13 @@ namespace Subnautica_Archon
         public void OnBatteryDead()
         {
             Control.batteryDead = true;
+            SetLights(false);
         }
 
         public void OnBatteryRevive()
         {
             Control.batteryDead = false;
+            SetLights(true);
         }
 
         public void OnBatterySafe()
@@ -1151,24 +1209,24 @@ namespace Subnautica_Archon
             //var tm = GetTorpedoMark();
             //var bm = GetBatteryMark();
             //var dm = GetDriveMark();
-            //var rm = GetSelfRepairMark();
-            //moduleCounts[(int)moduleType] = count;
+            var rm = RepairModule.GetFrom(this);
+            moduleCounts[(int)moduleType] = count;
             //var tm2 = GetTorpedoMark();
             //var bm2 = GetBatteryMark();
             //var dm2 = GetDriveMark();
-            //var rm2 = GetSelfRepairMark();
-            //if (!destroyed)
-            //{
-            //    if (tm != tm2)
-            //        ErrorMessage.AddMessage(string.Format(Language.main.Get($"torpedoCapChanged"), VehicleName, Language.main.Get("cap_t_" + tm2)));
-            //    if (bm != bm2)
-            //        ErrorMessage.AddMessage(string.Format(Language.main.Get($"batteryCapChanged"), VehicleName, Language.main.Get("cap_b_" + bm2)));
-            //    if (dm != dm2)
-            //        ErrorMessage.AddMessage(string.Format(Language.main.Get($"boostCapChanged"), VehicleName, Language.main.Get("cap_d_" + dm2)));
-            //    if (rm != rm2)
-            //        ErrorMessage.AddMessage(string.Format(Language.main.Get($"repairCapChanged"), VehicleName, Language.main.Get("cap_r_" + rm2)));
-            //}
-            //Debug.Log($"Changed counts of {moduleType} to {moduleCounts[(int)moduleType]}");
+            var rm2 = RepairModule.GetFrom(this);
+            if (!destroyed && hadUnpausedFrame)
+            {
+                //if (tm != tm2)
+                //    ErrorMessage.AddMessage(string.Format(Language.main.Get($"torpedoCapChanged"), VehicleName, Language.main.Get("cap_t_" + tm2)));
+                //if (bm != bm2)
+                //    ErrorMessage.AddMessage(string.Format(Language.main.Get($"batteryCapChanged"), VehicleName, Language.main.Get("cap_b_" + bm2)));
+                //if (dm != dm2)
+                //    ErrorMessage.AddMessage(string.Format(Language.main.Get($"boostCapChanged"), VehicleName, Language.main.Get("cap_d_" + dm2)));
+                if (rm != rm2)
+                    ErrorMessage.AddMessage(Language.main.GetFormat($"repairCapChanged", VehicleName, Language.main.Get("cap_r_" + rm2)));
+            }
+            Debug.Log($"Changed counts of {moduleType} to {moduleCounts[(int)moduleType]}");
         }
 
         internal void EnterFromDocking()

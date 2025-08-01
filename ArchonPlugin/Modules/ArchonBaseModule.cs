@@ -5,10 +5,9 @@ using Subnautica_Archon.Exceptions;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
-public abstract class ArchonBaseModule : AvsVehicleUpgrade
+public abstract class ArchonBaseModule : AvsVehicleModule
 {
     public ArchonModule Module { get; }
     private Atlas.Sprite? icon;
@@ -16,7 +15,7 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
     public TechType TechType { get; private set; }
 
 
-    public virtual IReadOnlyCollection<TechType> AutoDisplace { get; } = Array.Empty<TechType>();
+
     public override string ClassId => $"Archon{Module}";
 
     public override string Description => Language.main.Get("desc_" + Module);
@@ -79,6 +78,7 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
     public override bool IsVehicleSpecific => true;
     public override void OnAdded(AddActionParams param)
     {
+        base.OnAdded(param);
         var now = DateTime.Now;
 
         Log.Write($"ArchonBaseModule[{Module}].OnAdded(vehicle={param.vehicle},isAdded={param.isAdded},slot={param.slotID})");
@@ -91,35 +91,6 @@ public abstract class ArchonBaseModule : AvsVehicleUpgrade
         }
 
         var cnt = GetNumberInstalled(archon);
-        try
-        {
-            foreach (var slot in archon.slotIDs)
-            {
-                if (slot == archon.slotIDs[param.slotID])
-                    continue;
-                var p = archon.modules.GetItemInSlot(slot);
-                if (p != null)
-                {
-                    var t = p.item.GetComponent<TechTag>();
-                    if (t != null && AutoDisplace.Contains(t.type))
-                    {
-                        Debug.Log($"Evacuating extra {t.type} type from slot {slot}");
-                        if (!archon.modules.RemoveItem(p.item))
-                        {
-                            Debug.Log($"Failed remove");
-                            continue;
-                        }
-                        Inventory.main.AddPending(p.item);
-                        Debug.Log($"Inventory moved");
-                        break;
-                    }
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            Debug.LogException(e);
-        }
         archon.SetModuleCount(Module, cnt);
     }
     public override void OnRemoved(AddActionParams param)

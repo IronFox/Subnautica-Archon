@@ -1,26 +1,22 @@
-using System;
+using AVS.Util;
 using UnityEngine;
 
-public class MenuTracker
+public class MenuTracker : MonoBehaviour
 {
-    public MenuTracker(Action onOpen, Action onClose)
-    {
-        OnOpen = onOpen;
-        OnClose = onClose;
-    }
+    public delegate void ChangeTrigger();
 
-    public Action OnOpen { get; }
-    public Action OnClose { get; }
+    public event ChangeTrigger? OnOpen;
+    public event ChangeTrigger? OnClose;
     public bool IsOpen { get; private set; }
     public void Update()
     {
-        bool isOpen = IngameMenu.main.gameObject.activeSelf && Time.deltaTime == 0;
+        bool isOpen = Character.IsMainMenuOpen && Time.deltaTime == 0;
         if (isOpen != IsOpen)
         {
             if (isOpen)
-                OnOpen();
+                OnOpen?.Invoke();
             else
-                OnClose();
+                OnClose?.Invoke();
             IsOpen = isOpen;
         }
     }

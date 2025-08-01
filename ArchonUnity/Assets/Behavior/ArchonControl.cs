@@ -1,5 +1,6 @@
 ﻿using Assets.Behavior.Adapters;
 using Assets.Behavior.Interfaces;
+using Assets.Behavior.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,6 +52,7 @@ public class ArchonControl : MonoBehaviour
     public bool forceCockpitCamera;
     public bool powerOff;
     public bool batteryDead;
+    public bool reactorIsCharging;
     public bool openUpgradeCover;
     public bool lights;
 
@@ -83,6 +85,7 @@ public class ArchonControl : MonoBehaviour
 
     public float rotationDegreesPerSecond = 20;
 
+    private bool interiorLightsEnabled;
     private EnergyLevel energyLevel;
 
     private Transform cameraRoot;
@@ -221,10 +224,7 @@ public class ArchonControl : MonoBehaviour
 
         interiorLights.gameObject.SetActive(enable);
         glass?.ForEach(g => g.SetActive(enable));
-
-        GetComponentsInChildren<IInteriorLightListener>(true).ForEach(
-            listener => listener.SetInteriorLight(enable ? interiorLightScale : 0)
-            );
+        interiorLightsEnabled = enable;
     }
 
     private void MoveCameraOutOfTrailSpace(bool withCollidersAndLights)
@@ -896,8 +896,10 @@ public class ArchonControl : MonoBehaviour
                     (doAutoLevel ||
                         (!IsBoardedButNotControlled && (wasEverBoarded || !outOfWater))
                     )
-                    && !batteryDead
-                    && !powerOff
+                    && (
+                           (!batteryDead && !powerOff)
+                            || doAutoLevel
+                        )
                     ;
                 orientation.isMovingInReverse = isMovingInReverse;
                 orientation.rotationDegreesPerSecond = rotationDegreesPerSecond;
@@ -1008,20 +1010,61 @@ public class ArchonControl : MonoBehaviour
         catch (Exception ex)
         {
 
-            Debug.LogException(ex);
+            Log.LogError(nameof(ArchonControl) + "." + nameof(Update), ex);
         }
     }
 
+    private InteriorLightColor lastLightColor, interpolatingFrom;
+    private InteriorLightState lastLightState;
     private void UpdateLighting()
     {
         try
         {
             hullLightController.lightsEnabled = lights;
+
+
+            InteriorLightState lightState = new InteriorLightState(
+                interiorLightsEnabled,
+                interiorLightScale,
+                batteryDead || powerOff);
+            if (lastLightState != lightState)
+            {
+                lastLightState = lightState;
+                interpolatingFrom = lastLightColor;
+            }
+
+            var lightColor = M.Gray(interiorLightScale);
+            var stripColor = lightColor;
+            if (batteryDead || powerOff)
+                lightColor = stripColor = new Color(
+                    interiorLightScale * (0.3f + 0.3f * Mathf.Sin(Time.time * 3f)),
+                    0,
+                    0);
+            else if (interiorLightsEnabled && reactorIsCharging)
+                stripColor = Color.Lerp(stripColor, new Color(0.6f, 0.6f, 1.2f, 1f), 0.5f + 0.5f * Mathf.Sin(Time.time * 3));
+            else if (!interiorLightsEnabled)
+                stripColor = lightColor = Color.black;
+
+            InteriorLightColor newColor = new InteriorLightColor(stripColor, lightColor);
+
+            lastLightColor = InteriorLightColor.Lerp(
+                interpolatingFrom,
+                newColor,
+                Mathf.Clamp01((Time.time - interpolatingFrom.Recorded) / 1.5f));
+
+
+            var listeners = GetComponentsInChildren<ILightListener>(true);
+            listeners.ForEach(
+                listener =>
+                {
+                    listener.SetInteriorLight(lightColor: lastLightColor.LightColor, stripColor: lastLightColor.StripColor);
+                }
+                );
+
         }
         catch (Exception ex)
         {
-            Debug.LogError(nameof(UpdateLighting));
-            Debug.LogException(ex);
+            Log.LogError(nameof(UpdateLighting), ex);
         }
     }
 

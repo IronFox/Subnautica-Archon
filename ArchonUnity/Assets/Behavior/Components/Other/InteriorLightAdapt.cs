@@ -1,13 +1,19 @@
 ﻿using UnityEngine;
 
-public class InteriorLightAdapt : MonoBehaviour, IInteriorLightListener
+public class InteriorLightAdapt : MonoBehaviour, ILightListener
 {
     private Light target;
     private float intensity;
-    public void SetInteriorLight(float strength)
+
+    public void SetExteriorLightStrip(Color stripColor) { }
+
+    public void SetInteriorLight(Color lightColor, Color stripColor)
     {
         if (target)
-            target.intensity = intensity * strength;
+        {
+            target.color = lightColor;
+            target.intensity = 1;
+        }
     }
     void Awake()
     {
