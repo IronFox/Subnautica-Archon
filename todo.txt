@@ -1,15 +1,12 @@
 before release:
 
-* self repair
-* immobility if power or health critical
+* add more batteries
+* self repair glow
 * add upgrade panel
 * add localization
 * add front railing support
-* emergency teleportation (consumes an upgrade slot)
-* check location of docked subs, seems to be off
+* emergency teleportation (permanently bound to first quickslot)
 * model and replace seat
-* make lights and light strip fade in/out
-* make light strips pulse when the bioreactor is active
 * keep 3rd person camera center above the submarine
 * recheck that vehicles receive undock event when undocked for saving
 * rotating drive blades
@@ -19,9 +16,10 @@ before release:
 * add docking slot upgrade module(s)
 * limit water tank to Creature/CreatureEgg
 	+ maybe check for presence of WaterParkCreature
-* close 3rd person camera clips into hull at rear end
-* apply airlock sounds to right side
+* close 3rd person camera clips into hull at rear end and nose depending on inclination
+* right side airlock sounds missing
 * add reactor sound
+* disable map when powered off or battery dead
 
 
 no:
@@ -30,6 +28,7 @@ no:
 
 later:
 
+* zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit
 * velocity upgrades
 * revise front side inner colliders around airlock
 * evacuate fish
@@ -53,6 +52,10 @@ later:
 		CreatureAction.swimBehaviour (SwimBehaviour)
 
 done:
+* make light strips pulse when the bioreactor is active
+* make lights and light strip fade in/out
+* check location of docked subs, seems to be off (weird but seems harmless)
+* self repair
 * add basic sounds
 * even upper front inner hull shape
 * fix vehicle rotating down in non-free camera mode and the menu open
