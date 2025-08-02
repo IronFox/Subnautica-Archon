@@ -1470,8 +1470,8 @@ namespace Subnautica_Archon
                 upgrades.Add(new VehicleUpgrades(
                     @interface: ui.gameObject,
                     flap: ui.gameObject,
-                    Vector3.zero, //ui flap position
-                    Vector3.zero, //ui flap rotation
+                    openAngles: ui.eulerAngles,
+                    closedAngles: ui.eulerAngles,
                     plugProxies
                 ));
             }
@@ -1481,18 +1481,21 @@ namespace Subnautica_Archon
             var vehicleBatteries = new List<VehicleBattery>();
 
 
-            var batteries = transform.Find("Batteries");
+            var batteries = transform.Find("Interior/Batteries");
 
             if (batteries)
             {
                 for (int i = 0; i < batteries.childCount; i++)
                 {
                     var b = batteries.GetChild(i);
+                    var slot = b.Find("Slot");
+                    if (slot == null)
+                        Log.Warn($"Battery slot not found in {b.NiceName()}");
                     if (b != null)
                     {
                         vehicleBatteries.Add(new VehicleBattery(
                             batterySlot: b.gameObject,
-                            batteryProxy: b
+                            batteryProxy: slot.OrRequired(b)
                         ));
                     }
                 }
