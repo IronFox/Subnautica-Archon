@@ -1444,8 +1444,9 @@ namespace Subnautica_Archon
             }
 
             var upgrades = new List<VehicleUpgrades>();
-            var ui = transform.Find("Interior/Upgrade Panel");
-            var plugs = transform.Find("Module Plugs");
+            var upgradeContainer = transform.Find("Interior/Upgrade Panel");
+            var ui = upgradeContainer.Find("Panel");
+            var plugs = upgradeContainer.Find("Slots");
 
             var plugProxies = new List<Transform>();
             if (plugs)
@@ -1453,11 +1454,11 @@ namespace Subnautica_Archon
                 for (int i = 0; i < plugs.childCount; i++)
                 {
                     var plug = plugs.GetChild(i);
-                    var position = plug.Find("Module Position");
+                    var position = plug.Find("Proxy");
                     if (position != null)
                         plugProxies.Add(position);
                     else
-                        Log.Write($"Plug {plug.name} does not have a 'Module Position' child");
+                        Log.Write($"Plug {plug.NiceName()} does not have a 'Proxy' child");
                 }
             }
             else
@@ -1478,30 +1479,30 @@ namespace Subnautica_Archon
             else
                 Log.Write($"Upgrades interface not found");
 
-            var vehicleBatteries = new List<VehicleBattery>();
+            var vehicleBatteries = new List<VehiclePowerCellDefinition>();
 
 
-            var batteries = transform.Find("Interior/Batteries");
+            var cells = transform.Find("Interior/Power Cell Panel/Cells");
 
-            if (batteries)
+            if (cells)
             {
-                for (int i = 0; i < batteries.childCount; i++)
+                for (int i = 0; i < cells.childCount; i++)
                 {
-                    var b = batteries.GetChild(i);
+                    var b = cells.GetChild(i);
                     var slot = b.Find("Slot");
                     if (slot == null)
-                        Log.Warn($"Battery slot not found in {b.NiceName()}");
+                        Log.Warn($"Power cell slot not found in {b.NiceName()}");
                     if (b != null)
                     {
-                        vehicleBatteries.Add(new VehicleBattery(
-                            batterySlot: b.gameObject,
+                        vehicleBatteries.Add(new VehiclePowerCellDefinition(
+                            root: b.gameObject,
                             batteryProxy: slot.OrRequired(b)
                         ));
                     }
                 }
             }
             else
-                Log.Write($"Unable to locate 'Batteries' child");
+                Log.Write($"Unable to locate 'Interior/Power Cell Panel/Cells' child");
 
             var helms = new List<Helm>();
             var helm = transform.Find("Helm");

@@ -54,6 +54,114 @@ ModelImporter:
   - first:
       74: 806797326581108584
     second: Right Cover|Left CoverAction.001
+  - first:
+      74: -8120719568473385746
+    second: Bay|Console Cover LeftAction
+  - first:
+      74: 3314721287767795700
+    second: Bay|Console Cover RightAction
+  - first:
+      74: 2892320967599651370
+    second: Bay Door|Console Cover LeftAction
+  - first:
+      74: -6338753017318599221
+    second: Bay Door|Console Cover RightAction
+  - first:
+      74: -305685045200881620
+    second: Bay Door.001|Console Cover LeftAction
+  - first:
+      74: -7565567751173772297
+    second: Bay Door.001|Console Cover RightAction
+  - first:
+      74: 1410952702041389341
+    second: Bay Door.002|Console Cover LeftAction
+  - first:
+      74: 4978956148582882623
+    second: Bay Door.002|Console Cover RightAction
+  - first:
+      74: -7773941036832572075
+    second: Console Cover Left|Console Cover LeftAction
+  - first:
+      74: 4792526748444009000
+    second: Console Cover Left|Console Cover RightAction
+  - first:
+      74: -7921710923477300603
+    second: Console Cover Right|Console Cover LeftAction
+  - first:
+      74: -3366530399199536921
+    second: Console Cover Right|Console Cover RightAction
+  - first:
+      74: -7197439638619325327
+    second: Left Cover|Console Cover LeftAction
+  - first:
+      74: 8617995973302164182
+    second: Left Cover|Console Cover RightAction
+  - first:
+      74: 1534471450346197464
+    second: Right Cover|Console Cover LeftAction
+  - first:
+      74: 4052255140747404342
+    second: Right Cover|Console Cover RightAction
+  - first:
+      74: 7615215640810279398
+    second: Console Cover Left Open|Console Cover LeftAction
+  - first:
+      74: -8140784379034386042
+    second: Console Cover Left Open|Console Cover RightAction
+  - first:
+      74: -66279550796897999
+    second: Console Cover Right Open|Console Cover LeftAction
+  - first:
+      74: -8814930496440999645
+    second: Console Cover Right Open|Console Cover RightAction
+  - first:
+      74: -6514280399669949664
+    second: Bay|Console Cover LeftAction (Open)
+  - first:
+      74: 1287141753080802917
+    second: Bay|Console Cover RightAction (Open)
+  - first:
+      74: -2079057950293815996
+    second: Bay Door|Console Cover LeftAction (Open)
+  - first:
+      74: -3947506134584401001
+    second: Bay Door|Console Cover RightAction (Open)
+  - first:
+      74: -6464322881727945269
+    second: Bay Door.001|Console Cover LeftAction (Open)
+  - first:
+      74: -7869762647636628060
+    second: Bay Door.001|Console Cover RightAction (Open)
+  - first:
+      74: -6463966299148862381
+    second: Bay Door.002|Console Cover LeftAction (Open)
+  - first:
+      74: 5682180584621887765
+    second: Bay Door.002|Console Cover RightAction (Open)
+  - first:
+      74: 1905448360448347878
+    second: Console Cover Left|Console Cover LeftAction (Open)
+  - first:
+      74: -3966147446165645578
+    second: Console Cover Left|Console Cover RightAction (Open)
+  - first:
+      74: -4679489002806268931
+    second: Console Cover Right|Console Cover LeftAction (Open)
+  - first:
+      74: 3722695465927284673
+    second: Console Cover Right|Console Cover RightAction (Open)
+  - first:
+      74: 7284132910680153994
+    second: Left Cover|Console Cover LeftAction (Open)
+  - first:
+      74: -8251413200965957716
+    second: Left Cover|Console Cover RightAction (Open)
+  - first:
+      74: -1331108706743452903
+    second: Right Cover|Console Cover LeftAction (Open)
+  - first:
+      74: 798159611456486021
+    second: Right Cover|Console Cover RightAction (Open)
   externalObjects: {}
   materials:
     materialImportMode: 1

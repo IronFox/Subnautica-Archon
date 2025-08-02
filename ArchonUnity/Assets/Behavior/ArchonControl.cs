@@ -25,6 +25,11 @@ public class ArchonControl : MonoBehaviour
     public Renderer interiorExteriorShadowCaster;
     public Material mapHologramMaterial;
 
+    public PlayerDetector powerCellPlayerDetector;
+
+    public AnimationController upgradeCoverAnimation;
+    public AnimationController powerCellAnimation;
+
     public float forwardAxis;
     public float rightAxis;
     public float upAxis;
@@ -54,6 +59,7 @@ public class ArchonControl : MonoBehaviour
     public bool batteryDead;
     public bool reactorIsCharging;
     public bool openUpgradeCover;
+    public bool openPowerCellCover;
     public bool lights;
 
     public int maxDockedVehicles = 2;
@@ -539,8 +545,17 @@ public class ArchonControl : MonoBehaviour
 
     private bool OnboardingCooldown => DateTime.Now - lastOnboarded < TimeSpan.FromSeconds(1);
 
-    private void ProcessUpgradeCover()
+    private void ProcessCovers()
     {
+        try
+        {
+            upgradeCoverAnimation.animateTowardsEnd = openUpgradeCover;
+            powerCellAnimation.animateTowardsEnd = openPowerCellCover || powerCellPlayerDetector.HasPlayer;
+        }
+        catch (Exception ex)
+        {
+            Log.LogError(nameof(ProcessCovers), ex);
+        }
         //if (openUpgradeCover)
         //{
         //    if (upgradeCoverAnimation.IsAtBeginning)
@@ -985,7 +1000,7 @@ public class ArchonControl : MonoBehaviour
 
             MonitorPhysics();
 
-            ProcessUpgradeCover();
+            ProcessCovers();
 
             UpdateRudders();
 

@@ -1,5 +1,5 @@
-
 using HarmonyLib;
+using Subnautica_Archon.Util;
 using System.Collections;
 using UnityEngine;
 
@@ -22,11 +22,11 @@ namespace Subnautica_Archon
             }
             if (control == null)
             {
-                Debug.LogWarning($"Control is null in {nameof(closeDoorSoon)}");
+                Log.Warn($"VehicleUpgradeConsoleInputPatcher.closeDoorSoon: Control is null in {nameof(closeDoorSoon)}");
             }
             else
             {
-                Debug.LogWarning($"Timeout passed. Closing");
+                Log.Warn($"VehicleUpgradeConsoleInputPatcher.closeDoorSoon: Timeout passed. Closing");
                 control.openUpgradeCover = false;
             }
             closeDoorCor = null;
@@ -40,6 +40,7 @@ namespace Subnautica_Archon
             // control opening the modules hatch
             if (__instance.GetComponentInParent<Archon>() != null)
             {
+                Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnHandHoverPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
                 __instance.GetComponentInParent<ArchonControl>().openUpgradeCover = true;
                 timeUntilClose = openDuration;
                 if (closeDoorCor == null)
@@ -57,6 +58,7 @@ namespace Subnautica_Archon
             // control opening the modules hatch
             if (__instance.GetComponentInParent<ArchonControl>() != null)
             {
+                Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOpenPDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
                 UWE.CoroutineHost.StopCoroutine(closeDoorCor);
             }
         }
@@ -69,6 +71,7 @@ namespace Subnautica_Archon
             // control opening the modules hatch
             if (__instance.GetComponentInParent<ArchonControl>() != null)
             {
+                Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnClosePDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
                 closeDoorCor = UWE.CoroutineHost.StartCoroutine(closeDoorSoon(__instance.GetComponentInParent<ArchonControl>()));
             }
         }
