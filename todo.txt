@@ -1,8 +1,6 @@
 before release:
 
-* add more batteries
 * self repair glow
-* add upgrade panel
 * add localization
 * add front railing support
 * emergency teleportation (permanently bound to first quickslot)
@@ -12,7 +10,6 @@ before release:
 * rotating drive blades
 * improve airlock sounds
 * make ping icon code modification coexist with itself (daisy chain)
-* add battery panel
 * add docking slot upgrade module(s)
 * limit water tank to Creature/CreatureEgg
 	+ maybe check for presence of WaterParkCreature
@@ -52,6 +49,9 @@ later:
 		CreatureAction.swimBehaviour (SwimBehaviour)
 
 done:
+* add battery panel
+* add upgrade panel
+* add more batteries
 * make light strips pulse when the bioreactor is active
 * make lights and light strip fade in/out
 * check location of docked subs, seems to be off (weird but seems harmless)
