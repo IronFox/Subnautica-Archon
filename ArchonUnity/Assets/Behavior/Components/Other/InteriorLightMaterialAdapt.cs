@@ -10,7 +10,7 @@ public class InteriorLightMaterialAdapt : MonoBehaviour, ILightListener
     public void SetInteriorLight(Color lightColor, Color stripColor)
     {
         var renderer = GetComponent<Renderer>();
-        var v = M.ScaleRGB(stripColor, 1.4f);
+        var v = M.ScaleRGB(stripColor, 1.2f);
         foreach (var c in change)
         {
             var m = renderer.materials[c.Index];
