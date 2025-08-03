@@ -74,8 +74,8 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 0.35, y: 0.35, z: 1.1265497}
-  m_Center: {x: 0, y: 0, z: 0.063274875}
+  m_Size: {x: 0.35, y: 0.35, z: 1.073856}
+  m_Center: {x: 0, y: 0, z: 0.036928117}
 --- !u!1 &4736089890236200169
 GameObject:
   m_ObjectHideFlags: 0
@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 4966496329314399127}
   - component: {fileID: 6371332408337283337}
   - component: {fileID: 9176147046916039435}
+  - component: {fileID: 986028631430718446}
   m_Layer: 0
   m_Name: Power Cell Container
   m_TagString: Untagged
@@ -157,3 +158,15 @@ MeshRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
+--- !u!114 &986028631430718446
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4736089890236200169}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e2c1ca79da5d8d46998add3f70ebfc1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
