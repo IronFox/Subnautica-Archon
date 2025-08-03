@@ -1,8 +1,6 @@
 before release:
 
-* add front railing support
 * emergency teleportation (permanently bound to first quickslot)
-* model and replace seat
 * keep 3rd person camera center above the submarine
 * recheck that vehicles receive undock event when undocked for saving
 * rotating drive blades
@@ -20,6 +18,7 @@ before release:
 * add panel AR text (upgrades, power)
 * prevent docking upgrade being removed while docked subs too high
 * add localization
+* model and replace seat
 
 no:
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
@@ -51,7 +50,16 @@ later:
 		SwimRandom:CreatureAction
 		CreatureAction.swimBehaviour (SwimBehaviour)
 
+* FindMyUpdate support:
+	https://discord.com/channels/324207629784186882/1190308479731241020/1393654605493309662
+	Add a json file on the internet, but most convenient to be in your project: example
+	Add one line to your plugin Awake() or Start()
+	ModMessageSystem.SendGlobal("FindMyUpdates", "URL (raw) to your json file")
+	Done. If users have Find My Updates installed, your mod will be checked for updates using the information in the json file 
+
+
 done:
+* add front railing support
 * unify left and right console lights
 * self repair glow
 * add battery panel

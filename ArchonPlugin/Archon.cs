@@ -40,6 +40,7 @@ namespace Subnautica_Archon
 
         public LogWriter Log { get; }
 
+
         public static readonly VehicleColor defaultBaseColor = new VehicleColor(new Color(0xDE, 0xDE, 0xDE) / 255f);
         public static readonly VehicleColor defaultStripeColor = new VehicleColor(new Color(0x3F, 0x4C, 0x7A) / 255f);
 
@@ -147,6 +148,29 @@ namespace Subnautica_Archon
                 SetBaseColor(defaultBaseColor);
                 SetStripeColor(defaultStripeColor);
             }
+
+
+            if (whenReadySlotInstanceOf != null)
+            {
+                Log.Write($"onAwakeSlot is set to {whenReadySlotInstanceOf.NiceName()}. Instantiating");
+                var instance = Instantiate(whenReadySlotInstanceOf.gameObject, modulesRoot.transform).SafeGetComponent<Pickupable>();
+                Log.Write($"Slotting instance {instance.NiceName()}");
+                InventoryItem thisItem = new InventoryItem(instance);
+                if (modules.AddItem(slotIDs[0], thisItem, true))
+                {
+                    Log.Write($"Slotted. Modules now: ");
+                    foreach (var slot in slotIDs)
+                    {
+                        Log.Write($"Slot {slot} has item [{modules.GetItemInSlot(slot)?.item.NiceName()}]");
+                    }
+                }
+                else
+                    Log.Error($"Failed to slot {instance.NiceName()} in slot {slotIDs[0]}");
+            }
+            else
+                Log.Write($"onAwakeSlot is not set");
+
+
 
             Control.RedetectDocked();
         }
@@ -262,9 +286,9 @@ namespace Subnautica_Archon
             //    loadSave = gameObject.AddComponent<LoadSaveComponent>();
             //loadSave.control = control;
 
-            Destroy(modulesRoot);
+            //Destroy(modulesRoot);
 
-            modulesRoot = control.hangarRoot.gameObject.AddComponent<ChildObjectIdentifier>();
+            //modulesRoot = control.hangarRoot.gameObject.AddComponent<ChildObjectIdentifier>();
 
             var interior = transform.Find("Interior");
             if (interior)
@@ -306,25 +330,6 @@ namespace Subnautica_Archon
 
 
             base.Awake();
-
-            //Log.Write("Checking quickslots");
-            //foreach (var s in QuickSlots)
-            //{
-            //    var mod = modules.GetItemInSlot(s.ID);
-            //    if (mod != null && mod.item == null)
-            //    {
-            //        Log.Error($"Found invalid item in slot {s}. Purging");
-            //        modules.RemoveItem(s.ID, true, false);
-            //    }
-            //}
-
-
-            //var cameraController = gameObject.GetComponentInChildren<AVS.VehicleComponents.MVCameraController>();
-            //if (cameraController)
-            //{
-            //    Log.Write($"Destroying camera controller {cameraController}");
-            //    Destroy(cameraController);
-            //}
 
 
         }
@@ -544,6 +549,8 @@ namespace Subnautica_Archon
                 LazyInit();
 
                 base.Start();
+
+
                 Log.Write(nameof(Start) + " done");
 
             }
@@ -1073,10 +1080,17 @@ namespace Subnautica_Archon
                      *      not in something of a deadzone where building is always terminated. Only the player's location is relevant,
                      *      where they aim at can be outside this zone.
                      */
-                    if (Control.IsBoardedButNotControlled)
+                    //if (Control.IsBoardedButNotControlled)
                     {
                         Log.Write("Debug action");
                         Log.Write($"@{transform.position}");
+
+                        Log.Write($"Modules now: ");
+                        foreach (var slot in slotIDs)
+                        {
+                            Log.Write($"Slot {slot} has item [{modules.GetItemInSlot(slot)?.item.NiceName()}]");
+                        }
+
                         //TryFixLostBuildFocus();
                         //Control.interiorColliders.gameObject.SetActive(false);
                         //StartCoroutine(ReenableColliders());
@@ -1265,6 +1279,10 @@ namespace Subnautica_Archon
         //        : base.ExitRollLimit;
 
         private bool exitLimitsSuspended = false;
+
+        [SerializeField]
+        internal Pickupable? whenReadySlotInstanceOf;
+
         internal void SuspendAutoLeveling()
         {
             exitLimitsSuspended = true;

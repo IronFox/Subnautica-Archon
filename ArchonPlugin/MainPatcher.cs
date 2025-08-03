@@ -1,6 +1,7 @@
 ﻿using AVS;
 using AVS.Assets;
 using AVS.Patches;
+using AVS.UpgradeModules;
 using AVS.Util;
 using BepInEx;
 using HarmonyLib;
@@ -102,11 +103,32 @@ namespace Subnautica_Archon
         }
 
 
+        private IEnumerator MyRegister(Archon archon, bool verbose)
+        {
+            var node = Node.Create("ArchonEmergencyModule", Language.main.Get("group_EmergencyModule"), SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png").AtlasSprite);
+            var autoAdd = EmergencyTeleportationModule.Register(node);
+
+            Log.Write($"Loading emergency teleportation module: {autoAdd}");
+            var coroutine = CraftData.GetPrefabForTechTypeAsync(autoAdd);
+            yield return coroutine;
+            var instance = coroutine.GetResult();
+            Log.Write($"Got module: {instance.NiceName()}");
+            var pickupable = instance.SafeGetComponent<Pickupable>();
+            if (pickupable == null)
+            {
+                Log.Error($"Pickupable not found on {instance.NiceName()}");
+            }
+            else
+            {
+                archon.whenReadySlotInstanceOf = pickupable;
+            }
+            yield return VehicleRegistrar.RegisterVehicle(archon, verbose);
+        }
+
+
         public IEnumerator Register(GameObject staticModel)
         {
             Log.Write("Loading water park");
-            yield return WaterPark.InitializeAsync();
-            Log.Write("Water park loaded");
 
             Coroutine? started = null;
             try
@@ -116,7 +138,7 @@ namespace Subnautica_Archon
                 var sub = staticModel.EnsureComponent<Archon>();
                 Log.Write("archon attached: " + sub.name);
 
-                started = UWE.CoroutineHost.StartCoroutine(VehicleRegistrar.RegisterVehicle(sub, true));
+                started = UWE.CoroutineHost.StartCoroutine(MyRegister(sub, true));
 
                 Assets.Behavior.Adapters.Log.AdapterFactory =
                     tags => new LogAdapter(tags);
@@ -125,6 +147,11 @@ namespace Subnautica_Archon
                 //DriveModule.RegisterAll();
                 //NuclearBatteryModule.RegisterAll();
                 RepairModule.RegisterAll();
+
+
+
+
+
 
                 AudioPatcher.Patcher = (source) => FreezeTimePatcher.Register(source);
 
