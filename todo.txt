@@ -1,6 +1,5 @@
 before release:
 
-* add localization
 * add front railing support
 * emergency teleportation (permanently bound to first quickslot)
 * model and replace seat
@@ -20,6 +19,7 @@ before release:
 * adjust healing energy demand to new battery capacity
 * add panel AR text (upgrades, power)
 * prevent docking upgrade being removed while docked subs too high
+* add localization
 
 no:
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
@@ -52,6 +52,7 @@ later:
 		CreatureAction.swimBehaviour (SwimBehaviour)
 
 done:
+* unify left and right console lights
 * self repair glow
 * add battery panel
 * add upgrade panel
