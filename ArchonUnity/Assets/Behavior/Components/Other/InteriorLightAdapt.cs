@@ -12,7 +12,6 @@ public class InteriorLightAdapt : MonoBehaviour, ILightListener
         if (target)
         {
             target.color = lightColor;
-            target.intensity = 1;
         }
     }
     void Awake()
