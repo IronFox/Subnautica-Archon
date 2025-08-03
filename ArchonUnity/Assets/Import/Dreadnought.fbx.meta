@@ -162,6 +162,12 @@ ModelImporter:
   - first:
       74: 798159611456486021
     second: Right Cover|Console Cover RightAction (Open)
+  - first:
+      74: -6198157630561223460
+    second: Simplified Hull|Console Cover LeftAction (Open)
+  - first:
+      74: -2265485606759344796
+    second: Simplified Hull|Console Cover RightAction (Open)
   externalObjects: {}
   materials:
     materialImportMode: 1

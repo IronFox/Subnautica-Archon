@@ -1,6 +1,5 @@
 before release:
 
-* self repair glow
 * add localization
 * add front railing support
 * emergency teleportation (permanently bound to first quickslot)
@@ -17,7 +16,10 @@ before release:
 * right side airlock sounds missing
 * add reactor sound
 * disable map when powered off or battery dead
-
+* simplify map ship (with simplified hull)
+* adjust healing energy demand to new battery capacity
+* add panel AR text (upgrades, power)
+* prevent docking upgrade being removed while docked subs too high
 
 no:
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
@@ -25,6 +27,7 @@ no:
 
 later:
 
+* change power cell slot bright color to highlight status. Show status on panel AR
 * zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit
 * velocity upgrades
 * revise front side inner colliders around airlock
@@ -49,6 +52,7 @@ later:
 		CreatureAction.swimBehaviour (SwimBehaviour)
 
 done:
+* self repair glow
 * add battery panel
 * add upgrade panel
 * add more batteries
