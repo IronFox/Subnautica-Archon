@@ -1065,7 +1065,7 @@ public class ArchonControl : MonoBehaviour
             lastLightColor = InteriorLightColor.Lerp(
                 interpolatingFrom,
                 newColor,
-                Mathf.Clamp01((Time.time - interpolatingFrom.Recorded) / 1.5f));
+                Mathf.Clamp01((Time.time - interpolatingFrom.Recorded) / 0.9f));
 
 
             var listeners = GetComponentsInChildren<ILightListener>(true);
