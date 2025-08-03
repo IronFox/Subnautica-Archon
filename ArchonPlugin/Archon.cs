@@ -54,6 +54,8 @@ namespace Subnautica_Archon
         private float deathAge;
         //private MyLogger Log { get; }
         private MassDrive? engine;
+        public MassDrive Engine => engine.OrThrow(
+            () => new InvalidOperationException($"Trying to access Engine before Awake()"));
         private EnergyInterface? energyInterface;
         private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
 

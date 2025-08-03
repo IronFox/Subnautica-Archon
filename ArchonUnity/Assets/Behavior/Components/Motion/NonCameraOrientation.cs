@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class NonCameraOrientation : MonoBehaviour, IDirectionSource
 {
@@ -22,11 +20,14 @@ public class NonCameraOrientation : MonoBehaviour, IDirectionSource
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
 
-
+    internal void SignalTeleported()
+    {
+        rot = LockedEuler.FromGlobal(transform);
+    }
     // Update is called once per frame
     void Update()
     {

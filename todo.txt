@@ -1,6 +1,6 @@
 before release:
 
-* emergency teleportation (permanently bound to first quickslot)
+* restyle self repair module images
 * keep 3rd person camera center above the submarine
 * recheck that vehicles receive undock event when undocked for saving
 * rotating drive blades
@@ -21,6 +21,7 @@ before release:
 * model and replace seat
 
 no:
+
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
 * add AVS fabricator to pre-built mesh (every spot is potentially bad)
 
@@ -59,6 +60,9 @@ later:
 
 
 done:
+
+* add teleportation audio visuals
+* emergency teleportation (permanently bound to first quickslot)
 * add front railing support
 * unify left and right console lights
 * self repair glow
@@ -119,6 +123,8 @@ bay door slide:
 airlock whirl:
 	https://freesound.org/people/pkri/sounds/587511/
 	
+teleport sound:
+	Teleporter.wav by aj_heels -- https://freesound.org/s/523591/ -- License: Attribution 4.0
 	
 	185, 200, 255
 	

@@ -40,6 +40,12 @@ namespace Subnautica_Archon
         {
         }
 
+        public override void KillMomentum()
+        {
+            base.KillMomentum();
+            RB.velocity = Vector3.zero;
+        }
+
         protected override void MoveWithInput(Vector3 moveInput)
         {
             //default = 3/4 * 5 / 2.25 = 166%

@@ -30,6 +30,9 @@ public class ArchonControl : MonoBehaviour
     public AnimationController upgradeCoverAnimation;
     public AnimationController powerCellAnimation;
 
+    public TeleportationAnimation teleportationAnimation;
+
+    public float secondsToTeleport = 100;
     public float forwardAxis;
     public float rightAxis;
     public float upAxis;
@@ -294,6 +297,12 @@ public class ArchonControl : MonoBehaviour
         return bayControl.CheckUndocking(dockedSub);
     }
 
+
+    public void SignalTeleported()
+    {
+        if (nonCameraOrientation)
+            nonCameraOrientation.SignalTeleported();
+    }
 
     public void SignalLoading()
     {
@@ -1021,6 +1030,8 @@ public class ArchonControl : MonoBehaviour
             UpdateDrives();
 
             UpdateLighting();
+
+            UpdateTeleportation();
         }
         catch (Exception ex)
         {
@@ -1029,8 +1040,15 @@ public class ArchonControl : MonoBehaviour
         }
     }
 
+
+    private void UpdateTeleportation()
+    {
+        teleportationAnimation.secondsToTeleport = secondsToTeleport;
+    }
+
     private InteriorLightColor lastLightColor, interpolatingFrom;
     private InteriorLightState lastLightState;
+
     private void UpdateLighting()
     {
         try

@@ -11,7 +11,7 @@ namespace Subnautica_Archon.Adapters
 {
     internal class FModSoundCreator : ISoundCreator
     {
-        public float halfDistance = 20f;
+        public float HalfDistance { get; set; } = 20f;
         private static float Sqr(float value) => value * value;
         public IInstantiatedSound? Instantiate(SoundConfig cfg)
         {
@@ -29,7 +29,7 @@ namespace Subnautica_Archon.Adapters
                 var sound = AudioUtils.CreateSound(cfg.AudioClip, mode
                     );
 
-
+                float halfDistance = M.Min(cfg.MinDistance + M.Max(HalfDistance, cfg.MinDistance * 2), cfg.MaxDistance);
 
                 List<VECTOR> rolloff = new List<VECTOR>();
                 float range = (cfg.MaxDistance - cfg.MinDistance);
@@ -38,7 +38,7 @@ namespace Subnautica_Archon.Adapters
                     float distance = Sqr((float)ix / 10) * range + cfg.MinDistance;
                     float worldDistance = distance;
 
-                    distance /= (cfg.MinDistance + halfDistance) / M.Sqrt2;
+                    distance /= halfDistance / M.Sqrt2;
                     //Log.Write($"Distance modified by halfDistance({halfDistance}): {distance}");
 
                     float volume = M.Saturate(1f / (distance * distance) - (1f / (cfg.MaxDistance * cfg.MaxDistance)));
