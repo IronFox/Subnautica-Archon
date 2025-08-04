@@ -18,6 +18,15 @@ before release:
 * adjust healing energy demand to new battery capacity
 * add localization
 * model and replace seat, model magnetic levitation visualization
+* add (emergency) teleportation hud progress bar
+* split free camera in first and third person states
+* preserve free camera and camera distance
+* default to non-free in-cockpit view
+* do not place emergency teleport in slot 1 if found in any other slot
+* add teleportation light emitter
+* tune ceiling glass curvature in nose section (seems to be very curved as to produce reflections)
+* register floor lights as AVS flood lights
+* fix visual material gap between roof and tail top section
 
 no:
 
@@ -26,6 +35,7 @@ no:
 
 later:
 
+* add name label on out- and insides. Add coloring panel
 * disable map when powered off or battery dead
 * change power cell slot bright color to highlight status. Show status on panel AR
 * zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit
