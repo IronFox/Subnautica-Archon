@@ -4,7 +4,9 @@ public class DriveControl : MonoBehaviour
 {
     // Start is called before the first frame update
 
-    public Transform[] propellers;
+    public Transform[] alwaysFullPropellers;
+    public Transform[] halfPropellers;
+    public Transform[] fullWhenCameraIsExternalPropellers;
     public float maxRPS = 100;
     private float initialLevel;
     private float initialPitch;
@@ -14,7 +16,8 @@ public class DriveControl : MonoBehaviour
     public SoundAdapter overdriveAudioSource;
     public float thrust;
     public float overdrive;
-
+    public bool cameraIsExternal;
+    private bool cameraWasExternal;
 
     private float emissionSpeed;
     private float emissionRate;
@@ -42,6 +45,38 @@ public class DriveControl : MonoBehaviour
     void Update()
     {
         thrust = Mathf.Clamp(thrust, -1, 1);
+
+
+        if (cameraWasExternal != cameraIsExternal)
+        {
+            cameraWasExternal = cameraIsExternal;
+
+            foreach (var p in fullWhenCameraIsExternalPropellers)
+            {
+                if (p != null)
+                    p.gameObject.SetActive(cameraIsExternal);
+            }
+            foreach (var p in halfPropellers)
+            {
+                if (p != null)
+                    p.gameObject.SetActive(!cameraIsExternal);
+            }
+        }
+        if (Time.deltaTime > 0)
+        {
+            var speed = -Vector3.Dot(transform.position - lastMainPosition, transform.forward) / Time.deltaTime;
+
+            float rot = maxRPS * (speed / 10 + thrust) * Time.deltaTime;
+            foreach (var p in alwaysFullPropellers)
+            {
+                Rotate(p, rot);
+            }
+            foreach (var p in fullWhenCameraIsExternalPropellers)
+            {
+                Rotate(p, rot);
+            }
+        }
+
 
         if (regularAudioSource != null)
         {
@@ -111,5 +146,11 @@ public class DriveControl : MonoBehaviour
             lastMainPosition = transform.position;
         //foreach (var p in propellers)
         //    p.Rotate(0, 0, thrust * maxRPS * Time.deltaTime);
+    }
+
+    private void Rotate(Transform propeller, float rot)
+    {
+        if (propeller)
+            propeller.transform.localEulerAngles += new Vector3(0, 0, rot);
     }
 }

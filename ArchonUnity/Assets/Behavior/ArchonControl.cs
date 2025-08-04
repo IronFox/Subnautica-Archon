@@ -955,6 +955,11 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
+            backFacingLeft.cameraIsExternal = !cameraIsInVehicle;
+            backFacingRight.cameraIsExternal = !cameraIsInVehicle;
+            forwardFacingLeft.cameraIsExternal = !cameraIsInVehicle;
+            forwardFacingRight.cameraIsExternal = !cameraIsInVehicle;
+
             if (IsBeingControlled)
             {
                 if (outOfWater)
