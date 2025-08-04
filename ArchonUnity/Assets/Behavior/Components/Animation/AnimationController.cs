@@ -7,6 +7,8 @@ public class AnimationController : MonoBehaviour
     public float forwardSeconds = 1f;
     public float backwardSeconds = 1f;
     public bool animateTowardsEnd = false;
+
+    public float Progress => progress;
     void Awake()
     {
         targetAnimation = GetComponent<Animation>();

@@ -1,11 +1,10 @@
 before release:
 
-* add panel AR text (upgrades, power)
 * keep 3rd person camera center above the submarine
 * recheck that vehicles receive undock event when undocked for saving
 * rotating drive blades
-* add non-emergency teleportation module, double activate to set teleportation point
 * change teleportation module to charging
+* add non-emergency teleportation module, double activate to set teleportation point
 * improve airlock sounds
 * make ping icon code modification coexist with itself (daisy chain)
 * add docking slot upgrade module(s), prevent docking upgrade being removed while docked subs too high
@@ -27,11 +26,15 @@ before release:
 * tune ceiling glass curvature in nose section (seems to be very curved as to produce reflections)
 * register floor lights as AVS flood lights
 * fix visual material gap between roof and tail top section
+* enter helm when battery dead
+* revise water clip proxies in the corner near the panels
 
 no:
 
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
-* add AVS fabricator to pre-built mesh (every spot is potentially bad)
+
+maybe:
+* add AVS fabricator to pre-built mesh (every spot is potentially bad, some spots near upgrade panel can't normally be built at)
 
 later:
 
@@ -71,6 +74,7 @@ later:
 
 done:
 
+* add panel AR text (upgrades, power)
 * restyle self repair module images
 * add teleportation audio visuals
 * emergency teleportation (permanently bound to first quickslot)
