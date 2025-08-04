@@ -7,6 +7,7 @@ public class RotateCamera : MonoBehaviour
     public float maxDegreesPerSecond = 800;
     public float transitionSpeedMultiplier = 2;
 
+    public LockedEuler Current => current;
     private LockedEuler current;
     private Transform transitionTarget;
     private bool transitioning;

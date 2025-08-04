@@ -113,6 +113,14 @@ namespace Subnautica_Archon
                         () => isInCriticalRecovery,
                         b => isInCriticalRecovery = b
                         ),
+                    Persistable.Property("FreeCameraInCockpit",
+                        () => Control.freeCameraInCockpit,
+                        b => Control.freeCameraInCockpit = b
+                        ),
+                    Persistable.Property("FreeCameraInExternalCamera",
+                        () => Control.freeCameraInExternalCamera,
+                        b => Control.freeCameraInExternalCamera = b
+                        ),
                     Persistable.Property("Docked",
                         () => Control.bayControl.Docked
                             .Select(x => x.GameObject.PrefabId())
@@ -280,7 +288,6 @@ namespace Subnautica_Archon
 
 
             control = GetComponent<ArchonControl>();
-            control.freeCamera = MainPatcher.PluginConfig.defaultToFreeCamera;
             control.interiorLightScale = 0.75f;
 
             //var loadSave = gameObject.GetComponent<LoadSaveComponent>();
@@ -892,7 +899,7 @@ namespace Subnautica_Archon
             }
             engine.overdriveActive = 0;
             engine.doNotAccelerate = Control.doAutoLevel || Control.batteryDead;
-            engine.freeCamera = Control.freeCamera;
+            engine.freeCamera = Control.UseFreeCamera;
             //return;
 
             //var boostToggle = false;// !MainPatcher.PluginConfig.holdToBoost;
@@ -962,13 +969,13 @@ namespace Subnautica_Archon
             }
         }
 
-        /// <summary>
-        /// Redetects proximity to the ocean surface and forwards the state to control
-        /// </summary>
-        private void RepositionCamera()
-        {
-            Control.UpdateLowCamera(Ocean.GetOceanLevel());
-        }
+        ///// <summary>
+        ///// Redetects proximity to the ocean surface and forwards the state to control
+        ///// </summary>
+        //private void RepositionCamera()
+        //{
+        //    Control.UpdateLowCamera(Ocean.GetOceanLevel());
+        //}
 
         private bool HasModule(ArchonModule module)
             => moduleCounts[(int)module] > 0;
@@ -1152,18 +1159,26 @@ namespace Subnautica_Archon
                 {
                     Control.zoomAxis = -Input.GetAxis("Mouse ScrollWheel")
                         +
-                        ((Input.GetKey(MainPatcher.PluginConfig.altZoomOut) ? 1f : 0f)
-                        - (Input.GetKey(MainPatcher.PluginConfig.altZoomIn) ? 1f : 0f)) * 0.02f
+                        ((Input.GetKey(MainPatcher.PluginConfig.btnAltZoomOut) ? 1f : 0f)
+                        - (Input.GetKey(MainPatcher.PluginConfig.btnAltZoomIn) ? 1f : 0f)) * 0.02f
                         ;
                 }
 
                 if (Control.IsBeingControlled
                     && GameInput.GetKeyDown(MainPatcher.PluginConfig.toggleFreeCamera)
                     && engine != null)
-                    engine.freeCamera = Control.freeCamera = !Control.freeCamera;
+                {
+                    Control.ToggleCurrentFreeCamera();
+                    engine.freeCamera = Control.UseFreeCamera;
+                }
+                if (GameInput.GetKeyDown(MainPatcher.PluginConfig.btnChangeExternalCameraHeight))
+                {
+                    Control.positionCameraBelowSub = !Control.positionCameraBelowSub;
+                }
+
 
                 ProcessEngine();
-                RepositionCamera();
+
 
                 if (energyInterface != null)
                 {

@@ -118,7 +118,7 @@ public class PositionCamera : MonoBehaviour
 
             h += (wantH - h) * 2f * Mathf.Min(Time.deltaTime, 1f);
 
-            var lookAtTarget = target + /*referenceBoundingBox.transform.up*/Vector3.up * h;
+            var lookAtTarget = target + archon.transform.up * h;
 
             var wantPosition = lookAtTarget - transform.forward * distanceToTarget;
             Vector3 targetPosition;

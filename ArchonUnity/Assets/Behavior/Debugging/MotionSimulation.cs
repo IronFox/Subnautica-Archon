@@ -24,8 +24,11 @@ public class MotionSimulation : MonoBehaviour
         control.upAxis = Input.GetAxis("Jump") - (Input.GetKey(KeyCode.C) ? 1 : 0);
         //control.overdriveActive = Input.GetKey(KeyCode.LeftShift);
         if (Input.GetKeyDown(KeyCode.F))
-            control.freeCamera = !control.freeCamera;
+            control.ToggleCurrentFreeCamera();
         control.zoomAxis = -Input.GetAxis("Mouse ScrollWheel");
+        if (Input.GetKeyDown(KeyCode.V))
+            control.positionCameraBelowSub = !control.positionCameraBelowSub;
+
 
     }
 
@@ -40,7 +43,7 @@ public class MotionSimulation : MonoBehaviour
                 70);
             control.outOfWater = control.transform.position.y >= oceanSurface.position.y;
 
-            control.UpdateLowCamera(oceanSurface.position.y);
+            //control.UpdateLowCamera(oceanSurface.position.y);
         }
         if (control.IsBeingControlled && !control.outOfWater && !control.doAutoLevel)
         {
@@ -49,9 +52,9 @@ public class MotionSimulation : MonoBehaviour
                 return;
             }
             var forwardAccel = control.forwardAxis * 50;
-            var hAccel = control.freeCamera ? 0 :
+            var hAccel = control.UseFreeCamera ? 0 :
                             control.rightAxis * 20;
-            var upAccel = control.freeCamera ? 0 :
+            var upAccel = control.UseFreeCamera ? 0 :
                             control.upAxis * 20;
 
             try

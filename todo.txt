@@ -1,6 +1,5 @@
 before release:
 
-* keep 3rd person camera center above the submarine
 * recheck that vehicles receive undock event when undocked for saving
 * rotating drive blades
 * change teleportation module to charging
@@ -10,7 +9,6 @@ before release:
 * add docking slot upgrade module(s), prevent docking upgrade being removed while docked subs too high
 * limit water tank to Creature/CreatureEgg
 	+ maybe check for presence of WaterParkCreature
-* close 3rd person camera clips into hull at rear end and nose depending on inclination
 * fix missing right side airlock sounds
 * add reactor sound
 * simplify map ship (with simplified hull)
@@ -18,8 +16,7 @@ before release:
 * add localization
 * model and replace seat, model magnetic levitation visualization
 * add (emergency) teleportation hud progress bar
-* split free camera in first and third person states
-* preserve free camera and camera distance
+* preserve camera distance
 * default to non-free in-cockpit view
 * do not place emergency teleport in slot 1 if found in any other slot
 * add teleportation light emitter
@@ -28,6 +25,7 @@ before release:
 * fix visual material gap between roof and tail top section
 * enter helm when battery dead
 * revise water clip proxies in the corner near the panels
+* localize AR text
 
 no:
 
@@ -74,6 +72,10 @@ later:
 
 done:
 
+* preserve free camera state
+* split free camera in first and third person states
+* fixed close 3rd person camera clipping into hull at rear end and nose depending on inclination
+* keep 3rd person camera center above the submarine
 * add panel AR text (upgrades, power)
 * restyle self repair module images
 * add teleportation audio visuals

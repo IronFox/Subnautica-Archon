@@ -47,7 +47,8 @@ public class ArchonControl : MonoBehaviour
 
     //public bool overdriveActive;
     public bool outOfWater;
-    public bool freeCamera = true;
+    public bool freeCameraInCockpit = false;
+    public bool freeCameraInExternalCamera = true;
     public bool flipFreeHorizontalRotationInReverse = true;
     public bool flipFreeVerticalRotationInReverse = false;
 
@@ -136,7 +137,9 @@ public class ArchonControl : MonoBehaviour
     private bool shouldBeKinematic;
     public bool IsBeingControlled => currentlyControlled && !forceCockpitCamera;
 
-    private bool ApplyFreeCamera => freeCamera;// || (zoomedInIsCockpit && positionCamera.isFirstPerson));
+    public bool UseFreeCamera => positionCamera.isFirstPerson
+        ? freeCameraInCockpit
+        : freeCameraInExternalCamera;// || (zoomedInIsCockpit && positionCamera.isFirstPerson));
 
     /// <summary>
     /// True if the archon assumes the camera is in the cockpit, and the player should be able to turn their head.
@@ -159,6 +162,15 @@ public class ArchonControl : MonoBehaviour
     private float RollDelta => transform.rotation.eulerAngles.z >= 180 ? 360 - transform.rotation.eulerAngles.z : transform.rotation.eulerAngles.z;
     public bool IsLevel => RollDelta < 0.8f && PitchDelta < 0.8f;
     private float checkFloatingCharacterForSeconds;
+
+
+    public void ToggleCurrentFreeCamera()
+    {
+        if (positionCamera.isFirstPerson)
+            freeCameraInCockpit = !freeCameraInCockpit;
+        else
+            freeCameraInExternalCamera = !freeCameraInExternalCamera;
+    }
 
     private void ChangeState(CameraState state)
     {
@@ -634,7 +646,7 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.CameraDistance, positionCamera.DistanceToTarget);
             statusConsole.Set(StatusProperty.PositionCameraBelowSub, positionCamera.positionBelowTarget);
             statusConsole.Set(StatusProperty.Velocity, rb.velocity.magnitude);
-            statusConsole.Set(StatusProperty.FreeCamera, ApplyFreeCamera);
+            statusConsole.Set(StatusProperty.FreeCamera, UseFreeCamera);
             statusConsole.Set(StatusProperty.TimeDelta, Time.deltaTime);
             statusConsole.Set(StatusProperty.FixedTimeDelta, Time.fixedDeltaTime);
             //statusConsole.Set(StatusProperty.TargetScanTime, scanner.lastScanTime);
@@ -819,7 +831,7 @@ public class ArchonControl : MonoBehaviour
             {
                 rotateCamera.enabled = true;
 
-                if (ApplyFreeCamera)
+                if (UseFreeCamera)
                 {
                     rotateCamera.AbortTransition();
                     ChangeState(CameraState.IsFree);
@@ -1269,13 +1281,6 @@ public class ArchonControl : MonoBehaviour
             Debug.LogException(ex);
         }
     }
-
-    //public void Localize(Transform player)
-    //{
-    //    player.parent = helmSeatRoot;
-    //    player.localPosition = Vector3.zero;
-    //    player.localEulerAngles = Vector3.zero;
-    //}
 
     public void UpdateLowCamera(float oceanY)
     {
