@@ -1,24 +1,23 @@
 before release:
 
-* restyle self repair module images
+* add panel AR text (upgrades, power)
 * keep 3rd person camera center above the submarine
 * recheck that vehicles receive undock event when undocked for saving
 * rotating drive blades
+* add non-emergency teleportation module, double activate to set teleportation point
+* change teleportation module to charging
 * improve airlock sounds
 * make ping icon code modification coexist with itself (daisy chain)
-* add docking slot upgrade module(s)
+* add docking slot upgrade module(s), prevent docking upgrade being removed while docked subs too high
 * limit water tank to Creature/CreatureEgg
 	+ maybe check for presence of WaterParkCreature
 * close 3rd person camera clips into hull at rear end and nose depending on inclination
-* right side airlock sounds missing
+* fix missing right side airlock sounds
 * add reactor sound
-* disable map when powered off or battery dead
 * simplify map ship (with simplified hull)
 * adjust healing energy demand to new battery capacity
-* add panel AR text (upgrades, power)
-* prevent docking upgrade being removed while docked subs too high
 * add localization
-* model and replace seat
+* model and replace seat, model magnetic levitation visualization
 
 no:
 
@@ -27,6 +26,7 @@ no:
 
 later:
 
+* disable map when powered off or battery dead
 * change power cell slot bright color to highlight status. Show status on panel AR
 * zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit
 * velocity upgrades
@@ -61,6 +61,7 @@ later:
 
 done:
 
+* restyle self repair module images
 * add teleportation audio visuals
 * emergency teleportation (permanently bound to first quickslot)
 * add front railing support
