@@ -1,6 +1,5 @@
 before release:
 
-* recheck that vehicles receive undock event when undocked for saving
 * rotating drive blades
 * change teleportation module to charging
 * add non-emergency teleportation module, double activate to set teleportation point
@@ -72,6 +71,7 @@ later:
 
 done:
 
+* Fixed vehicles receive undock event when undocked for saving, and restore on redocking
 * preserve free camera state
 * split free camera in first and third person states
 * fixed close 3rd person camera clipping into hull at rear end and nose depending on inclination

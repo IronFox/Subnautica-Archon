@@ -996,14 +996,6 @@ namespace Subnautica_Archon
             return ArchonModule.None;
         }
 
-
-        public override void OnVehicleUndocked()
-        {
-            base.OnVehicleUndocked();
-            //MaterialFixer.OnVehicleUndocked();
-        }
-
-
         //private MaterialFixer MaterialFixer;
 
         private Color nonBlackBaseColor;

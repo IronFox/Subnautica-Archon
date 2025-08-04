@@ -618,17 +618,23 @@ namespace Subnautica_Archon.Adapters
             Log.Write(nameof(OnUndockedForSaving));
             try
             {
+                Vehicle.liveMixin.shielded = false;
+                Vehicle.crushDamage.enabled = true;
 
-                foreach (var slot in Archon.QuickSlots)
+                Vehicle.docked = false;
+
+                if (Vehicle is AvsVehicle mv)
+                    mv.OnVehicleUndocked(boardPlayer: false);
+                else if (VFVehicle.Access(Vehicle, out var vf))
                 {
-                    Log.Write($"Checking slot {slot}");
-                    var item = Archon.modules.GetItemInSlot(slot.ID);
-                    if (item != null && item.item && item.item.transform == Vehicle.transform)
-                    {
-                        Log.Write($"Found it. Removing");
-                        Archon.modules.RemoveItem(slot.ID, true, false);
-                    }
+                    var wasScuttled = vf.isScuttled;
+                    vf.isScuttled = true;   //prevent automatic player boarding
+                    vf.OnVehicleUndocked();
+                    vf.isScuttled = wasScuttled;
                 }
+
+                if (Drone.Access(Vehicle, out var d))
+                    d.isAsleep = false;
             }
             catch (Exception ex)
             {
@@ -639,7 +645,26 @@ namespace Subnautica_Archon.Adapters
         public void OnRedockedAfterSaving()
         {
             Log.Write(nameof(OnRedockedAfterSaving));
-            //AddToQuickbar(false);
+            try
+            {
+                Vehicle.liveMixin.shielded = true;
+                Vehicle.crushDamage.enabled = false;
+
+                Vehicle.docked = true;
+
+                if (Vehicle is AvsVehicle mv)
+                    mv.OnVehicleDocked(Vector3.zero);
+                else if (VFVehicle.Access(Vehicle, out var vf))
+                    vf!.OnVehicleDocked(Vector3.zero);
+
+                if (Drone.Access(Vehicle, out var d))
+                    d.isAsleep = true;
+
+            }
+            catch (Exception ex)
+            {
+                Debug.LogException(ex);
+            }
         }
 
 #if false

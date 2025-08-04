@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Diagnostics.CodeAnalysis;
+using UnityEngine;
 
 namespace Subnautica_Archon.Util
 {
@@ -10,6 +11,7 @@ namespace Subnautica_Archon.Util
         {
             Vehicle = vehicle;
             pingInstance = FieldAdapter.Of<PingInstance>(Vehicle, "pingInstance");
+            _isScuttled = FieldAdapter.Of<bool>(Vehicle, "isScuttled");
         }
         private readonly SimpleMethodHelper<Void> _playerExit
             = new SimpleMethodHelper<Void>("PlayerExit");
@@ -22,6 +24,7 @@ namespace Subnautica_Archon.Util
         private MethodAdapter<Vehicle, Vector3>? _onVehicleDocked0;
         private MethodAdapter<Vector3>? _onVehicleDocked1;
         private readonly FieldAdapter<PingInstance> pingInstance;
+        private readonly FieldAdapter<bool> _isScuttled;
 
         public void PlayerExit()
         {
@@ -77,9 +80,15 @@ namespace Subnautica_Archon.Util
 
         }
 
+        public bool isScuttled
+        {
+            get => _isScuttled.Value;
+            set => _isScuttled.Set(value);
+        }
+
         public static bool IsOne(Vehicle vehicle)
             => ObjectHelper.IsVFVehicle(vehicle);
-        public static bool Access(Vehicle vehicle, out VFVehicle? outVehicle)
+        public static bool Access(Vehicle vehicle, [NotNullWhen(true)] out VFVehicle? outVehicle)
         {
             if (!ObjectHelper.IsVFVehicle(vehicle))
             {
