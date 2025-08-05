@@ -2,44 +2,46 @@ before release:
 
 * improve airlock sounds
 * make ping icon code modification coexist with itself (daisy chain)
-* add docking slot upgrade module(s), prevent docking upgrade being removed while docked subs too high
 * limit water tank to Creature/CreatureEgg
 	+ maybe check for presence of WaterParkCreature
 * fix missing right side airlock sounds
 * add reactor sound
 * simplify map ship (with simplified hull)
-* adjust healing energy demand to new battery capacity
 * add localization
 * model and replace seat, model magnetic levitation visualization
-* preserve camera distance
-* default to non-free in-cockpit view
 * do not place emergency teleport in slot 1 if found in any other slot
-* add teleportation light emitter
-* tune ceiling glass curvature in nose section (seems to be very curved as to produce reflections)
-* register floor lights as AVS flood lights
+* register external flood lights as AVS flood lights
 * fix visual material gap between roof and tail top section
 * enter helm when battery dead
-* revise water clip proxies in the corner near the panels
 * localize AR text
+* set resource costs of docking and teleportation modules
+* tune energy demands of everything
+* set vehicle cost
+* tune vehicle mass
 
 no:
 
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
 * chargeable non-useful afterall because we are not informed of the charge status even if it otherwise would work	
+* zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit. not gonna work
+* evacuate fish ( seems to no longer happen)
 
 maybe:
 * add AVS fabricator to pre-built mesh (every spot is potentially bad, some spots near upgrade panel can't normally be built at)
 
 later:
 
+* revise water clip proxies in the corner near the panels
+* turn off emission of external light source when lights are off
+* tune external material emissions when power is off
+* tune ceiling glass curvature in nose section (seems to be very curved as to produce reflections)
+* add teleportation light emitter
+* preserve camera distance
 * fix teleporting out of alien ruin area causes perma-out-of-water further up
 * add name label on out- and insides. Add coloring panel
 * disable map when powered off or battery dead
 * change power cell slot bright color to highlight status. Show status on panel AR
-* zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit
 * velocity upgrades
-* revise front side inner colliders around airlock
-* evacuate fish
 * increase interior shadow caster triangle resolution
 * horizontal rotation control sluggish when not leaning near ocean surface or at low speed
 * add vertical submarine shadow to map
@@ -69,6 +71,9 @@ later:
 
 done:
 
+* revise front side inner colliders around airlock
+* default to non-free in-cockpit view
+* add docking slot upgrade module(s), prevent docking upgrade being removed while docked subs too high
 * add non-emergency teleport module. If activation has less than 1% charge fraction, assume it's a double-tab and record location
 * add (emergency) teleportation hud progress bar
 * rotating drive blades
