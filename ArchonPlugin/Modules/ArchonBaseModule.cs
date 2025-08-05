@@ -12,14 +12,12 @@ public abstract class ArchonBaseModule : AvsVehicleModule
     public ArchonModule Module { get; }
     private Atlas.Sprite? icon;
 
-    public TechType TechType { get; private set; }
-
 
 
     public override string ClassId => $"Archon{Module}";
 
-    public override string Description => Language.main.Get("desc_" + Module);
-    public override string DisplayName => Language.main.Get("display_" + Module);
+    public override string Description => Language.main.Get("Modules." + Module + ".Description");
+    public override string DisplayName => Language.main.Get("Modules." + Module + ".Name");
 
     //public static CraftingNode RootCraftingNode { get; } = new CraftingNode
     //(
@@ -53,7 +51,6 @@ public abstract class ArchonBaseModule : AvsVehicleModule
         var compat = UpgradeCompat.AvsVehiclesOnly;
 
         var type = node.RegisterUpgrade(this, compat).ForAvsVehicle;
-        TechType = type;
         All[type] = this;
         AllReverse[Module] = type;
 

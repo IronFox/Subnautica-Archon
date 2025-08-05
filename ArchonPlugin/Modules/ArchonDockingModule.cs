@@ -3,7 +3,7 @@
     public class ArchonDockingModule : ArchonBaseModule
     {
         public ArchonDockingModule()
-            : base(ArchonModule.DockingModule)
+            : base(ArchonModule.DockingModuleMk1)
         {
         }
     }

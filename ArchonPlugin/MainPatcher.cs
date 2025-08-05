@@ -105,9 +105,15 @@ namespace Subnautica_Archon
 
         private IEnumerator MyRegister(Archon archon, bool verbose)
         {
-            var node = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png").AtlasSprite);
-            var autoAdd = EmergencyTeleportationModule.Register(node);
-            TeleportationModule1.Register(node);
+
+
+            var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png").AtlasSprite);
+            var autoAdd = EmergencyTeleportationModule.Register(teleportNode);
+            TeleportationModule1.Register(teleportNode);
+
+            var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage("images/DockingModuleMk1.png").AtlasSprite);
+            new DockingModule().Register(dockingNode);
+
 
             Log.Write($"Loading emergency teleportation module: {autoAdd}");
             var coroutine = CraftData.GetPrefabForTechTypeAsync(autoAdd);

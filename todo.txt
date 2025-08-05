@@ -1,8 +1,5 @@
 before release:
 
-
-* add non-emergency teleport module. If activation has less than 1% charge fraction, assume it's a double-tab and record location
-
 * improve airlock sounds
 * make ping icon code modification coexist with itself (daisy chain)
 * add docking slot upgrade module(s), prevent docking upgrade being removed while docked subs too high
@@ -35,7 +32,6 @@ maybe:
 
 later:
 
-* add (emergency) teleportation hud progress bar
 * fix teleporting out of alien ruin area causes perma-out-of-water further up
 * add name label on out- and insides. Add coloring panel
 * disable map when powered off or battery dead
@@ -73,6 +69,8 @@ later:
 
 done:
 
+* add non-emergency teleport module. If activation has less than 1% charge fraction, assume it's a double-tab and record location
+* add (emergency) teleportation hud progress bar
 * rotating drive blades
 * fixed vehicles receive undock event when undocked for saving, and restore on redocking
 * preserve free camera state

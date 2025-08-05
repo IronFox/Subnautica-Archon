@@ -1239,27 +1239,50 @@ namespace Subnautica_Archon
         {
         }
 
+        internal int GetExtraDockingCapacity()
+        {
+            return moduleCounts[(int)ArchonModule.DockingModuleMk1];
+        }
+
+        internal int GetTotalDockingCapacity()
+        {
+            return 2 + GetExtraDockingCapacity();
+        }
+
+        internal int GetTotalDockingCapacityWithOneLess(ArchonModule moduleType)
+        {
+            if (moduleCounts[(int)moduleType] == 0)
+                return GetTotalDockingCapacity();
+            moduleCounts[(int)moduleType]--;
+            int total = GetTotalDockingCapacity();
+            moduleCounts[(int)moduleType]++;
+            return total;
+        }
+
         internal void SetModuleCount(ArchonModule moduleType, int count)
         {
             //var tm = GetTorpedoMark();
             //var bm = GetBatteryMark();
             //var dm = GetDriveMark();
             var rm = RepairModule.GetFrom(this);
+            var dm = GetExtraDockingCapacity();
             moduleCounts[(int)moduleType] = count;
             //var tm2 = GetTorpedoMark();
             //var bm2 = GetBatteryMark();
             //var dm2 = GetDriveMark();
             var rm2 = RepairModule.GetFrom(this);
+            var dm2 = GetExtraDockingCapacity();
+            Control.maxDockedVehicles = GetTotalDockingCapacity();
             if (!destroyed && hadUnpausedFrame)
             {
                 //if (tm != tm2)
                 //    ErrorMessage.AddMessage(string.Format(Language.main.Get($"torpedoCapChanged"), VehicleName, Language.main.Get("cap_t_" + tm2)));
                 //if (bm != bm2)
                 //    ErrorMessage.AddMessage(string.Format(Language.main.Get($"batteryCapChanged"), VehicleName, Language.main.Get("cap_b_" + bm2)));
-                //if (dm != dm2)
-                //    ErrorMessage.AddMessage(string.Format(Language.main.Get($"boostCapChanged"), VehicleName, Language.main.Get("cap_d_" + dm2)));
+                if (dm != dm2)
+                    ErrorMessage.AddMessage(Language.main.GetFormat($"Modules.DockingCapacityChanged", VehicleName, dm2));
                 if (rm != rm2)
-                    ErrorMessage.AddMessage(Language.main.GetFormat($"repairCapChanged", VehicleName, Language.main.Get("cap_r_" + rm2)));
+                    ErrorMessage.AddMessage(Language.main.GetFormat($"Modules.RepairCapacityChanged", VehicleName, Language.main.Get("RepairCapacity." + rm2)));
             }
             Debug.Log($"Changed counts of {moduleType} to {moduleCounts[(int)moduleType]}");
         }

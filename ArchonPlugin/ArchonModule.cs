@@ -3,7 +3,7 @@
     public enum ArchonModule
     {
         None,
-        DockingModule,
+        DockingModuleMk1,
         RepairModuleMk1,
         RepairModuleMk2,
         RepairModuleMk3,
