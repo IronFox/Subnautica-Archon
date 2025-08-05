@@ -68,8 +68,9 @@ namespace Subnautica_Archon.Modules
 
                     Subtitles.Add(Language.main.Get("Modules.Teleportation.ActivatingNow"));
                     vehicle.Engine.KillMomentum();
-                    vehicle.transform.position = target.Value;
-                    vehicle.transform.rotation = Quaternion.Euler(orientation.Value);
+                    vehicle.TeleportVehicle(target.Value, Quaternion.Euler(orientation.Value));
+                    //vehicle.transform.position = target.Value;
+                    //vehicle.transform.rotation = Quaternion.Euler(orientation.Value);
                     vehicle.Control.SignalTeleported();
                     vehicle.Control.secondsToTeleport = 100;
                     vehicle.Control.teleportationProgress = 0;

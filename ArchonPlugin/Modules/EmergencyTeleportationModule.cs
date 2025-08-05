@@ -66,8 +66,9 @@ namespace Subnautica_Archon.Modules
                     if (vehicle != null)
                     {
                         vehicle.Engine.KillMomentum();
-                        vehicle.transform.position = new Vector3(514.9f, -20f, 311.0f);
-                        vehicle.transform.rotation = Quaternion.identity;
+                        vehicle.TeleportVehicle(new Vector3(514.9f, -20f, 311.0f), Quaternion.identity);
+                        //vehicle.transform.position = new Vector3(514.9f, -20f, 311.0f);
+                        //vehicle.transform.rotation = Quaternion.identity;
                         vehicle.Control.SignalTeleported();
                         vehicle.Control.secondsToTeleport = 100;
                         vehicle.Control.teleportationProgress = 0;
