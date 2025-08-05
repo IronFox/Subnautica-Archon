@@ -60,11 +60,6 @@ public class TeleportationAnimation : MonoBehaviour
                 chargeUpSound.Play();
             }
             opacity = (1f - Mathf.Pow(1f - actualProgress, 3f)) * 0.3f;
-            if (secondsToTeleport < 0.25f && !playingTeardown)
-            {
-                playingTeardown = true;
-                teardownSound.Play();
-            }
 
             if (progress == 0)
             {
@@ -81,6 +76,15 @@ public class TeleportationAnimation : MonoBehaviour
 
             });
             wasActive = true;
+        }
+    }
+
+    internal void SignalTeleported()
+    {
+        if (!playingTeardown)
+        {
+            playingTeardown = true;
+            teardownSound.Play();
         }
     }
 }

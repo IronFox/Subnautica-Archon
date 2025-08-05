@@ -7,7 +7,7 @@ public class HudTeleportationAnimation : MonoBehaviour
     public Renderer iconRenderer;
     public Renderer toneDownRenderer;
     public Texture2D emergencyIcon;
-    public Texture2D normalIcon;
+    public Texture2D normal1Icon;
 
     [Range(0, 1)] public float progress;
     internal TeleportationType type;
@@ -32,7 +32,7 @@ public class HudTeleportationAnimation : MonoBehaviour
             progressBarRenderer.material.color = Color.Lerp(Color.white, Color.red, progress);
 
             iconRenderer.material.color = new Color(1, 1, 1, M.Saturate(progress * 5));
-            iconRenderer.material.mainTexture = type == TeleportationType.Emergency ? emergencyIcon : normalIcon;
+            iconRenderer.material.mainTexture = type == TeleportationType.Emergency ? emergencyIcon : normal1Icon;
 
             toneDownRenderer.material.SetFloat($"_Opacity", M.Smoothstep(0.4f, 0.6f, progress));
         }

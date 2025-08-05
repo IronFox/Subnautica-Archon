@@ -63,6 +63,10 @@ namespace Subnautica_Archon
         private bool isInCriticalRecovery = false;
         private Dictionary<string, VoiceLibrary> VoiceLibraries { get; } = new Dictionary<string, VoiceLibrary>();
 
+        public Vector3? TeleportationTarget1 { get; set; }
+        public Vector3? TeleportationOrientation1 { get; set; }
+
+
         public Archon() : base(new VehicleConfiguration(
             unlockedSprite: MainPatcher.StaticImages.ArchonCraftingSprite.Sprite,
             maxHealth: 20000,
@@ -109,6 +113,14 @@ namespace Subnautica_Archon
         {
             addBlock(new DataBlock(
                 "Archon",
+                    Persistable.Property("TeleportationTarget1",
+                        () => TeleportationTarget1,
+                        c => TeleportationTarget1 = c
+                        ),
+                    Persistable.Property("TeleportationOrientation1",
+                        () => TeleportationOrientation1,
+                        c => TeleportationOrientation1 = c
+                        ),
                     Persistable.Property("IsInCriticalRecovery",
                         () => isInCriticalRecovery,
                         b => isInCriticalRecovery = b

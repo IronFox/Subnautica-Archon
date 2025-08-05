@@ -318,6 +318,7 @@ public class ArchonControl : MonoBehaviour
     {
         if (nonCameraOrientation)
             nonCameraOrientation.SignalTeleported();
+        teleportationAnimation.SignalTeleported();
     }
 
     public void SignalLoading()

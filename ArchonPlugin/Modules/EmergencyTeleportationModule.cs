@@ -18,9 +18,9 @@ namespace Subnautica_Archon.Modules
 
         public override string ClassId => $"ArchonEmergencyTeleportationModule";
 
-        public override string DisplayName => Language.main.Get("display_ArchonEmergencyTeleportationModule");
+        public override string DisplayName => Language.main.Get("Modules.EmergencyTeleportation.Name");
 
-        public override string Description => Language.main.Get("desc_ArchonEmergencyTeleportationModule");
+        public override string Description => Language.main.Get("Modules.EmergencyTeleportation.Description");
 
         public override Atlas.Sprite Icon => icon!.Value.AtlasSprite;
 
@@ -36,17 +36,17 @@ namespace Subnautica_Archon.Modules
         }
 
 
-        protected override void OnRepeat(ToggleableModule.Params param)
+        protected override void OnRepeat(IToggleState state)
         {
-            base.OnRepeat(param);
+            base.OnRepeat(state);
             try
             {
-                float remainingTime = SecondsUntilTeleport - param.RepeatTime;
-                float lastRemainingTime = SecondsUntilTeleport - param.LastRepeatTime;
+                float remainingTime = SecondsUntilTeleport - state.EventTime;
+                float lastRemainingTime = SecondsUntilTeleport - state.LastRepeatTime;
                 //Log.Write($"EmergencyTeleportationModule.OnRepeat(vehicle={param.Vehicle},remainingTime={remainingTime},lastRemainingTime={lastRemainingTime})");
                 if (remainingTime > 0)
                 {
-                    var vehicle = param.Vehicle as Archon;
+                    var vehicle = state.Vehicle as Archon;
                     if (vehicle != null)
                     {
                         vehicle.Control.secondsToTeleport = remainingTime;
@@ -55,14 +55,14 @@ namespace Subnautica_Archon.Modules
                     }
                     if (Mathf.RoundToInt(remainingTime) != Mathf.RoundToInt(lastRemainingTime))
                     {
-                        Subtitles.Add(Language.main.GetFormat($"Modules.EmergencyTeleportation.ActivatingInSeconds", Mathf.RoundToInt(remainingTime)));
+                        Subtitles.Add(Language.main.GetFormat($"Modules.Teleportation.ActivatingInSeconds", Mathf.RoundToInt(remainingTime)));
                     }
                 }
                 else
                 {
-                    Log.Write($"EmergencyTeleportationModule.OnRepeat: Teleportation finished, teleporting vehicle {param.Vehicle}");
-                    Subtitles.Add(Language.main.Get("Modules.EmergencyTeleportation.ActivatingNow"));
-                    var vehicle = param.Vehicle as Archon;
+                    Log.Write($"EmergencyTeleportationModule.OnRepeat: Teleportation finished, teleporting vehicle {state.Vehicle}");
+                    Subtitles.Add(Language.main.Get("Modules.Teleportation.ActivatingNow"));
+                    var vehicle = state.Vehicle as Archon;
                     if (vehicle != null)
                     {
                         vehicle.Engine.KillMomentum();
@@ -75,26 +75,30 @@ namespace Subnautica_Archon.Modules
                     }
                     else
                     {
-                        ErrorMessage.AddError(Language.main.Get("Modules.EmergencyTeleportation.Failed"));
+                        ErrorMessage.AddError(Language.main.Get("Modules.Teleportation.Failed"));
                     }
-                    Deactivate(param.SetInactive());
+                    state.Deactivate();
                 }
             }
             catch (System.Exception ex)
             {
                 Log.Exception($"EmergencyTeleportationModule.OnRepeat: Exception occurred", ex);
-                Deactivate(param.SetInactive());
+                state.Deactivate();
             }
         }
 
-        protected override void OnToggle(ToggleableModule.Params param)
+        protected override void OnToggle(IToggleState state)
         {
-            base.OnToggle(param);
-            if (!param.IsActive)
+            base.OnToggle(state);
+            if (!state.IsActive)
             {
-                var vehicle = param.Vehicle as Archon;
+                var vehicle = state.Vehicle as Archon;
                 if (vehicle != null)
+                {
                     vehicle.Control.secondsToTeleport = 100;
+                    vehicle.Control.teleportationProgress = 0;
+                    vehicle.Control.teleportationType = TeleportationType.None;
+                }
                 //ErrorMessage.AddError(Language.main.Get("Modules.EmergencyTeleportation.Aborted"));
             }
         }
@@ -107,7 +111,7 @@ namespace Subnautica_Archon.Modules
                 errorMessage = null;
                 return true;
             }
-            errorMessage = AVS.Localization.Text.Translated($"error_ArchonEmergencyTeleportationModule_CannotRemoveLast");
+            errorMessage = AVS.Localization.Text.Translated($"Error.EmergencyTeleportationModule.CannotRemoveLast");
             return false;
         }
     }
