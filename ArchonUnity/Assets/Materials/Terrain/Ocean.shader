@@ -48,10 +48,14 @@
             // Albedo comes from a texture tinted by color
             fixed4 c = tex2D (_MainTex, IN.uv_MainTex + float2(_Time.x*0.1, -_Time.x*0.21)) * _Color;
             c *= tex2D (_MainTex, IN.uv_MainTex + float2(_Time.x*0.3+0.2, -_Time.x*0.2));
+            c *= tex2D (_MainTex, IN.uv_MainTex + float2(_Time.x*-0.2134+0.325, _Time.x*0.235)*0.1);
+            c *= tex2D (_MainTex, IN.uv_MainTex + float2(_Time.x*0.2134+0.825, _Time.x*0.235+0.7)*0.1);
 
             float4 n = tex2D (_NormalMap, IN.uv_NormalMap + float2(_Time.x*0.1, -_Time.x*0.21)*0.2);
             n += tex2D (_NormalMap, IN.uv_NormalMap + float2(_Time.x*0.3+0.2, -_Time.x*0.2)*0.2);
-            n /= 2;
+            n += tex2D (_NormalMap, IN.uv_NormalMap + float2(_Time.x*-0.2134+0.325, _Time.x*0.235)*0.1);
+            n += tex2D (_NormalMap, IN.uv_NormalMap + float2(_Time.x*0.2134+0.825, _Time.x*0.235+0.7)*0.1);
+            n /= 4;
             o.Albedo = c.rgb;
             // Metallic and smoothness come from slider variables
             o.Metallic = _Metallic;

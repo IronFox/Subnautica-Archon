@@ -81,7 +81,7 @@ public class StatusConsole : CommonBoardingListener
 
 
         StringBuilder b = new StringBuilder();
-        b.Append("Echelon Status\n");
+        b.Append("Archon Status\n");
         for (int i = 0; i < status.Length; i++)
         {
             b.Append(((StatusProperty)i).ToString()).Append(": ")

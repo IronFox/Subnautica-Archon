@@ -1,5 +1,6 @@
 ﻿using Assets.Behavior.Adapters;
 using Assets.Behavior.Interfaces;
+using Assets.Behavior.TransferTypes;
 using Assets.Behavior.Util;
 using System;
 using System.Collections.Generic;
@@ -31,8 +32,11 @@ public class ArchonControl : MonoBehaviour
     public AnimationController powerCellAnimation;
 
     public TeleportationAnimation teleportationAnimation;
+    public HudTeleportationAnimation hudTeleportationAnimation;
 
     public float secondsToTeleport = 100;
+    public float teleportationProgress = 0;
+    public TeleportationType teleportationType = TeleportationType.None;
     public float forwardAxis;
     public float rightAxis;
     public float upAxis;
@@ -1060,7 +1064,10 @@ public class ArchonControl : MonoBehaviour
 
     private void UpdateTeleportation()
     {
+        teleportationAnimation.type = teleportationType;
         teleportationAnimation.secondsToTeleport = secondsToTeleport;
+        hudTeleportationAnimation.type = teleportationType;
+        hudTeleportationAnimation.progress = teleportationProgress;
     }
 
     private InteriorLightColor lastLightColor, interpolatingFrom;

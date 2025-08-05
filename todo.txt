@@ -1,7 +1,8 @@
 before release:
 
-* change teleportation module to charging
-* add non-emergency teleportation module, double activate to set teleportation point
+
+* add non-emergency teleport module. If activation has less than 1% charge fraction, assume it's a double-tab and record location
+
 * improve airlock sounds
 * make ping icon code modification coexist with itself (daisy chain)
 * add docking slot upgrade module(s), prevent docking upgrade being removed while docked subs too high
@@ -13,7 +14,6 @@ before release:
 * adjust healing energy demand to new battery capacity
 * add localization
 * model and replace seat, model magnetic levitation visualization
-* add (emergency) teleportation hud progress bar
 * preserve camera distance
 * default to non-free in-cockpit view
 * do not place emergency teleport in slot 1 if found in any other slot
@@ -28,12 +28,15 @@ before release:
 no:
 
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
+* chargeable non-useful afterall because we are not informed of the charge status even if it otherwise would work	
 
 maybe:
 * add AVS fabricator to pre-built mesh (every spot is potentially bad, some spots near upgrade panel can't normally be built at)
 
 later:
 
+* add (emergency) teleportation hud progress bar
+* fix teleporting out of alien ruin area causes perma-out-of-water further up
 * add name label on out- and insides. Add coloring panel
 * disable map when powered off or battery dead
 * change power cell slot bright color to highlight status. Show status on panel AR

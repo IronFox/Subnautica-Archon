@@ -81,11 +81,11 @@ public abstract class ArchonBaseModule : AvsVehicleModule
         base.OnAdded(param);
         var now = DateTime.Now;
 
-        Log.Write($"ArchonBaseModule[{Module}].OnAdded(vehicle={param.vehicle},isAdded={param.isAdded},slot={param.slotID})");
-        var archon = param.vehicle as Archon;
+        Log.Write($"ArchonBaseModule[{Module}].OnAdded(vehicle={param.Vehicle.NiceName()},isAdded={param.Added},slot={param.SlotID})");
+        var archon = param.Vehicle as Archon;
         if (archon == null)
         {
-            Log.Error($"Added to incompatible vehicle {param.vehicle}");
+            Log.Error($"Added to incompatible vehicle {param.Vehicle.NiceName()}");
             ErrorMessage.AddWarning("This is an Archon upgrade and will not work on other subs!");
             return;
         }
@@ -95,7 +95,7 @@ public abstract class ArchonBaseModule : AvsVehicleModule
     }
     public override void OnRemoved(AddActionParams param)
     {
-        var archon = param.vehicle as Archon;
+        var archon = param.Vehicle as Archon;
         if (archon == null)
         {
             return;
