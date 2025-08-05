@@ -25,6 +25,24 @@ namespace Subnautica_Archon.Util
         private MethodAdapter<Vector3>? _onVehicleDocked1;
         private readonly FieldAdapter<PingInstance> pingInstance;
         private readonly FieldAdapter<bool> _isScuttled;
+        private PropertyAdapter<bool> _isUnderCommand;
+
+
+        public bool IsUnderCommand
+        {
+            get
+            {
+                if (!_isUnderCommand.IsValid)
+                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(Vehicle, "IsUnderCommand");
+                return _isUnderCommand.Value;
+            }
+            set
+            {
+                if (!_isUnderCommand.IsValid)
+                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(Vehicle, "IsUnderCommand");
+                _isUnderCommand.Set(value);
+            }
+        }
 
         public void PlayerExit()
         {

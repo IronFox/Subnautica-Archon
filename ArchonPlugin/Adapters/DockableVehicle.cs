@@ -206,9 +206,9 @@ namespace Subnautica_Archon.Adapters
             Vehicle.crushDamage.enabled = false;
             Vehicle.docked = true;
             if (Vehicle is AvsVehicle mv)
-                mv.OnVehicleDocked(Vector3.zero);
+                mv.DockVehicle();
             else if (VFVehicle.Access(Vehicle, out var vf))
-                vf!.OnVehicleDocked(Vector3.zero);
+                vf.OnVehicleDocked(Vector3.zero);
 
             if (Drone.Access(Vehicle, out var d))
                 d.isAsleep = true;
@@ -231,10 +231,10 @@ namespace Subnautica_Archon.Adapters
             else if (VFVehicle.Access(Vehicle, out var vf))
             {
                 Log.Debug($"Is VF vehicle");
-                if (vf!.HudIconIsEnabled())
+                if (vf.HudIconIsEnabled())
                 {
                     Log.Write($"HudPingInstance on {Vehicle.NiceName()} is still enabled. Disabling it");
-                    vf!.SetHudIcon(false);
+                    vf.SetHudIcon(false);
                 }
             }
             else
@@ -253,11 +253,11 @@ namespace Subnautica_Archon.Adapters
         {
             if (Vehicle is AvsVehicle mv)
             {
-                mv.OnVehicleDocked(Vector3.zero);
+                mv.DockVehicle();
             }
             else if (VFVehicle.Access(Vehicle, out var vf))
             {
-                vf!.OnVehicleDocked(Vector3.zero);
+                vf.OnVehicleDocked(Vector3.zero);
             }
             CheckPingInstanceIsDeactivated();
         }
@@ -300,7 +300,7 @@ namespace Subnautica_Archon.Adapters
             }
             else if (VFVehicle.Access(Vehicle, out var vf))
             {
-                vf!.SetHudIcon(false);
+                vf.SetHudIcon(false);
             }
             else
             {
@@ -503,7 +503,7 @@ namespace Subnautica_Archon.Adapters
                 }
                 else if (VFVehicle.Access(Vehicle, out var vf))
                 {
-                    vf!.PlayerEntry();
+                    vf.PlayerEntry();
                     vf.BeginPiloting();
                 }
                 else
@@ -564,9 +564,9 @@ namespace Subnautica_Archon.Adapters
             //if (Vehicle is ModVehicle)
             Vehicle.docked = false;
             if (Vehicle is AvsVehicle mv)
-                mv.OnVehicleUndocked();
+                mv.UndockVehicle();
             else if (VFVehicle.Access(Vehicle, out var vf))
-                vf!.OnVehicleUndocked();
+                vf.OnVehicleUndocked();
 
             if (Drone.Access(Vehicle, out var d))
                 d.isAsleep = false;
@@ -624,7 +624,7 @@ namespace Subnautica_Archon.Adapters
                 Vehicle.docked = false;
 
                 if (Vehicle is AvsVehicle mv)
-                    mv.OnVehicleUndocked(boardPlayer: false);
+                    mv.UndockVehicle(boardPlayer: false);
                 else if (VFVehicle.Access(Vehicle, out var vf))
                 {
                     var wasScuttled = vf.isScuttled;
@@ -653,9 +653,9 @@ namespace Subnautica_Archon.Adapters
                 Vehicle.docked = true;
 
                 if (Vehicle is AvsVehicle mv)
-                    mv.OnVehicleDocked(Vector3.zero);
+                    mv.DockVehicle();
                 else if (VFVehicle.Access(Vehicle, out var vf))
-                    vf!.OnVehicleDocked(Vector3.zero);
+                    vf.OnVehicleDocked(Vector3.zero);
 
                 if (Drone.Access(Vehicle, out var d))
                     d.isAsleep = true;

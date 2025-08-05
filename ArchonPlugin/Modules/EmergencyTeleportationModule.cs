@@ -34,7 +34,7 @@ namespace Subnautica_Archon.Modules
         }
 
 
-        public override void OnRepeat(ToggleActionParams param)
+        protected override void OnRepeat(ToggleActionParams param)
         {
             base.OnRepeat(param);
             try
@@ -79,7 +79,7 @@ namespace Subnautica_Archon.Modules
             }
         }
 
-        public override void OnToggle(ToggleActionParams param)
+        protected override void OnToggle(ToggleActionParams param)
         {
             base.OnToggle(param);
             if (!param.IsActive)
