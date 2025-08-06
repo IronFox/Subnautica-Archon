@@ -127,7 +127,7 @@ namespace Subnautica_Archon
             }
             else
             {
-                archon.whenReadySlotInstanceOf = pickupable;
+                archon.autoAddEmergencyTeleport = pickupable;
             }
             yield return VehicleRegistrar.RegisterVehicle(archon, verbose);
         }

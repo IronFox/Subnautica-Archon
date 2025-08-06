@@ -26,13 +26,15 @@ namespace Subnautica_Archon.Modules
 
         private static Image? icon;
 
+        public static TechType Type { get; private set; } = TechType.None;
+
         //(647.0, -19.1, 381.9)
         //@(811.5, -19.2, 350.5)
         public static TechType Register(Node node)
         {
             icon = SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png");
             var instance = new EmergencyTeleportationModule();
-            return node.RegisterUpgrade(instance, UpgradeCompat.AvsVehiclesOnly).ForAvsVehicle;
+            return Type = node.RegisterUpgrade(instance, UpgradeCompat.AvsVehiclesOnly).ForAvsVehicle;
         }
 
 

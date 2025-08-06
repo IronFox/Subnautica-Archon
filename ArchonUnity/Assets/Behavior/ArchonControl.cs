@@ -25,6 +25,7 @@ public class ArchonControl : MonoBehaviour
     public Renderer exteriorInteriorShadowCaster;
     public Renderer interiorExteriorShadowCaster;
     public Material mapHologramMaterial;
+    public Bioreactor bioreactor;
 
     public PlayerDetector powerCellPlayerDetector;
 
@@ -647,6 +648,7 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.ForwardAxis, forwardAxis);
             statusConsole.Set(StatusProperty.RightAxis, rightAxis);
             statusConsole.Set(StatusProperty.UpAxis, upAxis);
+            statusConsole.Set(StatusProperty.ReactorIsCharging, reactorIsCharging);
             //statusConsole.Set(StatusProperty.OverdriveActive, overdriveActive);
             statusConsole.Set(StatusProperty.CameraDistance, positionCamera.DistanceToTarget);
             statusConsole.Set(StatusProperty.PositionCameraBelowSub, positionCamera.positionBelowTarget);
@@ -662,6 +664,7 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.OpenUpgradeCover, openUpgradeCover);
             statusConsole.Set(StatusProperty.IsFirstPerson, positionCamera.isFirstPerson);
             statusConsole.Set(StatusProperty.Lights, lights);
+            statusConsole.Set(StatusProperty.MaxDockedVehicles, maxDockedVehicles);
             statusConsole.Set(StatusProperty.NumDockedVehicles, bayControl.NumDockedVehicles);
         }
         catch (Exception ex)
@@ -1054,6 +1057,8 @@ public class ArchonControl : MonoBehaviour
             UpdateLighting();
 
             UpdateTeleportation();
+
+            UpdateBioreactor();
         }
         catch (Exception ex)
         {
@@ -1062,6 +1067,21 @@ public class ArchonControl : MonoBehaviour
         }
     }
 
+    private void UpdateBioreactor()
+    {
+        try
+        {
+            if (bioreactor)
+            {
+                bioreactor.isCharging = reactorIsCharging;
+                bioreactor.powerOff = batteryDead || powerOff;
+            }
+        }
+        catch (Exception ex)
+        {
+            Log.LogError(nameof(UpdateBioreactor), ex);
+        }
+    }
 
     private void UpdateTeleportation()
     {

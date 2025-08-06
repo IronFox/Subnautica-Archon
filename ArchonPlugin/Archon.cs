@@ -162,7 +162,6 @@ namespace Subnautica_Archon
 
         public override void OnFinishedLoading()
         {
-            base.OnFinishedLoading();
             Log.Write($"Comparing colors {BaseColor} and {StripeColor}");
             if (BaseColor == VehicleColor.Default && StripeColor == VehicleColor.Default)
             {
@@ -172,22 +171,28 @@ namespace Subnautica_Archon
             }
 
 
-            if (whenReadySlotInstanceOf != null)
+            if (autoAddEmergencyTeleport != null)
             {
-                Log.Write($"onAwakeSlot is set to {whenReadySlotInstanceOf.NiceName()}. Instantiating");
-                var instance = Instantiate(whenReadySlotInstanceOf.gameObject, modulesRoot.transform).SafeGetComponent<Pickupable>();
-                Log.Write($"Slotting instance {instance.NiceName()}");
-                InventoryItem thisItem = new InventoryItem(instance);
-                if (modules.AddItem(slotIDs[0], thisItem, true))
+                var cnt = modules.GetCount(EmergencyTeleportationModule.Type);
+                if (cnt == 0)
                 {
-                    Log.Write($"Slotted. Modules now: ");
-                    foreach (var slot in slotIDs)
+                    Log.Write($"onAwakeSlot is set to {autoAddEmergencyTeleport.NiceName()}. Instantiating");
+                    var instance = Instantiate(autoAddEmergencyTeleport.gameObject, modulesRoot.transform).SafeGetComponent<Pickupable>();
+                    Log.Write($"Slotting instance {instance.NiceName()}");
+                    InventoryItem thisItem = new InventoryItem(instance);
+                    if (modules.AddItem(slotIDs[0], thisItem, true))
                     {
-                        Log.Write($"Slot {slot} has item [{modules.GetItemInSlot(slot)?.item.NiceName()}]");
+                        Log.Write($"Slotted. Modules now: ");
+                        foreach (var slot in slotIDs)
+                        {
+                            Log.Write($"Slot {slot} has item [{modules.GetItemInSlot(slot)?.item.NiceName()}]");
+                        }
                     }
+                    else
+                        Log.Error($"Failed to slot {instance.NiceName()} in slot {slotIDs[0]}");
                 }
                 else
-                    Log.Error($"Failed to slot {instance.NiceName()} in slot {slotIDs[0]}");
+                    Log.Write($"onAwakeSlot is set to {autoAddEmergencyTeleport.NiceName()}. But Emergency Teleportation Module ({EmergencyTeleportationModule.Type.AsString()}) already exists ({cnt} instances). Not instantiating");
             }
             else
                 Log.Write($"onAwakeSlot is not set");
@@ -195,6 +200,9 @@ namespace Subnautica_Archon
 
 
             Control.RedetectDocked();
+
+            base.OnFinishedLoading();
+
         }
 
         //public static Sprite? saveFileSprite, moduleBackground;
@@ -317,10 +325,9 @@ namespace Subnautica_Archon
                 var reactorTransform = interior.Find("Bioreactor");
                 if (reactorTransform)
                 {
-                    var reactor = reactorTransform.gameObject.EnsureComponent<MaterialReactor>();
+                    reactor = reactorTransform.gameObject.EnsureComponent<MaterialReactor>();
                     reactor.Initialize(this, 6, 6, AVS.Localization.Text.Translated("Component.ArchonBioreactor"), 0, MaterialReactor.GetBioReactorData());
                     reactor.canViewWhitelist = false;
-                    reactor.localizeInteractText = true;
                 }
                 else
                     Log.Error("Unable to find Biofuel Storage child");
@@ -1045,6 +1052,7 @@ namespace Subnautica_Archon
             {
                 LazyInit();
 
+                Control.reactorIsCharging = reactor.isGeneratingEnergy;
 
                 if (clippingWater != ClipWater)
                 {
@@ -1325,7 +1333,9 @@ namespace Subnautica_Archon
         private bool exitLimitsSuspended = false;
 
         [SerializeField]
-        internal Pickupable? whenReadySlotInstanceOf;
+        internal Pickupable? autoAddEmergencyTeleport;
+        [SerializeField]
+        private MaterialReactor reactor;
 
         internal void SuspendAutoLeveling()
         {

@@ -1,9 +1,7 @@
 before release:
 
-* limit water tank to Creature/CreatureEgg
-	+ maybe check for presence of WaterParkCreature
 * add reactor sound
-* do not place emergency teleport in slot 1 if found in any other slot
+* do not place emergency teleport in slot 1 if found in any other slot (also seems to evacuate its predecessor into the world)
 * register external flood lights as AVS flood lights
 * fix visual material gap between roof and tail top section
 * enter helm when battery dead
@@ -73,6 +71,8 @@ later:
 
 done:
 
+* limit water tank to Creature/CreatureEgg
+	+ maybe check for presence of WaterParkCreature
 * make ping icon code modification coexist with itself (daisy chain)
 * fix missing right side airlock sounds
 * improve airlock sounds

@@ -122,10 +122,12 @@ public enum StatusProperty
     Health,
     MaxHealth,
     IsHealing,
+    ReactorIsCharging,
     OnboardingCooldown,
     OpenUpgradeCover,
     IsFirstPerson,
     Lights,
     NumDockedVehicles,
+    MaxDockedVehicles,
 }
 
