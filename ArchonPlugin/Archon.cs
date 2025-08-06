@@ -346,7 +346,7 @@ namespace Subnautica_Archon
             }
             else
             {
-                Log.Write($"Water tank not found");
+                Log.Write($"Interior/Map Table/Display/World not found");
             }
 
 
@@ -1477,13 +1477,13 @@ namespace Subnautica_Archon
                     );
                 }
             }
+            var mwps = new List<MobileWaterPark>();
 
 
-            var innateStorages = new List<VehicleStorage>();
             var waterTank = transform.Find("Interior/Water Tank");
             if (waterTank != null)
             {
-                innateStorages.Add(new VehicleStorage(
+                mwps.Add(new MobileWaterPark(
                     displayName: AVS.Localization.Text.Translated("Component.WaterTank"),
                     container: waterTank.gameObject,
                     height: 10,
@@ -1494,6 +1494,7 @@ namespace Subnautica_Archon
             {
                 Log.Write($"Water tank not found");
             }
+            var innateStorages = new List<VehicleStorage>();
 
             List<GameObject> waterClipProxies = new List<GameObject>();
             var clipProxies = transform.Find("WaterClipProxy");
@@ -1634,7 +1635,8 @@ namespace Subnautica_Archon
                 batteries: vehicleBatteries,
                 tetherSources: tetherSources,
                 modulesRootObject: GetOrCreateDefaultModulesRootObject(),
-                helms: helms
+                helms: helms,
+                waterParks: mwps
                 );
 
 

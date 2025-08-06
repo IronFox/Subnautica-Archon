@@ -1,15 +1,13 @@
 before release:
 
-* make ping icon code modification coexist with itself (daisy chain)
 * limit water tank to Creature/CreatureEgg
 	+ maybe check for presence of WaterParkCreature
 * add reactor sound
-* model and replace seat, model magnetic levitation visualization
 * do not place emergency teleport in slot 1 if found in any other slot
 * register external flood lights as AVS flood lights
 * fix visual material gap between roof and tail top section
 * enter helm when battery dead
-* localize AR text
+* localize AR text (TranslationAdapter)
 * set resource costs of docking and teleportation modules
 * tune energy demands of everything
 * set vehicle recipe
@@ -17,7 +15,9 @@ before release:
 * regular teleport modules should displace each other
 * enforce minimum health of 5%, disable invulnerability at 6%, heal to 10%, charge energy from enabling invulnerability
 * reduce forced full open airlock player detection space, maybe disable or accelerate process
+* prevent archon rotation when disembarked
 
+* model and replace seat, model magnetic levitation visualization
 * add localization
 
 no:
@@ -73,6 +73,7 @@ later:
 
 done:
 
+* make ping icon code modification coexist with itself (daisy chain)
 * fix missing right side airlock sounds
 * improve airlock sounds
 * revise front side inner colliders around airlock

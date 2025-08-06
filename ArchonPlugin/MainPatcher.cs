@@ -135,8 +135,6 @@ namespace Subnautica_Archon
 
         public IEnumerator Register(GameObject staticModel)
         {
-            Log.Write("Loading water park");
-
             Coroutine? started = null;
             try
             {
