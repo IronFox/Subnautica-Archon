@@ -1,12 +1,9 @@
 before release:
 
-* improve airlock sounds
 * make ping icon code modification coexist with itself (daisy chain)
 * limit water tank to Creature/CreatureEgg
 	+ maybe check for presence of WaterParkCreature
-* fix missing right side airlock sounds
 * add reactor sound
-* simplify map ship (with simplified hull)
 * add localization
 * model and replace seat, model magnetic levitation visualization
 * do not place emergency teleport in slot 1 if found in any other slot
@@ -16,8 +13,10 @@ before release:
 * localize AR text
 * set resource costs of docking and teleportation modules
 * tune energy demands of everything
-* set vehicle cost
+* set vehicle recipe
 * tune vehicle mass
+* regular teleport modules should displace each other
+* enforce minimum health of 5%, disable invulnerability at 6%, heal to 10%, charge energy from enabling invulnerability
 
 no:
 
@@ -31,6 +30,7 @@ maybe:
 
 later:
 
+* simplify map ship (with simplified hull)
 * revise water clip proxies in the corner near the panels
 * turn off emission of external light source when lights are off
 * tune external material emissions when power is off
@@ -71,6 +71,8 @@ later:
 
 done:
 
+* fix missing right side airlock sounds
+* improve airlock sounds
 * revise front side inner colliders around airlock
 * default to non-free in-cockpit view
 * add docking slot upgrade module(s), prevent docking upgrade being removed while docked subs too high
@@ -143,8 +145,6 @@ charging: slow pulse
 sound references:
 bay door slide:
 	https://freesound.org/people/tompallant/sounds/208721/
-airlock whirl:
-	https://freesound.org/people/pkri/sounds/587511/
 	
 teleport sound:
 	Teleporter.wav by aj_heels -- https://freesound.org/s/523591/ -- License: Attribution 4.0

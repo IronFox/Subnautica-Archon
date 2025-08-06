@@ -60,9 +60,10 @@ public class HatchControl : MonoBehaviour
 
         if (whirlSound != null)
         {
-            whirlSound.volume = Interval(progress, 0, 0.7f);
-            whirlSound.pitch = 2 + 2 * progress;
-            whirlSound.play = true;
+            float v = Interval(progress, 0, 0.7f);
+            whirlSound.play = v > 0;
+            whirlSound.volume = v;
+            whirlSound.pitch = 0.5f + 0.3f * progress;
         }
         if (slideSound != null)
         {
