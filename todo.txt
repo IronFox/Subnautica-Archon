@@ -1,11 +1,8 @@
 before release:
 
-* add reactor sound
-* do not place emergency teleport in slot 1 if found in any other slot (also seems to evacuate its predecessor into the world)
 * register external flood lights as AVS flood lights
 * fix visual material gap between roof and tail top section
 * enter helm when battery dead
-* localize AR text (TranslationAdapter)
 * set resource costs of docking and teleportation modules
 * tune energy demands of everything
 * set vehicle recipe
@@ -17,6 +14,7 @@ before release:
 
 * model and replace seat, model magnetic levitation visualization
 * add localization
+* localize AR text (TranslationAdapter)
 
 no:
 
@@ -71,6 +69,8 @@ later:
 
 done:
 
+* do not place emergency teleport in slot 1 if found in any other slot (also seems to evacuate its predecessor into the world)
+* add reactor sound
 * limit water tank to Creature/CreatureEgg
 	+ maybe check for presence of WaterParkCreature
 * make ping icon code modification coexist with itself (daisy chain)
