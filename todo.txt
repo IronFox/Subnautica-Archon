@@ -26,6 +26,8 @@ maybe:
 
 later:
 
+* fix teleportation sounds
+* improve teleportation visuals
 * simplify map ship (with simplified hull)
 * revise water clip proxies in the corner near the panels and in upper tail section
 * turn off emission of external light source when lights are off
