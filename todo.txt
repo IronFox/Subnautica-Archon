@@ -1,6 +1,5 @@
 before release:
 
-* register external flood lights as AVS flood lights
 * fix visual material gap between roof and tail top section
 * enter helm when battery dead
 * set resource costs of docking and teleportation modules
@@ -22,6 +21,7 @@ no:
 * chargeable non-useful afterall because we are not informed of the charge status even if it otherwise would work	
 * zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit. not gonna work
 * evacuate fish ( seems to no longer happen)
+* register external flood lights as AVS head lights (the volumetric light visualization does not appear to heed the light's angle)
 
 maybe:
 * add AVS fabricator to pre-built mesh (every spot is potentially bad, some spots near upgrade panel can't normally be built at)
@@ -69,6 +69,7 @@ later:
 
 done:
 
+* add option to enable/disable external light shadows. enable by default
 * do not place emergency teleport in slot 1 if found in any other slot (also seems to evacuate its predecessor into the world)
 * add reactor sound
 * limit water tank to Creature/CreatureEgg
