@@ -17,8 +17,9 @@ public class DriveControl : MonoBehaviour
     public float thrust;
     public float overdrive;
     public bool cameraIsExternal;
+    public bool isOutOfWater;
     private bool cameraWasExternal;
-
+    private float waterDensity = 0;
     private float emissionSpeed;
     private float emissionRate;
 
@@ -46,6 +47,11 @@ public class DriveControl : MonoBehaviour
     {
         thrust = Mathf.Clamp(thrust, -1, 1);
 
+        if (isOutOfWater)
+            waterDensity -= Time.deltaTime;
+        else
+            waterDensity += Time.deltaTime;
+        waterDensity = Mathf.Clamp01(waterDensity);
 
         if (cameraWasExternal != cameraIsExternal)
         {
@@ -65,7 +71,7 @@ public class DriveControl : MonoBehaviour
         if (Time.deltaTime > 0)
         {
             var speed = -Vector3.Dot(transform.position - lastMainPosition, transform.forward) / Time.deltaTime;
-
+            speed *= waterDensity;
             float rot = maxRPS * (speed / 10 + thrust) * Time.deltaTime;
             foreach (var p in alwaysFullPropellers)
             {
@@ -83,6 +89,7 @@ public class DriveControl : MonoBehaviour
             if (Time.deltaTime > 0)
             {
                 float speed = (transform.position - lastMainPosition).magnitude / Time.deltaTime;
+                speed *= waterDensity;
 
                 var audioThrust = speed / 30;
                 //if (audioThrust > 0)

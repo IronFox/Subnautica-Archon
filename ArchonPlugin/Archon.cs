@@ -59,7 +59,7 @@ namespace Subnautica_Archon
         private EnergyInterface? energyInterface;
         private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
 
-        private bool clippingWater;
+        private bool? clippingWater = null;
         private bool isInCriticalRecovery = false;
         private Dictionary<string, VoiceLibrary> VoiceLibraries { get; } = new Dictionary<string, VoiceLibrary>();
 

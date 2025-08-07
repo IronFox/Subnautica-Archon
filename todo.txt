@@ -1,8 +1,6 @@
 before release:
 
 * tune energy demands of everything
-* prevent archon rotation when disembarked
-* disable drive sound when out of water
 
 * model and replace seat, model magnetic levitation visualization
 * add localization
@@ -21,6 +19,7 @@ maybe:
 
 later:
 
+* disable drive sound when out of water
 * charge/repair docked vehicles
 * fix teleportation sounds
 * improve teleportation visuals
@@ -65,6 +64,7 @@ later:
 
 done:
 
+* prevent archon rotation when disembarked. Problematic. Simply freezing rotation causes all sorts of problems
 * spawn with airlock closed, no sounds
 * reduce forced full open airlock player detection space, maybe disable or accelerate process
 * enforce minimum health of 5%, disable invulnerability at 6%, heal to 10%, charge energy from enabling invulnerability
