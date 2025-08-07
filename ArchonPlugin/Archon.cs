@@ -849,7 +849,7 @@ namespace Subnautica_Archon
 
                         liveMixin.AddHealth(clamped);
                         Control.isHealing = true;
-
+                        liveMixin.invincible = true;
                     }
                     else if (isInCriticalRecovery)
                     {
