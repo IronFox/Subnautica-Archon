@@ -59,23 +59,23 @@ namespace Subnautica_Archon.Modules
                 {
                     case ArchonModule.RepairModuleMk1:
                         return NewRecipe
-                            .StartWith(TechType.Welder, 1)
-                            .Include(TechType.ComputerChip, 1)
+                            .Add(TechType.Welder, 1)
+                            .Add(TechType.ComputerChip, 1)
                             .Done();
                     case ArchonModule.RepairModuleMk2:
                         return NewRecipe
-                            .StartWith(GetTechTypeOf(ArchonModule.RepairModuleMk1), 1)
-                            .Include(TechType.Welder, 1)
-                            .Include(TechType.AdvancedWiringKit, 2)
-                            .Include(TechType.Magnetite, 2)
+                            .Add(GetTechTypeOf(ArchonModule.RepairModuleMk1), 1)
+                            .Add(TechType.Welder, 1)
+                            .Add(TechType.AdvancedWiringKit, 2)
+                            .Add(TechType.Magnetite, 2)
                             .Done();
                     case ArchonModule.RepairModuleMk3:
                         return NewRecipe
-                            .StartWith(GetTechTypeOf(ArchonModule.RepairModuleMk2), 1)
-                            .Include(TechType.Welder, 1)
-                            .Include(TechType.PrecursorIonCrystal, 1)
-                            .Include(TechType.Polyaniline, 2)
-                            .Include(TechType.Nickel, 2)
+                            .Add(GetTechTypeOf(ArchonModule.RepairModuleMk2), 1)
+                            .Add(TechType.Welder, 1)
+                            .Add(TechType.PrecursorIonCrystal, 1)
+                            .Add(TechType.Polyaniline, 2)
+                            .Add(TechType.Nickel, 2)
                             .Done();
                     default:
                         return Recipe.Empty;

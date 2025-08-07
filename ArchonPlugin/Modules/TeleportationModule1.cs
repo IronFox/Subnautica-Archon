@@ -33,12 +33,12 @@ namespace Subnautica_Archon.Modules
         }
 
         public override Recipe Recipe =>
-            NewRecipe.WithNothing()
-                .Include(TechType.Magnetite, 4)
-                .Include(TechType.ComputerChip, 2)
-                .Include(TechType.Aerogel, 2)
-                .Include(TechType.PrecursorIonCrystal, 1)
-                .Include(TechType.PrecursorKey_Blue, 1)
+            NewRecipe
+                .Add(TechType.Magnetite, 4)
+                .Add(TechType.ComputerChip, 2)
+                .Add(TechType.Aerogel, 2)
+                .Add(TechType.PrecursorIonCrystal, 1)
+                .Add(TechType.PrecursorKey_Blue, 1)
                 .Done();
 
 

@@ -85,10 +85,12 @@ namespace Subnautica_Archon
             canEnterHelmWithoutPower: true,
             materialAdaptConfig: new MaterialAdaptConfig(),
             recipe: NewRecipe
-                .StartWith(TechType.PowerCell, 1)
-                .Include(TechType.AdvancedWiringKit, 2)
-                .Include(TechType.Diamond, 2)
-                .Include(TechType.PlasteelIngot, 4)
+                .Add(TechType.PowerCell, 3)
+                .Add(TechType.AdvancedWiringKit, 2)
+                .Add(TechType.Diamond, 6)
+                .Add(TechType.PlasteelIngot, 6)
+                .Add(TechType.Lubricant, 1)
+                .Add(TechType.Lead, 3)
                 .Done(),
             getVoiceSoundVolume: () => MainPatcher.PluginConfig.voiceVolumePercent / 100f
             / 5 //the archon uses a shitload of tethers and each is a player in VF/AVS

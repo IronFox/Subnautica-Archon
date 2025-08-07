@@ -13,11 +13,11 @@ namespace Subnautica_Archon.Modules
         }
 
         public override Recipe Recipe =>
-            NewRecipe.WithNothing()
-                .Include(TechType.PlasteelIngot, 2)
-                .Include(TechType.ComputerChip, 3)
-                .Include(TechType.Magnetite, 2)
-                .Include(TechType.Polyaniline, 2)
+            NewRecipe
+                .Add(TechType.PlasteelIngot, 2)
+                .Add(TechType.ComputerChip, 3)
+                .Add(TechType.Magnetite, 2)
+                .Add(TechType.Polyaniline, 2)
                 .Done();
 
 
