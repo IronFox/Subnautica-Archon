@@ -954,13 +954,12 @@ namespace Subnautica_Archon
         private void ProcessTriggers()
         {
             if (Control.IsBeingControlled
-                && Player.main.pda.state == PDA.State.Closed
-                && !IngameMenu.main.gameObject.activeSelf
+                && !Character.IsAnyMenuOpen
                 )
             {
                 if (GameInput.GetButtonDown(GameInput.Button.RightHand))
                 {
-                    SetLights(!Control.lights);
+                    SetLights(!Control.floodLights);
                 }
             }
 
@@ -968,14 +967,14 @@ namespace Subnautica_Archon
 
         private void SetLights(bool on)
         {
-            if (Control.lights == on)
+            if (Control.floodLights == on)
                 return;
-            if (on && !Control.lights && Control.batteryDead)
+            if (on && (Control.batteryDead || Control.powerOff))
             {
-                Log.Warn($"Battery dead. Cannot turn lights on");
+                Log.Warn($"Battery dead or ship powered off. Cannot turn lights on");
                 return;
             }
-            Control.lights = on;
+            Control.floodLights = on;
             if (on)
             {
                 LightsOnSound.Stop();
@@ -1052,7 +1051,8 @@ namespace Subnautica_Archon
             {
                 LazyInit();
 
-                Control.reactorIsCharging = reactor.isGeneratingEnergy;
+                if (reactor != null)
+                    Control.reactorIsCharging = reactor.isGeneratingEnergy;
 
                 if (clippingWater != ClipWater)
                 {
@@ -1154,6 +1154,8 @@ namespace Subnautica_Archon
                     Control.lookUpAxis = lookDelta.y * 0.1f;
                 }
 
+                Control.floodLightShadows = MainPatcher.PluginConfig.floodLightShadows;
+
                 ProcessEnergyRecharge();
                 ProcessRegeneration();
                 ForwardControlAxes();
@@ -1212,11 +1214,14 @@ namespace Subnautica_Archon
         public void OnPowerUp()
         {
             Control.powerOff = false;
+            if (!Control.batteryDead)
+                SetLights(true);
         }
 
         public void OnPowerDown()
         {
             Control.powerOff = true;
+            SetLights(false);
         }
 
         public void OnBatteryDead()
@@ -1228,7 +1233,8 @@ namespace Subnautica_Archon
         public void OnBatteryRevive()
         {
             Control.batteryDead = false;
-            SetLights(true);
+            if (!Control.powerOff)
+                SetLights(true);
         }
 
         public void OnBatterySafe()
@@ -1335,7 +1341,7 @@ namespace Subnautica_Archon
         [SerializeField]
         internal Pickupable? autoAddEmergencyTeleport;
         [SerializeField]
-        private MaterialReactor reactor;
+        private MaterialReactor? reactor;
 
         internal void SuspendAutoLeveling()
         {
@@ -1552,7 +1558,7 @@ namespace Subnautica_Archon
             else
                 Log.Write($"Upgrades interface not found");
 
-            var vehicleBatteries = new List<VehiclePowerCellDefinition>();
+            var powerCells = new List<VehiclePowerCellDefinition>();
 
 
             var cells = transform.Find("Interior/Power Cell Panel/Cells");
@@ -1567,7 +1573,7 @@ namespace Subnautica_Archon
                         Log.Warn($"Power cell slot not found in {b.NiceName()}");
                     if (b != null)
                     {
-                        vehicleBatteries.Add(new VehiclePowerCellDefinition(
+                        powerCells.Add(new VehiclePowerCellDefinition(
                             root: b.gameObject,
                             batteryProxy: slot.OrRequired(b)
                         ));
@@ -1642,7 +1648,7 @@ namespace Subnautica_Archon
                 innateStorages: innateStorages,
                 waterClipProxies: waterClipProxies,
                 upgrades: upgrades,
-                batteries: vehicleBatteries,
+                powerCells: powerCells,
                 tetherSources: tetherSources,
                 modulesRootObject: GetOrCreateDefaultModulesRootObject(),
                 helms: helms,

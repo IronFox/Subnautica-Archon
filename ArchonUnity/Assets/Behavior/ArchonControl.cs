@@ -69,7 +69,9 @@ public class ArchonControl : MonoBehaviour
     public bool reactorIsCharging;
     public bool openUpgradeCover;
     public bool openPowerCellCover;
-    public bool lights;
+
+    public bool floodLights;
+    public LightShadows floodLightShadows = LightShadows.None;
 
     public int maxDockedVehicles = 2;
 
@@ -663,7 +665,7 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.OnboardingCooldown, OnboardingCooldown);
             statusConsole.Set(StatusProperty.OpenUpgradeCover, openUpgradeCover);
             statusConsole.Set(StatusProperty.IsFirstPerson, positionCamera.isFirstPerson);
-            statusConsole.Set(StatusProperty.Lights, lights);
+            statusConsole.Set(StatusProperty.Lights, floodLights);
             statusConsole.Set(StatusProperty.MaxDockedVehicles, maxDockedVehicles);
             statusConsole.Set(StatusProperty.NumDockedVehicles, bayControl.NumDockedVehicles);
         }
@@ -1098,7 +1100,8 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
-            hullLightController.lightsEnabled = lights;
+            hullLightController.lightsEnabled = floodLights;
+            hullLightController.shadows = cameraIsInVehicle ? LightShadows.None : floodLightShadows;
 
 
             InteriorLightState lightState = new InteriorLightState(
@@ -1211,7 +1214,7 @@ public class ArchonControl : MonoBehaviour
 
 
 
-            hullLightController.lightsEnabled = lights;
+            hullLightController.lightsEnabled = floodLights;
         }
         catch (Exception ex)
         {

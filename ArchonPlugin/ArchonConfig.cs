@@ -6,6 +6,13 @@ using UnityEngine;
 [Menu("Archon Options")]
 public class ArchonConfig : ConfigFile
 {
+    [Choice("Flood light shadows. May impact performance",
+        "Option.FloodLightShadows.None",
+        "Option.FloodLightShadows.Hard",
+        "Option.FloodLightShadows.Soft",
+        LabelLanguageId = "Option.FloodLightShadows"
+    )]
+    public LightShadows floodLightShadows = LightShadows.Hard;
     [Keybind("Toggle Free Camera", LabelLanguageId = "Option.Button.ToggleFreeCamera")]
     public KeyCode toggleFreeCamera = KeyCode.F;
     [Keybind("Change 3rd Person Camera Height", LabelLanguageId = "Option.Button.ChangeExternalCameraHeight")]
@@ -25,6 +32,7 @@ public class ArchonConfig : ConfigFile
     [Toggle("Show voice subtitles", LabelLanguageId = "Option.ShowVoiceSubtitles")]
     public bool showVoiceSubtitles = false;
     [Choice("Autopilot voice",
+        "Option.AutopilotVoice.Off",
         "Option.AutopilotVoice.Default",
         LabelLanguageId = "Option.AutopilotVoice"
     )]
