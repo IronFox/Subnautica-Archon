@@ -1,6 +1,5 @@
 before release:
 
-* fix visual material gap between roof and tail top section
 * enter helm when battery dead
 * set resource costs of docking and teleportation modules
 * tune energy demands of everything
@@ -28,8 +27,9 @@ maybe:
 
 later:
 
+* fix visual material gap between roof and tail top section
 * simplify map ship (with simplified hull)
-* revise water clip proxies in the corner near the panels
+* revise water clip proxies in the corner near the panels and in upper tail section
 * turn off emission of external light source when lights are off
 * tune external material emissions when power is off
 * tune ceiling glass curvature in nose section (seems to be very curved as to produce reflections)
