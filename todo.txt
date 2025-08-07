@@ -1,6 +1,5 @@
 before release:
 
-* enter helm when battery dead
 * set resource costs of docking and teleportation modules
 * tune energy demands of everything
 * set vehicle recipe
@@ -27,7 +26,6 @@ maybe:
 
 later:
 
-* fix visual material gap between roof and tail top section
 * simplify map ship (with simplified hull)
 * revise water clip proxies in the corner near the panels and in upper tail section
 * turn off emission of external light source when lights are off
@@ -69,6 +67,8 @@ later:
 
 done:
 
+* enter helm when battery dead
+* fix visual material gap between roof and tail top section
 * add option to enable/disable external light shadows. enable by default
 * do not place emergency teleport in slot 1 if found in any other slot (also seems to evacuate its predecessor into the world)
 * add reactor sound
