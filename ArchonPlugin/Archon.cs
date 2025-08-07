@@ -88,9 +88,9 @@ namespace Subnautica_Archon
                 .Add(TechType.PowerCell, 3)
                 .Add(TechType.AdvancedWiringKit, 2)
                 .Add(TechType.Diamond, 6)
-                .Add(TechType.PlasteelIngot, 6)
+                .Add(TechType.PlasteelIngot, 5)
+                .Add(TechType.Aerogel, 3)
                 .Add(TechType.Lubricant, 1)
-                .Add(TechType.Lead, 3)
                 .Done(),
             getVoiceSoundVolume: () => MainPatcher.PluginConfig.voiceVolumePercent / 100f
             / 5 //the archon uses a shitload of tethers and each is a player in VF/AVS
@@ -821,8 +821,8 @@ namespace Subnautica_Archon
                 if (delta > 0)
                 {
 
-                    var criticalHealingLimit = liveMixin.maxHealth * 0.05f;
-                    var critical = liveMixin.health < liveMixin.maxHealth * 0.01f;
+                    var criticalHealingLimit = liveMixin.maxHealth * 0.1f;
+                    var critical = liveMixin.health < liveMixin.maxHealth * 0.05f;
                     if (critical && !isInCriticalRecovery)
                     {
                         ErrorMessage.AddMessage(Language.main.Get($"CriticalHealth.RepairEnabled"));
@@ -1127,21 +1127,10 @@ namespace Subnautica_Archon
                 if (!liveMixin.IsAlive() || wasDead)
                 {
                     Log.Warn($"Vehicle reported as dead. Reviving. Setting invincible");
+                    UnscuttleVehicle();
                     wasDead = false;
                     liveMixin.health = liveMixin.maxHealth * 0.01f;
                     liveMixin.invincible = true;    //archon is immortal
-                    //                    wasDead = true;
-                    //deathAge += Time.deltaTime;
-                    //if (deathAge > 1.5f)
-                    //{
-                    //    Log.Write($"Emitting pseudo self destruct");
-                    //    Control.SelfDestruct(true);
-                    //    Log.Write($"Calling OnSalvage");
-                    //    OnSalvage();
-                    //    enabled = false;
-                    //    Log.Write($"Done?");
-                    //    return;
-                    //}
                 }
 
                 //ArchonControl.targetArrows = MainPatcher.PluginConfig.targetArrows;
