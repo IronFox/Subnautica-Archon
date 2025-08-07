@@ -1,9 +1,7 @@
 before release:
 
 * tune energy demands of everything
-* reduce forced full open airlock player detection space, maybe disable or accelerate process
 * prevent archon rotation when disembarked
-* spawn with airlock closed, no sounds
 * disable drive sound when out of water
 
 * model and replace seat, model magnetic levitation visualization
@@ -23,6 +21,7 @@ maybe:
 
 later:
 
+* charge/repair docked vehicles
 * fix teleportation sounds
 * improve teleportation visuals
 * simplify map ship (with simplified hull)
@@ -66,6 +65,8 @@ later:
 
 done:
 
+* spawn with airlock closed, no sounds
+* reduce forced full open airlock player detection space, maybe disable or accelerate process
 * enforce minimum health of 5%, disable invulnerability at 6%, heal to 10%, charge energy from enabling invulnerability
 * tune vehicle mass. Friction somewhat difficult to control. Leaving it at 20k, added aerogel to the recipe, removed lead
 * regular teleport modules should displace each other

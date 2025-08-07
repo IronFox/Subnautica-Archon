@@ -2,7 +2,7 @@
 
 public class PlayerDetector : MonoBehaviour
 {
-    private int lastPlayerFrame;
+    private int lastPlayerFrame = -10000;
     private int frameCounter;
     private BoxCollider _collider;
     public void Start()

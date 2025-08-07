@@ -33,11 +33,17 @@ public class HatchControl : MonoBehaviour
 
         if (closeProximity.HasPlayer)
         {
-            if (progress < 1.0f)
+            if (progress < 1f)
             {
-                progress = 1;
+                progress += Time.deltaTime / openSeconds * 2;
+                progress = Mathf.Clamp01(progress);
                 play = true;
             }
+            //if (progress < 1.0f)
+            //{
+            //    progress = 1;
+            //    play = true;
+            //}
         }
         else if (proximity.HasPlayer)
         {
