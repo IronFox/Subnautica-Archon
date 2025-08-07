@@ -64,6 +64,7 @@ later:
 
 done:
 
+* fix cracking sounds on load
 * prevent archon rotation when disembarked. Problematic. Simply freezing rotation causes all sorts of problems
 * spawn with airlock closed, no sounds
 * reduce forced full open airlock player detection space, maybe disable or accelerate process
