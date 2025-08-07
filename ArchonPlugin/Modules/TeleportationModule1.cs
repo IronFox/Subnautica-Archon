@@ -5,6 +5,7 @@ using AVS.Crafting;
 using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
 using Subnautica_Archon.Util;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Subnautica_Archon.Modules
@@ -25,12 +26,19 @@ namespace Subnautica_Archon.Modules
         public override Atlas.Sprite Icon => icon!.Value.AtlasSprite;
 
         private static Image? icon;
+
+        public static TechType Type { get; private set; } = TechType.None;
         public static TechType Register(Node node)
         {
             icon = SpriteHelper.RequireImage("images/TeleportationModule1.png");
             var instance = new TeleportationModule1();
-            return node.RegisterUpgrade(instance, UpgradeCompat.AvsVehiclesOnly).ForAvsVehicle;
+            Type = node.RegisterUpgrade(instance, UpgradeCompat.AvsVehiclesOnly).ForAvsVehicle;
+            autoDisplace.Add(Type);
+            return Type;
         }
+
+        private static readonly List<TechType> autoDisplace = new List<TechType>();
+        public override IReadOnlyCollection<TechType>? AutoDisplace => autoDisplace;
 
         public override Recipe Recipe =>
             NewRecipe
