@@ -7305,8 +7305,8 @@ MonoBehaviour:
   clip: {fileID: 8300000, guid: 7fb20ab1c9b0c4348a3823c7d311e237, type: 3}
   volume: 1
   play: 0
-  minDistance: 100
-  maxDistance: 500
+  minDistance: 500
+  maxDistance: 1000
   is3D: 1
   pitch: 1
   loop: 0
