@@ -1,4 +1,5 @@
 ﻿using AVS.BaseVehicle;
+using AVS.Configuration;
 using AVS.Localization;
 using AVS.UpgradeModules;
 using System.Diagnostics.CodeAnalysis;
@@ -10,6 +11,15 @@ namespace Subnautica_Archon.Modules
         public DockingModule() : base(ArchonModule.DockingModuleMk1)
         {
         }
+
+        public override Recipe Recipe =>
+            NewRecipe.WithNothing()
+                .Include(TechType.PlasteelIngot, 2)
+                .Include(TechType.ComputerChip, 3)
+                .Include(TechType.Magnetite, 2)
+                .Include(TechType.Polyaniline, 2)
+                .Done();
+
 
 
 

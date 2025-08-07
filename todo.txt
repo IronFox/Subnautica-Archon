@@ -1,6 +1,5 @@
 before release:
 
-* set resource costs of docking and teleportation modules
 * tune energy demands of everything
 * set vehicle recipe
 * tune vehicle mass
@@ -69,6 +68,7 @@ later:
 
 done:
 
+* set resource costs of docking and teleportation modules
 * enter helm when battery dead
 * fix visual material gap between roof and tail top section
 * add option to enable/disable external light shadows. enable by default

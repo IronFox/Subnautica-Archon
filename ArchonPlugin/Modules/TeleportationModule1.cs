@@ -1,5 +1,6 @@
 ﻿using Assets.Behavior.TransferTypes;
 using AVS.Assets;
+using AVS.Configuration;
 using AVS.Crafting;
 using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
@@ -30,6 +31,15 @@ namespace Subnautica_Archon.Modules
             var instance = new TeleportationModule1();
             return node.RegisterUpgrade(instance, UpgradeCompat.AvsVehiclesOnly).ForAvsVehicle;
         }
+
+        public override Recipe Recipe =>
+            NewRecipe.WithNothing()
+                .Include(TechType.Magnetite, 4)
+                .Include(TechType.ComputerChip, 2)
+                .Include(TechType.Aerogel, 2)
+                .Include(TechType.PrecursorIonCrystal, 1)
+                .Include(TechType.PrecursorKey_Blue, 1)
+                .Done();
 
 
         protected override void OnRepeat(IToggleState state)
