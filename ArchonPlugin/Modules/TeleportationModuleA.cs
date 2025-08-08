@@ -1,7 +1,5 @@
 ﻿using Assets.Behavior.TransferTypes;
-using AVS.Assets;
 using AVS.Configuration;
-using AVS.Crafting;
 using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
 using Subnautica_Archon.Util;
@@ -10,29 +8,21 @@ using UnityEngine;
 
 namespace Subnautica_Archon.Modules
 {
-    internal class TeleportationModule1 : ToggleableModule
+    internal class TeleportationModuleA : ArchonToggleableBaseModule
     {
         public static float SecondsUntilTeleport { get; } = 5f;
 
-
-        public override string ClassId => $"ArchonTeleportationModule1";
-
-        public override string DisplayName => Language.main.Get("Modules.Teleportation1.Name");
-
-        public override string Description => Language.main.Get("Modules.Teleportation1.Description");
-
         public override float EnergyCostPerActivation => 10;
 
-        public override Atlas.Sprite Icon => icon!.Value.AtlasSprite;
 
-        private static Image? icon;
+        private TeleportationModuleA()
+            : base(ArchonModule.TeleportationModuleA)
+        { }
 
         public static TechType Type { get; private set; } = TechType.None;
-        public static TechType Register(Node node)
+        public static TechType RegisterAll(Node node)
         {
-            icon = SpriteHelper.RequireImage("images/TeleportationModule1.png");
-            var instance = new TeleportationModule1();
-            Type = node.RegisterUpgrade(instance, UpgradeCompat.AvsVehiclesOnly).ForAvsVehicle;
+            Type = new TeleportationModuleA().Register(node);
             autoDisplace.Add(Type);
             return Type;
         }
@@ -56,8 +46,8 @@ namespace Subnautica_Archon.Modules
             var vehicle = state.Vehicle as Archon;
             if (vehicle == null)
                 return;
-            var target = vehicle.TeleportationTarget1;
-            var orientation = vehicle.TeleportationOrientation1;
+            var target = vehicle.TeleportationTargetA;
+            var orientation = vehicle.TeleportationOrientationA;
             if (target == null || orientation == null)
             {
                 vehicle.Log.Debug($"TeleportationModule1.OnRepeat: No target or orientation set for vehicle {vehicle.NiceName()} in slot {state.SlotID} at time {state.EventTime}");
@@ -122,8 +112,8 @@ namespace Subnautica_Archon.Modules
                     {
                         Subtitles.Add(Language.main.Get("Modules.Teleportation.Recorded"));
                         vehicle.Log.Debug($"OnToggle: Recording location");
-                        vehicle.TeleportationTarget1 = vehicle.transform.position;
-                        vehicle.TeleportationOrientation1 = vehicle.transform.rotation.eulerAngles;
+                        vehicle.TeleportationTargetA = vehicle.transform.position;
+                        vehicle.TeleportationOrientationA = vehicle.transform.rotation.eulerAngles;
                     }
                     else
                         vehicle.Log.Debug($"OnToggle: TeleportationModule1 deactivated on vehicle {vehicle.NiceName()} in slot {state.SlotID} at time {state.EventTime}. This is not a keypress");

@@ -118,20 +118,20 @@ namespace Subnautica_Archon.Adapters
 
         public string ClassName => Vehicle.GetType().Name + " Class";
 
-        private static Text Classify(string name, float current, float max)
+        private static Text Classify(string template, float current, float max)
         {
-            var text = $"{name}: {current.Percentage(max)}";
+            var text = string.Format(template, current.Percentage(max));
             if (current < max * 0.25f)
                 return Text.Error(text);
             if (current < max * 0.5f)
                 return Text.Warning(text);
             return Text.Info(text);
         }
-        private static Text ClassifyDepth(string name, float current, float max)
+        private static Text ClassifyDepth(string template, float current, float max)
         {
             //if (current <= 0)
             //    return Text.Error($"{name}: {current}/{max}");
-            var text = $"{name}: {M.Round(current, 0)}/{M.Round(max, 0)}m";
+            var text = string.Format(template, M.Round(current, 0), M.Round(max, 0));
             if (current > max)
                 return Text.Error(text);
             if (current > max * 0.95f)
@@ -146,9 +146,9 @@ namespace Subnautica_Archon.Adapters
                 var mixin = Vehicle.liveMixin;
                 if (mixin == null)
                 {
-                    return Text.Error("Health: Unknown");
+                    return Text.Error(Language.main.Get("Dockable.Text.HealthUnknown"));
                 }
-                return Classify($"Health", mixin.health, mixin.maxHealth);
+                return Classify(Language.main.Get("Dockable.Text.Health"), mixin.health, mixin.maxHealth);
             }
         }
         public Text PowerText
@@ -158,10 +158,10 @@ namespace Subnautica_Archon.Adapters
                 var energy = Vehicle.GetComponent<EnergyInterface>();
                 if (energy == null)
                 {
-                    return Text.Error("Power: Unknown");
+                    return Text.Error(Language.main.Get("Dockable.Text.PowerUnknown"));
                 }
                 energy.GetValues(out var charge, out var capacity);
-                return Classify($"Power", charge, capacity);
+                return Classify(Language.main.Get("Dockable.Text.Power"), charge, capacity);
             }
         }
 
@@ -172,7 +172,7 @@ namespace Subnautica_Archon.Adapters
             {
                 var d = Archon.crushDamage.GetDepth();
                 var max = Vehicle.crushDamage.crushDepth;
-                return ClassifyDepth($"Depth", d, max);
+                return ClassifyDepth(Language.main.Get("Dockable.Text.Depth"), d, max);
             }
         }
 
@@ -196,7 +196,7 @@ namespace Subnautica_Archon.Adapters
                     catch (IndexOutOfRangeException)
                     { }//odd but w/e
                 }
-                return Text.Info($"Storage: {count}/{total}");
+                return Text.Info(Language.main.GetFormat("Dockable.Text.Storage", count, total));
             }
         }
 

@@ -1,7 +1,5 @@
 ﻿using Assets.Behavior.TransferTypes;
-using AVS.Assets;
 using AVS.BaseVehicle;
-using AVS.Crafting;
 using AVS.Localization;
 using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
@@ -11,30 +9,23 @@ using UnityEngine;
 
 namespace Subnautica_Archon.Modules
 {
-    internal class EmergencyTeleportationModule : ToggleableModule
+    internal class EmergencyTeleportationModule : ArchonToggleableBaseModule
     {
+        private EmergencyTeleportationModule()
+            : base(ArchonModule.EmergencyTeleportationModule)
+        { }
         public static float SecondsUntilTeleport { get; } = 5f;
 
 
-        public override string ClassId => $"ArchonEmergencyTeleportationModule";
-
-        public override string DisplayName => Language.main.Get("Modules.EmergencyTeleportation.Name");
-
-        public override string Description => Language.main.Get("Modules.EmergencyTeleportation.Description");
-
-        public override Atlas.Sprite Icon => icon!.Value.AtlasSprite;
-
-        private static Image? icon;
 
         public static TechType Type { get; private set; } = TechType.None;
 
         //(647.0, -19.1, 381.9)
         //@(811.5, -19.2, 350.5)
-        public static TechType Register(Node node)
+        public new static TechType Register(Node node)
         {
-            icon = SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png");
-            var instance = new EmergencyTeleportationModule();
-            return Type = node.RegisterUpgrade(instance, UpgradeCompat.AvsVehiclesOnly).ForAvsVehicle;
+            Type = ((ArchonToggleableBaseModule)new EmergencyTeleportationModule()).Register(node);
+            return Type;
         }
 
 

@@ -75,8 +75,6 @@ public class ArchonControl : MonoBehaviour
 
     public int maxDockedVehicles = 2;
 
-    public string noDockableTitle = "Nothing docked";
-
     private DateTime lastOnboarded;
     private IDockable selectedDockable;
 

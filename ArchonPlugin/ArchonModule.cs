@@ -7,5 +7,7 @@
         RepairModuleMk1,
         RepairModuleMk2,
         RepairModuleMk3,
+        EmergencyTeleportationModule,
+        TeleportationModuleA,
     }
 }

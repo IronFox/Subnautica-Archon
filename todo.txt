@@ -3,8 +3,6 @@ before release:
 * tune energy demands of everything
 
 * model and replace seat, model magnetic levitation visualization
-* add localization
-* localize AR text (TranslationAdapter)
 
 no:
 
@@ -19,6 +17,9 @@ maybe:
 
 later:
 
+* charge docked craft
+* repair docked craft
+* revise healing light repetition
 * disable drive sound when out of water
 * charge/repair docked vehicles
 * fix teleportation sounds
@@ -60,10 +61,14 @@ later:
 	Add one line to your plugin Awake() or Start()
 	ModMessageSystem.SendGlobal("FindMyUpdates", "URL (raw) to your json file")
 	Done. If users have Find My Updates installed, your mod will be checked for updates using the information in the json file 
-
+* Torpedo launchers
+* Flight module
+* Fear module (makes creatures run away from it)
 
 done:
 
+* add localization
+* localize AR text (TranslationAdapter)
 * fix cracking sounds on load
 * prevent archon rotation when disembarked. Problematic. Simply freezing rotation causes all sorts of problems
 * spawn with airlock closed, no sounds

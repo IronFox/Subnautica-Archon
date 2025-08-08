@@ -3,7 +3,8 @@
 public enum TranslationCode
 {
     Modules,
-    PowerCells
+    PowerCells,
+    NothingDocked
 }
 
 
@@ -17,6 +18,8 @@ public static class TranslationAdapter
                 return "Modules";
             case TranslationCode.PowerCells:
                 return "Power Cells";
+            case TranslationCode.NothingDocked:
+                return "Nothing Docked";
             default:
                 throw new ArgumentOutOfRangeException(nameof(code), code, null);
         }

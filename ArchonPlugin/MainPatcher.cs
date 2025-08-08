@@ -109,7 +109,7 @@ namespace Subnautica_Archon
 
             var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png").AtlasSprite);
             var autoAdd = EmergencyTeleportationModule.Register(teleportNode);
-            TeleportationModule1.Register(teleportNode);
+            TeleportationModuleA.RegisterAll(teleportNode);
 
             var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage("images/DockingModuleMk1.png").AtlasSprite);
             new DockingModule().Register(dockingNode);
@@ -161,6 +161,11 @@ namespace Subnautica_Archon
                 AudioPatcher.Patcher = (source) => FreezeTimePatcher.Register(source);
 
                 PlayerAdapter.Player = () => Player.mainObject;
+
+                TranslationAdapter.GetTranslation = (code) =>
+                {
+                    return Language.main.Get($"Unity.{code}");
+                };
 
                 ActorAdapter.IsOutOfWater = (go, pos) =>
                 {

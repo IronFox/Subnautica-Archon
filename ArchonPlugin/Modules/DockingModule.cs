@@ -18,6 +18,7 @@ namespace Subnautica_Archon.Modules
                 .Add(TechType.ComputerChip, 3)
                 .Add(TechType.Magnetite, 2)
                 .Add(TechType.Polyaniline, 2)
+                .Add(TechType.PrecursorIonCrystal, 1)
                 .Done();
 
 

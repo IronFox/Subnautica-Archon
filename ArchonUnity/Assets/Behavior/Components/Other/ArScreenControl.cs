@@ -61,7 +61,7 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
         }
 
 
-        nothingDockedText.SetText(dockable == null ? Archon.noDockableTitle : "");
+        nothingDockedText.SetText(dockable == null ? TranslationAdapter.GetTranslation(TranslationCode.NothingDocked) : "");
         nameText.SetText(dockable?.Name);
         if (dockable == null)
             typeText.SetText("");

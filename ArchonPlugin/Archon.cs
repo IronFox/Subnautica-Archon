@@ -63,8 +63,8 @@ namespace Subnautica_Archon
         private bool isInCriticalRecovery = false;
         private Dictionary<string, VoiceLibrary> VoiceLibraries { get; } = new Dictionary<string, VoiceLibrary>();
 
-        public Vector3? TeleportationTarget1 { get; set; }
-        public Vector3? TeleportationOrientation1 { get; set; }
+        public Vector3? TeleportationTargetA { get; set; }
+        public Vector3? TeleportationOrientationA { get; set; }
 
 
         public Archon() : base(new VehicleConfiguration(
@@ -116,13 +116,13 @@ namespace Subnautica_Archon
         {
             addBlock(new DataBlock(
                 "Archon",
-                    Persistable.Property("TeleportationTarget1",
-                        () => TeleportationTarget1,
-                        c => TeleportationTarget1 = c
+                    Persistable.Property("TeleportationTargetA",
+                        () => TeleportationTargetA,
+                        c => TeleportationTargetA = c
                         ),
                     Persistable.Property("TeleportationOrientation1",
-                        () => TeleportationOrientation1,
-                        c => TeleportationOrientation1 = c
+                        () => TeleportationOrientationA,
+                        c => TeleportationOrientationA = c
                         ),
                     Persistable.Property("IsInCriticalRecovery",
                         () => isInCriticalRecovery,
@@ -329,7 +329,7 @@ namespace Subnautica_Archon
                 if (reactorTransform)
                 {
                     reactor = reactorTransform.gameObject.EnsureComponent<MaterialReactor>();
-                    reactor.Initialize(this, 6, 6, AVS.Localization.Text.Translated("Component.ArchonBioreactor"), 0, MaterialReactor.GetBioReactorData());
+                    reactor.Initialize(this, 6, 6, AVS.Localization.Text.Translated("Component.Bioreactor"), 0, MaterialReactor.GetBioReactorData());
                     reactor.canViewWhitelist = false;
                 }
                 else
@@ -1271,14 +1271,14 @@ namespace Subnautica_Archon
             //var bm = GetBatteryMark();
             //var dm = GetDriveMark();
             var rm = RepairModule.GetFrom(this);
-            var dm = GetExtraDockingCapacity();
+            var dm = GetTotalDockingCapacity();
             moduleCounts[(int)moduleType] = count;
             //var tm2 = GetTorpedoMark();
             //var bm2 = GetBatteryMark();
             //var dm2 = GetDriveMark();
             var rm2 = RepairModule.GetFrom(this);
-            var dm2 = GetExtraDockingCapacity();
-            Control.maxDockedVehicles = GetTotalDockingCapacity();
+            var dm2 = GetTotalDockingCapacity();
+            Control.maxDockedVehicles = dm2;
             if (!destroyed && hadUnpausedFrame)
             {
                 //if (tm != tm2)
@@ -1288,7 +1288,7 @@ namespace Subnautica_Archon
                 if (dm != dm2)
                     ErrorMessage.AddMessage(Language.main.GetFormat($"Modules.DockingCapacityChanged", VehicleName, dm2));
                 if (rm != rm2)
-                    ErrorMessage.AddMessage(Language.main.GetFormat($"Modules.RepairCapacityChanged", VehicleName, Language.main.Get("RepairCapacity." + rm2)));
+                    ErrorMessage.AddMessage(Language.main.GetFormat($"Modules.RepairCapacityChanged", VehicleName, Language.main.Get("Capacity." + rm2)));
             }
             Debug.Log($"Changed counts of {moduleType} to {moduleCounts[(int)moduleType]}");
         }
