@@ -63,6 +63,14 @@ namespace Subnautica_Archon
         private bool isInCriticalRecovery = false;
         private Dictionary<string, VoiceLibrary> VoiceLibraries { get; } = new Dictionary<string, VoiceLibrary>();
 
+
+        public VoiceLibrary? GetVoiceLibrary()
+        {
+            if (MainPatcher.PluginConfig.voice == Voice.Off)
+                return null;
+            VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out var voiceLibrary);
+            return voiceLibrary;
+        }
         public Vector3? TeleportationTargetA { get; set; }
         public Vector3? TeleportationOrientationA { get; set; }
 
@@ -440,17 +448,24 @@ namespace Subnautica_Archon
 
         private IEnumerator AutoLevelThenExit()
         {
+            var voiceLibrary = GetVoiceLibrary();
+            AudioClip? voice;
             if (Control.IsLevel)
             {
                 Log.Write("Archon is level. Exiting now");
+                voice = null;// voiceLibrary?.GetRandomHealthLow();
+                VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Done", 0));
+
                 base.DeselectSlots();
                 autoLevelRoutine = null;
                 yield break;
             }
 
             Log.Write("Archon is not level. Leveling out");
+            voice = null;// voiceLibrary?.GetRandomHealthLow();
+            VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Starting", 0));
+
             Control.doAutoLevel = true;
-            Logger.PDANote($"Leveling out. Please stand by");
             //var timewindow = TimeSpan.FromSeconds(5);
             //var deadline = DateTime.Now + timewindow;
             float timewindow = 5;
@@ -469,13 +484,16 @@ namespace Subnautica_Archon
                 if (Control.IsLevel)
                 {
                     Log.Write("Archon is level. Exiting");
-                    Logger.PDANote($"{VehicleName} is level. Exiting");
+                    voice = null;// voiceLibrary?.GetRandomHealthLow();
+                    VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Done", 0));
+
                     base.DeselectSlots();
                 }
                 else
                 {
                     Log.Write("Archon is not level. Not exiting");
-                    Logger.PDANote($"Failed to auto-level in {timewindow} seconds. Cannot exit here. Please navigate to an area where the {VehicleName} can level out and try again.");
+                    voice = null;// voiceLibrary?.GetRandomHealthLow();
+                    VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Failed", 0));
                 }
             }
         }
@@ -1654,75 +1672,71 @@ namespace Subnautica_Archon
 
         void IAutopilotEventListener.Signal(AutopilotEvent autopilotEvent)
         {
-
             Log.Write($"Received autopilot event {autopilotEvent}");
-            return;
 
             switch (autopilotEvent)
             {
                 case AutopilotEvent.PlayerEntry:
                     {
-                        if (VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out var voiceLibrary))
+                        VoiceLibrary? voiceLibrary = null;
+                        if (MainPatcher.PluginConfig.voice != Voice.Off)
+                            VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out voiceLibrary);
+                        bool isCombined = false;
+                        var voices = voiceLibrary?.GetRandomWelcome(out isCombined).ToList();
+                        List<float> gaps = new List<float>();
+
+                        if (voices != null)
                         {
-                            var voices = voiceLibrary.GetRandomWelcome(out var isCombined).ToList();
-                            List<float> gaps = new List<float>();
-
-                            if (voices != null)
+                            for (int i = 0; i + 1 < voices.Count; i++)
                             {
-                                for (int i = 0; i + 1 < voices.Count; i++)
-                                {
-                                    gaps.Add(0.1f);
-                                }
-                                if (Autopilot.HealthStatus == AutopilotStatus.HealthSafe
-                                    && Autopilot.PowerStatus == AutopilotStatus.PowerSafe
-                                    && Autopilot.DepthStatus == AutopilotStatus.DepthSafe
+                                gaps.Add(0.1f);
+                            }
+                            if (Autopilot.HealthStatus == AutopilotStatus.HealthSafe
+                                && Autopilot.PowerStatus == AutopilotStatus.PowerSafe
+                                && Autopilot.DepthStatus == AutopilotStatus.DepthSafe
 
-                                    )
-                                {
-                                    if (!isCombined) //combined welcome does not blend well with status green voice
-                                    {
-                                        gaps.Add(1);
-                                        voices.Add(voiceLibrary.GetRandomAllSystemsGreen());
-                                    }
-                                }
-                                else
+                                )
+                            {
+                                if (!isCombined) //combined welcome does not blend well with status green voice
                                 {
                                     gaps.Add(1);
-                                    switch (Autopilot.HealthStatus)
-                                    {
-                                        case AutopilotStatus.HealthCritical:
-                                            voices.Add(voiceLibrary.GetRandomHealthCritical());
-                                            break;
-                                        case AutopilotStatus.HealthLow:
-                                            voices.Add(voiceLibrary.GetRandomHealthLow());
-                                            break;
-                                    }
-                                    switch (Autopilot.PowerStatus)
-                                    {
-                                        case AutopilotStatus.PowerCritical:
-                                            voices.Add(voiceLibrary.GetRandomPowerCritical());
-                                            break;
-                                        case AutopilotStatus.PowerLow:
-                                            voices.Add(voiceLibrary.GetRandomPowerLow());
-                                            break;
-                                    }
-                                    switch (Autopilot.DepthStatus)
-                                    {
-                                        case AutopilotStatus.DepthBeyondCrush:
-                                            voices.AddRange(voiceLibrary.GetRandomDepthCritical());
-                                            break;
-                                        case AutopilotStatus.DepthNearCrush:
-                                            voices.Add(voiceLibrary.GetRandomDepthDangerous());
-                                            break;
-                                    }
+                                    voices.Add(voiceLibrary?.GetRandomAllSystemsGreen());
                                 }
-                                VoiceQueue.Play(new VoiceLine(voices, gaps, "voiceWelcome", 0));
                             }
                             else
-                                Log.Error("Voice for PlayerEntry not found");
+                            {
+                                gaps.Add(1);
+                                switch (Autopilot.HealthStatus)
+                                {
+                                    case AutopilotStatus.HealthCritical:
+                                        voices.Add(voiceLibrary?.GetRandomHealthCritical());
+                                        break;
+                                    case AutopilotStatus.HealthLow:
+                                        voices.Add(voiceLibrary?.GetRandomHealthLow());
+                                        break;
+                                }
+                                switch (Autopilot.PowerStatus)
+                                {
+                                    case AutopilotStatus.PowerCritical:
+                                        voices.Add(voiceLibrary?.GetRandomPowerCritical());
+                                        break;
+                                    case AutopilotStatus.PowerLow:
+                                        voices.Add(voiceLibrary?.GetRandomPowerLow());
+                                        break;
+                                }
+                                switch (Autopilot.DepthStatus)
+                                {
+                                    case AutopilotStatus.DepthBeyondCrush:
+                                        voices.AddRange(voiceLibrary?.GetRandomDepthCritical());
+                                        break;
+                                    case AutopilotStatus.DepthNearCrush:
+                                        voices.Add(voiceLibrary?.GetRandomDepthDangerous());
+                                        break;
+                                }
+                            }
                         }
-                        else
-                            Log.Error($"Voice library {MainPatcher.PluginConfig.voice} not found");
+                        VoiceQueue.Play(new VoiceLine(voices, gaps, "Subtitle.Voice.Welcome", 0));
+
                     }
                     break;
             }
@@ -1732,57 +1746,41 @@ namespace Subnautica_Archon
         {
             Log.Write($"Received autopilot event {statusChange.NewStatus}");
 
-            return;
-            if (VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out var voiceLibrary))
+            VoiceLibrary? voiceLibrary = null;
+            if (MainPatcher.PluginConfig.voice != Voice.Off)
+                VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out voiceLibrary);
+
             {
                 switch (statusChange.NewStatus)
                 {
                     case AutopilotStatus.DepthNearCrush:
                         if (statusChange.PreviousStatus < AutopilotStatus.DepthNearCrush)
                         {
-                            var voice = voiceLibrary.GetRandomDepthDangerous();
-                            if (voice)
-                            {
-                                VoiceQueue.Play(new VoiceLine(voice, "voiceDepthDangerous", 1));
-                            }
-                            else
-                                Log.Error("Voice for DepthNearCrush not found");
+                            var voice = voiceLibrary?.GetRandomDepthDangerous();
+                            VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Depth.Dangerous", 1));
                         }
                         break;
                     case AutopilotStatus.DepthBeyondCrush:
                         if (statusChange.PreviousStatus < AutopilotStatus.DepthBeyondCrush)
                         {
-                            var voices = voiceLibrary.GetRandomDepthCritical();
-                            if (voices != null)
-                            {
-                                VoiceQueue.Play(new VoiceLine(voices, null, "voiceDepthCritical", 2));
-                            }
-                            else
-                                Log.Error("Voice for DepthBeyondCrush not found");
+                            var voices = voiceLibrary?.GetRandomDepthCritical();
+                            VoiceQueue.Play(new VoiceLine(voices, null, "Subtitle.Voice.Depth.Critical", 2));
                         }
                         break;
                     case AutopilotStatus.HealthCritical:
                         if (statusChange.PreviousStatus < AutopilotStatus.HealthCritical)
                         {
-                            var voice = voiceLibrary.GetRandomHealthCritical();
-                            if (voice)
-                            {
-                                VoiceQueue.Play(new VoiceLine(voice, "voiceHealthCritical", 2));
-                            }
-                            else
-                                Log.Error("Voice for HealthCritical not found");
+                            var voice = voiceLibrary?.GetRandomHealthCritical();
+                            VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Health.Critical", 2));
+
                         }
                         break;
                     case AutopilotStatus.HealthLow:
                         if (statusChange.PreviousStatus < AutopilotStatus.HealthLow)
                         {
-                            var voice = voiceLibrary.GetRandomHealthLow();
-                            if (voice)
-                            {
-                                VoiceQueue.Play(new VoiceLine(voice, "voiceHealthLow", 1));
-                            }
-                            else
-                                Log.Error("Voice for HealthLow not found");
+                            var voice = voiceLibrary?.GetRandomHealthLow();
+                            VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Health.Dangerous", 1));
+
                         }
                         break;
                     case AutopilotStatus.LeviathanNearby:
@@ -1800,26 +1798,16 @@ namespace Subnautica_Archon
                     case AutopilotStatus.PowerLow:
                         if (statusChange.PreviousStatus < AutopilotStatus.PowerLow)
                         {
-                            var voice = voiceLibrary.GetRandomPowerLow();
-                            if (voice)
-                            {
-                                VoiceQueue.Play(new VoiceLine(voice, "voicePowerLow", 1));
-                            }
-                            else
-                                Log.Error("Voice for PowerLow not found");
+                            var voice = voiceLibrary?.GetRandomPowerLow();
+                            VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Power.Dangerous", 1));
                         }
                         break;
                     case AutopilotStatus.PowerCritical:
                     case AutopilotStatus.PowerDead:
                         if (statusChange.PreviousStatus < AutopilotStatus.PowerCritical)
                         {
-                            var voice = voiceLibrary.GetRandomPowerCritical();
-                            if (voice)
-                            {
-                                VoiceQueue.Play(new VoiceLine(voice, "voicePowerCritical", 2));
-                            }
-                            else
-                                Log.Error("Voice for PowerCritical not found");
+                            var voice = voiceLibrary?.GetRandomPowerCritical();
+                            VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Power.Critical", 2));
                         }
                         break;
                 }

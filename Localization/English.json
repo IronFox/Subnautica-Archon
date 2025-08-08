@@ -84,6 +84,8 @@
 	"Modules.TeleportationModuleA.Name": "Archon Teleportation Module (A)",
 	"Modules.TeleportationModuleA.Description": "Enables Archon teleportation (A). Double-tab to record a location. Activate to teleport. Does not stack",
 	
+	"Modules.Teleportation.LocationRecorded": "Teleportation: Recorded current location",
+	
 	"Modules.DockingCapacityChanged": "{0} max number of docked vehicles changed to {1}",
 	"Modules.RepairCapacityChanged": "{0} self repair capability changed to {1}",
 	
@@ -117,5 +119,35 @@
 	"AR.Undock": "Undock selected craft",
 	"AR.SelectLeft": "Select previous docked craft",
 	"AR.SelectRight": "Select next docked craft",
+	
+	"Option.FloodLightShadows": "Floodlight Shadows",
+	"Option.FloodLightShadows.None": "None",
+	"Option.FloodLightShadows.Hard": "Hard",
+	"Option.FloodLightShadows.Soft": "Soft",
+	"Option.Button.ToggleFreeCamera": "Toggle Free Camera",
+	"Option.Button.ChangeExternalCameraHeight": "Change 3rd Person Camera Vertical Position",
+	"Option.Button.AltZoomIn": "Camera Zoom In",
+	"Option.Button.AltZoomOut": "Camera Zoom Out",
+	"Option.FlipFreeHorizontalRotationInReverse": "Flip Horizontal Control in Reverse",
+	"Option.FlipFreeVerticalRotationInReverse": "Flip Vertical Control in Reverse",
+	"Option.VoiceVolume": "Autopilot Voice Volume",
+	"Option.ShowVoiceSubtitles": "Show Autopilot Voice Subtitles",
+	"Option.AutopilotVoice": "Active Autopilot Voice",
+	"Option.AutopilotVoice.Off": "None",
+	"Option.AutopilotVoice.Default": "Default",
+	
+	
+	"Subtitle.Voice.Welcome": "Welcome Aboard",
+	"Subtitle.Voice.Depth.Dangerous": "Depth Warning",
+	"Subtitle.Voice.Depth.Critical": "Hull Damage Imminent",
+	"Subtitle.Voice.Health.Dangerous": "Structural Integrity Compromised",
+	"Subtitle.Voice.Health.Critical": "Structural Collapse Imminent",
+	"Subtitle.Voice.Power.Dangerous": "Battery Charge Warning",
+	"Subtitle.Voice.Power.Critical": "Battery Charge Depleted",
+	"Subtitle.Voice.Teleportation.Start": "Teleportation: Establishing spatial tunnel. Please stand by...",
+	"Subtitle.Voice.Teleportation.ActivatingNow": "Teleportation: Transitioning",
+	"Subtitle.Voice.Leveling.Done": "Archon is level. Exiting now",
+	"Subtitle.Voice.Leveling.Starting": "Archon is not level. Leveling out",
+	"Subtitle.Voice.Leveling.Failed": "Failed to auto-level in 5 seconds. Cannot exit here. Please navigate to an area where the submarine can level out and try again.",
 	
 }

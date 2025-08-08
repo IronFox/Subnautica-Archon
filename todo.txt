@@ -1,5 +1,6 @@
 before release:
 
+* localize options
 * tune energy demands of everything
 
 * model and replace seat, model magnetic levitation visualization

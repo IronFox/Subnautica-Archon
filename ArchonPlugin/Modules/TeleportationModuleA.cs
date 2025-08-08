@@ -2,21 +2,19 @@
 using AVS.Configuration;
 using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
-using Subnautica_Archon.Util;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Subnautica_Archon.Modules
 {
-    internal class TeleportationModuleA : ArchonToggleableBaseModule
+    internal class TeleportationModuleA : AbstractTeleportationModule
     {
-        public static float SecondsUntilTeleport { get; } = 5f;
 
         public override float EnergyCostPerActivation => 10;
 
 
         private TeleportationModuleA()
-            : base(ArchonModule.TeleportationModuleA)
+            : base(ArchonModule.TeleportationModuleA, TeleportationType.Normal_A)
         { }
 
         public static TechType Type { get; private set; } = TechType.None;
@@ -40,59 +38,6 @@ namespace Subnautica_Archon.Modules
                 .Done();
 
 
-        protected override void OnRepeat(IToggleState state)
-        {
-            base.OnRepeat(state);
-            var vehicle = state.Vehicle as Archon;
-            if (vehicle == null)
-                return;
-            var target = vehicle.TeleportationTargetA;
-            var orientation = vehicle.TeleportationOrientationA;
-            if (target == null || orientation == null)
-            {
-                vehicle.Log.Debug($"TeleportationModule1.OnRepeat: No target or orientation set for vehicle {vehicle.NiceName()} in slot {state.SlotID} at time {state.EventTime}");
-                return;
-            }
-
-
-            try
-            {
-                float remainingTime = SecondsUntilTeleport - state.EventTime;
-                float lastRemainingTime = SecondsUntilTeleport - state.LastRepeatTime;
-                //Log.Write($"EmergencyTeleportationModule.OnRepeat(vehicle={param.Vehicle},remainingTime={remainingTime},lastRemainingTime={lastRemainingTime})");
-                if (remainingTime > 0)
-                {
-                    vehicle.Control.secondsToTeleport = remainingTime;
-                    vehicle.Control.teleportationProgress = 1f - (remainingTime / SecondsUntilTeleport);
-                    vehicle.Control.teleportationType = TeleportationType.Normal1;
-                    if (Mathf.RoundToInt(remainingTime) != Mathf.RoundToInt(lastRemainingTime))
-                    {
-                        Subtitles.Add(Language.main.GetFormat($"Modules.Teleportation.ActivatingInSeconds", Mathf.RoundToInt(remainingTime)));
-                    }
-                }
-                else
-                {
-                    Log.Write($"TeleportationModule1.OnRepeat: Teleportation finished, teleporting vehicle {state.Vehicle} to {target}");
-
-                    Subtitles.Add(Language.main.Get("Modules.Teleportation.ActivatingNow"));
-                    vehicle.Engine.KillMomentum();
-                    vehicle.TeleportVehicle(target.Value, Quaternion.Euler(orientation.Value));
-                    //vehicle.transform.position = target.Value;
-                    //vehicle.transform.rotation = Quaternion.Euler(orientation.Value);
-                    vehicle.Control.SignalTeleported();
-                    vehicle.Control.secondsToTeleport = 100;
-                    vehicle.Control.teleportationProgress = 0;
-                    vehicle.Control.teleportationType = TeleportationType.None;
-
-                    state.Deactivate();
-                }
-            }
-            catch (System.Exception ex)
-            {
-                Log.Exception($"TeleportationModule1.OnRepeat: Exception occurred", ex);
-                state.Deactivate();
-            }
-        }
         private bool IsKeyPress(IToggleState state)
             => state.EventTime > 0.05f && state.EventTime < 0.5f;
 
@@ -104,13 +49,11 @@ namespace Subnautica_Archon.Modules
             {
                 if (!state.IsActive)
                 {
-                    vehicle.Control.secondsToTeleport = 100;
-                    vehicle.Control.teleportationProgress = 0;
-                    vehicle.Control.teleportationType = TeleportationType.None;
+                    ResetTeleportation(vehicle);
 
                     if (IsKeyPress(state))
                     {
-                        Subtitles.Add(Language.main.Get("Modules.Teleportation.Recorded"));
+                        Subtitles.Add(Language.main.Get("Modules.Teleportation.LocationRecorded"));
                         vehicle.Log.Debug($"OnToggle: Recording location");
                         vehicle.TeleportationTargetA = vehicle.transform.position;
                         vehicle.TeleportationOrientationA = vehicle.transform.rotation.eulerAngles;
@@ -122,5 +65,16 @@ namespace Subnautica_Archon.Modules
 
 
         }
+
+        protected override Vector3? GetTargetPosition(Archon vehicle) => vehicle.TeleportationTargetA;
+
+        protected override Quaternion? GetTargetOrientation(Archon vehicle)
+        {
+            var euler = vehicle.TeleportationOrientationA;
+            if (euler == null)
+                return null;
+            return Quaternion.Euler(euler.Value);
+        }
+
     }
 }
