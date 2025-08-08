@@ -1550,7 +1550,7 @@ namespace Subnautica_Archon
             else
                 Log.Write($"Upgrades interface not found");
 
-            var powerCells = new List<VehiclePowerCellDefinition>();
+            var batteries = new List<VehicleBatteryDefinition>();
 
 
             var cells = transform.Find("Interior/Power Cell Panel/Cells");
@@ -1565,7 +1565,7 @@ namespace Subnautica_Archon
                         Log.Warn($"Power cell slot not found in {b.NiceName()}");
                     if (b != null)
                     {
-                        powerCells.Add(new VehiclePowerCellDefinition(
+                        batteries.Add(new VehicleBatteryDefinition(
                             root: b.gameObject,
                             batteryProxy: slot.OrRequired(b)
                         ));
@@ -1640,7 +1640,7 @@ namespace Subnautica_Archon
                 innateStorages: innateStorages,
                 waterClipProxies: waterClipProxies,
                 upgrades: upgrades,
-                powerCells: powerCells,
+                batteries: batteries,
                 tetherSources: tetherSources,
                 modulesRootObject: GetOrCreateDefaultModulesRootObject(),
                 helms: helms,

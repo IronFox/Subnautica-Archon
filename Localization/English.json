@@ -1,0 +1,70 @@
+{
+	"AVS.VehicleDefaultName": "Archon",
+	
+	"AVS.Reactor_DedicatedBattery_ChargeValueText": "{1}/{2} ({0})",
+	
+	"AVS.Fabricator_Node_DepthModules": "Depth Upgrades",
+	"AVS.Fabricator_DisplayName": "Archon Fabricator",
+	"AVS.Fabricator_Description": "Fabricator for Archon upgrade modules",
+	
+	"AVS.ColorPicker_Tab_Exterior": "Exterior",
+	"AVS.ColorPicker_Tab_Accent": "Accent",
+	"AVS.ColorPicker_Tab_Interior": "Interior",
+	"AVS.ColorPicker_Tab_Name": "Name",
+	
+	"AVS.Reactor_WhitelistWithPowerValue": "Permitted Ingredient Power Potentials",
+	"AVS.Reactor_WhitelistPlain": "Permitted Ingredients",
+	
+	"AVS.Command_NothingToUndock": "Nothing to undock",
+	"AVS.Command_UndockingVehicle": "Executing undock operation",
+	
+	"AVS.HandHover_ControlPanel_Empty": "No function",
+	"AVS.HandHover_ControlPanel_Headlights": "Headlights",
+	"AVS.HandHover_ControlPanel_Floodlights": "Floodlights",
+	"AVS.HandHover_ControlPanel_NavLights": "Navigation lights",
+	"AVS.HandHover_ControlPanel_InteriorLights": "Interior lights",
+	"AVS.HandHover_ControlPanel_DefaultColor": "Default color",
+	"AVS.HandHover_ControlPanel_Power": "Power",
+	"AVS.HandHover_ControlPanel_Autopilot": "Autopilot",
+	
+	"AVS.HandOver_BatterySlot": "Battery",
+	"AVS.HandOver_AutopilotBatterySlot": "Autopilot battery",
+	
+	"AVS.HandHover_OpenStorage": "Open {0}",
+	
+	"AVS.HandHover_Vehicle_Enter": "Enter {0}",
+	"AVS.HandHover_Vehicle_Exit": "Exit {0}",
+	"AVS.HandHover_Vehicle_StartHelmControl": "Take Control",
+	
+	"AVS.HandHover_Reactor_Charge": "Bioreactor: {0}/{1}",
+	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Press the right mouse button or right bumper to show the list of allowed materials",
+	"AVS.HandHover_Vehicle_DeconstructionPercent": "Archon deconstruction: {0}",
+	
+	"AVS.HandHover_Docked_StatusCharged": "Archon fully charged. Health at {0}",
+	"AVS.HandHover_Docked_StatusCharging": "Archon charging ({0}). Health at {0}",
+	
+	"AVS.Module_Depth1_DisplayName": "Archon Depth Module MK1",
+	"AVS.Module_Depth1_Description": "Enhances safe diving depth to 500m. Does not stack",
+	"AVS.Module_Depth2_DisplayName": "Archon Depth Module MK2",
+	"AVS.Module_Depth2_Description": "Enhances safe diving depth to 1100m. Does not stack",
+	"AVS.Module_Depth3_DisplayName": "Archon Depth Module MK3",
+	"AVS.Module_Depth3_Description": "Enhances safe diving depth to 1700m. Does not stack",
+	
+	"AVS.Report_AddedToStorage": "{0} added",
+	
+	"AVS.Error_UpgradeNotRemovable_StorageNotEmpty": "Cannot remove this storage upgrade because it is not empty",
+	"AVS.Error_UpgradeNotAddable_Incompatible": "Warning: This Archon upgrade is not compatible to this vehicle",
+	
+	"AVS.Error_CannotAdd_StorageFull": "Cannot add item. Storage is full",
+	"AVS.Error_CannotExitHelmControl": "Autoleveling has failed. You cannot exit helm control right now",
+	"AVS.Error_CannotRemoveMaterialsFromReactor": "Cannot remove materials from the bioreactor",
+	
+	"AVS.Error_MobileWaterPark_CannotAdd_FishIsDead": "You cannot add dead {0} to {1}",
+	"AVS.Error_MobileWaterPark_CannotAdd_EggIsHatched": "You cannot add hatched {0} to {1}",
+	"AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "Cannot add {0} to {1}. Neither a compatible living fish, nor a hatchable egg",
+	"AVS.Error_MobileWaterPark_CannotRemove_HatchingEgg": "Cannot remove {0} from {1}. The egg is already hatching"
+	
+	
+	
+	
+}
