@@ -10,7 +10,7 @@ namespace Subnautica_Archon.Modules
     internal class TeleportationModuleA : AbstractTeleportationModule
     {
 
-        public override float EnergyCostPerActivation => 10;
+        public override float EnergyCostPerSecond => 25; //~5% of all batteries full
 
 
         private TeleportationModuleA()

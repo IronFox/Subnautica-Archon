@@ -90,7 +90,7 @@ namespace Subnautica_Archon
 
             var neededNow = energyNeeded * Time.fixedDeltaTime;
             var drained = Mathf.Abs(MV.PowerManager.TrySpendEnergy(neededNow));
-            //insufficientPower = drained < neededNow * 0.8f;
+            //insufficientPower = drained < neededNow * 0.8f; 
         }
 
     }

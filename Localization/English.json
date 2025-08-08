@@ -102,8 +102,6 @@
 	"General.Description": "Submarine mothership",
 	"General.Encyclopedia": "The Archon is a luxurious, extremely resilient mobile command center with an integrated hangar for smaller craft. You can craft it at any Mobile Vehicle Bay.\n\nFeatures:\n- Expandable hangar for multiple smaller craft\n- Holographic sensor reconstruction\n- Bioreactor\n- Fish tank\n- Environment map\n\nRatings:\n- Top Speed: 26m/s\n- Crush Depth: 300m\n- Max Crush Depth (upgraded): 1700m\n- Upgrade slots: 8\n- Dimensions: 26.8m x 15.9m x 79.8m",
 	
-	"CriticalHealth.RepairEnabled": "Critical damage detected. Activating emergency repair",
-	"CriticalHealth.RepairDone": "Health outside critical range. Disabling emergency repair",
 	
 	"Dockable.Text.HealthUnknown": "Integrity: Unknown",
 	"Dockable.Text.Health": "Integrity: {0}",
@@ -149,5 +147,7 @@
 	"Subtitle.Voice.Leveling.Done": "Archon is level. Exiting now",
 	"Subtitle.Voice.Leveling.Starting": "Archon is not level. Leveling out",
 	"Subtitle.Voice.Leveling.Failed": "Failed to auto-level in 5 seconds. Cannot exit here. Please navigate to an area where the submarine can level out and try again.",
+	"Subtitle.Voice.CriticalHealth.RepairEnabled": "Critical damage detected. Activating emergency repair",
+	"Subtitle.Voice.CriticalHealth.RepairDone": "Health outside critical range. Disabling emergency repair",
 	
 }

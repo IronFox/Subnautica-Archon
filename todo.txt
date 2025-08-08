@@ -17,6 +17,7 @@ maybe:
 
 later:
 
+* battery dead sound
 * charge docked craft
 * repair docked craft
 * revise healing light repetition

@@ -843,7 +843,10 @@ namespace Subnautica_Archon
                     var critical = liveMixin.health < liveMixin.maxHealth * 0.05f;
                     if (critical && !isInCriticalRecovery)
                     {
-                        ErrorMessage.AddMessage(Language.main.Get($"CriticalHealth.RepairEnabled"));
+                        AudioClip? voice = null;// GetVoiceLibrary()?.GetRandomAllSystemsGreen();
+                        VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.CriticalHealth.RepairEnabled", 1));
+
+
                         Log.Warn($"Vehicle at critical health. Reviving. Setting invincible. Enabling emergency self healing");
                         liveMixin.invincible = true;
                         isInCriticalRecovery = true;
@@ -858,7 +861,7 @@ namespace Subnautica_Archon
                         var effective = clamped / healing;
                         //Debug.Log($"Healing at delta={Time.deltaTime}");
                         float energyDemand =
-                            20
+                            50
                             * delta
                             //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //if slower, cost less
                             * effective //if clamped, cost less
@@ -871,7 +874,8 @@ namespace Subnautica_Archon
                     }
                     else if (isInCriticalRecovery)
                     {
-                        ErrorMessage.AddMessage(Language.main.Get($"CriticalHealth.RepairDone"));
+                        AudioClip? voice = null;// GetVoiceLibrary()?.GetRandomAllSystemsGreen();
+                        VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.CriticalHealth.RepairDone", 1));
 
                         Log.Warn($"Emergency healing concluded switching off");
                         isInCriticalRecovery = false;

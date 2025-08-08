@@ -8,6 +8,7 @@ namespace Subnautica_Archon.Modules
     public abstract class AbstractTeleportationModule : ArchonToggleableBaseModule
     {
         public static float SecondsUntilTeleport { get; } = 5f;
+        public override float RepeatDelay => 0;
         public TeleportationType TeleportationType { get; }
 
         protected AbstractTeleportationModule(ArchonModule module, TeleportationType type) : base(module)
