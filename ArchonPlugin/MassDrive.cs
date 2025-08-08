@@ -83,7 +83,7 @@ namespace Subnautica_Archon
                 return;
             moveDirection = GetEffectiveMoveInput(moveDirection);
             float energyNeeded = lastDrainPerSecond = M.Sqr(moveDirection) * (
-                0.2f
+                0.77f
                 //+
                 //1f * overdriveActive /** M.Sqr(BoostRelative)*/
                 );
