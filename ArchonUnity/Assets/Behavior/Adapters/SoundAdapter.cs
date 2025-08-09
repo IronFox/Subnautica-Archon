@@ -14,6 +14,8 @@ public class SoundAdapter : MonoBehaviour
     public float pitch = 1f;
     public bool loop = false;
 
+    private int DeadForFrames { get; set; } = 0;
+
 
     void Start()
     {
@@ -33,10 +35,11 @@ public class SoundAdapter : MonoBehaviour
         {
             var cfg = GetCurrentConfig();
 
-            if (Sound == null || !Sound.Config.IsLiveCompatibleTo(cfg))
+            if (Sound == null || DeadForFrames > 10 || !Sound.Config.IsLiveCompatibleTo(cfg))
             {
                 Sound?.Dispose();
                 Sound = SoundCreator.Instantiate(cfg);
+                DeadForFrames = 0;
             }
             else
                 if (Sound.Config.IsSignificantlyDifferent(cfg))
@@ -46,6 +49,11 @@ public class SoundAdapter : MonoBehaviour
         {
             Sound.Dispose();
             Sound = null;
+        }
+
+        if (Sound != null && Sound.Died)
+        {
+            DeadForFrames++;
         }
     }
 
@@ -83,6 +91,8 @@ public class SoundAdapter : MonoBehaviour
 public interface IInstantiatedSound : IDisposable
 {
     SoundConfig Config { get; }
+
+    bool Died { get; }
 
     void ApplyLiveChanges(SoundConfig cfg);
 
@@ -203,6 +213,8 @@ internal class EmulatedSpacialSound : IInstantiatedSound
 
     public SoundConfig Config { get; private set; }
 
+    public bool Died => !Emulator;
+
     public void ApplyLiveChanges(SoundConfig cfg)
     {
         Source.pitch = cfg.Pitch;
@@ -235,6 +247,8 @@ internal class DefaultSound : IInstantiatedSound
 {
     public AudioSource Source { get; }
     public SoundConfig Config { get; private set; }
+
+    public bool Died => !Source;
 
     public DefaultSound(AudioSource audioSource, SoundConfig config)
     {
