@@ -141,6 +141,8 @@ namespace Subnautica_Archon.Adapters
         private float Age { get; set; }
         private bool Recovered { get; set; }
 
+        public bool Died => !Component;
+
         private Vector3 lastPosition;
         public FModSound(SoundConfig config, FMOD.Channel channel, Sound sound, FModComponent component, VECTOR[] rolloffArray)
         {
@@ -193,7 +195,7 @@ namespace Subnautica_Archon.Adapters
             catch (FModException ex)
             {
                 Log.Exception($"FModSound.Update({timeDelta}) [{vpos},{velocity}] ", ex);
-                return ex.Result != RESULT.ERR_INVALID_HANDLE;
+                return ex.Result != RESULT.ERR_INVALID_HANDLE && ex.Result != RESULT.ERR_CHANNEL_STOLEN;
             }
             catch (Exception ex)
             {
