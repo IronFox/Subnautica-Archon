@@ -192,7 +192,7 @@ public static class ObjectUtil
         {
             if (!current.gameObject.activeSelf)
             {
-                Log.Default.LogError($"{current.gameObject.NiceName()} has been deactivate. Re-activating");
+                Log.Default.LogError($"{current.gameObject.NiceName()} has been deactivated. Re-activating");
                 current.gameObject.SetActive(false);
 
                 if (testFunction())
@@ -203,7 +203,7 @@ public static class ObjectUtil
 
         if (!rootTransform.gameObject.activeSelf)
         {
-            Log.Default.LogError($"{rootTransform.gameObject.NiceName()} has been deactivate. Re-activating");
+            Log.Default.LogError($"{rootTransform.gameObject.NiceName()} has been deactivated. Re-activating");
             rootTransform.gameObject.SetActive(true);
         }
 

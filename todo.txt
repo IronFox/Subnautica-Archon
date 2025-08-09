@@ -17,6 +17,7 @@ maybe:
 
 later:
 
+* allow map resource selection
 * battery dead sound
 * charge docked craft
 * repair docked craft

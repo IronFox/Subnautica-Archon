@@ -83,8 +83,6 @@ public class ArchonControl : MonoBehaviour
                     controlledBy;
     private readonly Undoable controlUndo = new Undoable();
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
-    private ComponentSet<Collider> EnabledColliders { get; } = new ComponentSet<Collider>();
-    private ComponentSet<Collider> DisabledColliders { get; } = new ComponentSet<Collider>();
     private bool cameraIsInVehicle;
     public bool CameraIsInVehicle => cameraIsInVehicle;
 
@@ -136,6 +134,8 @@ public class ArchonControl : MonoBehaviour
 
     private bool currentCameraCenterIsCockpit;
     private bool cameraIsInTrailspace;
+
+    private ColliderWatchdog colliderWatchdog;
 
     private bool wasEverBoarded;
 
@@ -223,24 +223,7 @@ public class ArchonControl : MonoBehaviour
 
     private void SetCollidersEnabled(IEnumerable<Collider> colliders, bool enable)
     {
-        foreach (var c in colliders)
-        {
-            if (c)
-            {
-                if (enable)
-                {
-                    EnabledColliders.Add(c);
-                    DisabledColliders.Remove(c);
-                    c.enabled = true;
-                }
-                else
-                {
-                    DisabledColliders.Add(c);
-                    EnabledColliders.Remove(c);
-                    c.enabled = false;
-                }
-            }
-        }
+        colliderWatchdog.SetCollidersEnabled(colliders, enable);
     }
 
     private void UpdateInteriorCollidersAndLights(bool enable)
@@ -520,9 +503,9 @@ public class ArchonControl : MonoBehaviour
         return false;
     }
 
-    // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
+        colliderWatchdog = GetComponent<ColliderWatchdog>();
         hullLightController = GetComponentInChildren<HullLightController>();
         evacuateIntruders = GetComponentInChildren<EvacuateIntruders>();
         drag = GetComponentInChildren<DirectionalDrag>();
@@ -535,6 +518,12 @@ public class ArchonControl : MonoBehaviour
         fallOrientation = GetComponent<FallOrientation>();
         energyLevel = GetComponentInChildren<EnergyLevel>();
         firstPersonMarkers = GetComponentInChildren<FirstPersonMarkers>();
+    }
+
+    // Start is called before the first frame update
+    void Start()
+    {
+
         //bayControl = GetComponentInChildren<BayControl>();
         if (orientation)
             orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
@@ -1230,49 +1219,6 @@ public class ArchonControl : MonoBehaviour
     {
         try
         {
-            foreach (var c in DisabledColliders)
-            {
-                if (c.enabled)
-                {
-                    Log.LogWarning($"Re-disabling collider {c.NiceName()}");
-                    c.enabled = false;
-                }
-            }
-
-            foreach (var c in EnabledColliders)
-            {
-                if (!c.enabled)
-                {
-                    Log.LogWarning($"Re-enabling collider {c.NiceName()}");
-                    c.enabled = true;
-                }
-                if (!c.gameObject.activeInHierarchy)
-                {
-                    Log.LogWarning($"Collider game object {c.gameObject.NiceName()} has been disabled. Fixing");
-                    c.gameObject.RequireActive(transform);
-                }
-                //somehow collisions between the player and interior mesh colliders
-                //get disabled when the player aims the build-tool at them.
-                //They work fine before that, but after that the player
-                //can walk/fall through the interior mesh collider in question.
-                //doesn't look like it's actually disabled (the above don't trigger).
-                //If the build tool is disabled, the collisions work again.
-                //this is very slow and never triggers:
-                //if (!c.isTrigger)
-                //{
-                //    foreach (var collider in PlayerAdapter.Player().transform.GetAllColliders(null))
-                //    {
-                //        if (!collider.enabled || collider.isTrigger)
-                //            continue;
-                //        if (Physics.GetIgnoreCollision(c, collider))
-                //        {
-                //            Log.LogWarning($"Player collision disabled between {c.NiceName()} and {collider.NiceName()}");
-                //            Physics.IgnoreCollision(c, collider, false);
-                //        }
-                //    }
-                //}
-
-            }
 
 
             if (outOfWater)
