@@ -1601,13 +1601,23 @@ namespace Subnautica_Archon
             var helm = transform.Find("Helm");
             if (helm)
             {
+                var seat = helm.Find("Seat");
+                if (!seat)
+                {
+                    Log.Error($"Helm seat not found in {helm.NiceName()}");
+                    seat = helm; //use helm as player control location
+                }
+                else
+                {
+                    Log.Write($"Helm seat found at {seat.position}");
+                }
                 var helmExit = helm.Find($"ExitLocation");
                 if (!helmExit)
                     Log.Write($"Helm exit not found for {helm.NiceName()}");
 
                 helms.Add(new Helm
                 (
-                    root: helm.gameObject,
+                    root: seat.gameObject,
                     playerControlLocation: helm.gameObject,
                     exitLocation: helmExit,
                     isSeated: true
