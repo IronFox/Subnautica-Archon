@@ -1,0 +1,152 @@
+{
+	"AVS.VehicleDefaultName": "Archon",
+
+	"AVS.Reactor_DedicatedBattery_ChargeValueText": "{1}/{2} ({0})",
+
+	"AVS.Fabricator_Node_DepthModules": "Améliorations de profondeur",
+	"AVS.Fabricator_DisplayName": "Fabricateur Archon",
+	"AVS.Fabricator_Description": "Fabricateur de modules d'amélioration Archon",
+
+	"AVS.ColorPicker_Tab_Exterior": "Extérieur",
+	"AVS.ColorPicker_Tab_Accent": "Accent",
+	"AVS.ColorPicker_Tab_Interior": "Intérieur",
+	"AVS.ColorPicker_Tab_Name": "Nom",
+
+	"AVS.Reactor_WhitelistWithPowerValue": "Potentiels de puissance des ingrédients autorisés",
+	"AVS.Reactor_WhitelistPlain": "Ingrédients autorisés",
+
+	"AVS.Command_NothingToUndock": "Rien à désamarrer",
+	"AVS.Command_UndockingVehicle": "Exécution de l'opération de désamarrage",
+
+	"AVS.HandHover_ControlPanel_Empty": "Aucune fonction",
+	"AVS.HandHover_ControlPanel_Headlights": "Phares",
+	"AVS.HandHover_ControlPanel_Floodlights": "Projecteurs",
+	"AVS.HandHover_ControlPanel_NavLights": "Feux de navigation",
+	"AVS.HandHover_ControlPanel_InteriorLights": "Éclairage intérieur",
+	"AVS.HandHover_ControlPanel_DefaultColor": "Couleur par défaut",
+	"AVS.HandHover_ControlPanel_Power": "Alimentation",
+	"AVS.HandHover_ControlPanel_Autopilot": "Pilote automatique",
+
+	"AVS.HandOver_BatterySlot": "Batterie",
+	"AVS.HandOver_AutopilotBatterySlot": "Batterie du pilote automatique",
+
+	"AVS.HandHover_OpenStorage": "Ouvrir {0}",
+
+	"AVS.HandHover_Vehicle_Enter": "Entrer dans {0}",
+	"AVS.HandHover_Vehicle_Exit": "Sortir de {0}",
+	"AVS.HandHover_Vehicle_StartHelmControl": "Prendre le contrôle",
+
+	"AVS.HandHover_Reactor_Charge": "Bioréacteur : {0}/{1}",
+	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Appuyez sur le bouton droit de la souris ou sur le pare-chocs droit pour afficher la liste des matériaux autorisés",
+	"AVS.HandHover_Vehicle_DeconstructionPercent": "Déconstruction de l'Archon : {0}",
+
+	"AVS.HandHover_Docked_StatusCharged": "Archon entièrement chargé. Santé à {0}",
+	"AVS.HandHover_Docked_StatusCharging": "Archon en charge ({0}). Santé à {0}",
+
+	"AVS.Module_Depth1_DisplayName": "Module de profondeur Archon MK1",
+	"AVS.Module_Depth1_Description": "Améliore la profondeur de plongée sûre à 500 m. Ne se cumule pas",
+	"AVS.Module_Depth2_DisplayName": "Module de profondeur Archon MK2",
+	"AVS.Module_Depth2_Description": "Améliore la profondeur de plongée sûre à 1100 m. Ne se cumule pas",
+	"AVS.Module_Depth3_DisplayName": "Module de profondeur Archon MK3",
+	"AVS.Module_Depth3_Description": "Améliore la profondeur de plongée sûre à 1700 m. Ne se cumule pas",
+
+	"AVS.Report_AddedToStorage": "{0} ajouté",
+
+	"AVS.Error_UpgradeNotRemovable_StorageNotEmpty": "Impossible de retirer cette amélioration de stockage car elle n'est pas vide",
+	"AVS.Error_UpgradeNotAddable_Incompatible": "Avertissement : Cette amélioration Archon n'est pas compatible avec ce véhicule",
+
+	"AVS.Error_CannotAdd_StorageFull": "Impossible d'ajouter l'objet. Le stockage est plein",
+	"AVS.Error_CannotExitHelmControl": "La mise à niveau automatique a échoué. Vous ne pouvez pas quitter le contrôle du gouvernail pour le moment",
+	"AVS.Error_CannotRemoveMaterialsFromReactor": "Impossible de retirer des matériaux du bioréacteur",
+
+	"AVS.Error_MobileWaterPark_CannotAdd_FishIsDead": "Vous ne pouvez pas ajouter de {0} mort à {1}",
+	"AVS.Error_MobileWaterPark_CannotAdd_EggIsHatched": "Vous ne pouvez pas ajouter d'{0} éclos à {1}",
+	"AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "Impossible d'ajouter {0} à {1}. Ce n'est ni un poisson vivant compatible, ni un œuf éclosable",
+	"AVS.Error_MobileWaterPark_CannotRemove_HatchingEgg": "Impossible de retirer {0} de {1}. L'œuf est déjà en train d'éclore",
+
+	"Error.EmergencyTeleportationModule.CannotRemoveLast": "L'Archon nécessite un module de téléportation d'urgence installé",
+
+	"Modules.DockingModuleMk1.Name": "Module d'amarrage Archon Mk1",
+	"Modules.DockingModuleMk1.Description": "Étend l'espace-temps de poche pour offrir plus d'espace d'amarrage. Chaque module installé augmente le nombre de véhicules pouvant être amarrés de 1",
+
+	"Modules.Group.RepairModule": "Modules de réparation",
+	"Modules.Group.Teleportation": "Modules de téléportation",
+	"Modules.Group.Docking": "Modules d'amarrage",
+
+	"Modules.RepairModuleMk1.Name": "Module d'auto-réparation Archon Mk1",
+	"Modules.RepairModuleMk1.Description": "Active les capacités d'auto-réparation de l'Archon. Répare {0}% par seconde. Ne se cumule pas",
+	"Modules.RepairModuleMk2.Name": "Module d'auto-réparation Archon Mk2",
+	"Modules.RepairModuleMk2.Description": "Active les capacités d'auto-réparation de l'Archon. Répare {0}% par seconde. Ne se cumule pas",
+	"Modules.RepairModuleMk3.Name": "Module d'auto-réparation Archon Mk3",
+	"Modules.RepairModuleMk3.Description": "Active les capacités d'auto-réparation de l'Archon. Répare {0}% par seconde. Ne se cumule pas",
+	"Modules.EmergencyTeleportationModule.Name": "Module de téléportation d'urgence Archon",
+	"Modules.EmergencyTeleportationModule.Description": "Active la téléportation d'urgence de l'Archon. Au moins un module de ce type doit être installé. Ne se cumule pas",
+	"Modules.TeleportationModuleA.Name": "Module de téléportation Archon (A)",
+	"Modules.TeleportationModuleA.Description": "Active la téléportation de l'Archon (A). Double-cliquez pour enregistrer un emplacement. Activez pour vous téléporter. Ne se cumule pas",
+
+	"Modules.Teleportation.LocationRecorded": "Téléportation : Emplacement actuel enregistré",
+
+	"Modules.DockingCapacityChanged": "{0} le nombre maximal de véhicules amarrés est passé à {1}",
+	"Modules.RepairCapacityChanged": "{0} la capacité d'auto-réparation a changé pour {1}",
+
+	"Modules.DockingModule.CannotRemoveOccupied": "Impossible de retirer le module d'amarrage tant qu'il est utilisé par un engin amarré",
+
+	"Capacity.RepairModuleMk1": "Mk1",
+	"Capacity.RepairModuleMk2": "Mk2",
+	"Capacity.RepairModuleMk3": "Mk3",
+
+	"Component.WaterTank": "Réservoir d'eau",
+	"Component.Bioreactor": "Bioréacteur",
+	"Component.ModularStorage": "Stockage modulaire",
+
+	"General.Description": "Vaisseau mère sous-marin",
+	"General.Encyclopedia": "L'Archon est un centre de commande mobile luxueux, extrêmement résistant, avec un hangar intégré pour les petits engins. Vous pouvez le fabriquer dans n'importe quelle baie de véhicule mobile.\n\nFonctionnalités :\n- Hangar extensible pour plusieurs petits engins\n- Reconstruction de capteur holographique\n- Bioréacteur\n- Aquarium\n- Carte de l'environnement\n\nÉvaluations :\n- Vitesse maximale : 26 m/s\n- Profondeur d'écrasement : 300 m\n- Profondeur d'écrasement maximale (améliorée) : 1700 m\n- Emplacements d'amélioration : 8\n- Dimensions : 26,8 m x 15,9 m x 79,8 m",
+
+
+	"Dockable.Text.HealthUnknown": "Intégrité : Inconnue",
+	"Dockable.Text.Health": "Intégrité : {0}",
+	"Dockable.Text.PowerUnknown": "Charge : Inconnue",
+	"Dockable.Text.Power": "Charge : {0}",
+	"Dockable.Text.Depth": "Profondeur : {0}/{1} m",
+	"Dockable.Text.Storage": "Stockage : {0}/{1}",
+
+	"Unity.Modules": "Panneau de modules d'amélioration",
+	"Unity.PowerCells": "Panneau de batteries",
+	"Unity.NothingDocked": "Baie d'amarrage vide",
+	"AR.None": "Aucune fonction",
+	"AR.Undock": "Désamarrer l'engin sélectionné",
+	"AR.SelectLeft": "Sélectionner l'engin amarré précédent",
+	"AR.SelectRight": "Sélectionner l'engin amarré suivant",
+
+	"Option.FloodLightShadows": "Ombres des projecteurs",
+	"Option.FloodLightShadows.None": "Aucune",
+	"Option.FloodLightShadows.Hard": "Dures",
+	"Option.FloodLightShadows.Soft": "Douces",
+	"Option.Button.ToggleFreeCamera": "Basculer la caméra libre",
+	"Option.Button.ChangeExternalCameraHeight": "Changer la position verticale de la caméra à la 3e personne",
+	"Option.Button.AltZoomIn": "Zoomer la caméra",
+	"Option.Button.AltZoomOut": "Dézoomer la caméra",
+	"Option.FlipFreeHorizontalRotationInReverse": "Inverser la rotation horizontale libre en marche arrière",
+	"Option.FlipFreeVerticalRotationInReverse": "Inverser la rotation verticale libre en marche arrière",
+	"Option.VoiceVolume": "Volume de la voix du pilote automatique",
+	"Option.ShowVoiceSubtitles": "Afficher les sous-titres de la voix du pilote automatique",
+	"Option.AutopilotVoice": "Voix du pilote automatique active",
+	"Option.AutopilotVoice.Off": "Aucune",
+	"Option.AutopilotVoice.Default": "Par défaut",
+
+
+	"Subtitle.Voice.Welcome": "Bienvenue à bord",
+	"Subtitle.Voice.Depth.Dangerous": "Avertissement de profondeur",
+	"Subtitle.Voice.Depth.Critical": "Dommages à la coque imminents",
+	"Subtitle.Voice.Health.Dangerous": "Intégrité structurelle compromise",
+	"Subtitle.Voice.Health.Critical": "Effondrement structurel imminent",
+	"Subtitle.Voice.Power.Dangerous": "Avertissement de charge de la batterie",
+	"Subtitle.Voice.Power.Critical": "Charge de la batterie épuisée",
+	"Subtitle.Voice.Teleportation.Start": "Téléportation : Établissement du tunnel spatial. Veuillez patienter...",
+	"Subtitle.Voice.Teleportation.ActivatingNow": "Téléportation : Transition en cours",
+	"Subtitle.Voice.Leveling.Done": "L'Archon est de niveau. Sortie en cours",
+	"Subtitle.Voice.Leveling.Starting": "L'Archon n'est pas de niveau. Mise à niveau en cours",
+	"Subtitle.Voice.Leveling.Failed": "Échec de la mise à niveau automatique en 5 secondes. Impossible de sortir ici. Veuillez naviguer vers une zone où le sous-marin peut se mettre à niveau et réessayer.",
+	"Subtitle.Voice.CriticalHealth.RepairEnabled": "Dommages critiques détectés. Activation de la réparation d'urgence",
+	"Subtitle.Voice.CriticalHealth.RepairDone": "La santé est en dehors de la plage critique. Désactivation de la réparation d'urgence",
+}
