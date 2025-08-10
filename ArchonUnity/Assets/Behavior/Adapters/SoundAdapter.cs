@@ -35,7 +35,7 @@ public class SoundAdapter : MonoBehaviour
         {
             var cfg = GetCurrentConfig();
 
-            if (Sound == null || DeadForFrames > 10 || !Sound.Config.IsLiveCompatibleTo(cfg))
+            if (Sound == null || (DeadForFrames > 10 && loop) || !Sound.Config.IsLiveCompatibleTo(cfg))
             {
                 Sound?.Dispose();
                 Sound = SoundCreator.Instantiate(cfg);

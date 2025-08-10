@@ -452,12 +452,18 @@ public class BayControl : MonoBehaviour
             open = active.WantsDoorsOpen;
         }
 
-        var wasClosed = progress == 0;
-        var lastProgress = progress;
+
+
+		float soundPreSeconds = 0.5f;
+
+		float totalSeconds = soundPreSeconds + secondsToOpen;
+
+		var wasClosed = progress <= 0;
+        var preProgress = progress;
         if (open)
-            progress = Math.Min(1, progress + Time.deltaTime / secondsToOpen);
+            progress = Math.Min(1, progress + Time.deltaTime / totalSeconds);
         else
-            progress = Math.Max(0, progress - Time.deltaTime / secondsToOpen);
+            progress = Math.Max(0, progress - Time.deltaTime / totalSeconds);
 
 
         //progress = M.Saturate(progress);
@@ -479,14 +485,13 @@ public class BayControl : MonoBehaviour
 
         if (wasClosed && !nowClosed)
         {
-            progress = -0.5f / secondsToOpen;
-            Log.Write(nameof(Update) + $": Bay doors opening. Playing lock sound");
+            Log.Write(nameof(Update) + $": (wasClosed={wasClosed}, nowClosed={nowClosed}, progress={progress}, open={open}) Bay doors opening. Playing lock sound");
+            //progress = -0.5f / secondsToOpen;
             bayDoorUnlockSound.Play();
         }
-        else
-            if (lastProgress > 0.1f && progress <= 0.1f)
+        else if (preProgress > soundPreSeconds/totalSeconds && progress <= soundPreSeconds/totalSeconds)
         {
-            Log.Write(nameof(Update) + $": Bay doors closing. Playing lock sound");
+            Log.Write(nameof(Update) + $": (wasClosed={wasClosed}, nowClosed={nowClosed}, preProgress={preProgress}, progress={progress}, open={open}) Bay doors closing. Playing lock sound");
 
             bayDoorLockSound.Play();
         }
@@ -505,9 +510,10 @@ public class BayControl : MonoBehaviour
 
         if (!openAnimation.isPlaying)
             openAnimation.Play();
+		float animationProgress = M.Saturate( (progress - soundPreSeconds/totalSeconds) / (secondsToOpen / totalSeconds));
         foreach (AnimationState state in openAnimation)
         {
-            state.normalizedTime = M.Saturate(progress);
+            state.normalizedTime = M.Saturate(animationProgress);
         }
     }
 
