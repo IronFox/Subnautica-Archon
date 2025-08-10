@@ -34,7 +34,7 @@
 	
 	"AVS.HandHover_Vehicle_Enter": "{0} betreten",
 	"AVS.HandHover_Vehicle_Exit": "{0} verlassen",
-	"AVS.HandHover_Vehicle_StartHelmControl": "Steuern",
+	"AVS.HandHover_Vehicle_StartHelmControl": "Steuer übernehmen",
 	
 	"AVS.HandHover_Reactor_Charge": "Bioreaktor: {0}/{1}",
 	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Rechte Maustaste oder rechte Triggertaste drücken, um die Liste erlaubter Materialien anzuzeigen",
@@ -44,11 +44,11 @@
 	"AVS.HandHover_Docked_StatusCharging": "Archon lädt ({0}). Integrität bei {0}",
 	
 	"AVS.Module_Depth1_DisplayName": "Archon-Tiefenmodul Mark 1",
-	"AVS.Module_Depth1_Description": "Erlaubt sicheres Tauchen bis auf Tiefe 500 Meter. Stapelt nicht",
+	"AVS.Module_Depth1_Description": "Erlaubt sicheres Tauchen bis auf 500 Meter. Stapelt nicht",
 	"AVS.Module_Depth2_DisplayName": "Archon-Tiefenmodul Mark 2",
-	"AVS.Module_Depth2_Description": "Erlaubt sicheres Tauchen bis auf Tiefe 1100 Meter. Stapelt nicht",
+	"AVS.Module_Depth2_Description": "Erlaubt sicheres Tauchen bis auf 1100 Meter. Stapelt nicht",
 	"AVS.Module_Depth3_DisplayName": "Archon-Tiefenmodul Mark 3",
-	"AVS.Module_Depth3_Description": "Erlaubt sicheres Tauchen bis auf Tiefe 1700 Meter. Stapelt nicht",
+	"AVS.Module_Depth3_Description": "Erlaubt sicheres Tauchen bis auf 1700 Meter. Stapelt nicht",
 	
 	"AVS.Report_AddedToStorage": "{0} hinzugefügt",
 	
@@ -100,7 +100,7 @@
 	"Component.ModularStorage": "Modulares Frachtmodul",
 	
 	"General.Description": "Ubootmutterschiff",
-	"General.Encyclopedia": "Die Archon ist eine luxuriöse, extrem robuste, mobile Kommandozentrale mit integriertem Hangar für Kleinfahrzeuge. Kann an jeder mobilen Fahrzeugstation gebaut werden.\n\nEigenschaften:\n- Erweiterbarer Hangar für mehrere Kleinfahrzeuge\n- Virtuelle Sensorrekonstruktion\n- Bioreaktor\n- Fischtank\n- Dynamische Umgebungskarte\n\nMetriken:\n- Maximalgeschwindigkeit: 26 m/s\n- Initiale Tauchtiefe: 300m\n- Maximale Tauchtiefe: 1700m\n- Upgrade-Module: 8\n- Größe: 26.8m x 15.9m x 79.8m",
+	"General.Encyclopedia": "Die Archon ist eine luxuriöse, extrem robuste, mobile Kommandozentrale mit integriertem Hangar für Kleinfahrzeuge. Kann an jeder mobilen Fahrzeugstation gebaut werden.\n\nEigenschaften:\n- Erweiterbarer Hangar für mehrere Kleinfahrzeuge\n- Virtuelle Sensorrekonstruktion\n- Bioreaktor\n- Fischtank\n- Dynamische Umgebungskarte\n\nMetriken:\n- Maximalgeschwindigkeit: 26 m/s\n- Initiale Tauchtiefe: 300m\n- Maximale Tauchtiefe: 1700m\n- Erweiterungsmodule: 8\n- Größe: 26.8m x 15.9m x 79.8m",
 	
 	
 	"Dockable.Text.HealthUnknown": "Integrität: Unbekannt",
@@ -110,7 +110,7 @@
 	"Dockable.Text.Depth": "Tiefe: {0}/{1}m",
 	"Dockable.Text.Storage": "Last: {0}/{1}",
 	
-	"Unity.Modules": "Upgrade-Module",
+	"Unity.Modules": "Erweiterungsmodule",
 	"Unity.PowerCells": "Batterien",
 	"Unity.NothingDocked": "Hangar leer",
 	"AR.None": "Keine Funktion",
