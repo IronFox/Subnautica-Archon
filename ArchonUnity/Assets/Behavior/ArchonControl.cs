@@ -423,6 +423,7 @@ public class ArchonControl : MonoBehaviour
 			RigidbodyUtil.UnsetKinematic(rb);
 			shouldBeKinematic = false;
 		}
+		helmSeatController.MoveToControlPosition();
 	}
 
 
