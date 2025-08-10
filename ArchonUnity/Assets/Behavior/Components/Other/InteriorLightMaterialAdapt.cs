@@ -7,7 +7,7 @@ public class InteriorLightMaterialAdapt : MonoBehaviour, ILightListener
 
     public void SetExteriorLightStrip(Color stripColor) { }
 
-    public void SetInteriorLight(Color lightColor, Color stripColor)
+    public void SetInteriorLight(Color lightColor, Color stripColor, int minimumInteriorLightPriority)	
     {
         var renderer = GetComponent<Renderer>();
         var v = M.ScaleRGB(stripColor, 1.2f);

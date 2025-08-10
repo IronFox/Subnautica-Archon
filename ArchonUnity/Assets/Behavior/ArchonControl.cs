@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
+#pragma warning disable IDE0090
+
 public class ArchonControl : MonoBehaviour
 {
 	public KeyCode openConsoleKey = KeyCode.F7;
@@ -55,6 +57,8 @@ public class ArchonControl : MonoBehaviour
 	public bool freeCameraInExternalCamera = true;
 	public bool flipFreeHorizontalRotationInReverse = true;
 	public bool flipFreeVerticalRotationInReverse = false;
+	public int minimumInteriorLightPriority;
+	private int effectiveInteriorLightPriority;
 
 	public bool doAutoLevel;
 
@@ -1142,7 +1146,7 @@ public class ArchonControl : MonoBehaviour
 		hudTeleportationAnimation.progress = teleportationProgress;
 	}
 
-	private InteriorLightColor lastLightColor, interpolatingFrom;
+	private InteriorLightColor setLightColor, interpolatingFrom, lastLightColor;
 	private InteriorLightState lastLightState;
 
 	private void UpdateLighting()
@@ -1160,7 +1164,7 @@ public class ArchonControl : MonoBehaviour
 			if (lastLightState != lightState)
 			{
 				lastLightState = lightState;
-				interpolatingFrom = lastLightColor;
+				interpolatingFrom = setLightColor;
 			}
 
 			Color lightColor = M.Gray(interiorLightScale);
@@ -1183,17 +1187,19 @@ public class ArchonControl : MonoBehaviour
 
 			InteriorLightColor newColor = new InteriorLightColor(stripColor, lightColor);
 
-			lastLightColor = InteriorLightColor.Lerp(
+			setLightColor = InteriorLightColor.Lerp(
 				interpolatingFrom,
 				newColor,
 				Mathf.Clamp01((Time.time - interpolatingFrom.Recorded) / 0.9f));
 
-
+			if (lastLightColor == setLightColor && effectiveInteriorLightPriority == minimumInteriorLightPriority)
+				return;
+			effectiveInteriorLightPriority = minimumInteriorLightPriority;
 			ILightListener[] listeners = GetComponentsInChildren<ILightListener>(true);
 			listeners.ForEach(
 				listener =>
 				{
-					listener.SetInteriorLight(lightColor: lastLightColor.LightColor, stripColor: lastLightColor.StripColor);
+					listener.SetInteriorLight(lightColor: setLightColor.LightColor, stripColor: setLightColor.StripColor, minimumInteriorLightPriority: effectiveInteriorLightPriority);
 				}
 				);
 

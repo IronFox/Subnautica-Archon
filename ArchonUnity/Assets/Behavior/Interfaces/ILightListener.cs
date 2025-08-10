@@ -2,5 +2,5 @@
 
 public interface ILightListener
 {
-    void SetInteriorLight(Color lightColor, Color stripColor);
+    void SetInteriorLight(Color lightColor, Color stripColor, int minimumInteriorLightPriority);
 }

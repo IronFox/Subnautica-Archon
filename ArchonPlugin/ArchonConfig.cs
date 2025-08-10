@@ -1,17 +1,25 @@
 using Nautilus.Json;
 using Nautilus.Options.Attributes;
 using Subnautica_Archon;
+using Subnautica_Archon.Util;
 using UnityEngine;
 
 [Menu("Archon Options")]
 public class ArchonConfig : ConfigFile
 {
+	[Choice("Interior Lights",
+		"Option.InteriorLights.Full",
+		"Option.InteriorLights.Reduced",
+		"Option.InteriorLights.Minimal",
+		LabelLanguageId = "Option.InteriorLights"
+	)]
+	public InteriorLights interiorLights = InteriorLights.Full;
     [Choice("Flood light shadows. May impact performance",
-        "Option.FloodLightShadows.None",
-        "Option.FloodLightShadows.Hard",
-        "Option.FloodLightShadows.Soft",
-        LabelLanguageId = "Option.FloodLightShadows"
-    )]
+		"Option.FloodLightShadows.None",
+		"Option.FloodLightShadows.Hard",
+		"Option.FloodLightShadows.Soft",
+		LabelLanguageId = "Option.FloodLightShadows"
+	)]
     public LightShadows floodLightShadows = LightShadows.Hard;
     [Keybind("Toggle Free Camera", LabelLanguageId = "Option.Button.ToggleFreeCamera")]
     public KeyCode toggleFreeCamera = KeyCode.F;

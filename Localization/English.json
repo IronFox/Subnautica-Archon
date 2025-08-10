@@ -133,6 +133,10 @@
 	"Option.AutopilotVoice": "Active Autopilot Voice",
 	"Option.AutopilotVoice.Off": "None",
 	"Option.AutopilotVoice.Default": "Default",
+	"Option.InteriorLights": "Interior Lighting",
+	"Option.InteriorLights.Full": "Full",
+	"Option.InteriorLights.Reduced": "Reduced (faster)",
+	"Option.InteriorLights.Minimal": "Minimal (fastest)",
 	
 	
 	"Subtitle.Voice.Welcome": "Welcome Aboard",

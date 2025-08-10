@@ -38,7 +38,7 @@ public class ConsoleTextFade : MonoBehaviour, ILightListener
         }
     }
 
-    public void SetInteriorLight(Color lightColor, Color stripColor)
+    public void SetInteriorLight(Color lightColor, Color stripColor, int minimumInteriorLightPriority)
     {
         if (!textMeshPro)
             return;

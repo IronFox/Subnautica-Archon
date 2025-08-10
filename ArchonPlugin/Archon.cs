@@ -1098,8 +1098,19 @@ namespace Subnautica_Archon
                     nonBlackBaseColor = BaseColor.RGB;
                 if (StripeColor.RGB != Color.black)
                     nonBlackStripeColor = StripeColor.RGB;
+				switch (MainPatcher.PluginConfig.interiorLights)
+				{
+					case InteriorLights.Full:
+						Control.minimumInteriorLightPriority = 0;
+						break;
+					case InteriorLights.Reduced:
+						Control.minimumInteriorLightPriority = 1;
+						break;
+					case InteriorLights.Minimal:
+						Control.minimumInteriorLightPriority = 2;
+						break;
 
-                //MaterialFixer.OnUpdate();
+				}
 
                 Control.flipFreeHorizontalRotationInReverse = MainPatcher.PluginConfig.flipFreeHorizontalRotationInReverse;
                 Control.flipFreeVerticalRotationInReverse = MainPatcher.PluginConfig.flipFreeVerticalRotationInReverse;
