@@ -37,17 +37,17 @@
 	"AVS.HandHover_Vehicle_StartHelmControl": "Take Control",
 	
 	"AVS.HandHover_Reactor_Charge": "Bioreactor: {0}/{1}",
-	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Press the right mouse button or right bumper to show the list of allowed materials",
+	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Press the right mouse button or right trigger to show the list of allowed materials",
 	"AVS.HandHover_Vehicle_DeconstructionPercent": "Archon deconstruction: {0}",
 	
 	"AVS.HandHover_Docked_StatusCharged": "Archon fully charged. Health at {0}",
 	"AVS.HandHover_Docked_StatusCharging": "Archon charging ({0}). Health at {0}",
 	
-	"AVS.Module_Depth1_DisplayName": "Archon Depth Module MK1",
+	"AVS.Module_Depth1_DisplayName": "Archon Depth Module Mk1",
 	"AVS.Module_Depth1_Description": "Enhances safe diving depth to 500m. Does not stack",
-	"AVS.Module_Depth2_DisplayName": "Archon Depth Module MK2",
+	"AVS.Module_Depth2_DisplayName": "Archon Depth Module Mk2",
 	"AVS.Module_Depth2_Description": "Enhances safe diving depth to 1100m. Does not stack",
-	"AVS.Module_Depth3_DisplayName": "Archon Depth Module MK3",
+	"AVS.Module_Depth3_DisplayName": "Archon Depth Module Mk3",
 	"AVS.Module_Depth3_Description": "Enhances safe diving depth to 1700m. Does not stack",
 	
 	"AVS.Report_AddedToStorage": "{0} added",
@@ -67,7 +67,7 @@
 	"Error.EmergencyTeleportationModule.CannotRemoveLast": "The Archon requires one installed emergency teleportation module",
 	
 	"Modules.DockingModuleMk1.Name": "Archon Docking Module Mk1",
-	"Modules.DockingModuleMk1.Description": "Pocket-expands space-time to provide more docking space. Each installed module increases the number of vehicles that can be docked by 1",
+	"Modules.DockingModuleMk1.Description": "Pocket-expands space-time to provide more docking space. Each installed module increases the number of craft that can be docked by 1",
 	
 	"Modules.Group.RepairModule": "Repair Modules",
 	"Modules.Group.Teleportation": "Teleportation Modules",
@@ -82,7 +82,7 @@
 	"Modules.EmergencyTeleportationModule.Name": "Archon Emergency Teleportation Module",
 	"Modules.EmergencyTeleportationModule.Description": "Enables Archon emergency teleportation. At least one module of this type must be installed. Does not stack",
 	"Modules.TeleportationModuleA.Name": "Archon Teleportation Module (A)",
-	"Modules.TeleportationModuleA.Description": "Enables Archon teleportation (A). Double-tab to record a location. Activate to teleport. Does not stack",
+	"Modules.TeleportationModuleA.Description": "Enables Archon teleportation to any recorded location (A). Double-tab to record a location. Activate to teleport. Does not stack",
 	
 	"Modules.Teleportation.LocationRecorded": "Teleportation: Recorded current location",
 	
