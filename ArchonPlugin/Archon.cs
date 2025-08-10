@@ -76,8 +76,8 @@ namespace Subnautica_Archon
 
         public Archon() : base(new VehicleConfiguration(
             unlockedSprite: MainPatcher.StaticImages.ArchonCraftingSprite.Sprite,
-            maxHealth: 20000,
-            crushDamage: 20000 / (60 * 2),    //damage so that total failure is achieved after 2 minutes at crush depth
+            maxHealth: 50000,
+            crushDamage: 50000 / (60 * 2),    //damage so that total failure is achieved after 2 minutes at crush depth
             mass: 20000,
             numModules: 8,
             craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite.AtlasSprite,
