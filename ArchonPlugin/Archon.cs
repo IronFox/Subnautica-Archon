@@ -51,7 +51,6 @@ namespace Subnautica_Archon
         /// True if this component has been destroyed and is no longer usable.
         /// </summary>
         public bool destroyed;
-        private float deathAge;
         //private MyLogger Log { get; }
         private MassDrive? engine;
         public MassDrive Engine => engine.OrThrow(
