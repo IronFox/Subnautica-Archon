@@ -6,6 +6,7 @@ using AVS.Util;
 using BepInEx;
 using HarmonyLib;
 using Nautilus.Handlers;
+using Nautilus.Utility.ModMessages;
 using Subnautica_Archon.Adapters;
 using Subnautica_Archon.Components;
 using Subnautica_Archon.Modules;
@@ -46,6 +47,9 @@ namespace Subnautica_Archon
                 Log.Write($"MainPatcher.Awake()");
 
                 Archon.GetAssets();
+
+                ModMessageSystem.SendGlobal("FindMyUpdates", "https://raw.githubusercontent.com/IronFox/Subnautica-Archon/refs/heads/main/mod-info.json");
+
                 Log.Write($"MainPatcher.Awake() done");
 
             }
