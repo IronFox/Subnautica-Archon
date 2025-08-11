@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -112,60 +113,105 @@ public class GenerateDistanceField : MonoBehaviour
 
 
 		var disable = root.GetAllColliders(gameObject).ToArray();
-
+		List<Collider> disableList = new List<Collider>(disable);
 		foreach (var collider in disable)
 		{
+			//if (collider.isTrigger)
+			//	continue;
 			if (collider.enabled)
+			{
 				Debug.LogWarning("GenerateDistanceField: Collider " + collider.name + " is enabled, disabling it for distance field generation.");
-			collider.enabled = false;
+				collider.enabled = false;
+				disableList.Add(collider);
+			}
 		}
-		foreach (var collider in GetComponentsInChildren<Collider>())
+		try
 		{
-			bounds.Encapsulate(collider.bounds);
-			collider.enabled = true;
-		}
+			var myColliders = GetComponentsInChildren<Collider>();
+			foreach (var collider in myColliders)
+			{
+				collider.enabled = true;
+				Debug.Log($"GenerateDistanceField: Found collider {collider.NiceName()} with bounds {collider.bounds}");
+				bounds.Encapsulate(collider.bounds);
+			}
+			Debug.Log($"GenerateDistanceField: Found {myColliders.Length} colliders in {root.name} with bounds {bounds}");
 
-		bounds.size += M.V3(4f / pixelsPerUnit);
+			bounds.size += M.V3(8f / pixelsPerUnit);
 
-		resolution = Vector3Int.CeilToInt(bounds.size * pixelsPerUnit);;
+			resolution = Vector3Int.CeilToInt(bounds.size * pixelsPerUnit); ;
 
-		if (target == null
-		 || target.width != resolution.x
-		 || target.height != resolution.y
-		 || target.depth != resolution.z)
-		{
-			DestroyImmediate(target);
-			target = new Texture3D(resolution.x, resolution.y, resolution.z, TextureFormat.Alpha8, 1);
-			target.wrapMode = TextureWrapMode.Clamp;
-			totalTexels = (long)target.width * target.height * target.depth;
-			totalBytes = totalTexels;	//actually the same
-		}
+			if (target == null
+			 || target.width != resolution.x
+			 || target.height != resolution.y
+			 || target.depth != resolution.z)
+			{
+				DestroyImmediate(target);
+				target = new Texture3D(resolution.x, resolution.y, resolution.z, TextureFormat.Alpha8, 1);
+				target.wrapMode = TextureWrapMode.Clamp;
+				totalTexels = (long)target.width * target.height * target.depth;
+				totalBytes = totalTexels;   //actually the same
+			}
 
-		var started = DateTime.Now;
-		var boundsCenter = bounds.center;
+			var started = DateTime.Now;
+			var boundsCenter = bounds.center;
 
-		var checkBoxExtents = M.V3(0.5f / pixelsPerUnit);
-        for (int z = 0; z < resolution.z; z++)
-        {
-            for (int y = 0; y < resolution.y; y++)
-            {
-                for (int x = 0; x < resolution.x; x++)
-                {
-					var center = PixelToWorldCoordinate(boundsCenter, new Vector3(x, y, z));// lowerBounds + new Vector3(x, y, z) * (1 / pixelsPerUnit);
-					var occupied = Physics.CheckBox(center, checkBoxExtents);
-					if (occupied)
-                        target.SetPixel(x, y, z, Color.clear);
-					else
-						target.SetPixel(x, y, z, Color.white);
+			var maxDistance = 2f / pixelsPerUnit;   // two texels wide
+			var checkBoxExtents = M.V3(0.001f);
+			for (int z = 0; z < resolution.z; z++)
+			{
+				for (int y = 0; y < resolution.y; y++)
+				{
+					for (int x = 0; x < resolution.x; x++)
+					{
+						var center = PixelToWorldCoordinate(boundsCenter, new Vector3(x, y, z));// lowerBounds + new Vector3(x, y, z) * (1 / pixelsPerUnit);
+						var occupied = Physics.CheckBox(center, checkBoxExtents);
+
+						if (occupied)
+							target.SetPixel(x, y, z, Color.clear);
+						else
+						{
+							float distance = float.MaxValue;
+							foreach (var c in myColliders)
+							{
+								var closest = Physics.ClosestPoint(center, c, c.transform.position, c.transform.rotation);
+
+								var d = M.SqrDistance(center, closest);
+								if (d < distance)
+									distance = d;
+							}
+							distance = Mathf.Sqrt(distance);
+							var texelDistance = distance * pixelsPerUnit;
+							var relativeDistance = texelDistance / 4f;
+
+
+							target.SetPixel(x, y, z, new Color(1f, 1f, 1f, Mathf.Min(relativeDistance, 1f)));
+						}
+
+
+					}
 				}
-            }
-        }
-		var elapsed = DateTime.Now - started;started = DateTime.Now;
-		Debug.Log($"GenerateTexture took {elapsed.TotalMilliseconds} ms");
+			}
+			var elapsed = DateTime.Now - started; started = DateTime.Now;
+			Debug.Log($"GenerateTexture took {elapsed.TotalMilliseconds} ms");
 
-        target.Apply();
-		elapsed = DateTime.Now - started;
-		Debug.Log($"texture.Apply took {elapsed.TotalMilliseconds} ms");
+			target.Apply();
+			elapsed = DateTime.Now - started;
+			Debug.Log($"texture.Apply took {elapsed.TotalMilliseconds} ms");
+
+			foreach (var collider in disable)
+			{
+				collider.enabled = true;
+			}
+		}
+		finally
+		{
+			foreach (var collider in disableList)
+			{
+				if (collider != null)
+					collider.enabled = true;
+			}
+		}
+
 	}
 #if UNITY_EDITOR
 
@@ -196,8 +242,12 @@ public class GenerateDistanceField : MonoBehaviour
             for (int w = 0; w < resolution[a2]; w++)
             {
                 var location = GetCrossSectionLocation(l, w, d, crossSectionVisualizationAxis);
-                var transparent = Mathf.Approximately(visualizationTexture.GetPixel(location.x, location.y, location.z).a, showUnoccupied ? 1f : 0f);
-                if (transparent)
+				float a = visualizationTexture.GetPixel(location.x, location.y, location.z).a;
+				if (!showUnoccupied)
+					a = 1f - a;
+				//var transparent = Mathf.Approximately(visualizationTexture.GetPixel(location.x, location.y, location.z).a, showUnoccupied ? 1f : 0f);
+				Gizmos.color = new Color(visualizationVolumeColor.r, visualizationVolumeColor.g, visualizationVolumeColor.b, a);
+                //if (transparent)
                 {
                     Gizmos.DrawCube(PixelToWorldCoordinate(boundsCenter, location) , boxSize);
                 }
