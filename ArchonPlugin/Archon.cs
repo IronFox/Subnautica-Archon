@@ -742,23 +742,48 @@ namespace Subnautica_Archon
             }
             if (clipProxyParent && seamoth != null)
             {
-                WaterClipProxy seamothWCP = seamoth.GetComponentInChildren<WaterClipProxy>();
-
-                for (int i = 0; i < clipProxyParent.childCount; i++)
+                bool isGood = false;
+                var meta = transform.GetComponentInChildren<DistanceFieldMeta>();
+                if (meta != null && meta.distanceField != null)
                 {
-                    var go = clipProxyParent.GetChild(i).gameObject;
-                    foreach (var c in go.GetComponents<Component>())    //clear out anything. Even if disabled, this blocks usage
-                        if (!(c is Transform))
-                            Destroy(c);
-
+                    isGood = true;
                     if (enable)
+                        WaterClipUtil.BindProxy(Log, clipProxyParent.gameObject, meta.distanceField, meta.localBounds);
+                    else
+                        WaterClipUtil.UnbindProxy(Log, clipProxyParent.gameObject);
+                    Log.Write($"Flushing children...");
+                    foreach (var child in clipProxyParent.GetChildren())
                     {
-                        WaterClipProxy waterClip = go.AddComponent<WaterClipProxy>();
-                        waterClip.shape = WaterClipProxy.Shape.Box;
-                        //"""Apply the seamoth's clip material. No idea what shader it uses or what settings it actually has, so this is an easier option. Reuse the game's assets.""" -Lee23
-                        waterClip.clipMaterial = seamothWCP.clipMaterial;
-                        //"""You need to do this. By default the layer is 0. This makes it displace everything in the default rendering layer. We only want to displace water.""" -Lee23
-                        waterClip.gameObject.layer = seamothWCP.gameObject.layer;
+                        child.SetParent(null);
+                        Destroy(child.gameObject);
+                    }
+                    Log.Write($"All done");
+                }
+                else
+                    Log.Error($"DistanceFieldMeta not found on {transform.NiceName()} or it has no texture. Can't bind distance field to clip proxy parent {clipProxyParent.NiceName()}");
+
+                if (!isGood)
+                {
+                    Log.Error($"Unable to bind distance field to clip proxy parent {clipProxyParent.name}. Using default clip proxies instead");
+                    WaterClipProxy seamothWCP = seamoth.GetComponentInChildren<WaterClipProxy>();
+
+
+                    for (int i = 0; i < clipProxyParent.childCount; i++)
+                    {
+                        var go = clipProxyParent.GetChild(i).gameObject;
+                        foreach (var c in go.GetComponents<Component>())    //clear out anything. Even if disabled, this blocks usage
+                            if (!(c is Transform))
+                                Destroy(c);
+
+                        if (enable)
+                        {
+                            WaterClipProxy waterClip = go.AddComponent<WaterClipProxy>();
+                            waterClip.shape = WaterClipProxy.Shape.Box;
+                            //"""Apply the seamoth's clip material. No idea what shader it uses or what settings it actually has, so this is an easier option. Reuse the game's assets.""" -Lee23
+                            waterClip.clipMaterial = seamothWCP.clipMaterial;
+                            //"""You need to do this. By default the layer is 0. This makes it displace everything in the default rendering layer. We only want to displace water.""" -Lee23
+                            waterClip.gameObject.layer = seamothWCP.gameObject.layer;
+                        }
                     }
                 }
                 clippingWater = enable;
@@ -1098,19 +1123,19 @@ namespace Subnautica_Archon
                     nonBlackBaseColor = BaseColor.RGB;
                 if (StripeColor.RGB != Color.black)
                     nonBlackStripeColor = StripeColor.RGB;
-				switch (MainPatcher.PluginConfig.interiorLights)
-				{
-					case InteriorLights.Full:
-						Control.minimumInteriorLightPriority = 0;
-						break;
-					case InteriorLights.Reduced:
-						Control.minimumInteriorLightPriority = 1;
-						break;
-					case InteriorLights.Minimal:
-						Control.minimumInteriorLightPriority = 2;
-						break;
+                switch (MainPatcher.PluginConfig.interiorLights)
+                {
+                    case InteriorLights.Full:
+                        Control.minimumInteriorLightPriority = 0;
+                        break;
+                    case InteriorLights.Reduced:
+                        Control.minimumInteriorLightPriority = 1;
+                        break;
+                    case InteriorLights.Minimal:
+                        Control.minimumInteriorLightPriority = 2;
+                        break;
 
-				}
+                }
 
                 Control.flipFreeHorizontalRotationInReverse = MainPatcher.PluginConfig.flipFreeHorizontalRotationInReverse;
                 Control.flipFreeVerticalRotationInReverse = MainPatcher.PluginConfig.flipFreeVerticalRotationInReverse;
