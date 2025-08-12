@@ -1,7 +1,5 @@
 before release:
 
-* merge AVS into the main dll using https://github.com/Fody/Costura?tab=readme-ov-file
-* reference AVS vehicles via reflection, not inheritance
 
 no:
 
@@ -10,12 +8,15 @@ no:
 * zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit. not gonna work
 * evacuate fish ( seems to no longer happen)
 * register external flood lights as AVS head lights (the volumetric light visualization does not appear to heed the light's angle)
+* merge AVS into the main dll using https://github.com/Fody/Costura?tab=readme-ov-file (does not work, other libraries do but cause access conflicts. also not sure that even solves the problem)
+
 
 maybe:
 * add AVS fabricator to pre-built mesh (every spot is potentially bad, some spots near upgrade panel can't normally be built at)
 
 later:
 
+* reference AVS vehicles also via reflection
 * allow map resource selection
 * battery dead sound
 * charge docked craft
