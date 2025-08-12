@@ -112,25 +112,30 @@ public class GenerateDistanceField : MonoBehaviour
 		bounds.SetMinMax(M.V3(float.MaxValue, float.MaxValue, float.MaxValue), M.V3(float.MinValue, float.MinValue, float.MinValue));
 
 
-		var disable = root.GetAllColliders(gameObject).ToArray();
-		List<Collider> disableList = new List<Collider>(disable);
-		foreach (var collider in disable)
-		{
-			//if (collider.isTrigger)
-			//	continue;
-			if (collider.enabled)
-			{
-				Debug.LogWarning("GenerateDistanceField: Collider " + collider.name + " is enabled, disabling it for distance field generation.");
-				collider.enabled = false;
-				disableList.Add(collider);
-			}
-		}
+		//var disable = root.GetAllColliders(gameObject).ToArray();
+		//List<Collider> disableList = new List<Collider>(disable);
+		//foreach (var collider in disable)
+		//{
+		//	//if (collider.isTrigger)
+		//	//	continue;
+		//	if (collider.enabled)
+		//	{
+		//		Debug.LogWarning("GenerateDistanceField: Collider " + collider.name + " is enabled, disabling it for distance field generation.");
+		//		collider.enabled = false;
+		//		disableList.Add(collider);
+		//	}
+		//}
+		var myColliders = GetComponentsInChildren<Collider>();
+		List<Collider> disableAgain = new List<Collider>();
 		try
 		{
-			var myColliders = GetComponentsInChildren<Collider>();
 			foreach (var collider in myColliders)
 			{
-				collider.enabled = true;
+				if (!collider.enabled)
+				{
+					collider.enabled = true;
+					disableAgain.Add(collider);
+				}
 				Debug.Log($"GenerateDistanceField: Found collider {collider.NiceName()} with bounds {collider.bounds}");
 				bounds.Encapsulate(collider.bounds);
 			}
@@ -166,10 +171,10 @@ public class GenerateDistanceField : MonoBehaviour
 						var center = PixelToWorldCoordinate(boundsCenter, new Vector3(x, y, z));// lowerBounds + new Vector3(x, y, z) * (1 / pixelsPerUnit);
 						var occupied = Physics.CheckBox(center, checkBoxExtents);
 
-						if (occupied)
-							target.SetPixel(x, y, z, Color.clear);
-						else
-						{
+						//if (occupied)
+						//	target.SetPixel(x, y, z, Color.clear);
+						//else
+						//{
 							float distance = float.MaxValue;
 							foreach (var c in myColliders)
 							{
@@ -185,7 +190,7 @@ public class GenerateDistanceField : MonoBehaviour
 
 
 							target.SetPixel(x, y, z, new Color(1f, 1f, 1f, Mathf.Min(relativeDistance, 1f)));
-						}
+						//}
 
 
 					}
@@ -198,18 +203,18 @@ public class GenerateDistanceField : MonoBehaviour
 			elapsed = DateTime.Now - started;
 			Debug.Log($"texture.Apply took {elapsed.TotalMilliseconds} ms");
 
-			foreach (var collider in disable)
-			{
-				collider.enabled = true;
-			}
 		}
 		finally
 		{
-			foreach (var collider in disableList)
-			{
-				if (collider != null)
-					collider.enabled = true;
-			}
+			foreach (var collider in disableAgain)
+				if (collider)
+					collider.enabled = false;
+			Debug.Log("All done");
+			//foreach (var collider in disableList)
+			//{
+			//	if (collider != null)
+			//		collider.enabled = true;
+			//}
 		}
 
 	}
