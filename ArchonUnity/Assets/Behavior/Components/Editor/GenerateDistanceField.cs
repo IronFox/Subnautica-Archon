@@ -15,7 +15,10 @@ public class GenerateDistanceField : MonoBehaviour
     public float pixelsPerUnit = 10;
     public bool updateTexture = false;
     public bool exportTexture = false;
-    public Transform root;
+
+	public MeshCollider[] exclude;
+	public float bias = -0.1f;
+	public Transform root;
     /// <summary>
     /// The minimal bounding box of all included colliders. Updated when <see cref="GenerateTexture"/> is called.
     /// </summary>
@@ -136,6 +139,7 @@ public class GenerateDistanceField : MonoBehaviour
             float indentation = 4f / pixelsPerUnit;
             foreach (var collider in myOriginalColliders)
             {
+				if (exclude == null || !exclude.Contains(collider))
                 {
                     GameObject go = new GameObject();
                     temporary.Add(go);
@@ -155,7 +159,7 @@ public class GenerateDistanceField : MonoBehaviour
             }
             Debug.Log($"GenerateDistanceField: Found {myColliders.Count} colliders in {root.NiceName()} with bounds {bounds}");
 
-            bounds.size += M.V3(8f / pixelsPerUnit);
+            bounds.size += M.V3(20f / pixelsPerUnit);
 
             resolution = Vector3Int.CeilToInt(bounds.size * pixelsPerUnit); ;
 
@@ -184,7 +188,7 @@ public class GenerateDistanceField : MonoBehaviour
                     for (int x = 0; x < resolution.x; x++)
                     {
                         var center = PixelToWorldCoordinate(boundsCenter, new Vector3(x, y, z));// lowerBounds + new Vector3(x, y, z) * (1 / pixelsPerUnit);
-                        var occupied = Physics.CheckBox(center, checkBoxExtents);
+                        //var occupied = Physics.CheckBox(center, checkBoxExtents);
 
                         //if (occupied)
                         //	target.SetPixel(x, y, z, Color.clear);
@@ -289,7 +293,8 @@ public class GenerateDistanceField : MonoBehaviour
                             var v = grid[x, y, z];
                             if (v.w == 0)
                                 v.w = -10000;
-                            var texelDistance = v.w * pixelsPerUnit;
+							v.w += bias;
+							var texelDistance = v.w * pixelsPerUnit;
                             var relativeDistance = texelDistance / 4f;
 
                             var clamped = M.Clamp(relativeDistance, -1f, 1f);
