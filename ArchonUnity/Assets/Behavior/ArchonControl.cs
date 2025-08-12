@@ -578,11 +578,6 @@ public class ArchonControl : MonoBehaviour
 		return rs;
 	}
 
-	private void LogComposition(Transform t, Indent indent = default)
-	{
-		new HierarchyAnalyzer().LogToJson(t, $@"C:\Temp\Logs\snapshot{DateTime.Now:yyyy-MM-dd HH_mm_ss}.json");
-
-	}
 
 	private IDirectionSource inWaterDirectionSource;
 

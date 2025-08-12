@@ -1163,6 +1163,9 @@ namespace Subnautica_Archon
                      */
                     //if (Control.IsBoardedButNotControlled)
                     {
+                        //OutOfBoundsWarp
+                        //EcoTarget
+                        SDFCutout
                         Log.Write("Debug action");
                         Log.Write($"@{transform.position}");
 
@@ -1172,6 +1175,21 @@ namespace Subnautica_Archon
                             Log.Write($"Slot {slot} has item [{modules.GetItemInSlot(slot)?.item.NiceName()}]");
                         }
 
+                        var colliders = Physics.OverlapSphere(Player.main.transform.position, 1000,0x1fffffff,QueryTriggerInteraction.Ignore);
+                        var roots = colliders
+                            .Where(x => x.attachedRigidbody != null && x.attachedRigidbody.gameObject != null)
+                            .Select(x => x.attachedRigidbody.gameObject.GetComponentInChildren<SubRoot>())
+                            .Where(x => x != null)
+                            .ToHashSet();
+
+
+                        foreach (var root in roots)
+                        {
+                            var prefabId = root.GetComponentInChildren<PrefabIdentifier>();
+                            string name = prefabId.SafeGet(x => x.Id, root.GetInstanceID().ToString());
+                            Log.Write("Analyzing "+root.NiceName()+" -> "+name);
+                            new AVS.Util.HierarchyAnalyzer().LogToJson(root.transform,$"C:\\temp\\v3_{name}.json");
+                        }
                         //TryFixLostBuildFocus();
                         //Control.interiorColliders.gameObject.SetActive(false);
                         //StartCoroutine(ReenableColliders());
