@@ -4,7 +4,7 @@ before release:
 no:
 
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
-* chargeable non-useful afterall because we are not informed of the charge status even if it otherwise would work	
+* chargeable modules for teleportation not useful afterall because we are not informed of the charge status even if it otherwise would work	
 * zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit. not gonna work
 * evacuate fish ( seems to no longer happen)
 * register external flood lights as AVS head lights (the volumetric light visualization does not appear to heed the light's angle)
@@ -16,6 +16,7 @@ maybe:
 
 later:
 
+* controls on the HUD, potentially fading after a while
 * reference AVS vehicles also via reflection
 * allow map resource selection
 * battery dead sound
@@ -57,18 +58,19 @@ later:
 		SwimRandom:CreatureAction
 		CreatureAction.swimBehaviour (SwimBehaviour)
 
-* FindMyUpdate support:
-	https://discord.com/channels/324207629784186882/1190308479731241020/1393654605493309662
-	Add a json file on the internet, but most convenient to be in your project: example
-	Add one line to your plugin Awake() or Start()
-	ModMessageSystem.SendGlobal("FindMyUpdates", "URL (raw) to your json file")
-	Done. If users have Find My Updates installed, your mod will be checked for updates using the information in the json file 
 * Torpedo launchers
 * Flight module
 * Fear module (makes creatures run away from it)
 
 done:
 
+
+* FindMyUpdate support:
+	https://discord.com/channels/324207629784186882/1190308479731241020/1393654605493309662
+	Add a json file on the internet, but most convenient to be in your project: example
+	Add one line to your plugin Awake() or Start()
+	ModMessageSystem.SendGlobal("FindMyUpdates", "URL (raw) to your json file")
+	Done. If users have Find My Updates installed, your mod will be checked for updates using the information in the json file 
 * tune energy demands of everything
 * model and replace seat, model magnetic levitation visualization
 * localize options
