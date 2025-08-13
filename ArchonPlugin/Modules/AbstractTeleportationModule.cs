@@ -61,8 +61,7 @@ namespace Subnautica_Archon.Modules
                 {
                     vehicle.Log.Write($"TeleportationModule1.OnRepeat: Teleportation finished, teleporting vehicle {state.Vehicle} to {target}");
 
-                    var voice = voiceLibrary?.GetRandomTeleport();
-                    vehicle.VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Teleportation.ActivatingNow", 0));
+
 
                     vehicle.Engine.KillMomentum();
                     vehicle.TeleportVehicle(target.Value, orientation.Value);

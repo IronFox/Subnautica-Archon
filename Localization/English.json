@@ -147,8 +147,6 @@
 	"Subtitle.Voice.Power.Dangerous": "Battery Charge Warning",
 	"Subtitle.Voice.Power.Critical": "Battery Charge Depleted",
 	"Subtitle.Voice.Teleportation.Start": "Teleportation: Establishing spatial tunnel. Please stand by...",
-	"Subtitle.Voice.Teleportation.ActivatingNow": "Teleportation: Transitioning",
-	"Subtitle.Voice.Leveling.Done": "Archon is level. Exiting now",
 	"Subtitle.Voice.Leveling.Starting": "Archon is not level. Leveling out",
 	"Subtitle.Voice.Leveling.Failed": "Failed to auto-level in 5 seconds. Cannot exit here. Please navigate to an area where the submarine can level out and try again.",
 	"Subtitle.Voice.CriticalHealth.RepairEnabled": "Critical damage detected. Activating emergency repair",

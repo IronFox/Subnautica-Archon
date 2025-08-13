@@ -143,8 +143,6 @@
 	"Subtitle.Voice.Power.Dangerous": "Avertissement de charge de la batterie",
 	"Subtitle.Voice.Power.Critical": "Charge de la batterie épuisée",
 	"Subtitle.Voice.Teleportation.Start": "Téléportation : Établissement du tunnel spatial. Veuillez patienter...",
-	"Subtitle.Voice.Teleportation.ActivatingNow": "Téléportation : Transition en cours",
-	"Subtitle.Voice.Leveling.Done": "L'Archon est de niveau. Sortie en cours",
 	"Subtitle.Voice.Leveling.Starting": "L'Archon n'est pas de niveau. Mise à niveau en cours",
 	"Subtitle.Voice.Leveling.Failed": "Échec de la mise à niveau automatique en 5 secondes. Impossible de sortir ici. Veuillez naviguer vers une zone où le sous-marin peut se mettre à niveau et réessayer.",
 	"Subtitle.Voice.CriticalHealth.RepairEnabled": "Dommages critiques détectés. Activation de la réparation d'urgence",

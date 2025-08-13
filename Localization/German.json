@@ -147,8 +147,6 @@
 	"Subtitle.Voice.Power.Dangerous": "Achtung: Batteriestand niedrig",
 	"Subtitle.Voice.Power.Critical": "Warnung: Batterie leer",
 	"Subtitle.Voice.Teleportation.Start": "Teleportation: Öffne Raumzeittunnel. Bitte warten...",
-	"Subtitle.Voice.Teleportation.ActivatingNow": "Teleportation: Übergang",
-	"Subtitle.Voice.Leveling.Done": "Archon ist nivelliert. Verlasse Steuerkontrolle...",
 	"Subtitle.Voice.Leveling.Starting": "Starte Nivellierung",
 	"Subtitle.Voice.Leveling.Failed": "Nivellierung hatte keinen Erfolg nach 5 Sekunden. Kann Steuerkontrolle nicht verlassen. Bitte die Archon zu einem offeneren Ort navigieren und erneut versuchen.",
 	"Subtitle.Voice.CriticalHealth.RepairEnabled": "Kritischer Schaden festgestellt. Notfallreparatursystem aktiviert",

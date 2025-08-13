@@ -16,7 +16,6 @@ public class VoiceLibrary : MonoBehaviour
     public AudioClip[] powerCritical;
     public AudioClip[] powerLow;
     public AudioClip[] prepareTeleport;
-    public AudioClip[] teleport;
     public AudioClip[] allSystemsGreen;
     [Tooltip("The first parts of a composite welcome aboard message. One of these may be chosen at random to form a complete message")]
     public AudioClip[] welcomePre;
@@ -65,8 +64,6 @@ public class VoiceLibrary : MonoBehaviour
         => GetRandom(powerLow);
     public AudioClip GetRandomPrepareTeleport()
         => GetRandom(prepareTeleport);
-    public AudioClip GetRandomTeleport()
-        => GetRandom(teleport);
     public AudioClip GetRandomAllSystemsGreen()
         => GetRandom(allSystemsGreen);
 
