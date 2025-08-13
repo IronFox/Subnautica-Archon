@@ -68,8 +68,8 @@ namespace Subnautica_Archon.Adapters
             }
         }
 
-        private AtlasTexture? image;
-        public AtlasTexture Image
+        private Sprite? image;
+        public Sprite? Image
         {
             get
             {
@@ -78,36 +78,35 @@ namespace Subnautica_Archon.Adapters
                     var tt = CraftData.GetTechType(Vehicle.gameObject);
                     if (tt != TechType.None)
                     {
-                        var sprite = SpriteManager.Get(tt);
-                        image = sprite.ToAtlasTexture();
-                        if (!image.Value.Exists)
+                        image = SpriteManager.Get(tt);
+                        if (image == null || image.texture == null)
                         {
-                            Log.Error($"Image for {Vehicle.NiceName()} does not exist. Using empty atlas texture.");
+                            Log.Error($"Image for {Vehicle.NiceName()} does not exist. Using empty texture.");
                         }
                     }
                     else
                     {
                         Log.Error($"Unable to get TechType for {Vehicle.NiceName()}");
-                        image = new AtlasTexture();
+                        image = null;
                     }
                 }
-                return image.Value;
+                return image;
             }
         }
 
-        public AtlasTexture[] Modules
+        public Sprite[] Modules
         {
             get
             {
-                List<AtlasTexture> textures = new List<AtlasTexture>();
+                List<Sprite> textures = new List<Sprite>();
                 foreach (InventoryItem mod in (IItemsContainer)Vehicle.modules)
                 {
                     if (mod.techType != TechType.None)
                     {
                         var sprite = SpriteManager.Get(mod.techType);
-                        var tex = sprite.ToAtlasTexture();
-                        if (tex.Exists)
-                            textures.Add(tex);
+
+                        if (sprite != null)
+                            textures.Add(sprite);
                     }
                 }
                 return textures.ToArray();

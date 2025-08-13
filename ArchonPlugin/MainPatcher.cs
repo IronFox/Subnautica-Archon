@@ -91,13 +91,13 @@ namespace Subnautica_Archon
             return (T)copy;
         }
 
-        public static Atlas.Sprite? LoadSprite(string filename)
+        public static Sprite? LoadSprite(string filename)
         {
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
             Log.Write($"Trying to load sprite from {path}");
             try
             {
-                return SpriteHelper.GetSprite(path);
+                return SpriteHelper.GetSpriteRaw(path);
             }
             catch (Exception ex)
             {
@@ -111,11 +111,11 @@ namespace Subnautica_Archon
         {
 
 
-            var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png").AtlasSprite);
+            var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png").Sprite);
             var autoAdd = EmergencyTeleportationModule.Register(teleportNode);
             TeleportationModuleA.RegisterAll(teleportNode);
 
-            var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage("images/DockingModuleMk1.png").AtlasSprite);
+            var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage("images/DockingModuleMk1.png").Sprite);
             new DockingModule().Register(dockingNode);
 
 

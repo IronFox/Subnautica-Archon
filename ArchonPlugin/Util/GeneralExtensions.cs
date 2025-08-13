@@ -1,5 +1,4 @@
-﻿using Assets.Behavior.TransferTypes;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 namespace Subnautica_Archon.Util
@@ -24,17 +23,5 @@ namespace Subnautica_Archon.Util
             );
         }
 
-        public static AtlasTexture ToAtlasTexture(
-            this Atlas.Sprite sprite)
-        {
-            if (sprite == null || sprite.texture == null)
-            {
-                return default;
-            }
-            return new AtlasTexture(
-                sprite.texture,
-                sprite.uv0.ToRect()
-                );
-        }
     }
 }

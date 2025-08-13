@@ -80,8 +80,8 @@ namespace Subnautica_Archon
             crushDamage: 50000 / (60 * 2),    //damage so that total failure is achieved after 2 minutes at crush depth
             mass: 20000,
             numModules: 8,
-            craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite.AtlasSprite,
-            pingSprite: MainPatcher.StaticImages.ArchonPingSprite.AtlasSprite,
+            craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite.Sprite,
+            pingSprite: MainPatcher.StaticImages.ArchonPingSprite.Sprite,
             saveFileSprite: MainPatcher.StaticImages.ArchonPingSprite.Sprite,
             moduleBackgroundImage: MainPatcher.StaticImages.ArchonModuleBackground.Sprite,
             description: Language.main.Get("General.Description"),
@@ -1244,13 +1244,13 @@ namespace Subnautica_Archon
                 }
 
                 if (Control.IsBeingControlled
-                    && GameInput.GetKeyDown(MainPatcher.PluginConfig.toggleFreeCamera)
+                    && Input.GetKeyDown(MainPatcher.PluginConfig.toggleFreeCamera)
                     && engine != null)
                 {
                     Control.ToggleCurrentFreeCamera();
                     engine.freeCamera = Control.UseFreeCamera;
                 }
-                if (GameInput.GetKeyDown(MainPatcher.PluginConfig.btnChangeExternalCameraHeight))
+                if (Input.GetKeyDown(MainPatcher.PluginConfig.btnChangeExternalCameraHeight))
                 {
                     Control.positionCameraBelowSub = !Control.positionCameraBelowSub;
                 }
@@ -1716,7 +1716,7 @@ namespace Subnautica_Archon
             return new SubmarineComposition(
                 engine: engine,
                 hatches: hatchList,
-                collisionModel: transform.Find("CollisionModel").gameObject,
+                collisionModel: new GameObject[] { transform.Find("CollisionModel").gameObject },
                 boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
                 storageRootObject: storageRootTransform.gameObject,
                 modularStorages: modularStorageList,

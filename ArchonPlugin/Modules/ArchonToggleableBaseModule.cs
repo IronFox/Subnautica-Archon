@@ -5,13 +5,14 @@ using Subnautica_Archon.Exceptions;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Subnautica_Archon.Modules
 {
     public abstract class ArchonToggleableBaseModule : ToggleableModule
     {
         public ArchonModule Module { get; }
-        private Atlas.Sprite? icon;
+        private Sprite? icon;
 
 
 
@@ -101,7 +102,7 @@ namespace Subnautica_Archon.Modules
             archon.SetModuleCount(Module, GetNumberInstalled(archon));
         }
 
-        public override Atlas.Sprite Icon => icon ?? throw new InitializationException("Module Icon should have been loaded by now");
+        public override Sprite Icon => icon ?? throw new InitializationException("Module Icon should have been loaded by now");
 
     }
 }

@@ -10,7 +10,7 @@ using UnityEngine;
 public abstract class ArchonBaseModule : AvsVehicleModule
 {
     public ArchonModule Module { get; }
-    private Atlas.Sprite? icon;
+    private Sprite? icon;
 
 
 
@@ -100,6 +100,6 @@ public abstract class ArchonBaseModule : AvsVehicleModule
         archon.SetModuleCount(Module, GetNumberInstalled(archon));
     }
 
-    public override Atlas.Sprite Icon => icon ?? throw new InitializationException("Module Icon should have been loaded by now");
+    public override Sprite Icon => icon ?? throw new InitializationException("Module Icon should have been loaded by now");
 
 }

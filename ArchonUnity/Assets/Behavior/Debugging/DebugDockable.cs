@@ -28,7 +28,7 @@ public class DebugDockable : MonoBehaviour, IDockable
     public Texture2D[] moduleTextures;
     public int crushDepth = 300;
 
-    public AtlasTexture Image => AtlasTexture.FromFullTexture(texture);
+    public Sprite Image => SpriteUtil.ToSprite(texture);
 
     public int storageCapacity = 16;
     public int storageUsage = 3;
@@ -37,7 +37,7 @@ public class DebugDockable : MonoBehaviour, IDockable
     public int powerCapacity = 100;
 
 
-    public AtlasTexture[] Modules => moduleTextures.Select(AtlasTexture.FromFullTexture).ToArray();
+    public Sprite[] Modules => moduleTextures.Select(SpriteUtil.ToSprite).ToArray();
 
     public string Name => vehicleName;
 

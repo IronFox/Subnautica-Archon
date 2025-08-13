@@ -35,7 +35,7 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
     {
         this.dockable = dockable;
 
-        var mod = dockable?.Modules ?? Array.Empty<AtlasTexture>();
+        var mod = dockable?.Modules ?? Array.Empty<Sprite>();
         //mod = mod.Repeat(4).ToArray();
         for (int i = 0; i < mod.Length && i < 8; i++)   //only space for 8
         {
@@ -72,7 +72,7 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
         Apply(crushText, dockable?.CrushText);
         Apply(storageText, dockable?.StorageText);
 
-        subImage.Texture = dockable?.Image ?? new AtlasTexture();
+        subImage.Texture = dockable?.Image;
         nextUpdateInSeconds = 1;
     }
 

@@ -83,12 +83,12 @@ public interface IDockable
     /// <summary>
     /// The image of the vehicle to show on screen when selected.
     /// </summary>
-    AtlasTexture Image { get; }
+    Sprite Image { get; }
 
     /// <summary>
     /// The images of all modules installed on this vehicle
     /// </summary>
-    AtlasTexture[] Modules { get; }
+    Sprite[] Modules { get; }
 
     /// <summary>
     /// The user-assigned name of this vehicle

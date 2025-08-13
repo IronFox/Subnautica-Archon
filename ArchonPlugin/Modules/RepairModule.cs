@@ -14,7 +14,7 @@ namespace Subnautica_Archon.Modules
 
         public static void RegisterAll()
         {
-            var node = Node.Create("ArchonRepairModules", Language.main.Get("Modules.Group.RepairModule"), SpriteHelper.RequireImage("images/repairModule.png").AtlasSprite);
+            var node = Node.Create("ArchonRepairModules", Language.main.Get("Modules.Group.RepairModule"), SpriteHelper.RequireImage("images/repairModule.png").Sprite);
 
             new RepairModule(ArchonModule.RepairModuleMk1).Register(node);
             new RepairModule(ArchonModule.RepairModuleMk2).Register(node);
