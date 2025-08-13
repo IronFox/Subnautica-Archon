@@ -23,27 +23,26 @@ later:
 * charge docked craft
 * repair docked craft
 * revise healing light repetition
-* disable drive sound when out of water
 * charge/repair docked vehicles
 * fix teleportation sounds
 * improve teleportation visuals
-* simplify map ship (with simplified hull)
-* revise water clip proxies in the corner near the panels and in upper tail section
-* turn off emission of external light source when lights are off
+* turn off emission of external light source materials when lights are off
 * tune external material emissions when power is off
 * tune ceiling glass curvature in nose section (seems to be very curved as to produce reflections)
 * add teleportation light emitter
-* preserve camera distance
+* preserve camera distance in save file
 * fix teleporting out of alien ruin area causes perma-out-of-water further up
 * add name label on out- and insides. Add coloring panel
+* add status label on front walls above airlock
 * disable map when powered off or battery dead
 * change power cell slot bright color to highlight status. Show status on panel AR
 * velocity upgrades
 * increase interior shadow caster triangle resolution
-* horizontal rotation control sluggish when not leaning near ocean surface or at low speed
+* fix horizontal rotation control sluggish when not leaning near ocean surface or at low speed
 * add vertical submarine shadow to map
 * add hud speed display + GPS + map
 * add storage and upgrade panel access for docked subs
+* fix storage display for docked subs when using innate storages
 * implement fish tank
 	+ for reference: 
 		WaterPark.GetBreedingPartner
@@ -64,7 +63,10 @@ later:
 
 done:
 
-
+* revise water clip proxies in the corner near the panels and in upper tail section
+	+ Now using distance map
+* disable drive sound when out of water
+* simplify map ship (with simplified hull)
 * FindMyUpdate support:
 	https://discord.com/channels/324207629784186882/1190308479731241020/1393654605493309662
 	Add a json file on the internet, but most convenient to be in your project: example
@@ -135,41 +137,3 @@ done:
 * fix AVS localization
 
 
-
-energy health concept:
-
-health:
-+ regular sub self repair requires module
-	- consumes moderate amount of energy
-+ emergency self repair (with or without module) sets in at < 1% health
-	- consumes high amount of energy
-	- repairs to 5% health
-	- sub invulnerable while <1% health (will require testing)
-	- remain mobile if sufficient energy remains
-	- may kill batteries
-
-energy:
-+ cricial power when batteries dead or removed
-	- critical power:
-		lighting dim pulsing red, light strips pulse red
-		external lights offline
-		oxygen production offline
-		non-emergency self repair suspended (emergency repair _will_ work)
-		mobility suspended (can still emergency teleport and auto-level)
-		
-light strip:
-	+ high power: white
-	+ <50%, >10%: yellowish
-	+ <10%: orange-red
-charging: slow pulse
-
-
-sound references:
-bay door slide:
-	https://freesound.org/people/tompallant/sounds/208721/
-	
-teleport sound:
-	Teleporter.wav by aj_heels -- https://freesound.org/s/523591/ -- License: Attribution 4.0
-	
-	185, 200, 255
-	
