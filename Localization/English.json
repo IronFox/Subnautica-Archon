@@ -132,7 +132,7 @@
 	"Option.ShowVoiceSubtitles": "Show Autopilot Voice Subtitles",
 	"Option.AutopilotVoice": "Active Autopilot Voice",
 	"Option.AutopilotVoice.Off": "None",
-	"Option.AutopilotVoice.Default": "Default",
+	"Option.AutopilotVoice.Eve": "Eve",
 	"Option.InteriorLights": "Interior Lighting",
 	"Option.InteriorLights.Full": "Full",
 	"Option.InteriorLights.Reduced": "Reduced (faster)",

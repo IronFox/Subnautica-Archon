@@ -452,8 +452,7 @@ namespace Subnautica_Archon
             if (Control.IsLevel)
             {
                 Log.Write("Archon is level. Exiting now");
-                voice = null;// voiceLibrary?.GetRandomHealthLow();
-                VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Done", 0));
+
 
                 base.DeselectSlots();
                 autoLevelRoutine = null;
@@ -461,7 +460,7 @@ namespace Subnautica_Archon
             }
 
             Log.Write("Archon is not level. Leveling out");
-            voice = null;// voiceLibrary?.GetRandomHealthLow();
+            voice = voiceLibrary?.GetRandomAutoLeveling();
             VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Starting", 0));
 
             Control.doAutoLevel = true;
@@ -483,15 +482,14 @@ namespace Subnautica_Archon
                 if (Control.IsLevel)
                 {
                     Log.Write("Archon is level. Exiting");
-                    voice = null;// voiceLibrary?.GetRandomHealthLow();
-                    VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Done", 0));
 
                     base.DeselectSlots();
                 }
                 else
                 {
                     Log.Write("Archon is not level. Not exiting");
-                    voice = null;// voiceLibrary?.GetRandomHealthLow();
+
+                    voice = voiceLibrary?.GetRandomAutoLevelingHasFailed();
                     VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Failed", 0));
                 }
             }
@@ -867,7 +865,7 @@ namespace Subnautica_Archon
                     var critical = liveMixin.health < liveMixin.maxHealth * 0.05f;
                     if (critical && !isInCriticalRecovery)
                     {
-                        AudioClip? voice = null;// GetVoiceLibrary()?.GetRandomAllSystemsGreen();
+                        AudioClip? voice = GetVoiceLibrary()?.GetRandomEmergencyRepairEnabled();
                         VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.CriticalHealth.RepairEnabled", 1));
 
 
@@ -898,7 +896,7 @@ namespace Subnautica_Archon
                     }
                     else if (isInCriticalRecovery)
                     {
-                        AudioClip? voice = null;// GetVoiceLibrary()?.GetRandomAllSystemsGreen();
+                        AudioClip? voice = GetVoiceLibrary()?.GetRandomEmergencyRepairConcluded();
                         VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.CriticalHealth.RepairDone", 1));
 
                         Log.Warn($"Emergency healing concluded switching off");

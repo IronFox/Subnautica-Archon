@@ -18,19 +18,37 @@ public class VoiceLibrary : MonoBehaviour
     public AudioClip[] prepareTeleport;
     public AudioClip[] teleport;
     public AudioClip[] allSystemsGreen;
+    [Tooltip("The first parts of a composite welcome aboard message. One of these may be chosen at random to form a complete message")]
     public AudioClip[] welcomePre;
+    [Tooltip("The last parts of a composite welcome aboard message. One of these may be chosen at random to form a complete message")]
     public AudioClip[] welcomePost;
+	[Tooltip("Complete welcome aboard messages, chosen at random.")]
     public AudioClip[] welcomeCombined;
+    public AudioClip[] autoLeveling;
+    public AudioClip[] autoLevelingHasFailed;
+    public AudioClip[] emergencyRepairEnabled;
+    public AudioClip[] emergencyRepairConcluded;
 
+
+	public AudioClip GetRandomEmergencyRepairConcluded()
+		=> GetRandom(emergencyRepairConcluded);
+
+	public AudioClip GetRandomEmergencyRepairEnabled()
+		=> GetRandom(emergencyRepairEnabled);
 
     public AudioClip GetRandomDamageDetected()
         => GetRandom(damageDetected);
+    public AudioClip GetRandomAutoLevelingHasFailed()
+        => GetRandom(autoLevelingHasFailed);
     public AudioClip GetRandomDepthDangerous()
         => GetRandom(depthDangerous);
     //public AudioClip GetRandomEmergencyRepair()
     //    => GetRandom(emergencyRepair);
     public AudioClip GetRandomHealthCritical()
         => GetRandom(healthCritical);
+
+	public AudioClip GetRandomAutoLeveling()
+		=> GetRandom(autoLeveling);
 
     public AudioClip GetRandomHealthLow()
         => GetRandom(healthLow);

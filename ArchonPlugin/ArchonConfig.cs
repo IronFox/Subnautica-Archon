@@ -7,19 +7,19 @@ using UnityEngine;
 [Menu("Archon Options")]
 public class ArchonConfig : ConfigFile
 {
-	[Choice("Interior Lights",
-		"Option.InteriorLights.Full",
-		"Option.InteriorLights.Reduced",
-		"Option.InteriorLights.Minimal",
-		LabelLanguageId = "Option.InteriorLights"
-	)]
-	public InteriorLights interiorLights = InteriorLights.Full;
+    [Choice("Interior Lights",
+        "Option.InteriorLights.Full",
+        "Option.InteriorLights.Reduced",
+        "Option.InteriorLights.Minimal",
+        LabelLanguageId = "Option.InteriorLights"
+    )]
+    public InteriorLights interiorLights = InteriorLights.Full;
     [Choice("Flood light shadows. May impact performance",
-		"Option.FloodLightShadows.None",
-		"Option.FloodLightShadows.Hard",
-		"Option.FloodLightShadows.Soft",
-		LabelLanguageId = "Option.FloodLightShadows"
-	)]
+        "Option.FloodLightShadows.None",
+        "Option.FloodLightShadows.Hard",
+        "Option.FloodLightShadows.Soft",
+        LabelLanguageId = "Option.FloodLightShadows"
+    )]
     public LightShadows floodLightShadows = LightShadows.Hard;
     [Keybind("Toggle Free Camera", LabelLanguageId = "Option.Button.ToggleFreeCamera")]
     public KeyCode toggleFreeCamera = KeyCode.F;
@@ -39,10 +39,10 @@ public class ArchonConfig : ConfigFile
     public bool showVoiceSubtitles = false;
     [Choice("Autopilot voice",
         "Option.AutopilotVoice.Off",
-        "Option.AutopilotVoice.Default",
+        "Option.AutopilotVoice.Eve",
         LabelLanguageId = "Option.AutopilotVoice"
     )]
-    public Voice voice = Voice.Off;
+    public Voice voice = Voice.Eve;
     //[Toggle("Hold Sprint to Boost")]
     //public bool holdToBoost = false;
 
