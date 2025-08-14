@@ -5,8 +5,10 @@ using UnityEditor;
 using UnityEngine;
 
 /// <summary>
-/// Helper behaviours to generate a 3D distance field texture based on the specified bounds and colliders found in or as children of the local transform.
-/// If <see cref="bounds"/> is correctly set to the vehicle root, all other colliders are disabled before updating the texture.
+/// Helper editor script to generate a 3D distance field texture based on the specified bounds and colliders found in or as children of the local transform.
+/// This behaviour expects to be attached to a game object that directly or indirectly contains the convex mesh colliders that make up the hull of the submarine.
+/// The colliders are reinstantiated off-scene so not to interact with other colliders. It no longer en/disables anything.
+/// You can exclude individual colliders from the distance field calculation by adding them to the <see cref="exclude"/> array.
 /// </summary>
 [ExecuteInEditMode]
 public class GenerateDistanceField : MonoBehaviour
@@ -14,21 +16,37 @@ public class GenerateDistanceField : MonoBehaviour
 	public Texture3D visualizationTexture;
 	public float pixelsPerUnit = 10;
 
+	[Header("Excluded mesh colliders")] 
 	public MeshCollider[] exclude;
+
+	/// <summary>
+    /// Distances bias. Values &gt;0 shrink the distance field, values &lt;0 expand it.
+    /// </summary>
+	[Header("Distance Bias")] 
 	public float bias = -0.1f;
-	public Transform root;
+
 	/// <summary>
 	/// The minimal bounding box of all included colliders. Updated when <see cref="GenerateTexture"/> is called.
 	/// </summary>
 	public Bounds bounds;
 
+	[Header("Debug output for the total number of voxels generated. Also the total number of bytes")] 
 	public long totalTexels;
-	public long totalBytes;
 
+	/// <summary>
+    /// Visualization color for the bounding box.
+    /// </summary>
 	public Color visualizationBoxColor = new Color(0.3f, 0.3f, 0f, 0.2f);
-	public Color visualizationVolumeColor = new Color(0.3f, 0.4f, 1f, 0.8f);
+	/// <summary>
+    /// Visualization color for the volume. The alpha value is ignored
+    /// </summary>
+	public Color visualizationVolumeColor = new Color(0.3f, 0.4f, 1f);
 
-	[Header("Editor visualization")] public bool visualizeInEditor;
+	/// <summary>
+    /// If true, then the last computed volume is visualized in the editor
+    /// </summary>
+	[Header("Editor visualization")]
+	public bool visualizeInEditor;
 	[Tooltip("Percentage value representing the depth through the volume at which the cross section is visualized.")]
 	[Range(0f, 1f)]
 	public float crossSectionVisualizationDepth;
@@ -38,15 +56,9 @@ public class GenerateDistanceField : MonoBehaviour
 	[Tooltip("If false (default value), the interior pixels will be rendered. If true, exterior pixels are rendered.")]
 	public bool showUnoccupied;
 
+	[Header("Computed resolution")]
 	public Vector3Int resolution;
 
-
-	public void OnInspectorGUI()
-	{
-		if (GUILayout.Button("Your blah"))
-		{
-		}
-	}
 
 
 
@@ -76,13 +88,16 @@ public class GenerateDistanceField : MonoBehaviour
 		}
 
 		Texture3D existing = AssetDatabase.LoadAssetAtPath<Texture3D>("Assets/distanceField.asset");
-		Texture3D t = null;
-		GenerateTexture(ref t, out var bounds);
-		t.name = "DistanceField";
+		GenerateTexture(ref visualizationTexture, out var bounds);
 		if (existing)
-			EditorUtility.CopySerialized(t, existing);
+			EditorUtility.CopySerialized(visualizationTexture, existing);
 		else
-			AssetDatabase.CreateAsset(t, $"Assets/distanceField.asset");
+		{
+			existing = new Texture3D(1,1,1,TextureFormat.RGBA32,1);
+			EditorUtility.CopySerialized(visualizationTexture, existing);
+			existing.name = "distanceField";
+			AssetDatabase.CreateAsset(existing, $"Assets/distanceField.asset");
+		}
 		AssetDatabase.SaveAssets();
 
 		Debug.LogWarning($"Created distanceField.asset");
@@ -93,7 +108,7 @@ public class GenerateDistanceField : MonoBehaviour
 		if (distanceFieldMeta)
 		{
 			distanceFieldMeta.localBounds = bounds;
-			//distanceFieldMeta.texture = t;
+			distanceFieldMeta.distanceField = existing;
 		}
 	}
 
@@ -120,8 +135,6 @@ public class GenerateDistanceField : MonoBehaviour
 
     public void GenerateTexture(ref Texture3D target, out Bounds bounds)
     {
-        if (root == null)
-            throw new InvalidOperationException("Bounds or root transform is not set.");
 
         bounds = new Bounds();
         bounds.SetMinMax(M.V3(float.MaxValue, float.MaxValue, float.MaxValue), M.V3(float.MinValue, float.MinValue, float.MinValue));
@@ -166,7 +179,7 @@ public class GenerateDistanceField : MonoBehaviour
                 }
               
             }
-            Debug.Log($"GenerateDistanceField: Found {myColliders.Count} colliders in {root.NiceName()} with bounds {bounds}");
+            Debug.Log($"GenerateDistanceField: Found {myColliders.Count} colliders with bounds {bounds}");
 
             bounds.size += M.V3(20f / pixelsPerUnit);
 
@@ -181,7 +194,6 @@ public class GenerateDistanceField : MonoBehaviour
                 target = new Texture3D(resolution.x, resolution.y, resolution.z, TextureFormat.Alpha8, 1);
                 target.wrapMode = TextureWrapMode.Clamp;
                 totalTexels = (long)target.width * target.height * target.depth;
-                totalBytes = totalTexels;   //actually the same
             }
 
             var started = DateTime.Now;
