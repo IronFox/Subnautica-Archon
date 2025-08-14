@@ -1,0 +1,152 @@
+{
+	"AVS.VehicleDefaultName": "Arcón",
+	
+	"AVS.Reactor_DedicatedBattery_ChargeValueText": "{1}/{2} ({0})",
+	
+	"AVS.Fabricator_Node_DepthModules": "Mejoras de profundidad",
+	"AVS.Fabricator_DisplayName": "Fabricador de Arcón",
+	"AVS.Fabricator_Description": "Fabricador para módulos de mejora de Arcón",
+	
+	"AVS.ColorPicker_Tab_Exterior": "Exterior",
+	"AVS.ColorPicker_Tab_Accent": "Acento",
+	"AVS.ColorPicker_Tab_Interior": "Interior",
+	"AVS.ColorPicker_Tab_Name": "Nombre",
+	
+	"AVS.Reactor_WhitelistWithPowerValue": "Potenciales de energía de ingredientes permitidos",
+	"AVS.Reactor_WhitelistPlain": "Ingredientes permitidos",
+	
+	"AVS.Command_NothingToUndock": "Nada para desacoplar",
+	"AVS.Command_UndockingVehicle": "Ejecutando operación de desacoplamiento",
+	
+	"AVS.HandHover_ControlPanel_Empty": "Sin función",
+	"AVS.HandHover_ControlPanel_Headlights": "Faros",
+	"AVS.HandHover_ControlPanel_Floodlights": "Luces de inundación",
+	"AVS.HandHover_ControlPanel_NavLights": "Luces de navegación",
+	"AVS.HandHover_ControlPanel_InteriorLights": "Luces interiores",
+	"AVS.HandHover_ControlPanel_DefaultColor": "Color predeterminado",
+	"AVS.HandHover_ControlPanel_Power": "Energía",
+	"AVS.HandHover_ControlPanel_Autopilot": "Piloto automático",
+	
+	"AVS.HandOver_BatterySlot": "Batería",
+	"AVS.HandOver_AutopilotBatterySlot": "Batería del piloto automático",
+	
+	"AVS.HandHover_OpenStorage": "Abrir {0}",
+	
+	"AVS.HandHover_Vehicle_Enter": "Entrar en {0}",
+	"AVS.HandHover_Vehicle_Exit": "Salir de {0}",
+	"AVS.HandHover_Vehicle_StartHelmControl": "Tomar el control",
+	
+	"AVS.HandHover_Reactor_Charge": "Biorreactor: {0}/{1}",
+	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Pulsa el botón derecho del ratón o el gatillo derecho para mostrar la lista de materiales permitidos",
+	"AVS.HandHover_Vehicle_DeconstructionPercent": "Desconstrucción de Arcón: {0}",
+	
+	"AVS.HandHover_Docked_StatusCharged": "Arcón completamente cargado. Salud en {0}",
+	"AVS.HandHover_Docked_StatusCharging": "Arcón cargando ({0}). Salud en {0}",
+	
+	"AVS.Module_Depth1_DisplayName": "Módulo de profundidad de Arcón MK1",
+	"AVS.Module_Depth1_Description": "Mejora la profundidad de buceo segura a 500 m. No se acumula",
+	"AVS.Module_Depth2_DisplayName": "Módulo de profundidad de Arcón MK2",
+	"AVS.Module_Depth2_Description": "Mejora la profundidad de buceo segura a 1100 m. No se acumula",
+	"AVS.Module_Depth3_DisplayName": "Módulo de profundidad de Arcón MK3",
+	"AVS.Module_Depth3_Description": "Mejora la profundidad de buceo segura a 1700 m. No se acumula",
+	
+	"AVS.Report_AddedToStorage": "{0} añadido",
+	
+	"AVS.Error_UpgradeNotRemovable_StorageNotEmpty": "No se puede quitar esta mejora de almacenamiento porque no está vacía",
+	"AVS.Error_UpgradeNotAddable_Incompatible": "Advertencia: esta mejora de Arcón no es compatible con este vehículo",
+	
+	"AVS.Error_CannotAdd_StorageFull": "No se puede añadir el objeto. El almacenamiento está lleno",
+	"AVS.Error_CannotExitHelmControl": "El auto-nivelado ha fallado. No puedes salir del control de la dirección ahora mismo",
+	"AVS.Error_CannotRemoveMaterialsFromReactor": "No se pueden quitar materiales del biorreactor",
+	
+	"AVS.Error_MobileWaterPark_CannotAdd_FishIsDead": "No puedes añadir {0} muerto a {1}",
+	"AVS.Error_MobileWaterPark_CannotAdd_EggIsHatched": "No puedes añadir {0} eclosionado a {1}",
+	"AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "No se puede añadir {0} a {1}. No es ni un pez vivo compatible ni un huevo eclosionable",
+	"AVS.Error_MobileWaterPark_CannotRemove_HatchingEgg": "No se puede quitar {0} de {1}. El huevo ya está eclosionando",
+	
+	"Error.EmergencyTeleportationModule.CannotRemoveLast": "El Arcón requiere un módulo de teletransportación de emergencia instalado",
+	
+	"Modules.DockingModuleMk1.Name": "Módulo de acoplamiento de Arcón Mk1",
+	"Modules.DockingModuleMk1.Description": "Expande el espacio-tiempo de bolsillo para proporcionar más espacio de acoplamiento. Cada módulo instalado aumenta el número de vehículos que se pueden acoplar en 1",
+	
+	"Modules.Group.RepairModule": "Módulos de reparación",
+	"Modules.Group.Teleportation": "Módulos de teletransportación",
+	"Modules.Group.Docking": "Módulos de acoplamiento",
+	
+	"Modules.RepairModuleMk1.Name": "Módulo de auto-reparación de Arcón Mk1",
+	"Modules.RepairModuleMk1.Description": "Habilita las capacidades de auto-reparación de Arcón. Repara {0}% por segundo. No se acumula",
+	"Modules.RepairModuleMk2.Name": "Módulo de auto-reparación de Arcón Mk2",
+	"Modules.RepairModuleMk2.Description": "Habilita las capacidades de auto-reparación de Arcón. Repara {0}% por segundo. No se acumula",
+	"Modules.RepairModuleMk3.Name": "Módulo de auto-reparación de Arcón Mk3",
+	"Modules.RepairModuleMk3.Description": "Habilita las capacidades de auto-reparación de Arcón. Repara {0}% por segundo. No se acumula",
+	"Modules.EmergencyTeleportationModule.Name": "Módulo de teletransportación de emergencia de Arcón",
+	"Modules.EmergencyTeleportationModule.Description": "Habilita la teletransportación de emergencia de Arcón. Se debe instalar al menos un módulo de este tipo. No se acumula",
+	"Modules.TeleportationModuleA.Name": "Módulo de teletransportación de Arcón (A)",
+	"Modules.TeleportationModuleA.Description": "Habilita la teletransportación de Arcón (A). Doble toque para grabar una ubicación. Activa para teletransportarte. No se acumula",
+	
+	"Modules.Teleportation.LocationRecorded": "Teletransportación: Ubicación actual grabada",
+	
+	"Modules.DockingCapacityChanged": "{0} el número máximo de vehículos acoplados ha cambiado a {1}",
+	"Modules.RepairCapacityChanged": "{0} la capacidad de auto-reparación ha cambiado a {1}",
+	
+	"Modules.DockingModule.CannotRemoveOccupied": "No se puede quitar el módulo de acoplamiento mientras está en uso por una nave acoplada",
+	
+	"Capacity.RepairModuleMk1": "Mk1",
+	"Capacity.RepairModuleMk2": "Mk2",
+	"Capacity.RepairModuleMk3": "Mk3",
+	
+	"Component.WaterTank": "Tanque de agua",
+	"Component.Bioreactor": "Biorreactor",
+	"Component.ModularStorage": "Almacenamiento modular",
+	
+	"General.Description": "Nave nodriza submarina",
+	"General.Encyclopedia": "El Arcón es un lujoso y extremadamente resistente centro de comando móvil con un hangar integrado para naves más pequeñas. Puedes fabricarlo en cualquier Bahía de Vehículos Móviles.\n\nCaracterísticas:\n- Hangar expandible para múltiples naves más pequeñas\n- Reconstrucción de sensores holográficos\n- Biorreactor\n- Tanque de peces\n- Mapa del entorno\n\nClasificaciones:\n- Velocidad máxima: 26m/s\n- Profundidad de aplastamiento: 300m\n- Profundidad de aplastamiento máxima (mejorada): 1700m\n- Ranuras de mejora: 8\n- Dimensiones: 26.8m x 15.9m x 79.8m",
+	
+	
+	"Dockable.Text.HealthUnknown": "Integridad: Desconocida",
+	"Dockable.Text.Health": "Integridad: {0}",
+	"Dockable.Text.PowerUnknown": "Carga: Desconocida",
+	"Dockable.Text.Power": "Carga: {0}",
+	"Dockable.Text.Depth": "Profundidad: {0}/{1}m",
+	"Dockable.Text.Storage": "Almacenamiento: {0}/{1}",
+	
+	"Unity.Modules": "Panel de módulo de mejora",
+	"Unity.PowerCells": "Panel de baterías",
+	"Unity.NothingDocked": "Bahía de acoplamiento vacía",
+	"AR.None": "Sin función",
+	"AR.Undock": "Desacoplar nave seleccionada",
+	"AR.SelectLeft": "Seleccionar nave acoplada anterior",
+	"AR.SelectRight": "Seleccionar siguiente nave acoplada",
+	
+	"Option.FloodLightShadows": "Sombras de las luces de inundación",
+	"Option.FloodLightShadows.None": "Ninguna",
+	"Option.FloodLightShadows.Hard": "Dura",
+	"Option.FloodLightShadows.Soft": "Suave",
+	"Option.Button.ToggleFreeCamera": "Alternar cámara libre",
+	"Option.Button.ChangeExternalCameraHeight": "Cambiar la posición vertical de la cámara en 3ª persona",
+	"Option.Button.AltZoomIn": "Acercar cámara",
+	"Option.Button.AltZoomOut": "Alejar cámara",
+	"Option.FlipFreeHorizontalRotationInReverse": "Invertir el control horizontal libre en reversa",
+	"Option.FlipFreeVerticalRotationInReverse": "Invertir el control vertical libre en reversa",
+	"Option.VoiceVolume": "Volumen de voz del piloto automático",
+	"Option.ShowVoiceSubtitles": "Mostrar subtítulos de voz del piloto automático",
+	"Option.AutopilotVoice": "Voz de piloto automático activa",
+	"Option.AutopilotVoice.Off": "Ninguna",
+	"Option.AutopilotVoice.Default": "Predeterminada",
+	
+	
+	"Subtitle.Voice.Welcome": "Bienvenido a bordo",
+	"Subtitle.Voice.Depth.Dangerous": "Advertencia de profundidad",
+	"Subtitle.Voice.Depth.Critical": "Daño inminente al casco",
+	"Subtitle.Voice.Health.Dangerous": "Integridad estructural comprometida",
+	"Subtitle.Voice.Health.Critical": "Colapso estructural inminente",
+	"Subtitle.Voice.Power.Dangerous": "Advertencia de carga de batería",
+	"Subtitle.Voice.Power.Critical": "Carga de batería agotada",
+	"Subtitle.Voice.Teleportation.Start": "Teletransportación: Estableciendo túnel espacial. Por favor, espere...",
+	"Subtitle.Voice.Teleportation.ActivatingNow": "Teletransportación: Transicionando",
+	"Subtitle.Voice.Leveling.Done": "Arcón está nivelado. Saliendo ahora",
+	"Subtitle.Voice.Leveling.Starting": "Arcón no está nivelado. Nivelando",
+	"Subtitle.Voice.Leveling.Failed": "Falló el auto-nivelado en 5 segundos. No se puede salir aquí. Por favor, navegue a un área donde el submarino pueda nivelarse y vuelva a intentarlo.",
+	"Subtitle.Voice.CriticalHealth.RepairEnabled": "Daño crítico detectado. Activando reparación de emergencia",
+	"Subtitle.Voice.CriticalHealth.RepairDone": "Salud fuera del rango crítico. Desactivando reparación de emergencia"
+}
