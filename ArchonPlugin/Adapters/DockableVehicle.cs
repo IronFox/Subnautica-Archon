@@ -1,13 +1,13 @@
 using Assets.Behavior.TransferTypes;
-using AVS.BaseVehicle;
 using AVS.Log;
+using Subnautica_Archon.Adapters.VehicleAbstraction;
 using Subnautica_Archon.Util;
+using Subnautica_Archon.Util.Reflection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 
 namespace Subnautica_Archon.Adapters
@@ -24,6 +24,7 @@ namespace Subnautica_Archon.Adapters
                 prefix: "Dockable#" + Id,
                 "Mod");
             Vehicle = vehicle;
+            Abstraction = Vehicle.ToAbstraction();
             Archon = archon;
             IsDrone = Drone.IsOne(Vehicle);
             IsPlayerControlledDrone =
@@ -37,6 +38,7 @@ namespace Subnautica_Archon.Adapters
         }
         //private Logging Log { get; } = new Logging(false,"Dockable",true,true);
         public Vehicle Vehicle { get; }
+        public IVehicleAbstraction Abstraction { get; }
         public Archon Archon { get; }
         public bool IsDrone { get; }
         public bool HasPlayer => !IsDrone && Player.main.currentMountedVehicle == Vehicle;
@@ -49,7 +51,7 @@ namespace Subnautica_Archon.Adapters
         public int Id { get; } = ++idCounter;
 
 
-        public bool ShouldUnfreezeImmediately => !(Vehicle is AvsVehicle) && !VFVehicle.IsOne(Vehicle);
+        public bool ShouldUnfreezeImmediately => Abstraction.IsVanilla;
 
         public bool UndockUpright => true;
 
@@ -204,10 +206,8 @@ namespace Subnautica_Archon.Adapters
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             Vehicle.docked = true;
-            if (Vehicle is AvsVehicle mv)
-                mv.DockVehicle();
-            else if (VFVehicle.Access(Vehicle, out var vf))
-                vf.OnVehicleDocked(Vector3.zero);
+            Abstraction.DockVehicle();
+
 
             if (Drone.Access(Vehicle, out var d))
                 d.isAsleep = true;
@@ -219,45 +219,17 @@ namespace Subnautica_Archon.Adapters
         private void CheckPingInstanceIsDeactivated()
         {
             Log.Debug($"Checking ping instance for {Vehicle.NiceName()}");
-            if (Vehicle is AvsVehicle mv)
+            var pi = Abstraction.PingInstance;
+            if (pi.enabled || pi.visible)
             {
-                if (mv.HudPingInstance.enabled)
-                {
-                    Log.Write($"HudPingInstance on {mv.NiceName()} is still enabled. Disabling it");
-                    mv.HudPingInstance.SetHudIcon(false);
-                }
-            }
-            else if (VFVehicle.Access(Vehicle, out var vf))
-            {
-                Log.Debug($"Is VF vehicle");
-                if (vf.HudIconIsEnabled())
-                {
-                    Log.Write($"HudPingInstance on {Vehicle.NiceName()} is still enabled. Disabling it");
-                    vf.SetHudIcon(false);
-                }
-            }
-            else
-            {
-                var pingInstance = FieldAdapter.OfPublic<Object>(Vehicle, "pingInstance");
-                if (pingInstance.IsValid)
-                {
-                    var setHudIcon = new MethodAdapter<bool>(pingInstance.Value, "SetHudIcon");
-                    setHudIcon.Invoke(false);
-                }
-                Vehicle.subName.pingInstance.SetHudIcon(false);
+                Log.Write($"HudPingInstance on {Vehicle.NiceName()} is still enabled. Disabling it");
+                pi.SetHudIcon(false);
             }
         }
 
         private void SignalVehicleDocked()
         {
-            if (Vehicle is AvsVehicle mv)
-            {
-                mv.DockVehicle();
-            }
-            else if (VFVehicle.Access(Vehicle, out var vf))
-            {
-                vf.OnVehicleDocked(Vector3.zero);
-            }
+            Abstraction.DockVehicle();
             CheckPingInstanceIsDeactivated();
         }
 
@@ -287,30 +259,13 @@ namespace Subnautica_Archon.Adapters
             }
 
 
-            if (Vehicle is AvsVehicle
-                || VFVehicle.IsOne(Vehicle)
+            if (!Abstraction.IsVanilla
                 || !HasPlayer)    //otherwise the hands are all wrong
                 Vehicle.docked = true;
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
-            if (Vehicle is AvsVehicle mv)
-            {
-                mv.HudPingInstance.SetHudIcon(false);
-            }
-            else if (VFVehicle.Access(Vehicle, out var vf))
-            {
-                vf.SetHudIcon(false);
-            }
-            else
-            {
-                var pingInstance = FieldAdapter.OfPublic<Object>(Vehicle, "pingInstance");
-                if (pingInstance.IsValid)
-                {
-                    var setHudIcon = new MethodAdapter<bool>(pingInstance.Value, "SetHudIcon");
-                    setHudIcon.Invoke(false);
-                }
-                Vehicle.subName.pingInstance.SetHudIcon(false);
-            }
+
+            Abstraction.PingInstance.SetHudIcon(false);
         }
 
 
@@ -323,21 +278,6 @@ namespace Subnautica_Archon.Adapters
                 new MethodAdapter(Vehicle, "OnPilotModeEnd").Invoke();
                 SignalVehicleDocked();
                 Vehicle.DeselectSlots();
-                //if (Vehicle is AvsVehicle v)
-                //{
-                //    Log.Write($"Player is in mod vehicle {v.NiceName()}. Deselecting...");
-                //    v.ClosestPlayerExit(false);
-                //}
-                //else if (VFVehicle.Access(Vehicle, out var vv))
-                //{
-                //    Log.Write($"Player is in VFVehicle {Vehicle.NiceName()}. Deselecting...");
-                //    vv!.PlayerExit();
-                //}
-                //else
-                //{
-                //    Log.Write($"Player is in vanilla vehicle {Vehicle}. Deselecting...");
-                //}
-
             }
             else
                 Log.Warn($"Docking vehicle does not have the player");
@@ -495,21 +435,9 @@ namespace Subnautica_Archon.Adapters
                 if (Archon.IsPlayerInside())
                     Archon.ClosestPlayerExit(false);
 
-                if (Vehicle is AvsVehicle mv)
-                {
-                    mv.ClosestPlayerEntry();
-                    mv.BeginHelmControl(mv.GetMainHelm());
-                }
-                else if (VFVehicle.Access(Vehicle, out var vf))
-                {
-                    vf.PlayerEntry();
-                    vf.BeginPiloting();
-                }
-                else
-                {
-                    new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, false);
-                    new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
-                }
+                Abstraction.BeginHelmControl();
+
+
                 Helper.ChangeAvatarInput(false);
                 Mode.Set(Player.Mode.LockedPiloting);
             }
@@ -527,7 +455,7 @@ namespace Subnautica_Archon.Adapters
             }
             else
             {
-                if (!(Vehicle is AvsVehicle) && !VFVehicle.IsOne(Vehicle))
+                if (Abstraction.IsVanilla)
                 {
                     Vehicle.docked = false;//early unset for vanilla or hands are all wrong
                 }
@@ -562,10 +490,8 @@ namespace Subnautica_Archon.Adapters
             Vehicle.crushDamage.enabled = true;
             //if (Vehicle is ModVehicle)
             Vehicle.docked = false;
-            if (Vehicle is AvsVehicle mv)
-                mv.UndockVehicle();
-            else if (VFVehicle.Access(Vehicle, out var vf))
-                vf.OnVehicleUndocked();
+            Abstraction.UndockVehicle(boardPlayer: true);
+
 
             if (Drone.Access(Vehicle, out var d))
                 d.isAsleep = false;
@@ -622,15 +548,7 @@ namespace Subnautica_Archon.Adapters
 
                 Vehicle.docked = false;
 
-                if (Vehicle is AvsVehicle mv)
-                    mv.UndockVehicle(boardPlayer: false);
-                else if (VFVehicle.Access(Vehicle, out var vf))
-                {
-                    var wasScuttled = vf.isScuttled;
-                    vf.isScuttled = true;   //prevent automatic player boarding
-                    vf.OnVehicleUndocked();
-                    vf.isScuttled = wasScuttled;
-                }
+                Abstraction.UndockVehicle(boardPlayer: false);
 
                 if (Drone.Access(Vehicle, out var d))
                     d.isAsleep = false;
@@ -651,10 +569,8 @@ namespace Subnautica_Archon.Adapters
 
                 Vehicle.docked = true;
 
-                if (Vehicle is AvsVehicle mv)
-                    mv.DockVehicle();
-                else if (VFVehicle.Access(Vehicle, out var vf))
-                    vf.OnVehicleDocked(Vector3.zero);
+                Abstraction.DockVehicle();
+
 
                 if (Drone.Access(Vehicle, out var d))
                     d.isAsleep = true;

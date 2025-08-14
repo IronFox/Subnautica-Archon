@@ -1,7 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Subnautica_Archon.Util;
+using Subnautica_Archon.Util.Reflection;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
-namespace Subnautica_Archon.Util
+namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
     internal class VFVehicle
     {
@@ -73,6 +75,17 @@ namespace Subnautica_Archon.Util
                 Log.Error("OnVehicleDocked method not found on Vehicle");
         }
 
+        public PingInstance HudPingInstance
+        {
+            get
+            {
+                var pi = pingInstance.Value;
+                if (pi == null)
+                    return Vehicle.subName.pingInstance;
+                return pi;
+            }
+        }
+
         public bool HudIconIsEnabled()
         {
             var pi = pingInstance.Value;
@@ -105,10 +118,10 @@ namespace Subnautica_Archon.Util
         }
 
         public static bool IsOne(Vehicle vehicle)
-            => ObjectHelper.IsVFVehicle(vehicle);
+            => vehicle.IsVFVehicle();
         public static bool Access(Vehicle vehicle, [NotNullWhen(true)] out VFVehicle? outVehicle)
         {
-            if (!ObjectHelper.IsVFVehicle(vehicle))
+            if (!vehicle.IsVFVehicle())
             {
                 outVehicle = null;
                 return false;

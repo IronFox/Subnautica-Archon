@@ -80,7 +80,7 @@ namespace Subnautica_Archon.Util
 
         public static bool IsDrone(this Vehicle vehicle)
         {
-            if (vehicle is null)
+            if (vehicle == null)
             {
                 return false;
             }
@@ -90,12 +90,22 @@ namespace Subnautica_Archon.Util
 
         public static bool IsVFVehicle(this Vehicle vehicle)
         {
-            if (vehicle is null)
+            if (vehicle == null)
             {
                 return false;
             }
             return GetHierarchyOf(vehicle.GetType())
                 .Any(type => type.Name == "ModVehicle");
+        }
+
+        public static bool IsAvsVehicle(this Vehicle vehicle)
+        {
+            if (vehicle == null)
+            {
+                return false;
+            }
+            return GetHierarchyOf(vehicle.GetType())
+                .Any(type => type.Name == "AvsVehicle");
         }
     }
 }

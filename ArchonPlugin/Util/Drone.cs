@@ -54,6 +54,7 @@ namespace Subnautica_Archon.Util
     }
 
 
+
     public class Drone
     {
         private readonly SimpleMethodHelper<bool> _isPlayerControlling

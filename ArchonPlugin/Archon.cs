@@ -1575,7 +1575,7 @@ namespace Subnautica_Archon
                 mwps.Add(new MobileWaterPark(
                     displayName: AVS.Localization.Text.Translated("Component.WaterTank"),
                     container: waterTank.gameObject,
-                    height: 10,
+                    height: 8,
                     width: 8
                 ));
             }

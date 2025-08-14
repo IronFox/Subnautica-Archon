@@ -26,6 +26,8 @@ namespace Subnautica_Archon.Util
         public static void Debug(string message)
             => Writer.Debug(message);
 
+        public static void Error(string prefix, Exception ex)
+            => Exception(prefix, ex);
         public static void Exception(string prefix, Exception ex)
         {
             Writer.Error(prefix, ex);

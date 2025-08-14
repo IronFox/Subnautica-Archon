@@ -24,6 +24,11 @@ namespace Subnautica_Archon.Util
             var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public);
             if (f == null)
                 Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+            else if (f.FieldType != typeof(T))
+            {
+                Log.Error($"Field '{name}' on <{target.GetType()}> '{target}' is of type {f.FieldType}, expected {typeof(T)}");
+                return default;
+            }
             return new FieldAdapter<T>(f, target);
         }
 

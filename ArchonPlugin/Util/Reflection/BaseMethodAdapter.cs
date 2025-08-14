@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 
-namespace Subnautica_Archon.Util
+namespace Subnautica_Archon.Util.Reflection
 {
     public class BaseMethodAdapter
     {
