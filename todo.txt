@@ -60,6 +60,7 @@ later:
 * Torpedo launchers
 * Flight module
 * Fear module (makes creatures run away from it)
+* Water filtration module
 
 done:
 
