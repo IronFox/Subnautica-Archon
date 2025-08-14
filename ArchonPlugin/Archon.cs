@@ -83,7 +83,7 @@ namespace Subnautica_Archon
             craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite.Sprite,
             pingSprite: MainPatcher.StaticImages.ArchonPingSprite.Sprite,
             saveFileSprite: MainPatcher.StaticImages.ArchonPingSprite.Sprite,
-            moduleBackgroundImage: MainPatcher.StaticImages.ArchonModuleBackground.Sprite,
+            moduleBackgroundImage: MainPatcher.StaticImages.ModulesBackground.Sprite,
             description: Language.main.Get("General.Description"),
             encyclopediaEntry: Language.main.Get("General.Encyclopedia"),
             canLeviathanGrab: false,
