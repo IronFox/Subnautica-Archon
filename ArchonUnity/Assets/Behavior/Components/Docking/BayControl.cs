@@ -135,7 +135,7 @@ public class BayControl : MonoBehaviour
                     Log.Write($"Found local {candidate.NiceName()} in {candidate.transform.PathToString()}");
                     continue;
                 }
-                Log.Write($"Now checking {candidate.NiceName()}");
+                //Log.Write($"Now checking {candidate.NiceName()}");
 
                 var d = DockingAdapter.ToDockable(candidate.gameObject, archon, DockingAdapter.Filter.CurrentlyDockedBySaveGame);
                 if (d != null)
@@ -155,8 +155,8 @@ public class BayControl : MonoBehaviour
                         Log.Default.LogError("Tagged but does not fit. Translated away");
                     }
                 }
-                else
-                    Log.Write("Is not dockable or not docked");
+                // else
+                //     Log.Write("Is not dockable or not docked");
             }
             catch (Exception e)
             {
