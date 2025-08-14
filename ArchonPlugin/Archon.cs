@@ -187,19 +187,27 @@ namespace Subnautica_Archon
                 if (cnt == 0)
                 {
                     Log.Write($"onAwakeSlot is set to {autoAddEmergencyTeleport.NiceName()}. Instantiating");
-                    var instance = Instantiate(autoAddEmergencyTeleport.gameObject, modulesRoot.transform).SafeGetComponent<Pickupable>();
+                    var instance = Instantiate(autoAddEmergencyTeleport.gameObject, modulesRoot.transform).GetComponent<Pickupable>();
+                    instance.transform.SetParent(modulesRoot.transform, false);
+                    instance.gameObject.SetActive(false);
+                    //var instance = autoAddEmergencyTeleport;
                     Log.Write($"Slotting instance {instance.NiceName()}");
                     InventoryItem thisItem = new InventoryItem(instance);
-                    if (modules.AddItem(slotIDs[0], thisItem, true))
+                    bool success = false;
+                    foreach (var slot in slotIDs)
                     {
-                        Log.Write($"Slotted. Modules now: ");
-                        foreach (var slot in slotIDs)
+                        if (modules.AddItem(slot, thisItem, true))
                         {
-                            Log.Write($"Slot {slot} has item [{modules.GetItemInSlot(slot)?.item.NiceName()}]");
+                            Log.Write($"Slotted in {slot}");
+                            success = true;
+                            break;
                         }
                     }
-                    else
-                        Log.Error($"Failed to slot {instance.NiceName()} in slot {slotIDs[0]}");
+                    if (!success)
+                    {
+                        Log.Error($"Failed to slot {instance.NiceName()} anywhere");
+                        Destroy(instance!.gameObject);
+                    }
                 }
                 else
                     Log.Write($"onAwakeSlot is set to {autoAddEmergencyTeleport.NiceName()}. But Emergency Teleportation Module ({EmergencyTeleportationModule.Type.AsString()}) already exists ({cnt} instances). Not instantiating");
