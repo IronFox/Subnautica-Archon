@@ -11,86 +11,96 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class GenerateDistanceField : MonoBehaviour
 {
-    public Texture3D visualizationTexture;
-    public float pixelsPerUnit = 10;
-    public bool updateTexture = false;
-    public bool exportTexture = false;
+	public Texture3D visualizationTexture;
+	public float pixelsPerUnit = 10;
 
 	public MeshCollider[] exclude;
 	public float bias = -0.1f;
 	public Transform root;
-    /// <summary>
-    /// The minimal bounding box of all included colliders. Updated when <see cref="GenerateTexture"/> is called.
-    /// </summary>
-    public Bounds bounds;
+	/// <summary>
+	/// The minimal bounding box of all included colliders. Updated when <see cref="GenerateTexture"/> is called.
+	/// </summary>
+	public Bounds bounds;
 
-    public long totalTexels;
-    public long totalBytes;
+	public long totalTexels;
+	public long totalBytes;
 
-    public Color visualizationBoxColor = new Color(0.3f, 0.3f, 0f, 0.2f);
-    public Color visualizationVolumeColor = new Color(0.3f, 0.4f, 1f, 0.8f);
+	public Color visualizationBoxColor = new Color(0.3f, 0.3f, 0f, 0.2f);
+	public Color visualizationVolumeColor = new Color(0.3f, 0.4f, 1f, 0.8f);
 
-    [Header("Editor visualization")] public bool visualizeInEditor;
-    [Tooltip("Percentage value representing the depth through the volume at which the cross section is visualized.")]
-    [Range(0f, 1f)]
-    public float crossSectionVisualizationDepth;
+	[Header("Editor visualization")] public bool visualizeInEditor;
+	[Tooltip("Percentage value representing the depth through the volume at which the cross section is visualized.")]
+	[Range(0f, 1f)]
+	public float crossSectionVisualizationDepth;
 
-    [Tooltip("The visual cross section will be perpendicular to this axis.")]
-    public Axis crossSectionVisualizationAxis;
-    [Tooltip("If false (default value), the interior pixels will be rendered. If true, exterior pixels are rendered.")]
-    public bool showUnoccupied;
+	[Tooltip("The visual cross section will be perpendicular to this axis.")]
+	public Axis crossSectionVisualizationAxis;
+	[Tooltip("If false (default value), the interior pixels will be rendered. If true, exterior pixels are rendered.")]
+	public bool showUnoccupied;
 
-    public Vector3Int resolution;
+	public Vector3Int resolution;
+
+
+	public void OnInspectorGUI()
+	{
+		if (GUILayout.Button("Your blah"))
+		{
+		}
+	}
+
+
 
 
 #if UNITY_EDITOR
-    void Update()
+
+	[Button(nameof(UpdateTexture))]
+	public bool rebuild1;
+
+	public void UpdateTexture()
+	{
+		GenerateTexture(ref visualizationTexture, out bounds);
+	}
+
+	[Button(nameof(ExportTexture))]
+	public bool rebuild2;
+
+	public void ExportTexture()
+	{
+
+		if (transform.parent.position != Vector3.zero
+			|| transform.parent.rotation != Quaternion.identity
+		)
+		{
+			Debug.LogError("GenerateDistanceField: Exporting distance field texture, but the parent transform is not at the origin. This may lead to unexpected results.");
+			return;
+		}
+
+		Texture3D existing = AssetDatabase.LoadAssetAtPath<Texture3D>("Assets/distanceField.asset");
+		Texture3D t = null;
+		GenerateTexture(ref t, out var bounds);
+		t.name = "DistanceField";
+		if (existing)
+			EditorUtility.CopySerialized(t, existing);
+		else
+			AssetDatabase.CreateAsset(t, $"Assets/distanceField.asset");
+		AssetDatabase.SaveAssets();
+
+		Debug.LogWarning($"Created distanceField.asset");
+		Debug.LogWarning("Center: " + bounds.center);
+		Debug.LogWarning("Size: " + bounds.size);
+
+		var distanceFieldMeta = GetComponent<DistanceFieldMeta>();
+		if (distanceFieldMeta)
+		{
+			distanceFieldMeta.localBounds = bounds;
+			//distanceFieldMeta.texture = t;
+		}
+	}
+
+	void Update()
     {
-        if (updateTexture)
-        {
 
-            updateTexture = false;
-            GenerateTexture(ref visualizationTexture, out bounds);
 
-        }
-
-#if UNITY_EDITOR
-        if (exportTexture)
-        {
-            exportTexture = false;
-
-            if (transform.parent.position != Vector3.zero
-             || transform.parent.rotation != Quaternion.identity
-            )
-            {
-                Debug.LogError("GenerateDistanceField: Exporting distance field texture, but the parent transform is not at the origin. This may lead to unexpected results.");
-                return;
-            }
-
-            Texture3D existing = AssetDatabase.LoadAssetAtPath<Texture3D>("Assets/distanceField.asset");
-            Texture3D t = null;
-            GenerateTexture(ref t, out var bounds);
-            t.name = "DistanceField";
-            if (existing)
-                EditorUtility.CopySerialized(t, existing);
-            else
-                AssetDatabase.CreateAsset(t, $"Assets/distanceField.asset");
-            AssetDatabase.SaveAssets();
-
-            Debug.LogWarning($"Created distanceField.asset");
-            Debug.LogWarning("Center: " + bounds.center);
-            Debug.LogWarning("Size: " + bounds.size);
-
-            var distanceFieldMeta = GetComponent<DistanceFieldMeta>();
-            if (distanceFieldMeta)
-            {
-                distanceFieldMeta.localBounds = bounds;
-                //distanceFieldMeta.texture = t;
-            }
-
-            //DestroyImmediate(texture);
-        }
-#endif
     }
 #endif
 
@@ -136,7 +146,6 @@ public class GenerateDistanceField : MonoBehaviour
         var myColliders = new List<MeshCollider>();
         try
         {
-            float indentation = 4f / pixelsPerUnit;
             foreach (var collider in myOriginalColliders)
             {
 				if (exclude == null || !exclude.Contains(collider))
@@ -294,13 +303,13 @@ public class GenerateDistanceField : MonoBehaviour
                             if (v.w == 0)
                                 v.w = -10000;
 							v.w += bias;
-							var texelDistance = v.w * pixelsPerUnit;
-                            var relativeDistance = texelDistance / 4f;
+							var d = v.w;// * pixelsPerUnit;
+                            //var relativeDistance = texelDistance / 4f;
 
-                            var clamped = M.Clamp(relativeDistance, -1f, 1f);
+                            var clamped = M.Clamp(d, -0.5f, 0.5f) + 0.5f;
                             //if (clamped < -0.99f)
                             //    clamped = 1;
-                            target.SetPixel(x, y, z, new Color(1f, 1f, 1f, clamped* 0.5f + 0.5f));
+                            target.SetPixel(x, y, z, new Color(1f, 1f, 1f, clamped));
 
                         }
                     }
