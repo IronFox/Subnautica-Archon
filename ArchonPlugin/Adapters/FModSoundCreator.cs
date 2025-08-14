@@ -206,6 +206,8 @@ namespace Subnautica_Archon.Adapters
 
         public void ApplyLiveChanges(SoundConfig cfg)
         {
+            if (Died)
+                return;
             try
             {
                 if (Recovered)
@@ -215,6 +217,15 @@ namespace Subnautica_Archon.Adapters
                     FModSoundCreator.Check($"Channel.setPitch({cfg.Pitch})", Channel.setPitch(cfg.Pitch));
                 }
                 FModSoundCreator.Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", Channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
+            }
+            catch (FModException ex)
+            {
+                Log.Exception($"FModSound.ApplyLiveChanges()", ex);
+                if (ex.Result == RESULT.ERR_INVALID_HANDLE || ex.Result == RESULT.ERR_CHANNEL_STOLEN)
+                {
+                    Log.Error($"FModSound.ApplyLiveChanges() failed with {ex.Result}. Sound is probably dead, disposing");
+                    Dispose();
+                }
             }
             catch (Exception ex)
             {
