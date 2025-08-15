@@ -38,7 +38,7 @@ namespace Subnautica_Archon
 
         public override string PluginId => PluginInfo.PLUGIN_GUID;
 
-        public override string ClassPrefix => "Archon";
+        public override string ModName => "Archon";
 
         public override void Awake()
         {
