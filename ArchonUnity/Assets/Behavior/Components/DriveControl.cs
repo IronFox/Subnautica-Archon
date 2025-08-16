@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Assets.Behavior.Adapters;
+using UnityEngine;
 
 public class DriveControl : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class DriveControl : MonoBehaviour
     public float overdrive;
     public bool cameraIsExternal;
     public bool isOutOfWater;
+    public bool wasEverInWater;
     private bool cameraWasExternal;
     private float waterDensity = 0;
     private float emissionSpeed;
@@ -53,8 +55,9 @@ public class DriveControl : MonoBehaviour
             waterDensity += Time.deltaTime;
         waterDensity = Mathf.Clamp01(waterDensity);
 
-        if (cameraWasExternal != cameraIsExternal)
+        if (cameraWasExternal != cameraIsExternal && wasEverInWater)
         {
+            Log.Default.Write("Switching propeller visibility since vehicle is not out of water and camera is external changed");
             cameraWasExternal = cameraIsExternal;
 
             foreach (var p in fullWhenCameraIsExternalPropellers)

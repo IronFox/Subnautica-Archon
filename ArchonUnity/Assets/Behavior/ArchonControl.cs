@@ -53,6 +53,7 @@ public class ArchonControl : MonoBehaviour
 
 	//public bool overdriveActive;
 	public bool outOfWater;
+	private bool wasEverInWater;
 	public bool freeCameraInCockpit = false;
 	public bool freeCameraInExternalCamera = true;
 	public bool flipFreeHorizontalRotationInReverse = true;
@@ -550,7 +551,6 @@ public class ArchonControl : MonoBehaviour
 	// Start is called before the first frame update
 	private void Start()
 	{
-
 		//bayControl = GetComponentInChildren<BayControl>();
 		if (orientation)
 		{
@@ -1011,6 +1011,10 @@ public class ArchonControl : MonoBehaviour
 	{
 		try
 		{
+			backFacingLeft.wasEverInWater = wasEverInWater;
+			backFacingRight.wasEverInWater = wasEverInWater;
+			forwardFacingLeft.wasEverInWater = wasEverInWater;
+			forwardFacingRight.wasEverInWater = wasEverInWater;
 			backFacingLeft.isOutOfWater = outOfWater;
 			backFacingRight.isOutOfWater = outOfWater;
 			forwardFacingLeft.isOutOfWater = outOfWater;
@@ -1287,7 +1291,8 @@ public class ArchonControl : MonoBehaviour
 	{
 		try
 		{
-
+			if (!wasEverInWater)
+				wasEverInWater = !outOfWater; 
 
 			drag.density = outOfWater ? 0.01f : 0.5f;
 

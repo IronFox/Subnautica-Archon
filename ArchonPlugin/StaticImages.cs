@@ -1,30 +1,44 @@
 ﻿using AVS.Assets;
 using Subnautica_Archon.Util;
+using UnityEngine;
 
 namespace Subnautica_Archon
 {
-    public class StaticImages : PatcherImages
+    public record StaticImages(Sprite DepthModule1Icon,
+        Sprite DepthModule2Icon,
+        Sprite DepthModule3Icon,
+        Sprite DepthModuleNodeIcon,
+        Sprite FabricatorIcon,
+        Sprite ModulesBackground,
+        Sprite ArchonCraftingSprite,
+        Sprite ArchonPingSprite) : PatcherImages(
+            DepthModule1Icon: DepthModule1Icon,
+            DepthModule2Icon: DepthModule2Icon,
+            DepthModule3Icon: DepthModule3Icon,
+            ModulesBackground: ModulesBackground,
+            FabricatorIcon: FabricatorIcon,
+            DepthModuleNodeIcon: DepthModuleNodeIcon)
     {
-        private static Image Load(string filename)
+        private static Sprite Load(string filename)
         {
             Log.Write($"Loading sprite from {filename}");
-            return SpriteHelper.RequireImage(filename);
+            var rs = SpriteHelper.GetSpriteRaw(filename);
+            if (rs == null)
+                throw new System.IO.FileNotFoundException($"Sprite file not found: {filename}");
+            return rs;
         }
 
-        public StaticImages() : base(
-            depthModule1Icon: Load("images/depth_module_1.png"),
-            depthModule2Icon: Load("images/depth_module_2.png"),
-            depthModule3Icon: Load("images/depth_module_3.png"),
-            depthModuleNodeIcon: Load("images/depth_module_node.png"),
-            fabricatorIcon: Load("images/fabricator.png"),
-            modulesBackground: Load("images/archon_module_background.png")
-
+        public StaticImages() : this(
+            DepthModule1Icon: Load("images/depth_module_1.png"),
+            DepthModule2Icon: Load("images/depth_module_2.png"),
+            DepthModule3Icon: Load("images/depth_module_3.png"),
+            DepthModuleNodeIcon: Load("images/depth_module_node.png"),
+            FabricatorIcon: Load("images/fabricator.png"),
+            ModulesBackground: Load("images/archon_module_background.png"),
+            ArchonCraftingSprite: Load("images/archon_crafting_sprite.png"),
+            ArchonPingSprite: Load("images/archon_ping_sprite.png")
             )
         {
-            ArchonCraftingSprite = Load("images/archon_crafting_sprite.png");
-            ArchonPingSprite = Load("images/archon_ping_sprite.png");
         }
-        public Image ArchonCraftingSprite { get; }
-        public Image ArchonPingSprite { get; }
     }
 }

@@ -1,9 +1,7 @@
 ﻿using AVS.Audio;
 using FMOD;
-using Nautilus.Utility;
 using Subnautica_Archon.Util;
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 using static Subnautica_Archon.Util.MyLogger;
 
@@ -15,92 +13,119 @@ namespace Subnautica_Archon.Adapters
         private static float Sqr(float value) => value * value;
         public IInstantiatedSound? Instantiate(SoundConfig cfg)
         {
-
-            try
-            {
-                var mode = MODE.DEFAULT | MODE._3D | MODE.ACCURATETIME
-                    //| MODE._3D_INVERSEROLLOFF
-                    | MODE._3D_CUSTOMROLLOFF
-                    ;
-                if (cfg.Loop)
-                    mode |= MODE.LOOP_NORMAL;
-                else
-                    mode |= MODE.LOOP_OFF;
-                var sound = AudioUtils.CreateSound(cfg.AudioClip, mode
-                    );
-
-                float halfDistance = M.Min(cfg.MinDistance + M.Max(HalfDistance, cfg.MinDistance * 2), cfg.MaxDistance);
-
-                List<VECTOR> rolloff = new List<VECTOR>();
-                float range = (cfg.MaxDistance - cfg.MinDistance);
-                for (int ix = 0; ix <= 10; ix++)
-                {
-                    float distance = Sqr((float)ix / 10) * range + cfg.MinDistance;
-                    float worldDistance = distance;
-
-                    distance /= halfDistance / M.Sqrt2;
-                    //Log.Write($"Distance modified by halfDistance({halfDistance}): {distance}");
-
-                    float volume = M.Saturate(1f / (distance * distance) - (1f / (cfg.MaxDistance * cfg.MaxDistance)));
-                    rolloff.Add(new VECTOR
-                    {
-                        x = worldDistance,
-                        y = volume
-                    });
-                    //Log.Write($"Rolloff added: {worldDistance},{volume}");
-                }
-                var rolloffArray = rolloff.ToArray();
-
-
-
-                FModSoundCreator.Check($"sound.set3DCustomRolloff(ref rolloffArray[0], {rolloffArray.Length})", sound.set3DCustomRolloff(ref rolloffArray[0], rolloffArray.Length));
-                FModSoundCreator.Check($"sound.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", sound.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
-
-
-
-
-                if (!AudioUtils.TryPlaySound(sound, "bus:/master", out var channel))
-                    throw new InvalidOperationException($"AudioUtils.TryPlaySound(sound, \"bus:/master\", out var channel) failed");
-
-                FModSoundCreator.Check($"Channel.setVolume({cfg.Volume})", channel.setVolume(0));
-                FModSoundCreator.Check($"Channel.setPitch({cfg.Pitch})", channel.setPitch(0.01f));
-                FModSoundCreator.Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
-
-
-
-
-                var pos = new VECTOR
-                {
-                    x = cfg.Owner.transform.position.x,
-                    y = cfg.Owner.transform.position.y,
-                    z = cfg.Owner.transform.position.z
-                };
-
-                var vel = new VECTOR
-                {
-                    x = 0,
-                    y = 0,
-                    z = 0
-                };
-
-
-
-                Check($"channel.set3DAttributes(ref pos, ref vel)", channel.set3DAttributes(ref pos, ref vel));
-
-                var component = cfg.Owner.AddComponent<FModComponent>();
-
-                channel.isPlaying(out var isPlaying);
-                Log.Write($"Sound ({channel.handle}) created (isPlaying={isPlaying})");
-                var rs = component.sound = new FModSound(cfg, channel, sound, component, rolloffArray);
-
-                return rs;
-
-            }
-            catch (Exception ex)
-            {
-                Log.Exception("FModSoundCreator.Instantiate()", ex);
+            var sound = AVS.Audio.FModSoundCreator.Play(
+                new(
+                    Owner: cfg.Owner,
+                    AudioClip: cfg.AudioClip,
+                    Loop: cfg.Loop,
+                    HalfDistance: Mathf.Max(HalfDistance, cfg.MinDistance * 2),
+                    MinDistance: cfg.MinDistance,
+                    MaxDistance: cfg.MaxDistance,
+                    Settings: new(
+                        Volume: cfg.Volume,
+                        Pitch: cfg.Pitch
+                        )), Log.Writer);
+            if (sound is null)
                 return null;
-            }
+            return new TranslatedFModSound(sound, cfg);
+
+            //    );
+            //{
+            //    AudioClip = cfg.AudioClip,
+            //    Owner = cfg.Owner,
+            //    Loop = cfg.Loop,
+            //    MinDistance = cfg.MinDistance,
+            //    MaxDistance = cfg.MaxDistance,
+            //    Volume = cfg.Volume,
+            //    Pitch = cfg.Pitch
+            //});
+
+
+            //try
+            //{
+            //    var mode = MODE.DEFAULT | MODE._3D | MODE.ACCURATETIME
+            //        //| MODE._3D_INVERSEROLLOFF
+            //        | MODE._3D_CUSTOMROLLOFF
+            //        ;
+            //    if (cfg.Loop)
+            //        mode |= MODE.LOOP_NORMAL;
+            //    else
+            //        mode |= MODE.LOOP_OFF;
+            //    var sound = AudioUtils.CreateSound(cfg.AudioClip, mode
+            //        );
+
+            //    float halfDistance = M.Min(cfg.MinDistance + M.Max(HalfDistance, cfg.MinDistance * 2), cfg.MaxDistance);
+
+            //    List<VECTOR> rolloff = new List<VECTOR>();
+            //    float range = (cfg.MaxDistance - cfg.MinDistance);
+            //    for (int ix = 0; ix <= 10; ix++)
+            //    {
+            //        float distance = Sqr((float)ix / 10) * range + cfg.MinDistance;
+            //        float worldDistance = distance;
+
+            //        distance /= halfDistance / M.Sqrt2;
+            //        //Log.Write($"Distance modified by halfDistance({halfDistance}): {distance}");
+
+            //        float volume = M.Saturate(1f / (distance * distance) - (1f / (cfg.MaxDistance * cfg.MaxDistance)));
+            //        rolloff.Add(new VECTOR
+            //        {
+            //            x = worldDistance,
+            //            y = volume
+            //        });
+            //        //Log.Write($"Rolloff added: {worldDistance},{volume}");
+            //    }
+            //    var rolloffArray = rolloff.ToArray();
+
+
+
+            //    FModSoundCreator.Check($"sound.set3DCustomRolloff(ref rolloffArray[0], {rolloffArray.Length})", sound.set3DCustomRolloff(ref rolloffArray[0], rolloffArray.Length));
+            //    FModSoundCreator.Check($"sound.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", sound.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
+
+
+
+
+            //    if (!AudioUtils.TryPlaySound(sound, "bus:/master", out var channel))
+            //        throw new InvalidOperationException($"AudioUtils.TryPlaySound(sound, \"bus:/master\", out var channel) failed");
+
+            //    FModSoundCreator.Check($"Channel.setVolume({cfg.Volume})", channel.setVolume(0));
+            //    FModSoundCreator.Check($"Channel.setPitch({cfg.Pitch})", channel.setPitch(0.01f));
+            //    FModSoundCreator.Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
+
+
+
+
+            //    var pos = new VECTOR
+            //    {
+            //        x = cfg.Owner.transform.position.x,
+            //        y = cfg.Owner.transform.position.y,
+            //        z = cfg.Owner.transform.position.z
+            //    };
+
+            //    var vel = new VECTOR
+            //    {
+            //        x = 0,
+            //        y = 0,
+            //        z = 0
+            //    };
+
+
+
+            //    Check($"channel.set3DAttributes(ref pos, ref vel)", channel.set3DAttributes(ref pos, ref vel));
+
+            //    var component = cfg.Owner.AddComponent<FModComponent>();
+
+            //    channel.isPlaying(out var isPlaying);
+            //    Log.Write($"Sound ({channel.handle}) created (isPlaying={isPlaying})");
+            //    var rs = component.sound = new FModSound(cfg, channel, sound, component, rolloffArray);
+
+            //    return rs;
+
+            //}
+            //catch (Exception ex)
+            //{
+            //    Log.Exception("FModSoundCreator.Instantiate()", ex);
+            //    return null;
+            //}
         }
 
         internal static void Check(string action, RESULT result)

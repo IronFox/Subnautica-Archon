@@ -75,15 +75,15 @@ namespace Subnautica_Archon
 
 
         public Archon() : base(new VehicleConfiguration(
-            unlockedSprite: MainPatcher.StaticImages.ArchonCraftingSprite.Sprite,
+            unlockedSprite: MainPatcher.StaticImages.ArchonCraftingSprite,
             maxHealth: 50000,
             crushDamage: 50000 / (60 * 2),    //damage so that total failure is achieved after 2 minutes at crush depth
             mass: 20000,
             numModules: 8,
-            craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite.Sprite,
-            pingSprite: MainPatcher.StaticImages.ArchonPingSprite.Sprite,
-            saveFileSprite: MainPatcher.StaticImages.ArchonPingSprite.Sprite,
-            moduleBackgroundImage: MainPatcher.StaticImages.ModulesBackground.Sprite,
+            craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite,
+            pingSprite: MainPatcher.StaticImages.ArchonPingSprite,
+            saveFileSprite: MainPatcher.StaticImages.ArchonPingSprite,
+            moduleBackgroundImage: MainPatcher.StaticImages.ModulesBackground,
             description: Language.main.Get("General.Description"),
             encyclopediaEntry: Language.main.Get("General.Encyclopedia"),
             canLeviathanGrab: false,
@@ -100,7 +100,8 @@ namespace Subnautica_Archon
                 .Add(TechType.Lubricant, 1)
                 .Done(),
             getVoiceSoundVolume: () => MainPatcher.PluginConfig.voiceVolumePercent / 100f
-            / 5 //the archon uses a shitload of tethers and each is a player in VF/AVS
+            * 0.5f
+
             ,
             getVoiceSubtitlesEnabled: () => MainPatcher.PluginConfig.showVoiceSubtitles
         ))
@@ -598,6 +599,7 @@ namespace Subnautica_Archon
             try
             {
                 Log.Write(nameof(Start));
+
 
 
                 LazyInit();
@@ -1098,6 +1100,7 @@ namespace Subnautica_Archon
 
             Control.interiorColliders.gameObject.SetActive(true);
         }
+
 
 
         public override void Update()

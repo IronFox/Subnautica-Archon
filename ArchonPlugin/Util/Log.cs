@@ -7,7 +7,7 @@ namespace Subnautica_Archon.Util
 
     public static class Log
     {
-        private static LogWriter Writer { get; } = new LogWriter(
+        internal static LogWriter Writer { get; } = new LogWriter(
             prefix: null, "Mod");
 
 
