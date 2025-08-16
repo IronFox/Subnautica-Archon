@@ -1,4 +1,5 @@
 using Assets.Behavior.TransferTypes;
+using AVS.Assets;
 using AVS.Log;
 using Subnautica_Archon.Adapters.VehicleAbstraction;
 using Subnautica_Archon.Util;
@@ -80,7 +81,7 @@ namespace Subnautica_Archon.Adapters
                     var tt = CraftData.GetTechType(Vehicle.gameObject);
                     if (tt != TechType.None)
                     {
-                        image = SpriteManager.Get(tt);
+                        image = SpriteHelper.ToSprite(SpriteManager.Get(tt));
                         if (image == null || image.texture == null)
                         {
                             Log.Error($"Image for {Vehicle.NiceName()} does not exist. Using empty texture.");
@@ -105,7 +106,7 @@ namespace Subnautica_Archon.Adapters
                 {
                     if (mod.techType != TechType.None)
                     {
-                        var sprite = SpriteManager.Get(mod.techType);
+                        var sprite = SpriteHelper.ToSprite(SpriteManager.Get(mod.techType));
 
                         if (sprite != null)
                             textures.Add(sprite);
