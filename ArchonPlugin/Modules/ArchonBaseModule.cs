@@ -2,6 +2,7 @@
 using AVS.UpgradeModules;
 using Subnautica_Archon;
 using Subnautica_Archon.Exceptions;
+using Subnautica_Archon.Modules;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections.Generic;

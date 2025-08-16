@@ -1,4 +1,4 @@
-﻿namespace Subnautica_Archon
+﻿namespace Subnautica_Archon.Modules
 {
     public enum ArchonModule
     {
