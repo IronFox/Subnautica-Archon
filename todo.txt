@@ -1,4 +1,8 @@
-before release:
+after release:
+
+	* force minimize engine sound when not at helm
+	* finish up battery charger fix
+	* emergency teleport is reset and not pre-fitted when multiple archons are loaded
 
 
 no:
