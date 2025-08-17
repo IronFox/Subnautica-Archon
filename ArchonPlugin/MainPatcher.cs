@@ -49,7 +49,7 @@ namespace Subnautica_Archon
 
                 Archon.GetAssets();
 
-                ModMessageSystem.SendGlobal("FindMyUpdates", "https://raw.githubusercontent.com/IronFox/Subnautica-Archon/refs/heads/main/mod-info.json");
+                //ModMessageSystem.SendGlobal("FindMyUpdates", "https://raw.githubusercontent.com/IronFox/Subnautica-Archon/refs/heads/main/mod-info.json");
 
                 Log.Write($"MainPatcher.Awake() done");
 
