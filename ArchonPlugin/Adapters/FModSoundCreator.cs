@@ -26,7 +26,7 @@ namespace Subnautica_Archon.Adapters
                         Pitch: cfg.Pitch
                         )), Log.Writer);
             if (sound is null)
-                return null;
+                return null; 
             return new TranslatedFModSound(sound, cfg);
 
             //    );
@@ -134,146 +134,146 @@ namespace Subnautica_Archon.Adapters
                 throw new FModException($"{action} failed with {result}", result);
         }
     }
-
-    internal class FModComponent : MonoBehaviour
-    {
-        public FModSound? sound;
-
-        public void OnDestroy()
-        {
-            Log.Write($"Disposing FModComponent ({sound?.Channel.handle})");
-            sound?.Dispose();
-        }
-
-        public void Update()
-        {
-            if (sound == null || !sound.Update(Time.deltaTime))
-            {
-                Log.Error($"FModComponent.sound({sound?.Channel.handle}).Update() returned false. Self-destructing");
-                sound = null;//there is something going on in this case. better just unset and don't touch it
-                Destroy(this);
-            }
-        }
-    }
-
-    internal class FModSound : IInstantiatedSound
-    {
-        public SoundConfig Config { get; private set; }
-        public FMOD.Channel Channel { get; }
-        public FModComponent Component { get; }
-        public VECTOR[] RolloffArray { get; }
-        public Sound Sound { get; }
-        private float Age { get; set; }
-        private bool Recovered { get; set; }
-
-        public bool Died => !Component;
-
-        private Vector3 lastPosition;
-        public FModSound(SoundConfig config, FMOD.Channel channel, Sound sound, FModComponent component, VECTOR[] rolloffArray)
-        {
-            Config = config;
-            Channel = channel;
-            Component = component;
-            RolloffArray = rolloffArray;
-            Sound = sound;
-        }
-
-        internal bool Update(float timeDelta)
-        {
-            if (timeDelta <= 0)
-                return true;
-            Vector3 vpos = Vector3.zero, velocity = Vector3.zero;
-            try
-            {
-                var position = Component.transform.position;
-                velocity = (position - lastPosition) / timeDelta;
-                lastPosition = position;
-                vpos = position;
-
-                var pos = new VECTOR
-                {
-                    x = position.x,
-                    y = position.y,
-                    z = position.z
-                };
-
-                var vel = new VECTOR
-                {
-                    x = velocity.x,
-                    y = velocity.y,
-                    z = velocity.z
-                };
-
-
-
-                FModSoundCreator.Check($"Channel({Channel.handle}).set3DAttributes({position},{velocity})", Channel.set3DAttributes(ref pos, ref vel));
-
-                Age += timeDelta;
-                if (Age > 0.1f && !Recovered)
-                {
-                    Recovered = true;
-                    FModSoundCreator.Check($"Channel({Channel.handle}).setVolume({Config.Volume})", Channel.setVolume(Config.Volume));
-                    FModSoundCreator.Check($"Channel({Channel.handle}).setPitch({Config.Pitch})", Channel.setPitch(Config.Pitch));
-                }
-                return true;
-            }
-            catch (FModException ex)
-            {
-                Log.Exception($"FModSound.Update({timeDelta}) [{vpos},{velocity}] ", ex);
-                return ex.Result != RESULT.ERR_INVALID_HANDLE && ex.Result != RESULT.ERR_CHANNEL_STOLEN;
-            }
-            catch (Exception ex)
-            {
-                Log.Exception($"FModSound.Update({timeDelta}) [{vpos},{velocity}] ", ex);
-                return true;
-            }
-        }
-
-        public void ApplyLiveChanges(SoundConfig cfg)
-        {
-            if (Died)
-                return;
-            try
-            {
-                if (Recovered)
-                {
-                    //Log.Debug($"FModSound.ApplyLiveChanges({cfg.Volume}, {cfg.Pitch}) - Recovered, applying changes");
-                    FModSoundCreator.Check($"Channel.setVolume({cfg.Volume})", Channel.setVolume(cfg.Volume));
-                    FModSoundCreator.Check($"Channel.setPitch({cfg.Pitch})", Channel.setPitch(cfg.Pitch));
-                }
-                FModSoundCreator.Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", Channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
-            }
-            catch (FModException ex)
-            {
-                Log.Exception($"FModSound.ApplyLiveChanges()", ex);
-                if (ex.Result == RESULT.ERR_INVALID_HANDLE || ex.Result == RESULT.ERR_CHANNEL_STOLEN)
-                {
-                    Log.Error($"FModSound.ApplyLiveChanges() failed with {ex.Result}. Sound is probably dead, disposing");
-                    Dispose();
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Exception($"FModSound.ApplyLiveChanges()", ex);
-            }
-
-
-            Config = cfg;
-        }
-
-        public void Dispose()
-        {
-            try
-            {
-                Channel.stop();
-                Sound.release();
-                GameObject.Destroy(Component);
-            }
-            catch (Exception ex)
-            {
-                Log.Exception($"FModSound.Dispose()", ex);
-            }
-
-        }
-    }
+    //
+    // internal class FModComponent : MonoBehaviour
+    // {
+    //     public FModSound? sound;
+    //
+    //     public void OnDestroy()
+    //     {
+    //         Log.Write($"Disposing FModComponent ({sound?.Channel.handle})");
+    //         sound?.Dispose();
+    //     }
+    //
+    //     public void Update()
+    //     {
+    //         if (sound == null || !sound.Update(Time.deltaTime))
+    //         {
+    //             Log.Error($"FModComponent.sound({sound?.Channel.handle}).Update() returned false. Self-destructing");
+    //             sound = null;//there is something going on in this case. better just unset and don't touch it
+    //             Destroy(this);
+    //         }
+    //     }
+    // }
+    //
+    // internal class FModSound : IInstantiatedSound
+    // {
+    //     public SoundConfig Config { get; private set; }
+    //     public FMOD.Channel Channel { get; }
+    //     public FModComponent Component { get; }
+    //     public VECTOR[] RolloffArray { get; }
+    //     public Sound Sound { get; }
+    //     private float Age { get; set; }
+    //     private bool Recovered { get; set; }
+    //
+    //     public bool Died => !Component;
+    //
+    //     private Vector3 lastPosition;
+    //     public FModSound(SoundConfig config, FMOD.Channel channel, Sound sound, FModComponent component, VECTOR[] rolloffArray)
+    //     {
+    //         Config = config;
+    //         Channel = channel;
+    //         Component = component;
+    //         RolloffArray = rolloffArray;
+    //         Sound = sound;
+    //     }
+    //
+    //     internal bool Update(float timeDelta)
+    //     {
+    //         if (timeDelta <= 0)
+    //             return true;
+    //         Vector3 vpos = Vector3.zero, velocity = Vector3.zero;
+    //         try
+    //         {
+    //             var position = Component.transform.position;
+    //             velocity = (position - lastPosition) / timeDelta;
+    //             lastPosition = position;
+    //             vpos = position;
+    //
+    //             var pos = new VECTOR
+    //             {
+    //                 x = position.x,
+    //                 y = position.y,
+    //                 z = position.z
+    //             };
+    //
+    //             var vel = new VECTOR
+    //             {
+    //                 x = velocity.x,
+    //                 y = velocity.y,
+    //                 z = velocity.z
+    //             };
+    //
+    //
+    //
+    //             FModSoundCreator.Check($"Channel({Channel.handle}).set3DAttributes({position},{velocity})", Channel.set3DAttributes(ref pos, ref vel));
+    //
+    //             Age += timeDelta;
+    //             if (Age > 0.1f && !Recovered)
+    //             {
+    //                 Recovered = true;
+    //                 FModSoundCreator.Check($"Channel({Channel.handle}).setVolume({Config.Volume})", Channel.setVolume(Config.Volume));
+    //                 FModSoundCreator.Check($"Channel({Channel.handle}).setPitch({Config.Pitch})", Channel.setPitch(Config.Pitch));
+    //             }
+    //             return true;
+    //         }
+    //         catch (FModException ex)
+    //         {
+    //             Log.Exception($"FModSound.Update({timeDelta}) [{vpos},{velocity}] ", ex);
+    //             return ex.Result != RESULT.ERR_INVALID_HANDLE && ex.Result != RESULT.ERR_CHANNEL_STOLEN;
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             Log.Exception($"FModSound.Update({timeDelta}) [{vpos},{velocity}] ", ex);
+    //             return true;
+    //         }
+    //     }
+    //
+    //     public void ApplyLiveChanges(SoundConfig cfg)
+    //     {
+    //         if (Died)
+    //             return;
+    //         try
+    //         {
+    //             if (Recovered)
+    //             {
+    //                 //Log.Debug($"FModSound.ApplyLiveChanges({cfg.Volume}, {cfg.Pitch}) - Recovered, applying changes");
+    //                 FModSoundCreator.Check($"Channel.setVolume({cfg.Volume})", Channel.setVolume(cfg.Volume));
+    //                 FModSoundCreator.Check($"Channel.setPitch({cfg.Pitch})", Channel.setPitch(cfg.Pitch));
+    //             }
+    //             FModSoundCreator.Check($"Channel.set3DMinMaxDistance({cfg.MinDistance}, {cfg.MaxDistance})", Channel.set3DMinMaxDistance(cfg.MinDistance, cfg.MaxDistance));
+    //         }
+    //         catch (FModException ex)
+    //         {
+    //             Log.Exception($"FModSound.ApplyLiveChanges()", ex);
+    //             if (ex.Result == RESULT.ERR_INVALID_HANDLE || ex.Result == RESULT.ERR_CHANNEL_STOLEN)
+    //             {
+    //                 Log.Error($"FModSound.ApplyLiveChanges() failed with {ex.Result}. Sound is probably dead, disposing");
+    //                 Dispose();
+    //             }
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             Log.Exception($"FModSound.ApplyLiveChanges()", ex);
+    //         }
+    //
+    //
+    //         Config = cfg;
+    //     }
+    //
+    //     public void Dispose()
+    //     {
+    //         try
+    //         {
+    //             Channel.stop();
+    //             Sound.release();
+    //             GameObject.Destroy(Component);
+    //         }
+    //         catch (Exception ex)
+    //         {
+    //             Log.Exception($"FModSound.Dispose()", ex);
+    //         }
+    //
+    //     }
+    // }
 }

@@ -17,16 +17,22 @@ public class DriveControl : MonoBehaviour
     public SoundAdapter overdriveAudioSource;
     public float thrust;
     public float overdrive;
-    public bool cameraIsExternal;
-    public bool isOutOfWater;
-    public bool wasEverInWater;
     private bool cameraWasExternal;
     private float waterDensity = 0;
     private float emissionSpeed;
     private float emissionRate;
+    private bool wasEverInWater;
+    private ArchonControl archon;
 
     private Vector3 lastPosition;
     private Vector3 lastMainPosition;
+
+    void Awake()
+    {
+        archon = GetComponentInParent<ArchonControl>();
+        if (archon == null)
+            enabled = false;
+    }
 
     void Start()
     {
@@ -49,12 +55,17 @@ public class DriveControl : MonoBehaviour
     {
         thrust = Mathf.Clamp(thrust, -1, 1);
 
-        if (isOutOfWater)
+        if (archon.outOfWater)
             waterDensity -= Time.deltaTime;
         else
+        {
             waterDensity += Time.deltaTime;
+            wasEverInWater = true;
+        }
+
         waterDensity = Mathf.Clamp01(waterDensity);
 
+        bool cameraIsExternal = !archon.CameraIsInVehicle;
         if (cameraWasExternal != cameraIsExternal && wasEverInWater)
         {
             Log.Default.Write("Switching propeller visibility since vehicle is not out of water and camera is external changed");
@@ -93,8 +104,12 @@ public class DriveControl : MonoBehaviour
             {
                 float speed = (transform.position - lastMainPosition).magnitude / Time.deltaTime;
                 speed *= waterDensity;
+                if (!archon.IsBeingControlled)
+                    speed = 0;
+                
 
                 var audioThrust = speed / 30;
+                //Log.Write($"DriveControl.Update: Speed: {speed} -> {audioThrust}");
                 //if (audioThrust > 0)
                 {
                     regularAudioSource.volume = initialLevel * (0.1f + 0.9f * audioThrust);
