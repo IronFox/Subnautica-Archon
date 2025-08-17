@@ -1,5 +1,7 @@
 ﻿using System;
+using Assets.Behavior.Adapters;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class SoundAdapter : MonoBehaviour
 {
@@ -35,15 +37,13 @@ public class SoundAdapter : MonoBehaviour
         {
             var cfg = GetCurrentConfig();
 
-            if (Sound == null || (DeadForFrames > 10 && loop) || !Sound.Config.IsLiveCompatibleTo(cfg))
+            if (Sound == null || (DeadForFrames > 10 && loop) || !Sound.ApplyLiveChanges(cfg))
             {
+                Log.Write($"Reinstantiating sound {this.NiceName()} for clip {clip.name}");
                 Sound?.Dispose();
                 Sound = SoundCreator.Instantiate(cfg);
                 DeadForFrames = 0;
             }
-            else
-                if (Sound.Config.IsSignificantlyDifferent(cfg))
-                Sound.ApplyLiveChanges(cfg);
         }
         else if (Sound != null)
         {
@@ -94,7 +94,12 @@ public interface IInstantiatedSound : IDisposable
 
     bool Died { get; }
 
-    void ApplyLiveChanges(SoundConfig cfg);
+    /// <summary>
+    /// Attempts to apply the given configuration to the local sound
+    /// </summary>
+    /// <param name="cfg">Updated configuration</param>
+    /// <returns>True if the change could be applied, false if the change is too significant, and the sound needs to be recreated</returns>
+    bool ApplyLiveChanges(SoundConfig cfg);
 
 }
 
@@ -128,24 +133,7 @@ public readonly struct SoundConfig
         Loop = loop;
     }
 
-    private static bool SigDif(float a, float b)
-        => Mathf.Abs(a - b) > 0.005f;
-    public bool IsSignificantlyDifferent(SoundConfig other)
-    {
-        return //!IsLiveCompatibleTo(Other)
-               //|| 
-            SigDif(Pitch, other.Pitch)
-            || SigDif(Volume, other.Volume)
-            || SigDif(MinDistance, other.MinDistance)
-            || SigDif(MaxDistance, other.MaxDistance)
-            ;
 
-    }
-    public bool IsLiveCompatibleTo(SoundConfig other)
-        => Owner == other.Owner
-            && AudioClip == other.AudioClip
-            && Loop == other.Loop
-        ;
 }
 
 
@@ -215,8 +203,12 @@ internal class EmulatedSpacialSound : IInstantiatedSound
 
     public bool Died => !Emulator;
 
-    public void ApplyLiveChanges(SoundConfig cfg)
+    public bool ApplyLiveChanges(SoundConfig cfg)
     {
+        if (cfg.AudioClip != Source.clip)
+            return false; 
+        var blend = cfg.Is3D ? 1 : 0;
+        Source.spatialBlend = blend;
         Source.pitch = cfg.Pitch;
         Source.volume = cfg.Volume;
         Source.maxDistance = cfg.MaxDistance;
@@ -233,7 +225,7 @@ internal class EmulatedSpacialSound : IInstantiatedSound
             Source.Play();
 
         Config = cfg;
-
+        return true;
     }
 
     public void Dispose()
@@ -258,11 +250,13 @@ internal class DefaultSound : IInstantiatedSound
 
     public void Dispose()
     {
-        GameObject.Destroy(Source);
+        Object.Destroy(Source);
     }
 
-    public void ApplyLiveChanges(SoundConfig cfg)
+    public bool ApplyLiveChanges(SoundConfig cfg)
     {
+        if (cfg.AudioClip != Source.clip)
+            return false;
         Source.pitch = cfg.Pitch;
         Source.volume = cfg.Volume;
         Source.maxDistance = cfg.MaxDistance;
@@ -277,5 +271,6 @@ internal class DefaultSound : IInstantiatedSound
             Source.Play();
 
         Config = cfg;
+        return true;
     }
 }
