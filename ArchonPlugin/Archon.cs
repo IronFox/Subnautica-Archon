@@ -252,6 +252,8 @@ namespace Subnautica_Archon
             {
                 Util.Log.Write(nameof(GetAssets));
                 var modPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                if (modPath == null)
+                    throw new IOException("Unable to get mod path");
                 string bundlePath;
 
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
@@ -267,7 +269,7 @@ namespace Subnautica_Archon
                     var assets = bundle.LoadAllAssets();
                     foreach (var obj in assets)
                     {
-                        Util.Log.Write("Scanning object: " + obj.name);
+                        Util.Log.Write("Scanning object: " + obj.NiceName());
                         if (obj.name == "Archon")
                         {
                             staticModel = (GameObject)obj;
@@ -277,7 +279,7 @@ namespace Subnautica_Archon
                         Util.Log.Write("Model not found among: " + string.Join(", ", Helper.Names(assets)));
                 }
                 else
-                    Util.Log.Write("Unable to loade bundle from path");
+                    Util.Log.Write("Unable to load bundle from path");
                 Util.Log.Write(nameof(GetAssets) + " done");
             }
             catch (Exception ex)
