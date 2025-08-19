@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using Assets.Behavior.Adapters;
+using Behavior.Util;
 using UnityEngine;
 
 public class HelmSeatController : MonoBehaviour
@@ -98,5 +100,19 @@ public class HelmSeatController : MonoBehaviour
 		transform.localPosition = Vector3.zero;
 		transform.localRotation = Quaternion.identity;
 		return seatOrigin;
+	}
+
+	public Parentage SeatPlayer(PlayerReference player)
+	{
+		using (var log = new LogContext(nameof(SeatPlayer)))
+		{
+			log.Write(
+				$"Helm seat seating player {player.Root.NiceName()} at height = {player.HeadToSeatedHeightDifference}");
+			var p = Parentage.FromLocal(player.Root.transform);
+			player.Root.transform.SetParent(transform, false);
+			player.Root.transform.localPosition = M.V3(0, -player.HeadToSeatedHeightDifference, 0);
+			player.Root.transform.localRotation = Quaternion.identity;
+			return p;
+		}
 	}
 }

@@ -1,6 +1,7 @@
 ﻿using Assets.Behavior.Adapters;
 using System;
 using System.Text;
+using Behavior.Util;
 using TMPro;
 using UnityEngine;
 
@@ -27,21 +28,25 @@ public class StatusConsole : CommonBoardingListener
 
     public override void SignalOnboardingBegin()
     {
-        var camera = CameraUtil.GetCamera(nameof(StatusConsole));
-        if (camera == null)
+        using (var log = new LogContext(nameof(SignalOnboardingBegin)))
         {
-            Log.LogError($"Cannot assign camera as worldCamera. Canvas remains off");
-            return;
-        }
-        ConsoleControl.Write($"Assigning {camera} as worldCamera of {canvas}");
-        if (canvas == null)
-            canvas = GetComponent<Canvas>();
+            var camera = CameraUtil.GetCamera(nameof(StatusConsole));
+            if (!camera)
+            {
+                log.Error($"Cannot assign camera as worldCamera. Canvas remains off");
+                return;
+            }
 
-        canvas.worldCamera = camera;
-        canvas.planeDistance = Mathf.Max(camera.nearClipPlane * 1.1f, 2f);
-        ConsoleControl.Write($"Set clip plane to distance {canvas.planeDistance}");
-        canvas.enabled = true;
-        enabled = statusText.enabled = false;
+            log.Write($"Assigning {camera} as worldCamera of {canvas}");
+            if (!canvas)
+                canvas = GetComponent<Canvas>();
+
+            canvas.worldCamera = camera;
+            canvas.planeDistance = Mathf.Max(camera.nearClipPlane * 1.1f, 2f);
+            log.Write($"Set clip plane to distance {canvas.planeDistance}");
+            canvas.enabled = true;
+            enabled = statusText.enabled = false;
+        }
     }
 
     public override void SignalOffBoardingEnd()

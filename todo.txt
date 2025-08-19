@@ -1,9 +1,11 @@
 after release:
 
-	* force minimize engine sound when not at helm
-	* finish up battery charger fix
-	* emergency teleport is reset and not pre-fitted when multiple archons are loaded
-
+	
+* emergency teleport is reset and not pre-fitted when multiple archons are loaded
+* slot it into last slot instead
+* reduce airlock open whirl sound volume
+* charge docked craft
+* repair docked craft
 
 no:
 
@@ -13,6 +15,7 @@ no:
 * evacuate fish ( seems to no longer happen)
 * register external flood lights as AVS head lights (the volumetric light visualization does not appear to heed the light's angle)
 * merge AVS into the main dll using https://github.com/Fody/Costura?tab=readme-ov-file (does not work, other libraries do but cause access conflicts. also not sure that even solves the problem)
+* battery dead sound. there already is a sound for that
 
 
 maybe:
@@ -21,24 +24,19 @@ maybe:
 later:
 
 * controls on the HUD, potentially fading after a while
-* reference AVS vehicles also via reflection
-* allow map resource selection
-* battery dead sound
-* charge docked craft
-* repair docked craft
+* allow map resource selection for visualization
 * revise healing light repetition
-* charge/repair docked vehicles
 * fix teleportation sounds
 * improve teleportation visuals
+* add teleportation light emitter
 * turn off emission of external light source materials when lights are off
 * tune external material emissions when power is off
 * tune ceiling glass curvature in nose section (seems to be very curved as to produce reflections)
-* add teleportation light emitter
 * preserve camera distance in save file
 * fix teleporting out of alien ruin area causes perma-out-of-water further up
 * add name label on out- and insides. Add coloring panel
 * add status label on front walls above airlock
-* disable map when powered off or battery dead
+* disable map when taking helm, powered off, or battery dead
 * change power cell slot bright color to highlight status. Show status on panel AR
 * velocity upgrades
 * increase interior shadow caster triangle resolution
@@ -68,6 +66,9 @@ later:
 
 done:
 
+* reference AVS vehicles also via reflection
+* finish up battery charger fix
+* force minimize engine sound when not at helm
 * revise water clip proxies in the corner near the panels and in upper tail section
 	+ Now using distance map
 * disable drive sound when out of water

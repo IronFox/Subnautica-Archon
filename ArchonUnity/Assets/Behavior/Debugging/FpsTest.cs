@@ -159,15 +159,12 @@ public class FpsTest : MonoBehaviour
 
     internal PlayerReference ToReference()
     {
-        return new PlayerReference(gameObject, head);
+        return new PlayerReference(gameObject, head, 1.6f);
     }
 
     internal void EnterHelm(ArchonControl archon, DebugHelm debugHelm)
     {
         atHelm = debugHelm;
-        transform.SetParent(debugHelm.transform);
-        transform.localPosition = M.V3(0, -1.6f, 0);
-        transform.localRotation = Quaternion.identity;
 
         archon.Control(ToReference());
 

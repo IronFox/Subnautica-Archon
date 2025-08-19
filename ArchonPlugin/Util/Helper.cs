@@ -14,7 +14,7 @@ namespace Subnautica_Archon.Util
         }
         public static PlayerReference GetPlayerReference()
         {
-            return new PlayerReference(Player.mainObject, Player.main.camRoot.transform);
+            return new PlayerReference(Player.mainObject, Player.main.camRoot.transform, 2f);
         }
 
         public static IEnumerable<Transform> Children(Transform t)

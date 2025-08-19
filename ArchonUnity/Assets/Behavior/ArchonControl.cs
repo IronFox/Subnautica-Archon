@@ -5,6 +5,7 @@ using Assets.Behavior.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Behavior.Util;
 using UnityEngine;
 
 #pragma warning disable IDE0090
@@ -133,8 +134,8 @@ public class ArchonControl : MonoBehaviour
 	private EvacuateIntruders evacuateIntruders;
 	private bool currentlyControlled;
 
-	private Parentage onboardLocalizedTransform;
-	private Parentage cameraMove, seatOrigin;
+	private Parentage cameraParentageBeforeControl, preBoardedPlayer;
+	private Parentage cameraParentageBeforeMoveToTrailspace, inVehicleSeatOrigin;
 
 	private bool currentCameraCenterIsCockpit;
 	private bool cameraIsInTrailspace;
@@ -193,29 +194,35 @@ public class ArchonControl : MonoBehaviour
 
 	private void MoveCameraToTrailSpace()
 	{
-		if (!cameraIsInTrailspace)
+		using (var Log = new LogContext(nameof(MoveCameraToTrailSpace)))
 		{
-			cameraIsInTrailspace = true;
-
-			Log.Write("Moving camera to trailspace. Setting secondary fallback camera transform");
-			SetCameraIsInVehicle(positionCamera.IsInVehicle, false);
-
-			CameraUtil.secondaryFallbackCameraTransform = trailSpaceCameraContainer;
-
-			cameraMove = Parentage.FromLocal(cameraRoot);
-			cameraRoot.parent = trailSpaceCameraContainer;
-			Location.LocalIdentity.ApplyTo(cameraRoot);
-
-
-
-			if (helmCameraIsInVehicle)
+			if (!cameraIsInTrailspace)
 			{
-				helmCameraIsInVehicle = false;
-				ChangeCameraIsInVehicle(true);
+				cameraIsInTrailspace = true;
+
+				Log.Write("Moving camera to trailspace. Setting secondary fallback camera transform");
+				SetCameraIsInVehicle(positionCamera.IsInVehicle, false);
+
+				CameraUtil.secondaryFallbackCameraTransform = trailSpaceCameraContainer;
+
+				cameraParentageBeforeMoveToTrailspace = Parentage.FromLocal(cameraRoot);
+
+				Log.Write($"Reparenting camera root to trailspace: {trailSpaceCameraContainer.NiceName()}");
+				cameraRoot.parent = trailSpaceCameraContainer;
+				Location.LocalIdentity.ApplyTo(cameraRoot);
+
+
+
+				if (helmCameraIsInVehicle)
+				{
+					Log.Write($"Helm camera is in vehicle. Updating renderers and colliders");
+					helmCameraIsInVehicle = false;
+					ChangeCameraIsInVehicle(true);
+				}
+
+
+				Log.Write("Moved");
 			}
-
-
-			Log.Write("Moved");
 		}
 	}
 
@@ -236,41 +243,48 @@ public class ArchonControl : MonoBehaviour
 
 	private void UpdateInteriorCollidersAndLights(bool enable)
 	{
-		Log.Write($"Updating interior colliders and lights: {enable}");
-		SetCollidersEnabled(interiorColliders.GetAllColliders(PlayerAdapter.Player()), enable);
+		using (var Log = new LogContext(nameof(UpdateInteriorCollidersAndLights),enable))
+		{
+			SetCollidersEnabled(interiorColliders.GetAllColliders(PlayerAdapter.Player()), enable);
 
-		interiorLights.gameObject.SetActive(enable);
-		glass?.ForEach(g => g.SetActive(enable));
-		interiorLightsEnabled = enable;
+			interiorLights.gameObject.SetActive(enable);
+			glass?.ForEach(g => g.SetActive(enable));
+			interiorLightsEnabled = enable;
+		}
 	}
 
 	private void MoveCameraOutOfTrailSpace(bool withCollidersAndLights)
 	{
-		if (cameraIsInTrailspace)
+		using (var Log = new LogContext(nameof(MoveCameraOutOfTrailSpace), withCollidersAndLights))
 		{
-			cameraIsInTrailspace = false;
-
-			Log.Write("Moving camera out of trailspace. Unsetting secondary fallback camera transform");
-			SetCameraIsInVehicle(true, withCollidersAndLights);
-
-			CameraUtil.secondaryFallbackCameraTransform = null;
-
-			cameraMove.Restore();
-
-
-			if (helmCameraIsInVehicle)
+			if (cameraIsInTrailspace)
 			{
-				Log.Write($"Restoring helm seat parentage");
-				seatOrigin.Restore();
+				cameraIsInTrailspace = false;
+
+				Log.Write("Moving camera out of trailspace. Unsetting secondary fallback camera transform");
+				SetCameraIsInVehicle(true, withCollidersAndLights);
+
+				CameraUtil.secondaryFallbackCameraTransform = null;
+
+				Log.Write(
+					$"Restoring camera location at {cameraParentageBeforeMoveToTrailspace.Parent.NiceName()}, {cameraParentageBeforeMoveToTrailspace.Transform}");
+				cameraParentageBeforeMoveToTrailspace.Restore();
+
+
+				if (helmCameraIsInVehicle)
+				{
+					Log.Write($"Restoring helm seat parentage");
+					inVehicleSeatOrigin.Restore();
+				}
+
+
+				Log.Write("Moved");
 			}
+			else
+			{
+				UpdateInteriorCollidersAndLights(withCollidersAndLights);
 
-
-			Log.Write("Moved");
-		}
-		else
-		{
-			UpdateInteriorCollidersAndLights(withCollidersAndLights);
-
+			}
 		}
 	}
 
@@ -301,6 +315,17 @@ public class ArchonControl : MonoBehaviour
 	public void Undock(GameObject dockedSub)
 	{
 		bayControl.Undock(dockedSub);
+	}
+
+	/// <summary>
+	/// Updates the camera to first or third person.
+	/// </summary>
+	/// <param name="firstPerson"></param>
+	public void SetCameraFirstPerson(bool firstPerson)
+	{
+		if (!positionCamera)
+			positionCamera = trailSpace.GetComponent<PositionCamera>();
+		positionCamera.SetCameraFirstPerson(firstPerson);
 	}
 
 	public UndockingCheckResult CheckUndocking(GameObject dockedSub)
@@ -338,44 +363,66 @@ public class ArchonControl : MonoBehaviour
 
 	public void Enter(PlayerReference player, bool skipOrientation = false)
 	{
-		Log.Write($"Boarding");
-		RigidbodyUtil.SetKinematic(rb);
-		shouldBeKinematic = true;
-		transform.eulerAngles = M.V3(0, transform.localEulerAngles.y, 0);
+		using (var Log = new LogContext(nameof(Enter), player, skipOrientation))
+		{
+			Log.Write($"Boarding");
+			RigidbodyUtil.SetKinematic(rb);
+			shouldBeKinematic = true;
+			transform.eulerAngles = M.V3(0, transform.localEulerAngles.y, 0);
 
-		forceAutoLevelInSeconds = !skipOrientation ? 0 : float.MaxValue;
+			forceAutoLevelInSeconds = !skipOrientation ? 0 : float.MaxValue;
 
-		checkFloatingCharacterForSeconds = 1;
-		boardedBy = player;
-		boardedLeave = false;
-		helmSeatController.AnimateToParkPosition();
-		SetCameraIsInVehicle(true, true);
+			checkFloatingCharacterForSeconds = 1;
+			boardedBy = player;
+			boardedLeave = false;
+			helmSeatController.AnimateToParkPosition();
+			SetCameraIsInVehicle(true, true);
+		}
 		//evacuateIntruders.enabled = true;
 	}
 
 	internal void ChangeCameraIsInVehicle(bool isInVehicle)
 	{
-		if (isInVehicle && !helmCameraIsInVehicle)
+		using (var log = new LogContext(nameof(ChangeCameraIsInVehicle), isInVehicle))
 		{
-			seatOrigin = helmSeatController.Reparent(trailSpaceCameraContainer);
-		}
-		else if (!isInVehicle && helmCameraIsInVehicle)
-		{
-			seatOrigin.Restore();
-		}
+			if (isInVehicle && !helmCameraIsInVehicle)
+			{
+				if (helmSeatController.transform.parent != trailSpaceCameraContainer)
+				{
+					log.Write(
+						$"Camera is in vehicle but helm camera was not previously. Recording vehicle seat origin then reparenting");
 
-		SetCameraIsInVehicle(isInVehicle, false);
+					inVehicleSeatOrigin = helmSeatController.Reparent(trailSpaceCameraContainer);
+				}
+				else
+				{
+					log.Error(
+						$"Helm seat controller is already in trail space camera container. This should not happen. Parent: {helmSeatController.transform.parent.NiceName()}");
+				}
+				//if (helmSeatController.transform.parent != trailSpaceCameraContainer)
+				//{}
+			}
+			else if (!isInVehicle && helmCameraIsInVehicle)
+			{
+				log.Write(
+					$"Camera is no longer in vehicle but helm camera was previously. Restoring vehicle seat origin");
+				inVehicleSeatOrigin.Restore();
+			}
+
+			SetCameraIsInVehicle(isInVehicle, false);
 
 
 
-		helmCameraIsInVehicle = isInVehicle;
-		if (helmCameraIsInVehicle)
-		{
-			ReintegrateTrailSpace();
-		}
-		else
-		{
-			OffloadTrailSpace();
+			helmCameraIsInVehicle = isInVehicle;
+			if (helmCameraIsInVehicle)
+			{
+				ReintegrateTrailSpace();
+			}
+			else
+			{
+				OffloadTrailSpace();
+			}
+
 		}
 	}
 
@@ -383,111 +430,142 @@ public class ArchonControl : MonoBehaviour
 	internal Vector3 GetHelmCameraCenter()
 	{
 		return helmCameraIsInVehicle
-			? transform.TransformPoint(seatOrigin.Transform.Position)
+			? transform.TransformPoint(inVehicleSeatOrigin.Transform.Position)
 			: helmSeatController.transform.position;
 	}
 
 	private void SetCameraIsInVehicle(bool isInVehicle, bool withCollidersAndLights)
 	{
-		Log.Write($"Setting camera is in vehicle: {isInVehicle}, withCollidersAndLights = {withCollidersAndLights}");
-		CameraIsInVehicle = isInVehicle;
-		interior.gameObject.SetActive(isInVehicle);
-		UpdateInteriorCollidersAndLights(isInVehicle && withCollidersAndLights);
-
-		exteriorInteriorShadowCaster.enabled = isInVehicle;
-		interiorExteriorShadowCaster.enabled = isInVehicle;
-		if (exteriorModel)
+		using (var Log = new LogContext(nameof(SetCameraIsInVehicle), isInVehicle, withCollidersAndLights))
 		{
-			exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c => c.shadowCastingMode = isInVehicle ? UnityEngine.Rendering.ShadowCastingMode.Off : UnityEngine.Rendering.ShadowCastingMode.On);
-		}
-		var seatHoverEngine = GetComponentInChildren<SeatEngine>();
-		if (seatHoverEngine)
-			seatHoverEngine.enabled = isInVehicle;
 
-		Log.Write($"Setting exterior colliders to {!isInVehicle || !withCollidersAndLights}");
-		SetRenderAndCollisionActive(exterior, !isInVehicle || !withCollidersAndLights);
-		SetCollisionActive(helmSeatController.transform, isInVehicle && withCollidersAndLights);
+			Log.Write(
+				$"Setting camera is in vehicle: {isInVehicle}, withCollidersAndLights = {withCollidersAndLights}");
+			CameraIsInVehicle = isInVehicle;
+			interior.gameObject.SetActive(isInVehicle);
+			UpdateInteriorCollidersAndLights(isInVehicle && withCollidersAndLights);
+
+			exteriorInteriorShadowCaster.enabled = isInVehicle;
+			interiorExteriorShadowCaster.enabled = isInVehicle;
+			if (exteriorModel)
+			{
+				exteriorModel.GetComponentsInChildren<Renderer>().ForEach(c =>
+					c.shadowCastingMode = isInVehicle
+						? UnityEngine.Rendering.ShadowCastingMode.Off
+						: UnityEngine.Rendering.ShadowCastingMode.On);
+			}
+
+			var seatHoverEngine = GetComponentInChildren<SeatEngine>();
+			if (seatHoverEngine)
+				seatHoverEngine.enabled = isInVehicle;
+
+			Log.Write($"Setting exterior colliders to {!isInVehicle || !withCollidersAndLights}");
+			SetRenderAndCollisionActive(exterior, !isInVehicle || !withCollidersAndLights);
+			SetCollisionActive(helmSeatController.transform, isInVehicle && withCollidersAndLights);
+		}
 	}
 
 	public void Exit()
 	{
-		Log.Write($"Offboarding");
-
-		SetCameraIsInVehicle(false, false);
-
-		evacuateIntruders.enabled = false;
-		checkFloatingCharacterForSeconds = 0;
-		if (boardedBy)
+		using (var Log = new LogContext(nameof(Exit)))
 		{
-			boardedBy = default;
-			RigidbodyUtil.UnsetKinematic(rb);
-			shouldBeKinematic = false;
+			Log.Write($"Offboarding");
+
+			SetCameraIsInVehicle(false, false);
+
+			evacuateIntruders.enabled = false;
+			checkFloatingCharacterForSeconds = 0;
+			if (boardedBy)
+			{
+				boardedBy = default;
+				RigidbodyUtil.UnsetKinematic(rb);
+				shouldBeKinematic = false;
+			}
+
+			helmSeatController.MoveToControlPosition();
 		}
-		helmSeatController.MoveToControlPosition();
 	}
 
 
 	public void Control(PlayerReference player)
 	{
-		wasEverBoarded = true;
-		checkFloatingCharacterForSeconds = 0;
-		lastOnboarded = DateTime.Now;
-		forceAutoLevelInSeconds = float.MaxValue;
-		if (!currentlyControlled)
+		using (var Log = new LogContext(nameof(Control), player))
 		{
-			Log.Write($"Controlling");
-
-			controlledBy = player;
-			Exit();
-
-			BoardingListeners listeners = BoardingListeners.Of(this, trailSpace);
-
-			listeners.SignalEnterControlBegin();
-
-			cameraRoot = player.CameraRoot;
-			if (!cameraRoot)
+			wasEverBoarded = true;
+			checkFloatingCharacterForSeconds = 0;
+			lastOnboarded = DateTime.Now;
+			forceAutoLevelInSeconds = float.MaxValue;
+			if (!currentlyControlled)
 			{
-				cameraRoot = Camera.main.transform;
+				Log.Write($"Controlling");
+
+				controlledBy = player;
+				Exit();
+
+				BoardingListeners listeners = BoardingListeners.Of(this, trailSpace);
+
+				listeners.SignalEnterControlBegin();
+
+				cameraRoot = player.CameraRoot;
+				if (!cameraRoot)
+				{
+					cameraRoot = Camera.main.transform;
+				}
+
+				Log.Write($"Setting {cameraRoot} as cameraRoot");
+				CameraUtil.primaryFallbackCameraTransform = cameraRoot;
+				cameraParentageBeforeControl = Parentage.FromLocal(cameraRoot);
+
+				helmSeatController.MoveToControlPosition();
+				preBoardedPlayer = helmSeatController.SeatPlayer(player);
+				cameraIsInTrailspace = false; //just in case
+				//if (!zoomedInIsCockpit || !positionCamera.isFirstPerson)
+				MoveCameraToTrailSpace();
+				//else
+				//    SetCameraIsInVehicle(true, false);
+				if (!helmCameraIsInVehicle)
+				{
+					OffloadTrailSpace();
+				}
+
+				currentlyControlled = true;
+
+				player.DisableCollidersAndRigidbodies(controlUndo);
+
+				listeners.SignalEnterControlEnd();
+
+				if (!UseFreeCamera)
+				{
+					ChangeState(CameraState.IsBound);
+					rotateCamera.CopyOrientationFrom(transform);
+				}
+
 			}
-
-			Log.Write($"Setting {cameraRoot} as cameraRoot");
-			CameraUtil.primaryFallbackCameraTransform = cameraRoot;
-			onboardLocalizedTransform = Parentage.FromLocal(cameraRoot);
-
-			helmSeatController.MoveToControlPosition();
-			cameraIsInTrailspace = false;//just in case
-										 //if (!zoomedInIsCockpit || !positionCamera.isFirstPerson)
-			MoveCameraToTrailSpace();
-			//else
-			//    SetCameraIsInVehicle(true, false);
-			if (!helmCameraIsInVehicle)
-			{
-				OffloadTrailSpace();
-			}
-
-			currentlyControlled = true;
-
-			player.DisableCollidersAndRigidbodies(controlUndo);
-
-			listeners.SignalEnterControlEnd();
+			
 		}
 	}
 	private void OffloadTrailSpace()
 	{
-		if (trailSpace.parent != transform.parent)
+		using (var Log = new LogContext(nameof(OffloadTrailSpace)))
 		{
-			Log.Write($"Offloading trail space");
-			trailSpace.parent = transform.parent;
+			if (trailSpace.parent != transform.parent)
+			{
+				Log.Write($"Offloading trail space");
+				trailSpace.parent = transform.parent;
+			}
 		}
 
 	}
 
 	private void ReintegrateTrailSpace()
 	{
-		if (trailSpace.parent != transform)
+		using (var Log = new LogContext(nameof(ReintegrateTrailSpace)))
 		{
-			Log.Write($"Reintegrating trail space");
-			trailSpace.parent = transform;
+			if (trailSpace.parent != transform)
+			{
+				Log.Write($"Reintegrating trail space");
+				trailSpace.parent = transform;
+			}
 		}
 	}
 
@@ -498,36 +576,41 @@ public class ArchonControl : MonoBehaviour
 
 	public bool ExitControl(PlayerReference player, bool skipOrientation = false)
 	{
-		if (currentlyControlled && !outOfWater)
+		using (var Log = new LogContext(nameof(ExitControl), player, skipOrientation))
 		{
-
-			Log.Write($"Exiting control");
-
-
-			controlUndo.UndoAndClear();
-			BoardingListeners listeners = BoardingListeners.Of(this, trailSpace);
-			try
+			if (currentlyControlled && !outOfWater)
 			{
 
-				listeners.SignalExitControlBegin();
+				Log.Write($"Exiting control");
 
-				MoveCameraOutOfTrailSpace(true);
-				Log.Write($"Restoring parentage");
-				onboardLocalizedTransform.Restore();
-			}
-			finally
-			{
-				currentlyControlled = false;
-				ReintegrateTrailSpace();
+
+				controlUndo.UndoAndClear();
+				BoardingListeners listeners = BoardingListeners.Of(this, trailSpace);
+				try
+				{
+
+					listeners.SignalExitControlBegin();
+
+					MoveCameraOutOfTrailSpace(true);
+					Log.Write($"Restoring parentage");
+					cameraParentageBeforeControl.Restore();
+				}
+				finally
+				{
+					currentlyControlled = false;
+					ReintegrateTrailSpace();
+				}
+
+				controlledBy = default;
+				Enter(player, skipOrientation);
+				preBoardedPlayer.Restore();
+				helmSeatController.MoveToParkPosition();
+				listeners.SignalExitControlEnd();
+				return true;
 			}
 
-			controlledBy = default;
-			Enter(player, skipOrientation);
-			helmSeatController.MoveToParkPosition();
-			listeners.SignalExitControlEnd();
-			return true;
+			return false;
 		}
-		return false;
 	}
 
 	private void Awake()
@@ -810,6 +893,7 @@ public class ArchonControl : MonoBehaviour
 
 			if (currentCameraCenterIsCockpit != cameraCenterIsCockpit && currentlyControlled)
 			{
+				Log.Write($"Forcing camera into vehicle cockpit: {cameraCenterIsCockpit}");
 				currentCameraCenterIsCockpit = cameraCenterIsCockpit;
 				if (currentCameraCenterIsCockpit)
 				{
@@ -1219,7 +1303,7 @@ public class ArchonControl : MonoBehaviour
 
 				if (checkFloatingCharacterForSeconds > 0 && !onLeave)
 				{
-					GameObject player = boardedBy.Root;
+					//GameObject player = boardedBy.Root;
 					//if (player && player.transform && interiorCollider && interiorCollider.enabled)
 					//{
 					//    var hits = Physics.RaycastAll(new Ray(player.transform.position, Vector3.down), 100);
