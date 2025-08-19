@@ -1,5 +1,6 @@
 using Assets.Behavior.Adapters;
 using Behavior.Util;
+using Behavior.Util.Log;
 using UnityEngine;
 
 public static class RigidbodyUtil

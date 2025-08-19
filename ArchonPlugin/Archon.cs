@@ -174,7 +174,7 @@ namespace Subnautica_Archon
 
         public override void OnFinishedLoading()
         {
-            using var log = new LogContext(nameof(OnFinishedLoading));
+            using var log = new LogContext(this, nameof(OnFinishedLoading));
             
             log.Write($"Comparing colors {BaseColor} and {StripeColor}");
             if (BaseColor == VehicleColor.Default && StripeColor == VehicleColor.Default)
@@ -251,7 +251,9 @@ namespace Subnautica_Archon
 
         public static GameObject GetAssets()
         {
-            using var log = new LogContext(nameof(GetAssets));
+            using var log = new LogContext(
+                new LogWriter(prefix: $"Prefab", "Mod"),
+                nameof(GetAssets));
             
             try
             {
@@ -311,7 +313,7 @@ namespace Subnautica_Archon
 
         public override void Awake()
         {
-            using var log = new LogContext(nameof(Awake));
+            using var log = new LogContext(this, nameof(Awake));
             
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
 
@@ -434,7 +436,7 @@ namespace Subnautica_Archon
         private Coroutine? autoLevelRoutine;
         public override void DeselectSlots()
         {
-            using var log = new LogContext(nameof(DeselectSlots));
+            using var log = new LogContext(this, nameof(DeselectSlots));
             if (exitLimitsSuspended)
                 base.DeselectSlots();
             else
@@ -451,7 +453,7 @@ namespace Subnautica_Archon
         {
             if (autoLevelRoutine != null)
             {
-                using var log = new LogContext(nameof(AbortAutoLeveling));
+                using var log = new LogContext(this, nameof(AbortAutoLeveling));
                 
                 log.Write("Exit loop in progress. Aborting");
                 StopCoroutine(autoLevelRoutine);
@@ -520,7 +522,7 @@ namespace Subnautica_Archon
         {
             if (!isInitialized)
             {
-                using var log = new LogContext(nameof(LazyInit));
+                using var log = new LogContext(this, nameof(LazyInit));
                 log.Write($"LocalInit() first time");
                 isInitialized = true;
                 try
@@ -608,7 +610,7 @@ namespace Subnautica_Archon
 
         public override void Start()
         {
-            using var log = new LogContext(nameof(Start));
+            using var log = new LogContext(this, nameof(Start));
             try
             {
 
@@ -627,7 +629,7 @@ namespace Subnautica_Archon
 
         protected override void OnPrePlayerEntry()
         {
-            using var log = new LogContext(nameof(OnPrePlayerEntry));
+            using var log = new LogContext(this, nameof(OnPrePlayerEntry));
             
             Control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended || !hadUnpausedFrame);
             HudPingInstance.SetHudIcon(false);
@@ -647,7 +649,7 @@ namespace Subnautica_Archon
 
         protected override void OnPreBeginHelmControl(Helm helm)
         {
-            using var log = new LogContext(nameof(OnPreBeginHelmControl));
+            using var log = new LogContext(this, nameof(OnPreBeginHelmControl));
             try
             {
                 base.OnPreBeginHelmControl(helm);
@@ -673,7 +675,7 @@ namespace Subnautica_Archon
 
         protected override void OnBeginHelmControl(Helm helm)
         {
-            using var log = new LogContext(nameof(OnBeginHelmControl));
+            using var log = new LogContext(this, nameof(OnBeginHelmControl));
             try
             {
                 base.OnBeginHelmControl(helm);
@@ -690,7 +692,7 @@ namespace Subnautica_Archon
 
         protected override void OnPreEndHelmControl()
         {
-            using var log = new LogContext(nameof(OnPreEndHelmControl));
+            using var log = new LogContext(this, nameof(OnPreEndHelmControl));
             try
             {
 
@@ -705,7 +707,7 @@ namespace Subnautica_Archon
 
         protected override void OnEndHelmControl()
         {
-            using var log = new LogContext(nameof(OnEndHelmControl));
+            using var log = new LogContext(this, nameof(OnEndHelmControl));
             try
             {
                 base.OnEndHelmControl();
@@ -748,7 +750,7 @@ namespace Subnautica_Archon
 
         private void SetWaterProxiesEnabled(bool enable)
         {
-            using var log = new LogContext(nameof(SetWaterProxiesEnabled), enable);
+            using var log = new LogContext(this, nameof(SetWaterProxiesEnabled), enable);
             var clipProxyParent = transform.Find("WaterClipProxy");
             var seamoth = PrefabLoader.Request(TechType.Seamoth).Instance;
             if (seamoth == null)

@@ -2,6 +2,7 @@
 using System;
 using System.Text;
 using Behavior.Util;
+using Behavior.Util.Log;
 using TMPro;
 using UnityEngine;
 

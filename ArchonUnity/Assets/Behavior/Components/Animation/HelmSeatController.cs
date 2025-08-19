@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Assets.Behavior.Adapters;
 using Behavior.Util;
+using Behavior.Util.Log;
 using UnityEngine;
 
 public class HelmSeatController : MonoBehaviour

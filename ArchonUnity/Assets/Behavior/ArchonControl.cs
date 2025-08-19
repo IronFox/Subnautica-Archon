@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Behavior.Util;
+using Behavior.Util.Log;
 using UnityEngine;
 
 #pragma warning disable IDE0090
