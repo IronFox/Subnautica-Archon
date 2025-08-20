@@ -22,7 +22,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Behavior.Util;
 using UnityEngine;
 using Logger = AVS.Logger;
 
@@ -31,7 +30,7 @@ namespace Subnautica_Archon
 
 
 
-    public class Archon : Submarine, IPowerListener, IProtoTreeEventListener, IAutopilotEventListener
+    public class Archon : Submarine, IPowerListener, IAutopilotEventListener
     {
         public static GameObject? staticModel;
         private ArchonControl? control;
@@ -57,10 +56,10 @@ namespace Subnautica_Archon
         public MassDrive Engine => engine.OrThrow(
             () => new InvalidOperationException($"Trying to access Engine before Awake()"));
         private EnergyInterface? energyInterface;
-        private int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
+        private readonly int[] moduleCounts = new int[Enum.GetValues(typeof(ArchonModule)).Length];
 
-        private bool? clippingWater = null;
-        private bool isInCriticalRecovery = false;
+        private bool? clippingWater;
+        private bool isInCriticalRecovery;
         private Dictionary<string, VoiceLibrary> VoiceLibraries { get; } = new Dictionary<string, VoiceLibrary>();
 
 
@@ -172,6 +171,8 @@ namespace Subnautica_Archon
             }
         }
 
+        public static Pickupable? AutoAddEmergencyTeleport { get; set; }
+
         public override void OnFinishedLoading()
         {
             using var log = new LogContext(this, nameof(OnFinishedLoading));
@@ -185,20 +186,20 @@ namespace Subnautica_Archon
             }
 
 
-            if (autoAddEmergencyTeleport != null)
+            if (AutoAddEmergencyTeleport != null)
             {
                 var cnt = modules.GetCount(EmergencyTeleportationModule.Type);
                 if (cnt == 0)
                 {
-                    log.Write($"onAwakeSlot is set to {autoAddEmergencyTeleport.NiceName()}. Instantiating");
-                    var instance = Instantiate(autoAddEmergencyTeleport.gameObject, modulesRoot.transform).GetComponent<Pickupable>();
+                    log.Write($"onAwakeSlot is set to {AutoAddEmergencyTeleport.NiceName()}. Instantiating");
+                    var instance = Instantiate(AutoAddEmergencyTeleport.gameObject, modulesRoot.transform).GetComponent<Pickupable>();
                     instance.transform.SetParent(modulesRoot.transform, false);
                     instance.gameObject.SetActive(false);
                     //var instance = autoAddEmergencyTeleport;
                     log.Write($"Slotting instance {instance.NiceName()}");
                     InventoryItem thisItem = new InventoryItem(instance);
                     bool success = false;
-                    foreach (var slot in slotIDs)
+                    foreach (var slot in slotIDs.Reverse())
                     {
                         if (modules.AddItem(slot, thisItem, true))
                         {
@@ -210,11 +211,11 @@ namespace Subnautica_Archon
                     if (!success)
                     {
                         log.Error($"Failed to slot {instance.NiceName()} anywhere");
-                        Destroy(instance!.gameObject);
+                        Destroy(instance.gameObject);
                     }
                 }
                 else
-                    log.Write($"onAwakeSlot is set to {autoAddEmergencyTeleport.NiceName()}. But Emergency Teleportation Module ({EmergencyTeleportationModule.Type.AsString()}) already exists ({cnt} instances). Not instantiating");
+                    log.Write($"onAwakeSlot is set to {AutoAddEmergencyTeleport.NiceName()}. But Emergency Teleportation Module ({EmergencyTeleportationModule.Type.AsString()}) already exists ({cnt} instances). Not instantiating");
             }
             else
                 log.Write($"onAwakeSlot is not set");
@@ -301,8 +302,8 @@ namespace Subnautica_Archon
         }
 
 
-        private bool isInitialized = false;
-        private bool hadUnpausedFrame = false;
+        private bool isInitialized;
+        private bool hadUnpausedFrame;
 
         public override void SubConstructionComplete()
         {
@@ -318,13 +319,13 @@ namespace Subnautica_Archon
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
 
 
-            BayControl.OnDockingFailedFull = (archon, d) =>
+            BayControl.OnDockingFailedFull = (_, _) =>
             {
                 Log.Write($"full");
                 AVS.Logger.PDANote("Cannot dock: Hangar is full", 3f);
             };
 
-            BayControl.OnDockingFailedTooLarge = (archon, d) =>
+            BayControl.OnDockingFailedTooLarge = (_, _) =>
             {
                 Log.Write($"too large");
                 AVS.Logger.PDANote("Cannot dock: Your vehicle is too large", 3f);
@@ -470,7 +471,6 @@ namespace Subnautica_Archon
         {
             Log.Write(nameof(AutoLevelThenExit));
             var voiceLibrary = GetVoiceLibrary();
-            AudioClip? voice;
             if (Control.IsLevel)
             {
                 Log.Write("Archon is level. Exiting now");
@@ -482,15 +482,15 @@ namespace Subnautica_Archon
             }
 
             Log.Write("Archon is not level. Leveling out");
-            voice = voiceLibrary?.GetRandomAutoLeveling();
-            VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Starting", 0));
+            var voice = voiceLibrary?.GetRandomAutoLeveling();
+            VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Starting"));
 
             Control.doAutoLevel = true;
             //var timewindow = TimeSpan.FromSeconds(5);
             //var deadline = DateTime.Now + timewindow;
             float timewindow = 5;
             var remaining = timewindow;
-            while (Control.doAutoLevel && !Control.IsLevel && remaining > 0)
+            while (Control is { doAutoLevel: true, IsLevel: false } && remaining > 0)
             {
                 remaining -= Time.deltaTime;
                 yield return null;
@@ -512,7 +512,7 @@ namespace Subnautica_Archon
                     Log.Write("Archon is not level. Not exiting");
 
                     voice = voiceLibrary?.GetRandomAutoLevelingHasFailed();
-                    VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Failed", 0));
+                    VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Failed"));
                 }
             }
         }
@@ -730,14 +730,14 @@ namespace Subnautica_Archon
             }
         }
 
-        private bool fixedUpdateError = false;
-        private bool wasAboveWater = false;
+        private bool fixedUpdateError;
+        private bool wasAboveWater;
 
         private PARAMETER_ID verticalVelocitySoundIndex = FMODUWE.invalidParameterId;
         private void PlaySplashSound()
         {
             EventInstance ev = FMODUWE.GetEvent(splashSound);
-            ev.set3DAttributes(base.transform.position.To3DAttributes());
+            ev.set3DAttributes(transform.position.To3DAttributes());
             if (FMODUWE.IsInvalidParameterId(verticalVelocitySoundIndex))
             {
                 verticalVelocitySoundIndex = FMODUWE.GetEventInstanceParameterIndex(ev, "verticalVelocity");
@@ -797,9 +797,9 @@ namespace Subnautica_Archon
                         {
                             WaterClipProxy waterClip = go.AddComponent<WaterClipProxy>();
                             waterClip.shape = WaterClipProxy.Shape.Box;
-                            //"""Apply the seamoth's clip material. No idea what shader it uses or what settings it actually has, so this is an easier option. Reuse the game's assets.""" -Lee23
+                            //"""Apply the SeaMoth's clip material. No idea what shader it uses or what settings it actually has, so this is an easier option. Reuse the game's assets.""" -Lee23
                             waterClip.clipMaterial = seamothWCP.clipMaterial;
-                            //"""You need to do this. By default the layer is 0. This makes it displace everything in the default rendering layer. We only want to displace water.""" -Lee23
+                            //"""You need to do this. By default, the layer is 0. This makes it displace everything in the default rendering layer. We only want to displace water.""" -Lee23
                             waterClip.gameObject.layer = seamothWCP.gameObject.layer;
                         }
                     }
@@ -812,7 +812,7 @@ namespace Subnautica_Archon
                 log.Write("Clip proxies or seamoth not found. Can't adjust right now");
         }
 
-        public bool ClipWater => Control.CameraIsInVehicle && !Control.BoardedByHeadless;
+        public bool ClipWater => Control is { CameraIsInVehicle: true, BoardedByHeadless: false };
         public string ClipWaterS => $"CameraIsInVehicle={Control.CameraIsInVehicle} && !(BoardedByHeadless = {Control.BoardedByHeadless})";
 
 
@@ -1065,13 +1065,6 @@ namespace Subnautica_Archon
         private bool HasModule(ArchonModule module)
             => moduleCounts[(int)module] > 0;
 
-        private int HighestModule(params ArchonModule[] m)
-        {
-            for (int i = m.Length - 1; i >= 0; i--)
-                if (HasModule(m[i]))
-                    return i + 1;
-            return 0;
-        }
 
         public ArchonModule HighestModuleType(params ArchonModule[] m)
         {
@@ -1083,6 +1076,7 @@ namespace Subnautica_Archon
 
         //private MaterialFixer MaterialFixer;
 
+        // ReSharper disable twice NotAccessedField.Local
         private Color nonBlackBaseColor;
         private Color nonBlackStripeColor;
 
@@ -1093,24 +1087,8 @@ namespace Subnautica_Archon
         //    SetStripeColor(Vector3.zero, nonBlackStripeColor);
         //}
 
-        private static float SecondaryEulerZeroDistance(float euler)
-        {
-            return euler > 180f
-                ? 360f - euler  //mirror around
-                : euler;
-        }
 
-
-        private MenuTracker MenuTracker { get; } = new MenuTracker();
-
-        private IEnumerator ReenableColliders()
-        {
-            yield return new WaitForSeconds(0.1f);
-            Log.Write("Reenabling colliders");
-
-            Control.interiorColliders.gameObject.SetActive(true);
-        }
-
+        private MenuTracker MenuTracker { get; } = new();
 
 
         public override void Update()
@@ -1424,8 +1402,7 @@ namespace Subnautica_Archon
 
         private bool exitLimitsSuspended = false;
 
-        [SerializeField]
-        internal Pickupable? autoAddEmergencyTeleport;
+
         [SerializeField]
         private MaterialReactor? reactor;
 
@@ -1436,54 +1413,6 @@ namespace Subnautica_Archon
         internal void RestoreAutoLeveling()
         {
             exitLimitsSuspended = false;
-        }
-
-        //public void ToggleSlot(QuickSlot slot, bool enabled)
-        //{
-        //    base.ToggleSlot(slot.Index, enabled);
-        //}
-
-        private readonly Undoable disabledCameras = new Undoable();
-        //private QuickSlot? refreshQuickslotsOnControl;
-        //internal void SignalQuickslotsChangedWhileLoading(QuickSlot slot)
-        //{
-        //    refreshQuickslotsOnControl = slot;
-        //}
-        //internal void SignalQuickslotsChangedWhilePiloting(QuickSlot slot)
-        //{
-        //    Log.Write(nameof(SignalQuickslotsChangedWhilePiloting));
-        //    if (!Control.IsBeingControlled)
-        //    {
-        //        Log.Write($"Not actually piloting. Ignoring");
-        //        return;
-        //    }
-        //    //var qs = uGUI.main.quickSlots;
-        //    //new MethodAdapter<uGUI_ItemIcon, TechType>(qs, "SetForeground")
-        //    //    .Invoke(qs.GetIcon(slot.Index), TechType.None);
-        //    //new MethodAdapter<uGUI_ItemIcon, TechType, bool>(qs, "SetBackground")
-        //    //    .Invoke(qs.GetIcon(slot.Index), TechType.None, false);
-
-        //    SuspendAutoLeveling();
-        //    base.DeselectSlots();
-        //    RestoreAutoLeveling();
-        //    //foreach (var mbehavior in GetComponentsInChildren<MonoBehaviour>())
-        //    //    SimulateUpdate(mbehavior);
-        //    //foreach (var mbehavior in Player.main.GetComponentsInChildren<MonoBehaviour>())
-        //    //    SimulateUpdate(mbehavior);
-        //    //BeginPiloting();
-
-        //    Player.main.camRoot
-        //        .GetComponentsInChildren<Camera>()
-        //        .ToEnabled()
-        //        .DisableAllEnabled(disabledCameras);
-        //    StartCoroutine(ReenterNextFrame());
-        //}
-
-        private IEnumerator ReenterNextFrame()
-        {
-            yield return null;
-            BeginHelmControl(Com.Helms[0]);
-            disabledCameras.UndoAll();
         }
 
 
@@ -1596,8 +1525,6 @@ namespace Subnautica_Archon
             {
                 Log.Write($"Water tank not found");
             }
-            var innateStorages = new List<VehicleStorage>();
-
             List<GameObject> waterClipProxies = new List<GameObject>();
             var clipProxies = transform.Find("WaterClipProxy");
             foreach (Transform proxy in clipProxies)
@@ -1737,11 +1664,11 @@ namespace Subnautica_Archon
             return new SubmarineComposition(
                 engine: engine,
                 hatches: hatchList,
-                collisionModel: new GameObject[] { transform.Find("CollisionModel").gameObject },
+                collisionModel: [ transform.Find("CollisionModel").gameObject ],
                 boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
                 storageRootObject: storageRootTransform.gameObject,
                 modularStorages: modularStorageList,
-                innateStorages: innateStorages,
+                innateStorages: [],
                 waterClipProxies: waterClipProxies,
                 upgrades: upgrades,
                 batteries: batteries,
@@ -1777,11 +1704,11 @@ namespace Subnautica_Archon
                             {
                                 gaps.Add(0.1f);
                             }
-                            if (Autopilot.HealthStatus == AutopilotStatus.HealthSafe
-                                && Autopilot.PowerStatus == AutopilotStatus.PowerSafe
-                                && Autopilot.DepthStatus == AutopilotStatus.DepthSafe
-
-                                )
+                            if (Autopilot is { 
+                                HealthStatus: AutopilotStatus.HealthSafe,
+                                PowerStatus: AutopilotStatus.PowerSafe,
+                                DepthStatus: AutopilotStatus.DepthSafe
+                            })
                             {
                                 if (!isCombined) //combined welcome does not blend well with status green voice
                                 {
@@ -1813,7 +1740,8 @@ namespace Subnautica_Archon
                                 switch (Autopilot.DepthStatus)
                                 {
                                     case AutopilotStatus.DepthBeyondCrush:
-                                        voices.AddRange(voiceLibrary?.GetRandomDepthCritical());
+                                        if (voiceLibrary != null)
+                                            voices.AddRange(voiceLibrary.GetRandomDepthCritical());
                                         break;
                                     case AutopilotStatus.DepthNearCrush:
                                         voices.Add(voiceLibrary?.GetRandomDepthDangerous());
@@ -1821,7 +1749,7 @@ namespace Subnautica_Archon
                                 }
                             }
                         }
-                        VoiceQueue.Play(new VoiceLine(voices, gaps, "Subtitle.Voice.Welcome", 0));
+                        VoiceQueue.Play(new VoiceLine(voices, gaps, "Subtitle.Voice.Welcome"));
 
                     }
                     break;
