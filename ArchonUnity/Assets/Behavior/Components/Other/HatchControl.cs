@@ -10,6 +10,15 @@ public class HatchControl : MonoBehaviour
     public bool wasPlaying = false;
     public SoundAdapter whirlSound;
     public SoundAdapter slideSound;
+
+    private float initialWhirlSoundVolume;
+
+    void Awake()
+    {
+        if (whirlSound)
+            initialWhirlSoundVolume = whirlSound.volume;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -68,7 +77,7 @@ public class HatchControl : MonoBehaviour
         {
             float v = Interval(progress, 0, 0.7f);
             whirlSound.play = v > 0;
-            whirlSound.volume = v;
+            whirlSound.volume = v*initialWhirlSoundVolume;
             whirlSound.pitch = 0.5f + 0.3f * progress;
         }
         if (slideSound != null)
