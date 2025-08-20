@@ -1429,47 +1429,63 @@ public class ArchonControl : MonoBehaviour
 
 	public void UndockSelected()
 	{
-		if (selectedDockable == null)
+		using (var log = new LogContext(nameof(UndockSelected)))
 		{
-			Log.LogWarning("UndockSelected called without selected dockable");
-			return;
+			if (selectedDockable == null)
+			{
+				Log.LogWarning("UndockSelected called without selected dockable");
+				return;
+			}
+
+			bayControl.Undock(selectedDockable.GameObject);
 		}
-		bayControl.Undock(selectedDockable.GameObject);
 	}
 
 	public void SelectLeft()
 	{
-		if (selectedDockable == null)
+		using (var log = new LogContext(nameof(SelectLeft)))
 		{
-			return;
-		}
+			if (selectedDockable == null)
+			{
+				log.Warn("SelectLeft called without selected dockable");
+				return;
+			}
 
-		List<IDockable> docked = bayControl.Docked.ToList();
-		int idx = docked.IndexOf(selectedDockable);
-		selectedDockable = idx < 0 ? docked.FirstOrDefault() : docked[(idx - 1 + docked.Count) % docked.Count];
-		SignalDockableSelectedOrChanged();
+			List<IDockable> docked = bayControl.Docked.ToList();
+			int idx = docked.IndexOf(selectedDockable);
+			selectedDockable = idx < 0 ? docked.FirstOrDefault() : docked[(idx - 1 + docked.Count) % docked.Count];
+			SignalDockableSelectedOrChanged();
+		}
 	}
 
 	public int SelectedDockedIndex =>
 		bayControl.Docked.IndexOf(selectedDockable);
 	public void SelectRight()
 	{
-		if (selectedDockable == null)
+		using (var log = new LogContext(nameof(SelectRight)))
 		{
-			return;
-		}
 
-		List<IDockable> docked = bayControl.Docked.ToList();
-		int idx = docked.IndexOf(selectedDockable);
-		selectedDockable = idx < 0 ? docked.FirstOrDefault() : docked[(idx + 1) % docked.Count];
-		SignalDockableSelectedOrChanged();
+			if (selectedDockable == null)
+			{
+				log.Warn("SelectLeft called without selected dockable");
+				return;
+			}
+
+			List<IDockable> docked = bayControl.Docked.ToList();
+			int idx = docked.IndexOf(selectedDockable);
+			selectedDockable = idx < 0 ? docked.FirstOrDefault() : docked[(idx + 1) % docked.Count];
+			SignalDockableSelectedOrChanged();
+		}
 	}
 
 	private void SignalDockableSelectedOrChanged()
 	{
-		GetComponentsInChildren<IDockableSelectionListener>(true).ForEach(
-			listener => listener.OnDockableSelectedOrChanged(selectedDockable)
-			);
+		using (var log = new LogContext(nameof(SignalDockableSelectedOrChanged)))
+		{
+			GetComponentsInChildren<IDockableSelectionListener>(true)
+				.ForEach(listener => listener.OnDockableSelectedOrChanged(selectedDockable)
+				);
+		}
 	}
 	public void SignalDockedChange()
 	{

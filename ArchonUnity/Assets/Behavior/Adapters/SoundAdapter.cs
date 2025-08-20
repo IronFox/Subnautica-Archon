@@ -241,6 +241,8 @@ internal class DefaultSound : IInstantiatedSound
     public SoundConfig Config { get; private set; }
 
     public bool Died => !Source;
+    
+    private float hasPlayedFor = 0;
 
     public DefaultSound(AudioSource audioSource, SoundConfig config)
     {
@@ -262,12 +264,14 @@ internal class DefaultSound : IInstantiatedSound
         Source.maxDistance = cfg.MaxDistance;
         Source.minDistance = cfg.MinDistance;
         Source.spatialBlend = cfg.Is3D ? 1 : 0;
+        if (Source.isPlaying)
+            hasPlayedFor += Time.deltaTime;
         if (cfg.Volume < 0.01f)
         {
             if (Source.isPlaying)
                 Source.Stop();
         }
-        else if (!Source.isPlaying)
+        else if (!Source.isPlaying && (cfg.Loop || hasPlayedFor < cfg.AudioClip.length))
             Source.Play();
 
         Config = cfg;

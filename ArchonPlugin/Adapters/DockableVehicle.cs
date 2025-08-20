@@ -57,7 +57,7 @@ namespace Subnautica_Archon.Adapters
 
 
         public override string ToString()
-            => $"<Adapter>" + Vehicle.GetVehicleName();
+            => $"Dockable{{{Vehicle.NiceName()}, '{Vehicle.GetVehicleName()}'}}";
 
         private Bounds? bounds;
         public Bounds LocalBounds
@@ -71,24 +71,31 @@ namespace Subnautica_Archon.Adapters
         }
 
         private Sprite? image;
+        private bool imageLoaded = false;
         public Sprite? Image
         {
             get
             {
-                if (image is null)
+                if (!imageLoaded)
                 {
+                    imageLoaded = true;
+                    using var log = new LogContext(Log, nameof(Image));
                     var tt = CraftData.GetTechType(Vehicle.gameObject);
                     if (tt != TechType.None)
                     {
-                        image = SpriteManager.Get(tt);
+                        log.Write($"Fetching image for {tt.AsString()}" );
+                        image = SpriteManager.Get(tt, null);
                         if (image == null || image.texture == null)
                         {
-                            Log.Error($"Image for {Vehicle.NiceName()} does not exist. Using empty texture.");
+                            log.Error($"Image for {tt.AsString()} does not exist. Using empty texture.");
                         }
+                        else
+                            log.Write($"Image for {tt.AsString()} is {image.NiceName()} @r={image.rect}, tr={image.textureRect}, tro={image.textureRectOffset}");
+                        
                     }
                     else
                     {
-                        Log.Error($"Unable to get TechType for {Vehicle.NiceName()}");
+                        log.Error($"Unable to get TechType for {Vehicle.NiceName()}");
                         image = null;
                     }
                 }
@@ -96,22 +103,31 @@ namespace Subnautica_Archon.Adapters
             }
         }
 
+        private Sprite[]? moduleSprites = null;
         public Sprite[] Modules
         {
             get
             {
-                List<Sprite> textures = new List<Sprite>();
+                if (moduleSprites != null)
+                    return moduleSprites;
+                using var log = new LogContext(Log, nameof(Modules));
+                var list = new List<Sprite>();
+                int at = 0;
                 foreach (InventoryItem mod in (IItemsContainer)Vehicle.modules)
                 {
+                    at++;
                     if (mod.techType != TechType.None)
                     {
-                        var sprite = SpriteManager.Get(mod.techType);
+                        var sprite = SpriteManager.Get(mod.techType, null);
 
                         if (sprite != null)
-                            textures.Add(sprite);
+                        {
+                            log.Write($"Image for {at} {mod.techType.AsString()} is {sprite.NiceName()} @r={sprite.rect}, tr={sprite.textureRect}, tro={sprite.textureRectOffset}");
+                            list.Add(sprite);
+                        }
                     }
                 }
-                return textures.ToArray();
+                return moduleSprites = list.ToArray();
             }
         }
 
