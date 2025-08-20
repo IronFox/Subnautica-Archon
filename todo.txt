@@ -1,11 +1,20 @@
-after release:
+batch:
 
-	
+* bioreactor does not persist its contents
 * emergency teleport is reset and not pre-fitted when multiple archons are loaded
 * slot it into last slot instead
 * reduce airlock open whirl sound volume
 * charge docked craft
 * repair docked craft
+
+batch done:
+
+* fix docked sub type and module images
+* fix camera location when pda is open
+* add option to default to cockpit camera
+
+
+
 
 no:
 
