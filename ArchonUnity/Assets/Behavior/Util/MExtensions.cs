@@ -26,7 +26,7 @@ public static class MExtensions
         if (max == 0)
             return "??%";
         return ((float)x / max)
-            .ToString("#.##%", CultureInfo.InvariantCulture);
+            .ToString("#.#%", CultureInfo.CurrentCulture);
     }
 
     public static string Percentage(this float x, float max)
@@ -34,6 +34,6 @@ public static class MExtensions
         if (max == 0)
             return "??%";
         return (x / max)
-            .ToString("#.##%", CultureInfo.InvariantCulture);
+            .ToString("#.#%", CultureInfo.CurrentCulture);
     }
 }

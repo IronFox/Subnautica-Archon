@@ -170,7 +170,7 @@ namespace Subnautica_Archon.Adapters
                 {
                     return Text.Error(Language.main.Get("Dockable.Text.HealthUnknown"));
                 }
-                return Classify(Language.main.Get("Dockable.Text.Health"), mixin.health, mixin.maxHealth, false);
+                return Classify(Language.main.Get("Dockable.Text.Health"), mixin.health, mixin.maxHealth, mixin.health < mixin.maxHealth && Archon.WillRepairDocked);
             }
         }
         public Text PowerText

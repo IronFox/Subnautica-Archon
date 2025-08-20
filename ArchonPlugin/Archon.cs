@@ -846,10 +846,12 @@ namespace Subnautica_Archon
         }
         
         public bool WillRechargingDocked { get; private set; }
+        public bool WillRepairDocked { get; private set; }
 
         private void ProcessEnergyRecharge()
         {
 
+            WillRechargingDocked = false;
 
 
 
@@ -881,8 +883,6 @@ namespace Subnautica_Archon
                         }
                     }
                 }
-                else
-                    WillRechargingDocked = false;
 
                 //                var batteryMk = GetBatteryMark();
 
@@ -909,6 +909,7 @@ namespace Subnautica_Archon
 
             var delta = Time.deltaTime;
 
+            WillRepairDocked = false;
             if (liveMixin != null)
             {
 
@@ -957,36 +958,69 @@ namespace Subnautica_Archon
                         isInCriticalRecovery = false;
                         liveMixin.invincible = false;
                     }
-
-
                     else if (!Control.batteryDead)
                     {
                         float level = RepairModule.GetRelativeSelfRepair(RepairModule.GetFrom(this));
-
-                        if (liveMixin.health < liveMixin.maxHealth && level > 0)
+                        if (level > 0)
                         {
-                            var healing = liveMixin.maxHealth
-                                * delta
-                                * level
-                                //* 0.02f //max = 2% of max health per second
-                                //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //default will be 5 seconds per 1%
-                                ;
+                            WillRepairDocked = true;                             
+                            foreach (var docked in Control.bayControl.Docked)
+                            {
+                                if (docked is DockableVehicle v)
+                                {
+                                    var dockedLive = v.Vehicle.liveMixin;
+                                    if (dockedLive)
+                                    {
+                                        if (dockedLive.health < dockedLive.maxHealth)
+                                        {
+                                            var healing = dockedLive.maxHealth
+                                                          * delta
+                                                          * level;
+                                            var clamped = Mathf.Min(healing, dockedLive.maxHealth - dockedLive.health);
+                                            var effective = clamped / healing;
+                                            float energyDemand =
+                                                    10 * dockedLive.maxHealth / liveMixin.maxHealth //less health => less energy
+                                                    * delta
+                                                    //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //if slower, cost less
+                                                    * effective //if clamped, cost less
+                                                ;
+                                            PowerManager.TrySpendEnergy(energyDemand);
+                                            var actuallyHealed = clamped;
+                                            dockedLive.AddHealth(actuallyHealed);
+                                        }
+                                    }
+                                }
 
-                            var clamped = Mathf.Min(healing, liveMixin.maxHealth - liveMixin.health);
-                            var effective = clamped / healing;
-                            //Debug.Log($"Healing at delta={Time.deltaTime}");
-                            float energyDemand =
-                                10
-                                * delta
-                                //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //if slower, cost less
-                                * effective //if clamped, cost less
-                                ;
+                            }
 
-                            PowerManager.TrySpendEnergy(energyDemand);
-                            var actuallyHealed = clamped;
-                            liveMixin.AddHealth(actuallyHealed);
-                            Control.isHealing = true;
+
+
+                            if (liveMixin.health < liveMixin.maxHealth && level > 0)
+                            {
+                                var healing = liveMixin.maxHealth
+                                              * delta
+                                              * level
+                                    //* 0.02f //max = 2% of max health per second
+                                    //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //default will be 5 seconds per 1%
+                                    ;
+
+                                var clamped = Mathf.Min(healing, liveMixin.maxHealth - liveMixin.health);
+                                var effective = clamped / healing;
+                                //Debug.Log($"Healing at delta={Time.deltaTime}");
+                                float energyDemand =
+                                        10
+                                        * delta
+                                        //* MainPatcher.PluginConfig.selfHealingSpeed / 100   //if slower, cost less
+                                        * effective //if clamped, cost less
+                                    ;
+
+                                PowerManager.TrySpendEnergy(energyDemand);
+                                var actuallyHealed = clamped;
+                                liveMixin.AddHealth(actuallyHealed);
+                                Control.isHealing = true;
+                            }
                         }
+
                     }
                 }
                 Control.maxHealth = liveMixin.maxHealth;
