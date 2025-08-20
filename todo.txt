@@ -1,19 +1,19 @@
 batch:
 
-* bioreactor does not persist its contents
-* emergency teleport is reset and not pre-fitted when multiple archons are loaded
-* slot it into last slot instead
-* reduce airlock open whirl sound volume
-* charge docked craft
-* repair docked craft
+* check compatibility with vehicle framework on 2023
+	- can modules be added/moved around?
 
 batch done:
 
+* reduce airlock open whirl sound volume
 * fix docked sub type and module images
 * fix camera location when pda is open
 * add option to default to cockpit camera
-
-
+* emergency teleport is reset and not pre-fitted when multiple archons are loaded
+	- slot it into last slot instead
+* charge docked craft
+* repair docked craft if repair module is installed
+* fixed bioreactor does not persist its contents
 
 
 no:
