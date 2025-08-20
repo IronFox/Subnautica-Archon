@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using Subnautica_Archon.Adapters;
 using UnityEngine;
 using Logger = AVS.Logger;
 
@@ -843,12 +844,46 @@ namespace Subnautica_Archon
                 }
             }
         }
+        
+        public bool WillRechargingDocked { get; private set; }
 
         private void ProcessEnergyRecharge()
         {
 
+
+
+
             if (energyInterface != null)
             {
+                energyInterface.GetValues(out var myCharge, out var myCapacity);
+
+                if (myCharge > myCapacity * 0.05f && Time.deltaTime > 0)
+                {
+                    WillRechargingDocked = true;
+                    foreach (var docked in Control.bayControl.Docked)
+                    {
+                        if (docked is DockableVehicle v)
+                        {
+                            var dockedEnergyInterface = v.Vehicle.GetComponent<EnergyInterface>();
+                            if (dockedEnergyInterface != null)
+                            {
+                                dockedEnergyInterface.GetValues(out var dockedCharge, out var dockedCapacity);
+                                if (dockedCharge < dockedCapacity)
+                                {
+                                    float recharge = Mathf.Min(
+                                        0.005f * Time.deltaTime * dockedCapacity,
+                                        dockedCapacity - dockedCharge,
+                                        myCharge);
+                                    energyInterface.ConsumeEnergy(recharge);
+                                    dockedEnergyInterface.AddEnergy(recharge);
+                                }
+                            }
+                        }
+                    }
+                }
+                else
+                    WillRechargingDocked = false;
+
                 //                var batteryMk = GetBatteryMark();
 
                 //float level = 1;
@@ -861,9 +896,8 @@ namespace Subnautica_Archon
                 //    Time.deltaTime
                 //    * recharge
                 //    );
-                energyInterface.GetValues(out var energyCharge, out var energyCapacity);
-                Control.currentEnergy = energyCharge;
-                Control.maxEnergy = energyCapacity;
+                Control.currentEnergy = myCharge;
+                Control.maxEnergy = myCapacity;
 
 
             }

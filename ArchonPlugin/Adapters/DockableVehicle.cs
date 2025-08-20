@@ -135,9 +135,14 @@ namespace Subnautica_Archon.Adapters
 
         public string ClassName => Vehicle.GetType().Name + " Class";
 
-        private static Text Classify(string template, float current, float max)
+        private static Text Classify(string template, float current, float max, bool plus)
         {
             var text = string.Format(template, current.Percentage(max));
+            if (plus)
+            {
+                text += " >>";
+            }
+
             if (current < max * 0.25f)
                 return Text.Error(text);
             if (current < max * 0.5f)
@@ -165,7 +170,7 @@ namespace Subnautica_Archon.Adapters
                 {
                     return Text.Error(Language.main.Get("Dockable.Text.HealthUnknown"));
                 }
-                return Classify(Language.main.Get("Dockable.Text.Health"), mixin.health, mixin.maxHealth);
+                return Classify(Language.main.Get("Dockable.Text.Health"), mixin.health, mixin.maxHealth, false);
             }
         }
         public Text PowerText
@@ -178,7 +183,7 @@ namespace Subnautica_Archon.Adapters
                     return Text.Error(Language.main.Get("Dockable.Text.PowerUnknown"));
                 }
                 energy.GetValues(out var charge, out var capacity);
-                return Classify(Language.main.Get("Dockable.Text.Power"), charge, capacity);
+                return Classify(Language.main.Get("Dockable.Text.Power"), charge, capacity, charge < capacity && Archon.WillRechargingDocked);
             }
         }
 
