@@ -1,7 +1,9 @@
-﻿using Subnautica_Archon.Util;
+﻿using System;
+using Subnautica_Archon.Util;
 using Subnautica_Archon.Util.Reflection;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
+using Void = Subnautica_Archon.Util.Void;
 
 namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
@@ -15,16 +17,21 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             pingInstance = FieldAdapter.Of<PingInstance>(Vehicle, "pingInstance");
             _isScuttled = FieldAdapter.Of<bool>(Vehicle, "isScuttled");
         }
+
         private readonly SimpleMethodHelper<Void> _playerExit
             = new SimpleMethodHelper<Void>("PlayerExit");
+
         private readonly SimpleMethodHelper<Void> _playerEntry
             = new SimpleMethodHelper<Void>("PlayerEntry");
+
         private readonly SimpleMethodHelper<Void> _beginPiloting
             = new SimpleMethodHelper<Void>("BeginPiloting");
+
         private readonly SimpleMethodHelper<Void> _onVehicleUndocked
             = new SimpleMethodHelper<Void>("OnVehicleUndocked");
-        private MethodAdapter<Vehicle, Vector3>? _onVehicleDocked0;
-        private MethodAdapter<Vector3>? _onVehicleDocked1;
+
+        private Ternary<MethodAdapter<Vehicle, Vector3>> _onVehicleDocked0;
+        private Ternary<MethodAdapter<Vector3>> _onVehicleDocked1;
         private readonly FieldAdapter<PingInstance> pingInstance;
         private readonly FieldAdapter<bool> _isScuttled;
         private PropertyAdapter<bool> _isUnderCommand;
@@ -61,17 +68,32 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             _beginPiloting.ExecuteOn(Vehicle);
         }
 
+        private bool TryCall<T>(ref Ternary<T> ternary, params object?[] args) where T: BaseMethodAdapter
+        {
+            if (ternary.IsSetNotFailed)
+                try
+                {
+                    ternary.Item!.Invoke(args);
+                    return true;
+                }
+                catch (MissingMethodException)
+                {
+                    Log.Warn($"{ternary.Item} does not exist after all");
+                    ternary.HasFailed = true;
+                }
+
+            return false;
+
+        }
+
         public void OnVehicleDocked(Vector3 exitLocation)
         {
-            if (_onVehicleDocked0 is null)
-                _onVehicleDocked0 = new MethodAdapter<Vehicle, Vector3>(Vehicle, "OnVehicleDocked", ignoreMissing: true);
-            if (_onVehicleDocked1 is null)
-                _onVehicleDocked1 = new MethodAdapter<Vector3>(Vehicle, "OnVehicleDocked", ignoreMissing: true);
-            if (_onVehicleDocked0 != null)
-                _onVehicleDocked0.Invoke(Vehicle, exitLocation);
-            else if (_onVehicleDocked1 != null)
-                _onVehicleDocked1.Invoke(exitLocation);
-            else
+            if (!_onVehicleDocked0.IsSet)
+                _onVehicleDocked0.Set(new MethodAdapter<Vehicle, Vector3>(Vehicle, "OnVehicleDocked", ignoreMissing: true));
+            if (!_onVehicleDocked1.IsSet)
+                _onVehicleDocked1.Set(new MethodAdapter<Vector3>(Vehicle, "OnVehicleDocked", ignoreMissing: true));
+            if (!TryCall(ref _onVehicleDocked0, Vehicle, exitLocation)
+                && !TryCall(ref _onVehicleDocked1, Vehicle))
                 Log.Error("OnVehicleDocked method not found on Vehicle");
         }
 

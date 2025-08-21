@@ -16,6 +16,7 @@ namespace Subnautica_Archon.Util.Reflection
         protected BaseMethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing, params Type[] parameterTypes)
         {
             Target = target;
+            MethodName = methodName;
             if (target == null)
             {
                 Log.Error("Given target game object is empty");
@@ -42,7 +43,12 @@ namespace Subnautica_Archon.Util.Reflection
             }
         }
 
-        protected void Invoke(params object?[] p)
+        public string MethodName { get; set; }
+
+        public override string ToString()
+            => MethodName;
+
+        public void Invoke(params object?[] p)
         {
             if (Method is null)
                 return;

@@ -9,7 +9,7 @@ namespace Behavior.Util
         public float Min { get; private set; }
         public float Max { get; private set; }
 
-        public static BoundedRange Empty { get; } = new BoundedRange(float.MaxValue, float.MinValue);
+        public static BoundedRange Empty => new BoundedRange(float.MaxValue, float.MinValue);
 
         public BoundedRange(float min, float max)
             => (Min, Max) = (min, max);
@@ -44,18 +44,28 @@ namespace Behavior.Util
     {
         public BoundedRange X { get; }
         public BoundedRange Y { get; }
+        public int Id { get; }
         
+        private static int idCounter = 0;
+
         public Vector2 Min => new Vector2(X.Min, Y.Min);
         public Vector2 Max => new Vector2(X.Max, Y.Max);
         public Vector2 Center => new Vector2(X.Center, Y.Center);
         public Vector2 Size => new Vector2(X.Size, Y.Size);
         public float Area => X.Size * Y.Size;
+
         public Bounds2(BoundedRange x, BoundedRange y)
-            => (X, Y) = (x, y);
+        {
+            (X, Y) = (x, y);
+            Id = idCounter++;
+        }
+
         public Bounds2(float xMin, float xMax, float yMin, float yMax)
             : this(new BoundedRange(xMin, xMax), new BoundedRange(yMin, yMax))
-        {
-        }
+        {}
+        
+        public override string ToString()
+        => $"#{Id}({Min}, {Max})";
         
         public static Bounds2 Empty => new Bounds2(BoundedRange.Empty, BoundedRange.Empty);
 
