@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using AVS.Assets;
 using UnityEngine;
 
 
@@ -84,7 +85,7 @@ namespace Subnautica_Archon.Adapters
                     if (tt != TechType.None)
                     {
                         log.Write($"Fetching image for {tt.AsString()}" );
-                        image = SpriteManager.Get(tt, null);
+                        image = SpriteManager.Get(tt).ToSprite();
                         if (image == null || image.texture == null)
                         {
                             log.Error($"Image for {tt.AsString()} does not exist. Using empty texture.");
@@ -118,7 +119,7 @@ namespace Subnautica_Archon.Adapters
                     at++;
                     if (mod.techType != TechType.None)
                     {
-                        var sprite = SpriteManager.Get(mod.techType, null);
+                        var sprite = SpriteManager.Get(mod.techType).ToSprite();
 
                         if (sprite != null)
                         {
