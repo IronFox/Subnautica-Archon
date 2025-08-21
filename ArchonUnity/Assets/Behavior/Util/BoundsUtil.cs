@@ -170,6 +170,8 @@ public static class BoundsUtil
 
     }
 
+    
+    
 
     public static Bounds ComputeScaledLocalBounds(this Transform rootTransform, bool includeRenderers, bool includeColliders)
     {

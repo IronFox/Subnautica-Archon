@@ -37,6 +37,8 @@ public class ArchonConfig : ConfigFile
     public float voiceVolumePercent = 100;
     [Toggle("Show voice subtitles", LabelLanguageId = "Option.ShowVoiceSubtitles")]
     public bool showVoiceSubtitles = false;
+    [Toggle("Default to First Person", LabelLanguageId = "Option.DefaultToFirstPerson")]
+    public bool defaultToFirstPerson = false;
     [Choice("Autopilot voice",
         "Option.AutopilotVoice.Off",
         "Option.AutopilotVoice.Eve",

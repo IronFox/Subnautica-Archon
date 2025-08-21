@@ -7,7 +7,7 @@ namespace Subnautica_Archon
     public class MaterialAdaptConfig : DefaultMaterialAdaptConfig
     {
         public MaterialAdaptConfig()
-            : base(MaterialLog.Silent)
+            : base(MaterialLog.Verbose)
         { }
 
         public override UnityMaterialData ConvertUnityMaterial(UnityMaterialData materialData)

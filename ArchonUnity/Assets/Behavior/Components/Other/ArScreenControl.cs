@@ -1,13 +1,17 @@
 ﻿using Assets.Behavior.Interfaces;
 using Assets.Behavior.TransferTypes;
 using System;
+using Behavior.Util;
+using Behavior.Util.Log;
+using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
 {
     public ArchonControl archon;
-    public AtlasImage subImage;
+    public SpriteRenderer subImage;
     public GameObject modulePrefab;
     public Transform moduleContainer;
     public TextMeshPro
@@ -33,47 +37,78 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
 
     public void OnDockableSelectedOrChanged(IDockable dockable)
     {
-        this.dockable = dockable;
-
-        var mod = dockable?.Modules ?? Array.Empty<Sprite>();
-        //mod = mod.Repeat(4).ToArray();
-        for (int i = 0; i < mod.Length && i < 8; i++)   //only space for 8
+        using (var log = new LogContext(nameof(OnDockableSelectedOrChanged), dockable))
         {
-            if (i < moduleContainer.childCount)
+
+            this.dockable = dockable;
+
+            var mod = dockable?.Modules ?? Array.Empty<Sprite>();
+            //mod = mod.Repeat(4).ToArray();
+            for (int i = 0; i < mod.Length && i < 8; i++) //only space for 8
             {
-                var im = moduleContainer.GetChild(i).GetComponent<AtlasImage>();
-                if (im.Texture == mod[i])
-                    continue;
-                im.Texture = mod[i];
-                continue;
+                Transform container;
+                SpriteRenderer im;
+                if (i < moduleContainer.childCount)
+                {
+                    
+                    container = moduleContainer.GetChild(i); 
+                    im = container.GetComponentInChildren<SpriteRenderer>();
+                    if (im.sprite == mod[i])
+                        continue;
+                }
+                else
+                {
+                    container = Instantiate(modulePrefab, moduleContainer).transform;
+                    im = container.GetComponentInChildren<SpriteRenderer>();
+                }
+                im.sprite = mod[i];
+                container.localPosition = new Vector3(i * container.localScale.x, 0, 0);
+                if (mod[i])
+                {
+                    var spriteBounds = Bounds2.From(mod[i].vertices);
+                    var scale = 1f / Mathf.Max(spriteBounds.X.Size,spriteBounds.Y.Size);
+                    im.transform.localScale = M.V3(scale);
+                }
+
+                
             }
 
-            var instance = Instantiate(modulePrefab, moduleContainer);
-            var img = instance.GetComponent<AtlasImage>();
-            img.Texture = mod[i];
-            instance.transform.localPosition = new Vector3(i * instance.transform.localScale.x, 0, 0);
+            while (mod.Length < moduleContainer.childCount)
+            {
+                var c = moduleContainer.GetChild(mod.Length);
+                c.parent = null;
+                Destroy(c.gameObject);
+            }
+
+
+            nothingDockedText.SetText(dockable == null
+                ? TranslationAdapter.GetTranslation(TranslationCode.NothingDocked)
+                : "");
+            nameText.SetText(dockable?.Name);
+            if (dockable == null)
+                typeText.SetText("");
+            else
+                typeText.SetText(
+                    $"#{Archon.SelectedDockedIndex + 1}/{Archon.bayControl.NumUndockableVehicles}: {dockable?.ClassName}");
+            Apply(healthText, dockable?.HealthText);
+            Apply(powerText, dockable?.PowerText);
+            Apply(crushText, dockable?.CrushText);
+            Apply(storageText, dockable?.StorageText);
+
+            var sprite = dockable?.Image;
+            subImage.sprite = sprite;
+
+            if (sprite)
+            {
+                var spriteBounds = Bounds2.From(sprite.vertices);
+                var scale = 1f / Mathf.Max(spriteBounds.X.Size,spriteBounds.Y.Size);
+                subImage.transform.localScale = M.V3(scale);
+            }
+
+            //subImage.transform.localScale = 
+            
+            nextUpdateInSeconds = 1;
         }
-        while (mod.Length < moduleContainer.childCount)
-        {
-            var c = moduleContainer.GetChild(mod.Length);
-            c.parent = null;
-            Destroy(c.gameObject);
-        }
-
-
-        nothingDockedText.SetText(dockable == null ? TranslationAdapter.GetTranslation(TranslationCode.NothingDocked) : "");
-        nameText.SetText(dockable?.Name);
-        if (dockable == null)
-            typeText.SetText("");
-        else
-            typeText.SetText($"#{Archon.SelectedDockedIndex + 1}/{Archon.bayControl.NumUndockableVehicles}: {dockable?.ClassName}");
-        Apply(healthText, dockable?.HealthText);
-        Apply(powerText, dockable?.PowerText);
-        Apply(crushText, dockable?.CrushText);
-        Apply(storageText, dockable?.StorageText);
-
-        subImage.Texture = dockable?.Image;
-        nextUpdateInSeconds = 1;
     }
 
     private void Apply(TextMeshPro field, Text? text)

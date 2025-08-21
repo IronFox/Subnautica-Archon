@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using Behavior.Util;
+using JetBrains.Annotations;
+using UnityEngine;
 
 public class PositionCamera : MonoBehaviour
 {
@@ -47,13 +50,23 @@ public class PositionCamera : MonoBehaviour
         ConsoleControl.Write($"3rd camera distance set to {distanceToTarget}");
         verticalOffset =
             referenceBoundingBox.size.y * referenceBoundingBox.transform.localScale.y * 1.1f;
+        
     }
 
     private string loggedCollider;
+    /// <summary>
+    /// Updates the camera to first or third person.
+    /// </summary>
+    /// <param name="firstPerson"></param>
+    public void SetCameraFirstPerson(bool firstPerson)
+    {
+        isFirstPerson = firstPerson;
+    }
+
+
 
     void LateUpdate()
     {
-
         target = referenceBoundingBox.transform.TransformPoint(referenceBoundingBox.center);
 
         if (isFirstPerson)
@@ -78,7 +91,7 @@ public class PositionCamera : MonoBehaviour
             //}
 
             //transform.position = target.position + transform.forward * forwardRadius;
-            if (zoomAxis > 0)
+            if (zoomAxis > 0 )
             {
                 isFirstPerson = false;
             }
@@ -149,16 +162,6 @@ public class PositionCamera : MonoBehaviour
                 {
                     closest2 = hit.transform;
                     closestHit2 = hit.distance;
-                    if (loggedCollider != hit.transform.name)
-                    {
-                        loggedCollider = hit.transform.name;
-                        //ConsoleControl.Write("Camera collision with " + hit.transform.name);
-                        //HierarchyAnalyzer analyzer = new HierarchyAnalyzer();
-                        //analyzer.LogToJson(hit.transform, $@"C:\temp\logs\hit{DateTime.Now:yyyy-MM-dd HH_mm_ss}.json");
-                    }
-
-
-
                 }
             }
 
@@ -172,9 +175,4 @@ public class PositionCamera : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 }

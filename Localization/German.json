@@ -137,7 +137,8 @@
 	"Option.InteriorLights.Full": "Voll",
 	"Option.InteriorLights.Reduced": "Reduziert (schneller)",
 	"Option.InteriorLights.Minimal": "Minimal (am schnellsten)",
-	
+	"Option.DefaultToFirstPerson": "Kamera initial im Cockpit",
+
 	
 	"Subtitle.Voice.Welcome": "Willkommen an Bord",
 	"Subtitle.Voice.Depth.Dangerous": "Achtung: Maximale Tiefe erreicht",

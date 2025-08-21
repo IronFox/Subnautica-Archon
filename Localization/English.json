@@ -137,6 +137,7 @@
 	"Option.InteriorLights.Full": "Full",
 	"Option.InteriorLights.Reduced": "Reduced (faster)",
 	"Option.InteriorLights.Minimal": "Minimal (fastest)",
+	"Option.DefaultToFirstPerson": "Default to Cockpit Camera",
 	
 	
 	"Subtitle.Voice.Welcome": "Welcome Aboard",

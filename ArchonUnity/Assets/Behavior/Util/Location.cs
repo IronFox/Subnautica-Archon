@@ -16,6 +16,8 @@ public readonly struct Location
         Position = position;
     }
 
+    public override string ToString() => $"@{Position},r={Euler},l={Locality}";
+
     public FullEuler Euler { get; }
     public Vector3 Position { get; }
 

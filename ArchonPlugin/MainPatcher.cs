@@ -132,7 +132,7 @@ namespace Subnautica_Archon
             }
             else
             {
-                archon.autoAddEmergencyTeleport = pickupable;
+                Archon.AutoAddEmergencyTeleport = pickupable;
             }
             yield return VehicleRegistrar.RegisterVehicle(archon, verbose);
         }
