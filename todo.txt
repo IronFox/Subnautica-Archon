@@ -1,5 +1,7 @@
 batch:
 
+* check if fabricator works on 2023 survival. reports of no power errors
+* silence UpdateVisualsPostfix
 
 batch done:
 
