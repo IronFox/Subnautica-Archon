@@ -4,6 +4,7 @@ batch:
 batch done:
 
 * reduce airlock slide sound level
+* set material adaptation logging back to silent
 
 no:
 
