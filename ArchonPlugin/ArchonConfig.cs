@@ -4,7 +4,7 @@ using Subnautica_Archon;
 using Subnautica_Archon.Util;
 using UnityEngine;
 
-[Menu("Archon Options")]
+[Menu("Archon")]
 public class ArchonConfig : ConfigFile
 {
     [Choice("Interior Lights",

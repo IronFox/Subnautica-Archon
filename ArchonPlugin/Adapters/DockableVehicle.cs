@@ -91,7 +91,7 @@ namespace Subnautica_Archon.Adapters
                             log.Error($"Image for {tt.AsString()} does not exist. Using empty texture.");
                         }
                         else
-                            log.Write($"Image for {tt.AsString()} is {image.NiceName()} @r={image.rect}, tr={image.textureRect}, tro={image.textureRectOffset}");
+                            log.Write($"Image for {tt.AsString()} is {image.NiceName()}");
                         
                     }
                     else

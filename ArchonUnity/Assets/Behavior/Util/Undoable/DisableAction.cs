@@ -1,4 +1,5 @@
 ﻿using Assets.Behavior.Adapters;
+using Behavior.Util.Log;
 using UnityEngine;
 
 internal class DisableAction : IAction
@@ -20,15 +21,24 @@ internal class DisableAction : IAction
         {
             if (!HaveLoggedGone)
             {
-                Log.Default.LogWarning($"Cannot do {Enabled.PropertyName} on {TargetName}: target is gone");
-                HaveLoggedGone = true;
+                using (var log = new LogContext(nameof(DisableAction) + "." + nameof(Do)))
+                {
+                    log.Warn($"Cannot set {Enabled.PropertyName} on {TargetName}: target is gone");
+                    HaveLoggedGone = true;
+                }
             }
             return false;
         }
         if (Enabled.IsEnabled)
         {
             if (Enabled.LogChange)
-                Log.Default.Write($"Setting {Enabled.PropertyName}:=false on {Enabled.Target.NiceName()}");
+            {
+                using (var log = new LogContext(nameof(DisableAction) + "." + nameof(Do)))
+                {
+                    log.Write($"Setting {Enabled.PropertyName} := false on {Enabled.Target.NiceName()}");
+                }
+            }
+
             Enabled.SetEnabled(false);
             return true;
         }
@@ -43,7 +53,11 @@ internal class DisableAction : IAction
         {
             if (!HaveLoggedGone)
             {
-                Log.Default.LogWarning($"Cannot undo {Enabled.PropertyName} on {TargetName}: target is gone");
+                using (var log = new LogContext(nameof(DisableAction) + "." + nameof(Undo)))
+                {
+                    log.Warn($"Cannot revert {Enabled.PropertyName} on {TargetName}: target is gone");
+                }
+
                 HaveLoggedGone = true;
             }
             return;
@@ -51,7 +65,13 @@ internal class DisableAction : IAction
         if (!Enabled.IsEnabled)
         {
             if (Enabled.LogChange)
-                Log.Default.Write($"Setting {Enabled.PropertyName}:=true on {Enabled.Target.NiceName()}");
+            {
+                using (var log = new LogContext(nameof(DisableAction) + "." + nameof(Undo)))
+                {
+                    log.Write($"Setting {Enabled.PropertyName}:=true on {Enabled.Target.NiceName()}");
+                }
+            }
+
             Enabled.SetEnabled(true);
         }
         ;

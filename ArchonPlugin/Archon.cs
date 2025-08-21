@@ -771,11 +771,7 @@ namespace Subnautica_Archon
                     else
                         WaterClipUtil.UnbindProxy(Log, clipProxyParent.gameObject);
                     log.Write($"Flushing children...");
-                    foreach (var child in clipProxyParent.GetChildren().ToList())
-                    {
-                        child.SetParent(null);
-                        Destroy(child.gameObject);
-                    }
+                    clipProxyParent.DestroyChildren();
                     log.Write($"All done");
                 }
                 else
