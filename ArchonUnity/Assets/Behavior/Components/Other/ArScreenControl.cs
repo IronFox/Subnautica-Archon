@@ -1,6 +1,7 @@
 ﻿using Assets.Behavior.Interfaces;
 using Assets.Behavior.TransferTypes;
 using System;
+using Behavior.Util;
 using Behavior.Util.Log;
 using JetBrains.Annotations;
 using TMPro;
@@ -45,20 +46,31 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
             //mod = mod.Repeat(4).ToArray();
             for (int i = 0; i < mod.Length && i < 8; i++) //only space for 8
             {
+                Transform container;
+                SpriteRenderer im;
                 if (i < moduleContainer.childCount)
                 {
                     
-                    var im = moduleContainer.GetChild(i).GetComponent<SpriteRenderer>();
+                    container = moduleContainer.GetChild(i); 
+                    im = container.GetComponentInChildren<SpriteRenderer>();
                     if (im.sprite == mod[i])
                         continue;
-                    im.sprite = mod[i];
-                    continue;
+                }
+                else
+                {
+                    container = Instantiate(modulePrefab, moduleContainer).transform;
+                    im = container.GetComponentInChildren<SpriteRenderer>();
+                }
+                im.sprite = mod[i];
+                container.localPosition = new Vector3(i * container.localScale.x, 0, 0);
+                if (mod[i])
+                {
+                    var spriteBounds = Bounds2.From(mod[i].vertices);
+                    var scale = 1f / Mathf.Max(spriteBounds.X.Size,spriteBounds.Y.Size);
+                    im.transform.localScale = M.V3(scale);
                 }
 
-                var instance = Instantiate(modulePrefab, moduleContainer);
-                var img = instance.GetComponent<SpriteRenderer>();
-                img.sprite = mod[i];
-                instance.transform.localPosition = new Vector3(i * instance.transform.localScale.x, 0, 0);
+                
             }
 
             while (mod.Length < moduleContainer.childCount)
@@ -85,6 +97,15 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
 
             var sprite = dockable?.Image;
             subImage.sprite = sprite;
+
+            if (sprite)
+            {
+                var spriteBounds = Bounds2.From(sprite.vertices);
+                var scale = 1f / Mathf.Max(spriteBounds.X.Size,spriteBounds.Y.Size);
+                subImage.transform.localScale = M.V3(scale);
+            }
+
+            //subImage.transform.localScale = 
             
             nextUpdateInSeconds = 1;
         }
