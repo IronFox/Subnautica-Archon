@@ -256,6 +256,7 @@ namespace Subnautica_Archon.Adapters
 
         public void BeginDocking()
         {
+            moduleSprites = null;
             if (HasPlayer)
             {
                 Helper.ChangeAvatarInput(false);
