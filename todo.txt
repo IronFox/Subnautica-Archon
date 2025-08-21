@@ -1,10 +1,10 @@
 batch:
 
-* check compatibility with vehicle framework on 2023
-	- can modules be added/moved around?
+* normalize sprite size on docked display
 
 batch done:
 
+* fixed compatibility with vehicle framework
 * reduce airlock open whirl sound volume
 * fix docked sub type and module images
 * fix camera location when pda is open
