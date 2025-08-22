@@ -753,7 +753,7 @@ namespace Subnautica_Archon
         {
             using var log = new LogContext(this, nameof(SetWaterProxiesEnabled), enable);
             var clipProxyParent = transform.Find("WaterClipProxy");
-            var seamoth = PrefabLoader.Request(TechType.Seamoth).Instance;
+            var seamoth = SeamothHelper.Seamoth;
             if (seamoth == null)
             {
                 log.Write("Seamoth prefab not found. Can't adjust clip proxies right now");
