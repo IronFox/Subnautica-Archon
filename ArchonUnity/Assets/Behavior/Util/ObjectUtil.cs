@@ -57,6 +57,11 @@ public static class ObjectUtil
         .ToEnabled()
         .DisableAllEnabled(undo, forced);
 
+    public static bool DisableAllEnabledCanvases(this IDockable dockable, Undoable undo, bool forced = false)
+        => dockable.GetAllComponents<Canvas>()
+        .ToEnabled()
+        .DisableAllEnabled(undo, forced);
+
     public static bool DisableAllEnabledLights(this GameObject go, Undoable undo, bool forced = false)
         => go.GetComponentsInChildren<Light>()
         .ToEnabled()
