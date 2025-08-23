@@ -44,7 +44,6 @@ namespace Subnautica_Archon.Adapters
         public Archon Archon { get; }
         public bool IsDrone { get; }
         public bool HasPlayer => !IsDrone && Player.main.currentMountedVehicle == Vehicle;
-        private Transform? FixParentTo { get; set; }
         public bool IsPlayerControlledDrone => Drone.Access(Vehicle, out var d) && d.IsPlayerControlling();
 
         public GameObject GameObject => Vehicle.gameObject;
@@ -312,7 +311,6 @@ namespace Subnautica_Archon.Adapters
             Log.Write($"Entering archon from transform parent {Player.main.transform.parent.NiceName()}");
             Archon.EnterFromDocking();
             Log.Write($"Registering fix parent {Player.main.transform.parent.NiceName()}");
-            FixParentTo = Player.main.transform.parent;
             UpdateCounter = 0;
             Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
             Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
