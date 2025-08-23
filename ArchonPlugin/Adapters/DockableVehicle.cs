@@ -351,45 +351,6 @@ namespace Subnautica_Archon.Adapters
             Log.Write($" A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             Helper.ChangeAvatarInput(true);
             yield break;
-
-            //Archon.SuspendTetherChecks();
-            //Player.main.ToNormalMode(findNewPosition: false);
-            //Log.Write("Zeroing velocity");
-            //Player.main.rigidBody.angularVelocity = Vector3.zero;
-            //Log.Write("Exiting locked mode");
-            //Player.main.ExitLockedMode(respawn: false, findNewPosition: false);
-            //Player.main.SetPosition(Archon.Com.Helms.First().AnyExitLocation);
-            //Log.Write("Exiting sitting mode");
-            //Player.main.ExitSittingMode();
-
-            //yield return new WaitForFixedUpdate();
-            //yield return new WaitForEndOfFrame();
-
-            //Log.Write($"Cleaning up");
-            //{
-            //    GameInput.ClearInput();
-            //    Player.main.transform.parent = null;
-            //    Player.main.transform.localScale = Vector3.one;
-            //    Player.main.currentMountedVehicle = null;
-            //    Player.main.playerController.SetEnabled(enabled: true);
-            //    Mode.Set(Player.Mode.Normal);
-            //    //Player.main.mode = Player.Mode.Normal;
-            //    Player.main.playerModeChanged?.Trigger(Player.Mode.Normal);
-            //    Player.main.sitting = false;
-            //    Player.main.playerController.ForceControllerSize();
-            //}
-
-            //yield return new WaitForFixedUpdate();
-            //yield return new WaitForEndOfFrame();
-
-            //Log.Write($"Entering archon from transform parent {Player.main.transform.parent}");
-            //Archon.EnterFromDocking();
-            //FixParentTo = Player.main.transform.parent;
-            //UpdateCounter = 0;
-            //Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
-            //Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
-            //Log.Write($"A-Okay = {AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
-            //Helper.ChangeAvatarInput(true);
         }
 
 
