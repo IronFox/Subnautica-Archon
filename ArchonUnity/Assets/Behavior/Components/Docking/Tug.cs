@@ -126,9 +126,10 @@ public class Tug : MonoBehaviour
                 Do(fit.Dockable.RestoreDockedStateFromSaveGame, $"Dockable.RestoreDockedStateFromSaveGame()", verifyIntegrity: false);
                 ChangeActiveState(false);
                 Fit.Dockable.DisableAllEnabledRenderers(Renderers);
+                Fit.Dockable.DisableAllEnabledCanvases(Renderers);
                 Fit.Dockable.DisableAllEnabledLights(Lights);
                 Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
-                ReDisable = 3;
+                ReDisable = 100;
                 ParkLocation.ApplyTo(Fit.GameObject.transform);
 
                 //Fit.GetAllComponents<MonoBehaviour>()
@@ -244,6 +245,7 @@ public class Tug : MonoBehaviour
 
 
         Fit.Dockable.DisableAllEnabledRenderers(Renderers);
+        Fit.Dockable.DisableAllEnabledCanvases(Renderers);
         Fit.Dockable.DisableAllEnabledLights(Lights);
         Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
 
@@ -409,8 +411,11 @@ public class Tug : MonoBehaviour
                     {
                         ChangeActiveState(false);
                         Fit.Dockable.DisableAllEnabledRenderers(Renderers);
+                        Fit.Dockable.DisableAllEnabledCanvases(Renderers);
                         Fit.Dockable.DisableAllEnabledLights(Lights);
                         Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
+                        ParkLocation.ApplyTo(Fit.GameObject.transform);
+                       // ReDisable = 10;
                     }
                     break;
                 case TugStatus.UndockedWaitingForTriggerExit:
