@@ -139,7 +139,7 @@ public class Tug : MonoBehaviour
                 Do(fit.Dockable.BeginUndocking, $"Dockable.BeginUndocking()", verifyIntegrity: false);
                 break;
         }
-        fit.Dockable.DisableAllEnabledColliders(UndoTugging, forced: true);
+        fit.Dockable.DisableAllEnabledColliders(UndoTugging /*, forced: true*/);
         fit.Dockable.DisableRigidbodies(UndoTugging, forced: true);
 
 
@@ -341,12 +341,7 @@ public class Tug : MonoBehaviour
         AnimationSeconds = M.Distance(LocalPosition(AnimationStart), LocalPosition(AnimationEnd())) / Owner.dockingMetersPerSecond;
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
+    
     public void PrepareForSaving()
     {
         Log.Write(nameof(PrepareForSaving));
