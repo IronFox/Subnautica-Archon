@@ -2,6 +2,7 @@
 using Subnautica_Archon.Util;
 using Subnautica_Archon.Util.Reflection;
 using System.Diagnostics.CodeAnalysis;
+using AVS.Util;
 using UnityEngine;
 using Void = Subnautica_Archon.Util.Void;
 
@@ -102,7 +103,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             get
             {
                 var pi = pingInstance.Value;
-                if (pi == null)
+                if (pi.IsNull())
                     return Vehicle.subName.pingInstance;
                 return pi;
             }
@@ -111,7 +112,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         public bool HudIconIsEnabled()
         {
             var pi = pingInstance.Value;
-            if (pi is null)
+            if (pi.IsNull())
             {
                 Log.Error("pingInstance not set on " + Vehicle.NiceName());
                 return false;
@@ -123,7 +124,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         {
 
             var pi = pingInstance.Value;
-            if (pi is null)
+            if (pi.IsNull())
             {
                 Log.Error("pingInstance not set on " + Vehicle.NiceName());
                 return;

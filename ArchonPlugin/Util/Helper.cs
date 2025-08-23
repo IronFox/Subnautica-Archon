@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
+using AVS.Util;
 
 namespace Subnautica_Archon.Util
 {
@@ -19,7 +20,7 @@ namespace Subnautica_Archon.Util
 
         public static IEnumerable<Transform> Children(Transform t)
         {
-            if (t == null)
+            if (t.IsNull())
                 yield break;
             for (int i = 0; i < t.childCount; i++)
                 yield return t.GetChild(i);
@@ -28,15 +29,15 @@ namespace Subnautica_Archon.Util
 
         public static IEnumerable<Component> AllComponents(Transform t)
         {
-            if (t == null)
-                return Array.Empty<Component>();
+            if (t.IsNull())
+                return [];
 
             return t.GetComponents<Component>();
         }
         public static IEnumerable<string> Names(IEnumerable<UnityEngine.Object> source)
         {
             foreach (var obj in source)
-                if (obj == null)
+                if (obj.IsNull())
                     yield return "<null>";
                 else
                     yield return obj.name;
@@ -47,7 +48,7 @@ namespace Subnautica_Archon.Util
         {
             foreach (var obj in source)
             {
-                if (obj == null)
+                if (obj.IsNull())
                     yield return "<null>";
                 else
                     yield return obj.name;

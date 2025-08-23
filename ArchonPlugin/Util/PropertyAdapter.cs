@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using AVS.Util;
 
 namespace Subnautica_Archon.Util
 {
@@ -8,7 +9,7 @@ namespace Subnautica_Archon.Util
         public static PropertyAdapter<T> OfNonPublic<T>(object target, string name)
         {
             var p = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (p is null)
+            if (p.IsNull())
                 Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
             return new PropertyAdapter<T>(p, target);
         }
@@ -22,7 +23,7 @@ namespace Subnautica_Archon.Util
         public static PropertyAdapter<T> OfPublic<T>(object target, string name)
         {
             var p = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
-            if (p is null)
+            if (p.IsNull())
                 Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
             return new PropertyAdapter<T>(p, target);
         }

@@ -1,6 +1,7 @@
 using HarmonyLib;
 using Subnautica_Archon.Util;
 using System.Collections;
+using AVS.Util;
 using UnityEngine;
 
 
@@ -20,9 +21,9 @@ namespace Subnautica_Archon
                 timeUntilClose -= Time.deltaTime;
                 yield return null;
             }
-            if (control == null)
+            if (control.IsNull())
             {
-                Log.Warn($"VehicleUpgradeConsoleInputPatcher.closeDoorSoon: Control is null in {nameof(closeDoorSoon)}");
+                Log.Warn($"VehicleUpgradeConsoleInputPatcher.closeDoorSoon: Control.IsNull() in {nameof(closeDoorSoon)}");
             }
             else
             {
@@ -30,7 +31,6 @@ namespace Subnautica_Archon
                 control.openUpgradeCover = false;
             }
             closeDoorCor = null;
-            yield break;
         }
         [HarmonyPostfix]
         [HarmonyPatch(nameof(VehicleUpgradeConsoleInput.OnHandHover))]
@@ -43,7 +43,7 @@ namespace Subnautica_Archon
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnHandHoverPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
                 __instance.GetComponentInParent<ArchonControl>().openUpgradeCover = true;
                 timeUntilClose = openDuration;
-                if (closeDoorCor == null)
+                if (closeDoorCor.IsNull())
                 {
                     closeDoorCor = UWE.CoroutineHost.StartCoroutine(closeDoorSoon(__instance.GetComponentInParent<ArchonControl>()));
                 }

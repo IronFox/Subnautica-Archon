@@ -1,12 +1,18 @@
 batch:
 
-* check if fabricator works on 2023 survival. reports of no power errors
 * silence UpdateVisualsPostfix
+* check what happens to the bioreactor when it is completely full and loaded again (do fish disappear?)
+* check what happens to a crush drone after it is re-deployed (do its components still work?)
+* check map mod
+* check equip ION power cells
+
 
 batch done:
 
 * reduce airlock slide sound level
 * set material adaptation logging back to silent
+
+* check if fabricator works on 2023 survival. reports of no power errors. It does, no bugs apparent
 
 no:
 

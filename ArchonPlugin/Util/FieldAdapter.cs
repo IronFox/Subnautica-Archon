@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using AVS.Util;
 
 namespace Subnautica_Archon.Util
 {
@@ -8,7 +9,7 @@ namespace Subnautica_Archon.Util
         public static FieldAdapter<T> OfNonPublic<T>(object target, string name)
         {
             var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
-            if (f == null)
+            if (f.IsNull())
                 Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
             return new FieldAdapter<T>(f, target);
         }
@@ -22,7 +23,7 @@ namespace Subnautica_Archon.Util
         public static FieldAdapter<T> OfPublic<T>(object target, string name)
         {
             var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public);
-            if (f == null)
+            if (f.IsNull())
                 Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
             else if (f.FieldType != typeof(T))
             {
@@ -41,7 +42,7 @@ namespace Subnautica_Archon.Util
         public static FieldAdapter<T> Of<T>(object target, string name)
         {
             var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            if (f == null)
+            if (f.IsNull())
                 Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
             return new FieldAdapter<T>(f, target);
         }
@@ -54,7 +55,7 @@ namespace Subnautica_Archon.Util
         }
     }
 
-    public readonly struct FieldAdapter<T>
+    public readonly record struct FieldAdapter<T>
     {
         public FieldInfo? Field { get; }
         public object Target { get; }

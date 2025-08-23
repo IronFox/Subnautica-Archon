@@ -2,19 +2,16 @@
 using AVS;
 using AVS.UpgradeModules.Variations;
 using UnityEngine;
+using AVS.Util;
 
 namespace Subnautica_Archon.Modules
 {
-    public abstract class AbstractTeleportationModule : ArchonToggleableBaseModule
+    public abstract class AbstractTeleportationModule(ArchonModule module, TeleportationType type)
+        : ArchonToggleableBaseModule(module)
     {
         public static float SecondsUntilTeleport { get; } = 5f;
         public override float RepeatDelay => 0;
-        public TeleportationType TeleportationType { get; }
-
-        protected AbstractTeleportationModule(ArchonModule module, TeleportationType type) : base(module)
-        {
-            TeleportationType = type;
-        }
+        public TeleportationType TeleportationType { get; } = type;
 
 
         protected abstract Vector3? GetTargetPosition(Archon vehicle);
@@ -24,11 +21,11 @@ namespace Subnautica_Archon.Modules
         {
             base.OnRepeat(state);
             var vehicle = state.Vehicle as Archon;
-            if (vehicle == null)
+            if (vehicle.IsNull())
                 return;
             var target = GetTargetPosition(vehicle);
             var orientation = GetTargetOrientation(vehicle);
-            if (target == null || orientation == null)
+            if (target.IsNull() || orientation.IsNull())
             {
                 vehicle.Log.Debug($"{Module}.OnRepeat: No target or orientation set for vehicle {vehicle.NiceName()} in slot {state.SlotID} at time {state.EventTime}");
                 return;
@@ -41,7 +38,7 @@ namespace Subnautica_Archon.Modules
                 if (state.RepeatIteration == 0)
                 {
                     var voice = voiceLibrary?.GetRandomPrepareTeleport();
-                    vehicle.VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Teleportation.Start", 0));
+                    vehicle.VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Teleportation.Start"));
                 }
                 float remainingTime = SecondsUntilTeleport - state.EventTime;
                 float lastRemainingTime = SecondsUntilTeleport - state.LastRepeatTime;
