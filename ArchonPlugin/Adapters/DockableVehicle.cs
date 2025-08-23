@@ -356,6 +356,7 @@ namespace Subnautica_Archon.Adapters
 
         public void EndDocking()
         {
+            using var log = new LogContext(Log, nameof(EndDocking));
 
             //if (Vehicle is ModVehicle mv)
             {
@@ -376,7 +377,7 @@ namespace Subnautica_Archon.Adapters
 
             }
             else
-                Log.Write($"Not switching to archon, no player present");
+                log.Write($"Not switching to archon, no player present");
             //else if (Vehicle is Drone d)
             //{
             //    if (d.gameObject.activeSelf)
@@ -390,12 +391,13 @@ namespace Subnautica_Archon.Adapters
 
         public void OnDockingDone()
         {
-            Log.Write("Docking done");
+            using var log = new LogContext(Log, nameof(OnDockingDone));
+
             if (HasPlayer)
             {
-                Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
-                Log.Write($"Player vehicle now {Player.main.GetVehicle().NiceName()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
-                Log.Write($"A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
+                log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
+                log.Write($"Player vehicle now {Player.main.GetVehicle().NiceName()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
+                log.Write($"A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             }
             //else if (Vehicle is Drone d)
             //{
@@ -415,6 +417,7 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter++;
             if (HasPlayer)
             {
+                using var log = new LogContext(Log, nameof(UpdateWaitingForBayDoorClose));
                 CheckPingInstanceIsDeactivated();
                 if (!AvsUtils.FindVehicleInParents(Player.main.transform, out var v, new List<Transform>()))
                 {
@@ -443,6 +446,7 @@ namespace Subnautica_Archon.Adapters
 
         private void SwitchToUndockingCraft()
         {
+            using var log = new LogContext(Log, nameof(SwitchToUndockingCraft));
 
             Archon.SuspendAutoLeveling();
             try
@@ -455,7 +459,7 @@ namespace Subnautica_Archon.Adapters
                 Abstraction.BeginHelmControl();
 
 
-                Helper.ChangeAvatarInput(false);
+                Helper.ChangeAvatarInput(log, false);
                 Mode.Set(Player.Mode.LockedPiloting);
             }
             finally
@@ -467,8 +471,11 @@ namespace Subnautica_Archon.Adapters
 
         public void PrepareUndocking()
         {
+            using var log = new LogContext(Log, nameof(PrepareUndocking));
+            
             if (Drone.IsOne(Vehicle))
             {
+                log.Write($"Undocking craft is drone. No action necessary");
             }
             else
             {
