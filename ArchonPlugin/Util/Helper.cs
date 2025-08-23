@@ -30,7 +30,7 @@ namespace Subnautica_Archon.Util
         public static IEnumerable<Component> AllComponents(Transform t)
         {
             if (t.IsNull())
-                return Array.Empty<Component>();
+                return [];
 
             return t.GetComponents<Component>();
         }
