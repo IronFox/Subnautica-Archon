@@ -31,9 +31,7 @@ namespace Subnautica_Archon.Adapters
             Abstraction = Vehicle.ToAbstraction();
             Archon = archon;
             IsDrone = Drone.IsOne(Vehicle);
-            IsPlayerControlledDrone =
-                Drone.Access(Vehicle, out var d) &&
-                d.IsPlayerControlling();
+            Log.Write($"IsDrone={IsDrone}, IsPlayerControlledDrone={IsPlayerControlledDrone}");
             //if (!HasPlayer && !IsPlayerControlledDrone)
             //    Log.Warn($"DockableVehicle(): Vehicle {Vehicle.NiceName()} does not have a player mounted. mounted vehicle = {Player.main.currentMountedVehicle.NiceName()}, testing = {Vehicle.NiceName()}, IsDrone = {Drone.IsOne(Vehicle)}");
             //else
@@ -46,8 +44,8 @@ namespace Subnautica_Archon.Adapters
         public Archon Archon { get; }
         public bool IsDrone { get; }
         public bool HasPlayer => !IsDrone && Player.main.currentMountedVehicle == Vehicle;
-        public bool IsPlayerControlledDrone { get; }
         private Transform? FixParentTo { get; set; }
+        public bool IsPlayerControlledDrone => Drone.Access(Vehicle, out var d) && d.IsPlayerControlling();
 
         public GameObject GameObject => Vehicle.gameObject;
         private int UpdateCounter { get; set; }
