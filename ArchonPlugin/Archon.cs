@@ -1531,7 +1531,7 @@ namespace Subnautica_Archon
             var arButtons = transform.GetComponentsInChildren<ArButton>(true);
             foreach (var arButton in arButtons)
             {
-                Log.Write($"Found AR button {arButton.name} at {arButton.transform.position}");
+                //Log.Write($"Found AR button {arButton.name} at {arButton.transform.position}");
                 var helper = arButton.gameObject.EnsureComponent<ArchonArButton>();
                 helper.arButton = arButton;
             }
@@ -1539,14 +1539,14 @@ namespace Subnautica_Archon
             var storageRootTransform = transform.Find("StorageRoot");
             if (storageRootTransform.IsNull())
             {
-                Log.Write($"Storage root not found. Creating new one");
+                Log.Warn($"Storage root not found. Creating new one");
                 storageRootTransform = new GameObject("StorageRoot").transform;
                 storageRootTransform.parent = transform;
                 storageRootTransform.localPosition = Vector3.zero;
             }
             else
             {
-                Log.Write($"Found storage root {storageRootTransform}");
+                Log.Write($"Found storage root {storageRootTransform.NiceName()}");
             }
 
 
@@ -1562,7 +1562,7 @@ namespace Subnautica_Archon
                         storageTransform = new GameObject(name).transform;
                         storageTransform.parent = storageRootTransform.transform;
                         storageTransform.localPosition = M.V3(i);
-                        Log.Write($"Creating new storage transform {storageTransform} in {storageRootTransform} @{storageTransform.localPosition} => {storageTransform.position}");
+                        //Log.Write($"Creating new storage transform {storageTransform} in {storageRootTransform} @{storageTransform.localPosition} => {storageTransform.position}");
                     }
                     modularStorageList.Add(new VehicleStorage(
                         displayName: AVS.Localization.Text.Translated("Component.ModularStorage"),
@@ -1624,7 +1624,7 @@ namespace Subnautica_Archon
             else
                 Log.Write($"Plugs not found");
 
-            Log.Write($"Determined {plugProxies.Count} plug(s)");
+            Log.Write($"Determined {plugProxies.Count} upgrade panel plug(s)");
 
             if (ui)
             {
@@ -1722,7 +1722,7 @@ namespace Subnautica_Archon
 
 
 
-            Log.Write($"Assigned new engine");
+            //Log.Write($"Assigning new engine");
             engine = gameObject.EnsureComponent<MassDrive>();
 
 

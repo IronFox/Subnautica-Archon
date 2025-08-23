@@ -32,7 +32,7 @@ namespace Assets.Behavior.Adapters
                 }
                 adapterFactory = value;
                 defaultAdapter = adapterFactory(Array.Empty<string>()); ;
-                defaultAdapter.Write($"Logging adapter updated");
+                //defaultAdapter.Write($"Logging adapter updated");
             }
         }
 
