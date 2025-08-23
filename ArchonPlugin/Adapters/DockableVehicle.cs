@@ -1,4 +1,3 @@
-using Assets.Behavior.TransferTypes;
 using AVS.Log;
 using Subnautica_Archon.Adapters.VehicleAbstraction;
 using Subnautica_Archon.Util;
@@ -7,8 +6,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Behavior.TransferTypes;
+using AVS.Assets;
 using UnityEngine;
 using AVS.Util;
+using Behavior.Util.Math;
+using Object = UnityEngine.Object;
 
 
 namespace Subnautica_Archon.Adapters
