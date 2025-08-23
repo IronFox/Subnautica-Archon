@@ -2,17 +2,22 @@ batch:
 
 * silence UpdateVisualsPostfix
 * check what happens to the bioreactor when it is completely full and loaded again (do fish disappear?)
-* check what happens to a crush drone after it is re-deployed (do its components still work?)
-* check map mod
 * check equip ION power cells
 
 
 batch done:
 
+* fixed VF vehicles assuming AVS ping sprites
+* changed undock behavior to not "board" an undocking drone, causing it to move unintentionally
+* fixed entire bounding box collider activation on docking vehicles (fixed drone control access)
+* fixed docking collider bounding box computation
+* fixed collider switch bug skipping a large number of interior colliders and causing log flooding
 * reduce airlock slide sound level
 * set material adaptation logging back to silent
 
-* check if fabricator works on 2023 survival. reports of no power errors. It does, no bugs apparent
+* done in 2023: check map mod (seems broken on 2023)
+* done: check if fabricator works on 2023 survival. reports of no power errors. It does, no bugs apparent
+* done: check what happens to a crush drone after it is re-deployed (do its components still work? - they did not, fixed)
 
 no:
 
