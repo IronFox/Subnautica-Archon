@@ -328,7 +328,8 @@ namespace Subnautica_Archon.Adapters
 
         private IEnumerator SwitchToArchon()
         {
-            Log.Write("(Re-)Switching player to archon");
+            var log = Log.Tag("SwitchToArchon");
+            log.Write("(Re-)Switching player to archon");
 
             if (HasPlayer)
             {
@@ -337,20 +338,21 @@ namespace Subnautica_Archon.Adapters
                 Vehicle.DeselectSlots();
             }
             else
-                Log.Warn($"Docking vehicle does not have the player");
+                log.Warn($"Docking vehicle does not have the player");
 
             yield return new WaitForFixedUpdate();
             yield return new WaitForEndOfFrame();
 
-            Log.Write($"Entering archon from transform parent {Player.main.transform.parent.NiceName()}");
+            using var log2 = new LogContext(log, nameof(SwitchToArchon));
+
+            log2.Write($"Entering archon from transform parent {Player.main.transform.parent.NiceName()}");
             Archon.EnterFromDocking();
-            Log.Write($"Registering fix parent {Player.main.transform.parent.NiceName()}");
+            log2.Write($"Registering fix parent {Player.main.transform.parent.NiceName()}");
             UpdateCounter = 0;
-            Log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
-            Log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
-            Log.Write($" A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
-            Helper.ChangeAvatarInput(true);
-            yield break;
+            log2.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
+            log2.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
+            log2.Write($" A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, [])}");
+            Helper.ChangeAvatarInput(log2,true);
         }
 
 
@@ -504,9 +506,9 @@ namespace Subnautica_Archon.Adapters
 
         public void BeginUndocking()
         {
-            Vehicle.subName.pingInstance.SetHudIcon(true);
+            using var log = new LogContext(Log, nameof(BeginUndocking));
+            Abstraction.PingInstance.SetHudIcon(log, true);
         }
-
 
         public void EndUndocking()
         {
