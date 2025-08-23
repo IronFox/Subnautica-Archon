@@ -60,13 +60,47 @@ namespace Subnautica_Archon.Adapters
         public override string ToString()
             => $"Dockable{{{Vehicle.NiceName()}, '{Vehicle.GetVehicleName()}'}}";
 
-        private Bounds? bounds;
-        public Bounds LocalBounds
+        private Bounds3? bounds;
+        public Bounds3 LocalBounds
         {
             get
             {
                 if (bounds.IsNull())
-                    bounds = Vehicle.transform.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true);
+                {
+                    bounds = Vehicle.transform.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true,
+                        Player.main.SafeGetTransform());
+                    //
+                    //
+                    // var debugObject = new GameObject("DebugBounds");
+                    // debugObject.transform.SetParent(Vehicle.transform);
+                    // debugObject.transform.localPosition = Vector3.zero;
+                    // debugObject.transform.localRotation = Quaternion.identity;
+                    // debugObject.transform.localScale = M.V3(1f / Vehicle.transform.localScale.x, 1f / Vehicle.transform.localScale.y, 1f / Vehicle.transform.localScale.z);;
+                    //
+                    // var box1 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    // Object.Destroy(box1.GetComponent<BoxCollider>());
+                    // box1.transform.SetParent(debugObject.transform);
+                    // box1.transform.localPosition = bounds.Value.Center + M.V3(bounds.Value.Size.x + 1,0,0);
+                    // box1.transform.localRotation = Quaternion.identity;
+                    // box1.transform.localScale = M.V3(0.1f,bounds.Value.Size.y,bounds.Value.Size.z);
+                    //
+                    // var box2 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    // Object.Destroy(box2.GetComponent<BoxCollider>());
+                    // box2.transform.SetParent(debugObject.transform);
+                    // box2.transform.localPosition = bounds.Value.Center + M.V3(0,bounds.Value.Size.y + 1,0);
+                    // box2.transform.localRotation = Quaternion.identity;
+                    // box2.transform.localScale = M.V3(bounds.Value.Size.x,0.1f,bounds.Value.Size.z);
+                    //
+                    // var box3 = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                    // Object.Destroy(box3.GetComponent<BoxCollider>());
+                    // box3.transform.SetParent(debugObject.transform);
+                    // box3.transform.localPosition = bounds.Value.Center + M.V3(0,0,bounds.Value.Size.z + 1);
+                    // box3.transform.localRotation = Quaternion.identity;
+                    // box3.transform.localScale = M.V3(bounds.Value.Size.x,bounds.Value.Size.y,0.1f);
+                    //
+                    
+                }
+
                 return bounds.Value;
             }
         }

@@ -76,10 +76,10 @@ public interface IDockable
 
 
     /// <summary>
-    /// Gets the axis aligned bounds of the local dockable from its point of origin in local space.
+    /// Gets the axis-aligned bounds of the local dockable from its point of origin in local space.
     /// Transform scale, if any, should be applied, position or rotation should not
     /// </summary>
-    Bounds LocalBounds { get; }
+    Bounds3 LocalBounds { get; }
 
     /// <summary>
     /// The image of the vehicle to show on screen when selected.

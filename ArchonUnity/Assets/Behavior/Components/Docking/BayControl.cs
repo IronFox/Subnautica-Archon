@@ -31,7 +31,7 @@ public class BayControl : MonoBehaviour
 
     public int maxDockedVehicles = 2;
 
-    private Bounds permittedBounds;
+    private Bounds3 permittedBounds;
     private bool isLoading;
 
     public static Action<ArchonControl, IDockable> OnDockingFailedFull { get; set; }
@@ -95,9 +95,11 @@ public class BayControl : MonoBehaviour
 
     void Awake()
     {
-        Log.Write(nameof(Awake));
-        permittedBounds = dockedBounds.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true);
-        RedetectDocked();
+        using (var log = new LogContext(nameof(BayControl) + '.' + nameof(Awake)))
+        {
+            permittedBounds = dockedBounds.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true, excludeFrom: null);
+            RedetectDocked();
+        }
     }
 
     public void SignalLoading()
@@ -108,66 +110,73 @@ public class BayControl : MonoBehaviour
 
     public int RedetectDocked()
     {
-
-
-        //NumDockedVehicles = 0;
-
-        var candidates = Physics.OverlapSphere(archon.transform.position, 1000);
-        Log.Write($"Checking {candidates.Length} colliders");
-        var rbs = candidates.Select(c => c.attachedRigidbody).Where(x => x).Distinct().ToList();
-        Log.Write($"Down to {rbs.Count} rigidbodies");
-
-
-        foreach (var candidate in rbs)
+        using (var log = new LogContext(nameof(RedetectDocked)))
         {
-            try
-            {
-                if (!candidate)
-                {
-                    Log.Write($"Found null candidate");
-                    continue;
-                }
-                if (!candidate.transform)
-                {
-                    Log.Write($"Found candidate with null transform");
-                    continue;
-                }
-                if (candidate.transform.IsChildOf(archon.transform))
-                {
-                    Log.Write($"Found local {candidate.NiceName()} in {candidate.transform.PathToString()}");
-                    continue;
-                }
-                //Log.Write($"Now checking {candidate.NiceName()}");
 
-                var d = DockingAdapter.ToDockable(candidate.gameObject, archon, DockingAdapter.Filter.CurrentlyDockedBySaveGame);
-                if (d != null)
-                {
-                    Log.Write("Is dockable");
-                    var fit = FindBestFit(d);
-                    if (fit != null)
-                    {
-                        Log.Write("Fits. Docking");
-                        var tug = Tug.GetOrAdd(d.GameObject);
-                        tug.Bind(this, fit.Value, TugStatus.Docked);
-                        IncNumDockedVehicles(tug);
-                    }
-                    else
-                    {
-                        d.GameObject.transform.position += M.V3(50); //evacuate the thing out
-                        Log.Default.LogError("Tagged but does not fit. Translated away");
-                    }
-                }
-                // else
-                //     Log.Write("Is not dockable or not docked");
-            }
-            catch (Exception e)
+
+            //NumDockedVehicles = 0;
+
+            var candidates = Physics.OverlapSphere(archon.transform.position, 1000);
+            log.Write($"Checking {candidates.Length} colliders");
+            var rbs = candidates.Select(c => c.attachedRigidbody).Where(x => x).Distinct().ToList();
+            log.Write($"Down to {rbs.Count} rigidbodies");
+
+
+            foreach (var candidate in rbs)
             {
-                Debug.LogException(e);
+                try
+                {
+                    if (!candidate)
+                    {
+                        log.Write($"Found null candidate");
+                        continue;
+                    }
+
+                    if (!candidate.transform)
+                    {
+                        log.Write($"Found candidate with null transform");
+                        continue;
+                    }
+
+                    if (candidate.transform.IsChildOf(archon.transform))
+                    {
+                        log.Write($"Found local {candidate.NiceName()} in {candidate.transform.PathToString()}");
+                        continue;
+                    }
+                    //Log.Write($"Now checking {candidate.NiceName()}");
+
+                    var d = DockingAdapter.ToDockable(candidate.gameObject, archon,
+                        DockingAdapter.Filter.CurrentlyDockedBySaveGame);
+                    if (d != null)
+                    {
+                        log.Write("Is dockable");
+                        var fit = FindBestFit(d);
+                        if (fit != null)
+                        {
+                            log.Write("Fits. Docking");
+                            var tug = Tug.GetOrAdd(d.GameObject);
+                            tug.Bind(this, fit.Value, TugStatus.Docked);
+                            IncNumDockedVehicles(tug);
+                        }
+                        else
+                        {
+                            d.GameObject.transform.position += M.V3(50); //evacuate the thing out
+                            log.Error("Tagged but does not fit. Translated away");
+                        }
+                    }
+                    // else
+                    //     Log.Write("Is not dockable or not docked");
+                }
+                catch (Exception e)
+                {
+                    log.Error($"Caught exception",e);
+                }
+
             }
 
+            archon.SignalDockedChange();
+            return NumDockedVehicles;
         }
-        archon.SignalDockedChange();
-        return NumDockedVehicles;
     }
 
     private ComponentSet<Tug> DockedTugs { get; } = new ComponentSet<Tug>();
@@ -209,26 +218,31 @@ public class BayControl : MonoBehaviour
 
     private DockingFit? FindBestFit(IDockable d)
     {
-        var bounds = d.LocalBounds;
-
-        var fit = new DockingFit(d, Quaternion.identity, -bounds.center, bounds);
-
-        var correction = -bounds.center;
-        bounds = bounds.TranslateBy(correction);
-        if (!permittedBounds.Contains(fit.Bounds))
+        //using (var log = new LogContext(nameof(FindBestFit)))
         {
-            //Log.LogError($"Candidate vehicle {d} is too large unrotated. Rotating ({fit.Bounds} exeeds {permittedBounds})");
+            var bounds = d.LocalBounds;
 
-            bounds = new Bounds(bounds.center, M.V3(bounds.size.x, bounds.size.z, bounds.size.y));
-            fit = new DockingFit(d, Quaternion.AngleAxis(90, Vector3.right), -bounds.center, bounds);
-
-            if (!permittedBounds.Contains(fit.Bounds))
+            var fit1 = new DockingFit(d, Quaternion.identity, bounds);
+            //log.Write($"Testing fit {fit.CenterCorrection}, {fit.Bounds.size}");
+            if (!permittedBounds.ContainsCentered(fit1.Bounds))
             {
-                Log.Default.LogError($"Candidate vehicle {d} is still too large to dock ({fit.Bounds} exeeds {permittedBounds})");
-                return null;
+                //Log.LogError($"Candidate vehicle {d} is too large unrotated. Rotating ({fit.Bounds} exeeds {permittedBounds})");
+
+                bounds = Bounds3.CenterBox(bounds.Center, M.V3(bounds.Size.x, bounds.Size.z, bounds.Size.y)); //flip y and z
+                var fit2 = new DockingFit(d, Quaternion.AngleAxis(90, Vector3.right), bounds);
+                //log.Write($"Testing rotated fit {fit.CenterCorrection}, {fit.Bounds.size}");
+                
+
+                if (!permittedBounds.ContainsCentered(fit2.Bounds))
+                {
+                    Log.Default.LogError(
+                        $"Candidate vehicle {d} is still too large to dock ({fit1.Bounds} and {fit2.Bounds} exceed {permittedBounds})");
+                    return null;
+                }
             }
+
+            return fit1;
         }
-        return fit;
     }
 
     private void SetBayVisible(bool visible)

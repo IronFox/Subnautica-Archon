@@ -537,16 +537,14 @@ public readonly struct DockingFit
     public IDockable Dockable { get; }
     public Quaternion Rotation { get; }
     public Vector3 CenterCorrection { get; }
-    public Bounds Bounds { get; }
+    public Bounds3 Bounds { get; }
     public GameObject GameObject => Dockable.GameObject;
 
-    public DockingFit(IDockable dockable, Quaternion rotation, Vector3 centerCorrection, Bounds bounds)
+    public DockingFit(IDockable dockable, Quaternion rotation, Bounds3 bounds)
     {
-        if (dockable is null)
-            throw new ArgumentNullException(nameof(dockable));
-        Dockable = dockable;
+        Dockable = dockable ?? throw new ArgumentNullException(nameof(dockable));
         Rotation = rotation;
-        CenterCorrection = centerCorrection;
+        CenterCorrection = -bounds.Center;
         Bounds = bounds;
     }
 
