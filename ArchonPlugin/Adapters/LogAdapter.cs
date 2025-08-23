@@ -10,7 +10,7 @@ namespace Subnautica_Archon.Adapters
         {
             Tags = tags;
             Writer = new LogWriter(
-                tags: tags.Prepend("Unity").ToArray(),
+                tags: tags.Prepend("Uty").ToArray(),
                 prefix: null
             );
         }

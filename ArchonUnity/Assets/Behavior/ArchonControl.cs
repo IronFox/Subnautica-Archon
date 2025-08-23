@@ -16,7 +16,6 @@ public class ArchonControl : MonoBehaviour
 	public KeyCode openConsoleKey = KeyCode.F7;
 
 	public Transform interior;
-	public Transform interiorColliders;
 	public Transform interiorLights;
 	public GameObject[] glass;
 	public Transform exterior;
@@ -246,7 +245,7 @@ public class ArchonControl : MonoBehaviour
 	{
 		using (var Log = new LogContext(nameof(UpdateInteriorCollidersAndLights),enable))
 		{
-			SetCollidersEnabled(interiorColliders.GetAllColliders(PlayerAdapter.Player()), enable);
+			SetCollidersEnabled(interior.GetAllColliders(PlayerAdapter.Player()), enable);
 
 			interiorLights.gameObject.SetActive(enable);
 			glass?.ForEach(g => g.SetActive(enable));
@@ -301,14 +300,17 @@ public class ArchonControl : MonoBehaviour
 	}
 	private void SetRenderAndCollisionActive(Transform t, bool active)
 	{
-		if (t)
+		using (var log = new LogContext(nameof(SetRenderAndCollisionActive), t, active))
 		{
-			foreach (Renderer r in t.GetComponentsInChildren<Renderer>())
+			if (t)
 			{
-				r.enabled = active;
-			}
+				foreach (Renderer r in t.GetComponentsInChildren<Renderer>())
+				{
+					r.enabled = active;
+				}
 
-			SetCollisionActive(t, active);
+				SetCollisionActive(t, active);
+			}
 		}
 
 	}
@@ -468,9 +470,9 @@ public class ArchonControl : MonoBehaviour
 
 	public void Exit()
 	{
-		using (var Log = new LogContext(nameof(Exit)))
+		using (var log = new LogContext(nameof(Exit)))
 		{
-			Log.Write($"Offboarding");
+			log.Write($"Offboarding");
 
 			SetCameraIsInVehicle(false, false);
 
@@ -634,14 +636,17 @@ public class ArchonControl : MonoBehaviour
 	// Start is called before the first frame update
 	private void Start()
 	{
-		//bayControl = GetComponentInChildren<BayControl>();
-		if (orientation)
+		using (var log = new LogContext(nameof(Start)))
 		{
-			orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
-		}
+			//bayControl = GetComponentInChildren<BayControl>();
+			if (orientation)
+			{
+				orientation.targetOrientation = inWaterDirectionSource = new TransformDirectionSource(trailSpace);
+			}
 
-		evacuateIntruders.enabled = IsBoardedButNotControlled;
-		SetCameraIsInVehicle(false, false);
+			evacuateIntruders.enabled = IsBoardedButNotControlled;
+			SetCameraIsInVehicle(false, false);
+		}
 	}
 
 	private static string TN(RenderTexture rt)

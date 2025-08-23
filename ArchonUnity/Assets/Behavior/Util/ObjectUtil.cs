@@ -2,6 +2,8 @@ using Assets.Behavior.Adapters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Behavior.Util.Log;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public static class ObjectUtil
@@ -116,16 +118,31 @@ public static class ObjectUtil
             s = s.Substring(0, at);
         return $"<{o.GetType().Name}> '{s}' [{o.GetInstanceID()}]";
     }
-    public static string PathToString(this Transform t)
+
+    
+    
+    public static string ComponentToString(this Component c, [CanBeNull] Transform terminator = null)
+    {
+        return c.transform.parent.PathToString(terminator,false)+'/'+c.NiceName();
+    }
+
+    public static string PathToString(this Transform t, [CanBeNull] Transform terminator = null, bool includeInstanceNumber = true)
     {
         if (!t)
             return "<null>";
         var parts = new List<string>();
         try
         {
-            while (t)
+            while (t != terminator)
             {
-                parts.Add($"{t.name}[{t.GetInstanceID()}]");
+                var s = t.name;
+                int at = s.IndexOf('(');
+                if (at >= 0)
+                    s = s.Substring(0, at);
+                if (includeInstanceNumber)
+                    parts.Add($"{s}[{t.GetInstanceID()}]");
+                else
+                    parts.Add(s);
                 t = t.parent;
             }
         }
@@ -148,22 +165,41 @@ public static class ObjectUtil
         return collider.gameObject;
     }
 
+    public static IEnumerable<T> GetAll<T>(this Transform t, GameObject exclude = null) where T : Component
+    {
+        //using (var log = new LogContext(nameof(GetAll)+$"<{typeof(T).Name}>", t, exclude))
+        {
+            if (t.gameObject == exclude)
+            {
+                //log.Write("Excluded by exclusion object");
+                yield break;
+            }
+
+            if (t.GetComponent<ExcludeFromHierarchyChanges>())
+            {
+                //log.Write($"Excluded by {nameof(ExcludeFromHierarchyChanges)}");
+                yield break;
+            }
+
+            foreach (var c in t.GetComponents<T>())
+            {
+                //log.Write($"Found {c.NiceName()}");
+                yield return c;
+            }
+
+            foreach (var child in t.GetChildren())
+            {
+                foreach (var c in GetAll<T>(child, exclude))
+                {
+                    yield return c;
+                }
+            }
+        }
+    }
 
     public static IEnumerable<Collider> GetAllColliders(this Transform t, GameObject exclude)
     {
-        if (t.gameObject == exclude)
-            yield break;
-        foreach (var c in t.GetComponents<Collider>())
-        {
-            yield return c;
-        }
-        foreach (var child in t.GetChildren())
-        {
-            foreach (var c in GetAllColliders(child, exclude))
-            {
-                yield return c;
-            }
-        }
+        return GetAll<Collider>(t, exclude);
     }
 
     public static void RequireActive(this MonoBehaviour c, Transform rootTransform)

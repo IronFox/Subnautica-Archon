@@ -137,5 +137,35 @@ namespace Subnautica_Archon.Util
 
 
         public Vehicle Vehicle { get; }
+
+        public bool ClearMountedDrone(LogContext ctx)
+        {
+            var t = Vehicle.DroneType();
+            if (t.IsNull())
+            {
+                ctx.Warn($"Expected drone type but got none");
+                return false;
+            }
+
+            ctx.Write($"Drone type is {t.FullName}");
+
+            var mountedDroneField = t.GetField("mountedDrone", BindingFlags.Public | BindingFlags.Static);
+            if (mountedDroneField.IsNull())
+            {
+                ctx.Warn($"Unable to find field mountedDrone on {t}");
+                return false;
+            }
+
+            var value = mountedDroneField.GetValue(null) as Vehicle;
+            if (value.IsNotNull())
+            {
+                ctx.Warn($"Mounted drone field reported as {value.NiceName()}");
+                mountedDroneField.SetValue(null, null);
+                return true;
+            }
+            ctx.Write($"mountedDrone is null");
+
+            return false;
+        }
     }
 }

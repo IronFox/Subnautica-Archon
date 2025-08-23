@@ -3,6 +3,7 @@ using Assets.Behavior.TransferTypes;
 using System;
 using Behavior.Util;
 using Behavior.Util.Log;
+using Behavior.Util.Math;
 using JetBrains.Annotations;
 using TMPro;
 using UnityEngine;
@@ -100,7 +101,7 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
 
             if (sprite)
             {
-                var spriteBounds = Bounds2.From(sprite.vertices);
+                var spriteBounds = BoundsBuilder2.From(sprite.vertices);
                 var scale = 1f / Mathf.Max(spriteBounds.X.Size,spriteBounds.Y.Size);
                 subImage.transform.localScale = M.V3(scale);
             }

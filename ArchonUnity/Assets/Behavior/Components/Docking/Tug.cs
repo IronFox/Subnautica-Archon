@@ -1,6 +1,7 @@
 ﻿using Assets.Behavior.Adapters;
 using System;
 using System.Collections.Generic;
+using Behavior.Util.Math;
 using UnityEngine;
 
 
@@ -138,7 +139,7 @@ public class Tug : MonoBehaviour
                 Do(fit.Dockable.BeginUndocking, $"Dockable.BeginUndocking()", verifyIntegrity: false);
                 break;
         }
-        fit.Dockable.DisableAllEnabledColliders(UndoTugging, forced: true);
+        fit.Dockable.DisableAllEnabledColliders(UndoTugging /*, forced: true*/);
         fit.Dockable.DisableRigidbodies(UndoTugging, forced: true);
 
 
@@ -340,12 +341,7 @@ public class Tug : MonoBehaviour
         AnimationSeconds = M.Distance(LocalPosition(AnimationStart), LocalPosition(AnimationEnd())) / Owner.dockingMetersPerSecond;
     }
 
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
+    
     public void PrepareForSaving()
     {
         Log.Write(nameof(PrepareForSaving));
@@ -536,16 +532,14 @@ public readonly struct DockingFit
     public IDockable Dockable { get; }
     public Quaternion Rotation { get; }
     public Vector3 CenterCorrection { get; }
-    public Bounds Bounds { get; }
+    public Bounds3 Bounds { get; }
     public GameObject GameObject => Dockable.GameObject;
 
-    public DockingFit(IDockable dockable, Quaternion rotation, Vector3 centerCorrection, Bounds bounds)
+    public DockingFit(IDockable dockable, Quaternion rotation, Bounds3 bounds)
     {
-        if (dockable is null)
-            throw new ArgumentNullException(nameof(dockable));
-        Dockable = dockable;
+        Dockable = dockable ?? throw new ArgumentNullException(nameof(dockable));
         Rotation = rotation;
-        CenterCorrection = centerCorrection;
+        CenterCorrection = -bounds.Center;
         Bounds = bounds;
     }
 

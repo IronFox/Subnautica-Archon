@@ -190,9 +190,9 @@ namespace Subnautica_Archon
                         return null; //don't grap docked vehicles
                     if (filter == DockingAdapter.Filter.CurrentlyDockedBySaveGame && !archon.IsDockedBySavegame(go.PrefabId()))
                         return null; //don't grab vehicles that are not docked by this save game
-                    var dmem = go.EnsureComponent<DockableMemory>();
-                    dmem.Dockable = dmem.Dockable ?? new DockableVehicle(v, archon);
-                    return dmem.Dockable;
+                    var dockableMem = go.EnsureComponent<DockableMemory>();
+                    dockableMem.Dockable ??= new DockableVehicle(v, archon);
+                    return dockableMem.Dockable;
                 };
 
                 EvacuationAdapter.ShouldEvacuate = go =>

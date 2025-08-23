@@ -1,5 +1,7 @@
 ﻿using Assets.Behavior.Adapters;
 using System.Collections.Generic;
+using System.Linq;
+using Behavior.Util.Log;
 using UnityEngine;
 
 public class ColliderWatchdog : MonoBehaviour
@@ -33,7 +35,7 @@ public class ColliderWatchdog : MonoBehaviour
         {
             if (c.enabled)
             {
-                Log.LogWarning($"{nameof(ColliderWatchdog)}: Disabling collider {c.NiceName()}");
+                Log.LogWarning($"{nameof(ColliderWatchdog)}: Disabling collider {c.ComponentToString(transform)}");
                 c.enabled = false;
             }
         }
@@ -41,12 +43,12 @@ public class ColliderWatchdog : MonoBehaviour
         {
             if (!c.enabled)
             {
-                Log.LogWarning($"{nameof(ColliderWatchdog)}: Enabling collider {c.NiceName()}");
+                Log.LogWarning($"{nameof(ColliderWatchdog)}: Enabling collider {c.ComponentToString(transform)}");
                 c.enabled = true;
             }
             if (!c.gameObject.activeInHierarchy)
             {
-                Log.LogWarning($"{nameof(ColliderWatchdog)}: Collider game object {c.gameObject.NiceName()} has been disabled. Fixing");
+                Log.LogWarning($"{nameof(ColliderWatchdog)}: Collider game object {c.ComponentToString(transform)} has been disabled. Fixing");
                 c.gameObject.RequireActive(transform);
             }
         }
@@ -62,25 +64,35 @@ public class ColliderWatchdog : MonoBehaviour
     }
     internal void SetCollidersEnabled(IEnumerable<Collider> colliders, bool enable)
     {
-        foreach (var c in colliders)
+        var list = colliders.ToList();
+        using (var log = new LogContext(nameof(ColliderWatchdog)+'.'+nameof(SetCollidersEnabled), list.Count, enable))
         {
-            if (c)
+            foreach (var c in list)
             {
-                if (enable)
+                if (c)
                 {
-                    EnabledColliders.Add(c);
-                    DisabledColliders.Remove(c);
-                    enumerator = null;
-                    c.enabled = true;
-                }
-                else
-                {
-                    DisabledColliders.Add(c);
-                    EnabledColliders.Remove(c);
-                    enumerator = null;
-                    c.enabled = false;
+                    if (enable)
+                    {
+                        //if (!EnabledColliders.Contains(c) && !DisabledColliders.Contains(c))
+                          //  log.Write($"Registering new as enabled: {c.ComponentToString(transform)}");
+                        EnabledColliders.Add(c);
+                        DisabledColliders.Remove(c);
+                        enumerator = null;
+                        c.enabled = true;
+                    }
+                    else
+                    {
+                        //if (!EnabledColliders.Contains(c) && !DisabledColliders.Contains(c))
+                          //  log.Write($"Registering new as disabled: {c.ComponentToString(transform)}");
+                        DisabledColliders.Add(c);
+                        EnabledColliders.Remove(c);
+                        enumerator = null;
+                        c.enabled = false;
+                    }
                 }
             }
+
+            log.Write($"Changes applied. Enabled now {EnabledColliders.Count()}, disabled now {DisabledColliders.Count()}");
         }
     }
 
