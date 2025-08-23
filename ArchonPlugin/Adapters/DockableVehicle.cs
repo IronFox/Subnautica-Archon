@@ -534,34 +534,6 @@ namespace Subnautica_Archon.Adapters
                 .Where(x => !x.transform.IsChildOf(Player.mainObject.transform));
         }
 
-        public void Tag(string tag)
-        {
-            var name = Vehicle.GetName();
-            if (!name.Contains(tag))
-            {
-                Log.Write($"Tagging {Vehicle.NiceName()} '{name}' with '{tag}'");
-                name += tag;
-                Vehicle.SetName(name);
-            }
-        }
-
-        public void Untag(string tag)
-        {
-            var name = Vehicle.GetName();
-            var idx = name.IndexOf(tag);
-            if (idx >= 0)
-            {
-                Log.Write($"Stripping tag from {Vehicle.NiceName()} '{name}' ('{tag}')");
-                name = name.Remove(idx, tag.Length);
-                Vehicle.SetName(name);
-            }
-        }
-
-        public bool IsTagged(string tag)
-        {
-            return Vehicle.GetName().Contains(tag);
-        }
-
         public void OnUndockedForSaving()
         {
             Log.Write(nameof(OnUndockedForSaving));
