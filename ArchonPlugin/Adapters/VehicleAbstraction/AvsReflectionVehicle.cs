@@ -58,7 +58,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         public bool HudIconIsEnabled()
         {
             var pi = pingInstance.Value;
-            if (pi is null)
+            if (pi.IsNull())
             {
                 Log.Error("pingInstance not set on " + Vehicle.NiceName());
                 return false;

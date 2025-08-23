@@ -8,6 +8,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using AVS.Util;
 
 
 namespace Subnautica_Archon.Adapters
@@ -64,7 +65,7 @@ namespace Subnautica_Archon.Adapters
         {
             get
             {
-                if (bounds is null)
+                if (bounds.IsNull())
                     bounds = Vehicle.transform.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true);
                 return bounds.Value;
             }
@@ -85,7 +86,7 @@ namespace Subnautica_Archon.Adapters
                     {
                         log.Write($"Fetching image for {tt.AsString()}" );
                         image = SpriteManager.Get(tt, null);
-                        if (image == null || image.texture == null)
+                        if (image.IsNull() || image.texture.IsNull())
                         {
                             log.Error($"Image for {tt.AsString()} does not exist. Using empty texture.");
                         }
@@ -166,7 +167,7 @@ namespace Subnautica_Archon.Adapters
             get
             {
                 var mixin = Vehicle.liveMixin;
-                if (mixin == null)
+                if (mixin.IsNull())
                 {
                     return Text.Error(Language.main.Get("Dockable.Text.HealthUnknown"));
                 }
@@ -178,7 +179,7 @@ namespace Subnautica_Archon.Adapters
             get
             {
                 var energy = Vehicle.GetComponent<EnergyInterface>();
-                if (energy == null)
+                if (energy.IsNull())
                 {
                     return Text.Error(Language.main.Get("Dockable.Text.PowerUnknown"));
                 }
@@ -650,7 +651,7 @@ namespace Subnautica_Archon.Adapters
                 QuickSlot? addedTo = null;
                 foreach (var slot in Archon.QuickSlots)
                 {
-                    if (Archon.modules.GetItemInSlot(slot.ID) == null)
+                    if (Archon.modules.GetItemInSlot(slot.ID).IsNull())
                     {
                         Archon.modules.AddItem(slot.ID, item, true);
                         addedTo = slot;

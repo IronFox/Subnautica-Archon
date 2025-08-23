@@ -1,4 +1,5 @@
 ﻿using AVS.Assets;
+using AVS.Util;
 using Subnautica_Archon.Util;
 using UnityEngine;
 
@@ -23,7 +24,7 @@ namespace Subnautica_Archon
         {
             Log.Write($"Loading sprite from {filename}");
             var rs = SpriteHelper.GetSpriteRaw(filename);
-            if (rs == null)
+            if (rs.IsNull())
                 throw new System.IO.FileNotFoundException($"Sprite file not found: {filename}");
             return rs;
         }

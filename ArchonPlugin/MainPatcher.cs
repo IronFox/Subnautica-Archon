@@ -126,7 +126,7 @@ namespace Subnautica_Archon
             var instance = coroutine.GetResult();
             Log.Write($"Got module: {instance.NiceName()}");
             var pickupable = instance.SafeGetComponent<Pickupable>();
-            if (pickupable == null)
+            if (pickupable.IsNull())
             {
                 Log.Error($"Pickupable not found on {instance.NiceName()}");
             }
@@ -212,7 +212,7 @@ namespace Subnautica_Archon
                 //TargetAdapter.ResolveTarget = (go, rb) =>
                 //{
                 //    var mixin = go.GetComponent<LiveMixin>();
-                //    if (mixin == null)
+                //    if (mixin.IsNull())
                 //        return null;
                 //    var vehicle = go.GetComponent<Vehicle>();
                 //    if (vehicle != null)

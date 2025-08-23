@@ -1,16 +1,14 @@
 ﻿using AVS.Audio;
 using FMOD;
 using Subnautica_Archon.Util;
-using System;
 using UnityEngine;
-using static Subnautica_Archon.Util.MyLogger;
+using AVS.Util;
 
 namespace Subnautica_Archon.Adapters
 {
     internal class FModSoundCreator : ISoundCreator
     {
         public float HalfDistance { get; set; } = 20f;
-        private static float Sqr(float value) => value * value;
         public IInstantiatedSound? Instantiate(SoundConfig cfg)
         {
             var sound = AVS.Audio.FModSoundCreator.Play(
@@ -25,7 +23,7 @@ namespace Subnautica_Archon.Adapters
                         Volume: cfg.Volume,
                         Pitch: cfg.Pitch
                         )), Log.Writer);
-            if (sound is null)
+            if (sound.IsNull())
                 return null; 
             return new TranslatedFModSound(sound, cfg);
 
@@ -147,7 +145,7 @@ namespace Subnautica_Archon.Adapters
     //
     //     public void Update()
     //     {
-    //         if (sound == null || !sound.Update(Time.deltaTime))
+    //         if (sound.IsNull() || !sound.Update(Time.deltaTime))
     //         {
     //             Log.Error($"FModComponent.sound({sound?.Channel.handle}).Update() returned false. Self-destructing");
     //             sound = null;//there is something going on in this case. better just unset and don't touch it

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using AVS.Util;
 
 namespace Subnautica_Archon.Util
 {
@@ -9,7 +10,7 @@ namespace Subnautica_Archon.Util
     {
         public static Transform? SafeGetTransform(this Vehicle? v)
         {
-            if (v == null)
+            if (v.IsNull())
                 return null;
             try
             {
@@ -23,7 +24,7 @@ namespace Subnautica_Archon.Util
 
         public static string GetPath(this Transform? t)
         {
-            if (t == null)
+            if (t.IsNull())
                 return "<null>";
             var parts = new List<string>();
             try
@@ -58,13 +59,10 @@ namespace Subnautica_Archon.Util
                 }
             }
         }
-
-        public static string GetVehicleName(this Vehicle v)
-            => v.subName ? v.subName.GetName() : v.vehicleName;
-
-        public static IReadOnlyList<Type> GetHierarchyOf(Type t)
+        
+        public static IReadOnlyList<Type> GetHierarchyOf(Type? t)
         {
-            if (t is null)
+            if (t.IsNull())
             {
                 throw new ArgumentNullException(nameof(t));
             }
@@ -80,7 +78,7 @@ namespace Subnautica_Archon.Util
 
         public static bool IsDrone(this Vehicle vehicle)
         {
-            if (vehicle == null)
+            if (vehicle.IsNull())
             {
                 return false;
             }
@@ -90,7 +88,7 @@ namespace Subnautica_Archon.Util
 
         public static bool IsVFVehicle(this Vehicle vehicle)
         {
-            if (vehicle == null)
+            if (vehicle.IsNull())
             {
                 return false;
             }
@@ -100,7 +98,7 @@ namespace Subnautica_Archon.Util
 
         public static bool IsAvsVehicle(this Vehicle vehicle)
         {
-            if (vehicle == null)
+            if (vehicle.IsNull())
             {
                 return false;
             }

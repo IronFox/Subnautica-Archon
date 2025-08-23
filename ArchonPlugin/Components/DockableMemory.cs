@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using Subnautica_Archon.Util;
 
 namespace Subnautica_Archon.Components
 {
@@ -8,7 +9,7 @@ namespace Subnautica_Archon.Components
 
         internal void Start()
         {
-            if (Dockable == null)
+            if (Dockable.IsNull())
             {
                 Destroy(this);
             }

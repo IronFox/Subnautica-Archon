@@ -6,6 +6,7 @@ using Subnautica_Archon.Modules;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections.Generic;
+using AVS.Util;
 using UnityEngine;
 
 public abstract class ArchonBaseModule : AvsVehicleModule
@@ -41,7 +42,7 @@ public abstract class ArchonBaseModule : AvsVehicleModule
         Module = module;
         var path = $"images/{module}.png";
         icon = MainPatcher.LoadSprite(path);
-        if (icon == null)
+        if (icon.IsNull())
             throw new InitializationException($"Error while constructing {module} {this}: File {path} not found");
     }
 
@@ -81,7 +82,7 @@ public abstract class ArchonBaseModule : AvsVehicleModule
 
         Log.Write($"ArchonBaseModule[{Module}].OnAdded(vehicle={param.Vehicle.NiceName()},isAdded={param.Added},slot={param.SlotID})");
         var archon = param.Vehicle as Archon;
-        if (archon == null)
+        if (archon.IsNull())
         {
             Log.Error($"Added to incompatible vehicle {param.Vehicle.NiceName()}");
             ErrorMessage.AddWarning("This is an Archon upgrade and will not work on other subs!");
@@ -94,7 +95,7 @@ public abstract class ArchonBaseModule : AvsVehicleModule
     public override void OnRemoved(AddActionParams param)
     {
         var archon = param.Vehicle as Archon;
-        if (archon == null)
+        if (archon.IsNull())
         {
             return;
         }

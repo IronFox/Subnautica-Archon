@@ -2,12 +2,13 @@
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using AVS.Util;
 
 namespace Subnautica_Archon.Util.Reflection
 {
     public class BaseMethodAdapter
     {
-        public bool IsEmpty => Method is null || !Target;
+        public bool IsEmpty => Method.IsNull() || !Target;
         protected MethodInfo? Method { get; }
         protected UnityEngine.Object Target { get; }
 
@@ -17,7 +18,7 @@ namespace Subnautica_Archon.Util.Reflection
         {
             Target = target;
             MethodName = methodName;
-            if (target == null)
+            if (target.IsNull())
             {
                 Log.Error("Given target game object is empty");
                 return;
@@ -30,7 +31,7 @@ namespace Subnautica_Archon.Util.Reflection
             try
             {
                 Method = target.GetType().GetMethod(methodName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance, binder: null, parameterTypes, modifiers: null);
-                if (Method is null)
+                if (Method.IsNull())
                 {
                     if (!ignoreMissing)
                         Log.Error($"Unable to find method {methodName} with parameters ({string.Join(", ", parameterTypes.Select(x => x.ToString()))}) on object of type {target.GetType()}");
@@ -50,7 +51,7 @@ namespace Subnautica_Archon.Util.Reflection
 
         public void Invoke(params object?[] p)
         {
-            if (Method is null)
+            if (Method.IsNull())
                 return;
             if (!Target)
             {
@@ -70,25 +71,17 @@ namespace Subnautica_Archon.Util.Reflection
         }
     }
 
-    public class MethodAdapter : BaseMethodAdapter
+    public class MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+        : BaseMethodAdapter(target, methodName, ignoreMissing)
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
-            : base(target, methodName, ignoreMissing, Array.Empty<Type>())
-        {
-
-        }
-
         public void Invoke()
         {
             base.Invoke();
         }
     }
-    public class MethodAdapter<T> : BaseMethodAdapter
+    public class MethodAdapter<T>(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+        : BaseMethodAdapter(target, methodName, ignoreMissing, typeof(T))
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
-            : base(target, methodName, ignoreMissing, typeof(T))
-        { }
-
         public void Invoke(T p)
         {
             base.Invoke(p);

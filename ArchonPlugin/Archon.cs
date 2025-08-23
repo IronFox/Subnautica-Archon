@@ -260,7 +260,7 @@ namespace Subnautica_Archon
             try
             {
                 var modPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                if (modPath == null)
+                if (modPath.IsNull())
                     throw new IOException("Unable to get mod path");
                 string bundlePath;
 
@@ -283,7 +283,7 @@ namespace Subnautica_Archon
                             staticModel = (GameObject)obj;
                         }
                     }
-                    if (staticModel == null)
+                    if (staticModel.IsNull())
                         log.Write("Model not found among: " + string.Join(", ", Helper.Names(assets)));
                 }
                 else
@@ -399,7 +399,7 @@ namespace Subnautica_Archon
         //    {
         //        var slotId = new QuickSlot(slotID, slotIDs[slotID]);
         //        var item = modules.GetItemInSlot(slotId.ID)?.item;
-        //        if (item == null)
+        //        if (item.IsNull())
         //            Log.Error($"No item found in slot {slotID}/{slotId}");
         //        else
         //        {
@@ -555,7 +555,7 @@ namespace Subnautica_Archon
 
                     //rotateCamera = GetComponentInChildren<RotateCamera>();
 
-                    //if (rotateCamera == null)
+                    //if (rotateCamera.IsNull())
                     //    EchLog.Write($"Rotate camera not found");
                     //else
                     //    EchLog.Write($"Found camera rotate {rotateCamera.name}");
@@ -566,7 +566,7 @@ namespace Subnautica_Archon
                     }
                     else
                     {
-                        if (transform == null)
+                        if (transform.IsNull())
                             log.Write($"Do not have a transform");
                         else
                         {
@@ -754,7 +754,7 @@ namespace Subnautica_Archon
             using var log = new LogContext(this, nameof(SetWaterProxiesEnabled), enable);
             var clipProxyParent = transform.Find("WaterClipProxy");
             var seamoth = SeamothHelper.Seamoth;
-            if (seamoth == null)
+            if (seamoth.IsNull())
             {
                 log.Write("Seamoth prefab not found. Can't adjust clip proxies right now");
                 return;
@@ -1027,7 +1027,7 @@ namespace Subnautica_Archon
 
         private void ForwardControlAxes()
         {
-            if (Control.batteryDead || Control.powerOff || engine == null)
+            if (Control.batteryDead || Control.powerOff || engine.IsNull())
             {
                 Control.forwardAxis = 0;
                 Control.rightAxis = 0;
@@ -1043,7 +1043,7 @@ namespace Subnautica_Archon
 
         private void ProcessEngine()
         {
-            if (engine == null)
+            if (engine.IsNull())
             {
                 return;
             }
@@ -1536,7 +1536,7 @@ namespace Subnautica_Archon
             }
 
             var storageRootTransform = transform.Find("StorageRoot");
-            if (storageRootTransform == null)
+            if (storageRootTransform.IsNull())
             {
                 Log.Write($"Storage root not found. Creating new one");
                 storageRootTransform = new GameObject("StorageRoot").transform;
@@ -1556,7 +1556,7 @@ namespace Subnautica_Archon
                 {
                     var name = $"Storage{i}";
                     var storageTransform = storageRootTransform.Find(name);
-                    if (storageTransform == null)
+                    if (storageTransform.IsNull())
                     {
                         storageTransform = new GameObject(name).transform;
                         storageTransform.parent = storageRootTransform.transform;
@@ -1646,7 +1646,7 @@ namespace Subnautica_Archon
                 {
                     var b = cells.GetChild(i);
                     var slot = b.Find("Slot");
-                    if (slot == null)
+                    if (slot.IsNull())
                         Log.Warn($"Power cell slot not found in {b.NiceName()}");
                     if (b != null)
                     {
@@ -1895,12 +1895,12 @@ namespace Subnautica_Archon
 
         internal bool IsDockedBySavegame(PrefabIdentifier? prefabIdentifier)
         {
-            if (DockedSubPrefabIds == null)
+            if (DockedSubPrefabIds.IsNull())
             {
                 Log.Write($"No docked vehicles restored from last load operation");
                 return false;
             }
-            if (prefabIdentifier == null)
+            if (prefabIdentifier.IsNull())
             {
                 Log.Error($"Candidate has no PrefabIdentifier");
                 return false;
@@ -1960,13 +1960,13 @@ namespace Subnautica_Archon
         //    {
         //        var root = transform.Find("StorageRoot").gameObject;
         //        var rs = new List<VehicleStorage>();
-        //        if (root == null)
+        //        if (root.IsNull())
         //            return rs;
         //        for (int i = 0; i < 8; i++)
         //        {
         //            var name = $"Storage{i}";
         //            var storageTransform = root.transform.Find(name);
-        //            if (storageTransform == null)
+        //            if (storageTransform.IsNull())
         //            {
         //                storageTransform = new GameObject(name).transform;
         //                storageTransform.parent = root.transform;
@@ -2076,7 +2076,7 @@ namespace Subnautica_Archon
         //    get
         //    {
         //        //Log.Write($"Get HeadLights");
-        //        //if (headLights is null)
+        //        //if (headLights.IsNull())
         //        //{
 
         //        //    headLights = new List<VehicleFloodLight>();
@@ -2162,7 +2162,7 @@ namespace Subnautica_Archon
         //{
         //    get
         //    {
-        //        if (tetherSources is null)
+        //        if (tetherSources.IsNull())
         //        {
         //            tetherSources = new List<GameObject>();
         //            var tether = transform.Find("Tether");

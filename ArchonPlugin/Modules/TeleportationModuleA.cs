@@ -4,6 +4,7 @@ using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
 using System.Collections.Generic;
 using UnityEngine;
+using AVS.Util;
 
 namespace Subnautica_Archon.Modules
 {
@@ -71,7 +72,7 @@ namespace Subnautica_Archon.Modules
         protected override Quaternion? GetTargetOrientation(Archon vehicle)
         {
             var euler = vehicle.TeleportationOrientationA;
-            if (euler == null)
+            if (euler.IsNull())
                 return null;
             return Quaternion.Euler(euler.Value);
         }
