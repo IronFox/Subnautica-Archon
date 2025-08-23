@@ -94,8 +94,8 @@ namespace Subnautica_Archon
 
         public static Sprite? LoadSprite(string filename)
         {
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), filename);
-            Log.Write($"Trying to load sprite from {path}");
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, filename);
+            //Log.Write($"Trying to load sprite from {path}");
             try
             {
                 return SpriteHelper.GetSpriteRaw(path);
@@ -120,11 +120,11 @@ namespace Subnautica_Archon
             new DockingModule().Register(dockingNode);
 
 
-            Log.Write($"Loading emergency teleportation module: {autoAdd}");
+            //Log.Write($"Loading emergency teleportation module: {autoAdd}");
             var coroutine = CraftData.GetPrefabForTechTypeAsync(autoAdd);
             yield return coroutine;
             var instance = coroutine.GetResult();
-            Log.Write($"Got module: {instance.NiceName()}");
+            //Log.Write($"Got module: {instance.NiceName()}");
             var pickupable = instance.SafeGetComponent<Pickupable>();
             if (pickupable.IsNull())
             {
@@ -143,10 +143,10 @@ namespace Subnautica_Archon
             Coroutine? started = null;
             try
             {
-                Log.Write("MainPatcher.Register()");
-                Log.Write("model loaded: " + staticModel.name);
+                Log.Write($"MainPatcher.Register({staticModel.NiceName()})");
+                //Log.Write("model loaded: " + staticModel.name);
                 var sub = staticModel.EnsureComponent<Archon>();
-                Log.Write("archon attached: " + sub.name);
+                //Log.Write("archon attached: " + sub.name);
 
                 started = UWE.CoroutineHost.StartCoroutine(MyRegister(sub, true));
 

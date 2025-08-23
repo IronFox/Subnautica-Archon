@@ -57,7 +57,7 @@ namespace Subnautica_Archon.Modules
             All[type] = this;
             AllReverse[Module] = type;
 
-            Log.Debug($"Registered module {Module} {this} as tech type {type}");
+            //Log.Debug($"Registered module {Module} {this} as tech type {type}");
 
             return type;
         }

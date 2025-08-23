@@ -4,6 +4,6 @@
     {
         public const string PLUGIN_GUID = "com.ironfox.subnautica.2023.archon.mod";
         public const string PLUGIN_NAME = "Archon";
-        public const string PLUGIN_VERSION = "1.1.0";
+        public const string PLUGIN_VERSION = "1.1.1";
     }
 }
