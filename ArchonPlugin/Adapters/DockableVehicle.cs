@@ -536,7 +536,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OnUndockedForSaving()
         {
-            Log.Write(nameof(OnUndockedForSaving));
+            using var log = new LogContext(Log, nameof(OnUndockedForSaving));
             try
             {
                 Vehicle.liveMixin.shielded = false;
@@ -557,7 +557,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OnRedockedAfterSaving()
         {
-            Log.Write(nameof(OnRedockedAfterSaving));
+            using var log = new LogContext(Log, nameof(OnRedockedAfterSaving));
             try
             {
                 Vehicle.liveMixin.shielded = true;
@@ -569,7 +569,10 @@ namespace Subnautica_Archon.Adapters
 
 
                 if (Drone.Access(Vehicle, out var d))
+                {
+                    log.Write($"Redocking craft is drone. Setting isAsleep to false");
                     d.isAsleep = true;
+                }
 
             }
             catch (Exception ex)
