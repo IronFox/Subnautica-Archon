@@ -1,8 +1,6 @@
 batch:
 
 * silence UpdateVisualsPostfix
-* check what happens to the bioreactor when it is completely full and loaded again (do fish disappear?)
-* check equip ION power cells
 
 
 batch done:
@@ -18,6 +16,8 @@ batch done:
 * done in 2023: check map mod (seems broken on 2023)
 * done: check if fabricator works on 2023 survival. reports of no power errors. It does, no bugs apparent
 * done: check what happens to a crush drone after it is re-deployed (do its components still work? - they did not, fixed)
+* done: check what happens to the bioreactor when it is completely full and loaded again (do fish disappear?). none disappeared in creative or survival
+* done: check equip ION power cells. no issues detected
 
 no:
 
