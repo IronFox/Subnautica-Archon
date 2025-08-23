@@ -101,11 +101,13 @@ public class Tug : MonoBehaviour
     }
 
     private Location DockedLocation => Fit.CorrectDocked(Location.FromLocal(Owner.dockedBounds));
+    private Location ParkLocation => Fit.CorrectDocked(Location.FromLocal(Owner.parkPostion));
     private int ReDisable { get; set; }
     internal void Bind(BayControl bayControl, DockingFit fit, TugStatus status)
     {
         Log = Assets.Behavior.Adapters.Log.New($"Tug#{GetInstanceID()}", fit.GameObject.NiceName());
 
+        Log.Write($"Binding with status {status} and bounds {fit.Bounds}");
         Owner = bayControl;
         Status = status;
         Fit = fit;
@@ -127,7 +129,7 @@ public class Tug : MonoBehaviour
                 Fit.Dockable.DisableAllEnabledLights(Lights);
                 Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
                 ReDisable = 3;
-                DockedLocation.ApplyTo(Fit.GameObject.transform);
+                ParkLocation.ApplyTo(Fit.GameObject.transform);
 
                 //Fit.GetAllComponents<MonoBehaviour>()
                 //    .Where(x => x != this)
@@ -249,6 +251,9 @@ public class Tug : MonoBehaviour
 
 
         Do(Fit.Dockable.OnDockingDone, $"Dockable.OnDockingDone()");
+        
+        ParkLocation.ApplyTo(Fit.GameObject.transform);
+        
     }
 
     private void TransitionToWaitingForBayDoorClose()
@@ -439,12 +444,8 @@ public class Tug : MonoBehaviour
                     }
                     else
                     {
-                        if (UndoTugging.RedoAll())
-                        {
-                            Local(AnimationEnd())
-                                .ApplyTo(Fit.GameObject.transform);
-                        }
-
+                        UndoTugging.RedoAll();
+                        Local(AnimationEnd()).ApplyTo(Fit.GameObject.transform);   //just in case
                         Do(Fit.Dockable.UpdateWaitingForBayDoorClose, "Dockable.UpdateWaitingForBayDoorClose()", logAction: false);
                     }
                     break;

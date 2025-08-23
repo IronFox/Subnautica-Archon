@@ -24,6 +24,7 @@ public class BayControl : MonoBehaviour
     public Transform dockedSubRoot;
     public Transform dockedBounds;
     public Transform dockingColliders;
+    public Transform parkPostion;
     public SoundAdapter bayDoorSound;
     public SoundAdapter bayDoorLockSound;
     public SoundAdapter bayDoorUnlockSound;
