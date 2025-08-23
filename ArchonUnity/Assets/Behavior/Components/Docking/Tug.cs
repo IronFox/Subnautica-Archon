@@ -1,6 +1,7 @@
 ﻿using Assets.Behavior.Adapters;
 using System;
 using System.Collections.Generic;
+using Behavior.Util.Math;
 using UnityEngine;
 
 
