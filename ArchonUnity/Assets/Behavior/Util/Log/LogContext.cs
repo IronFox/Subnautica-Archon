@@ -1,10 +1,11 @@
 using System;
+using JetBrains.Annotations;
 
 namespace Behavior.Util.Log
 {
     internal class LogContext : AbstractLogContext
     {
-        public LogContext(string name, params object[] args) : base(name, args)
+        public LogContext(string name, [ItemCanBeNull] params object[] args) : base(name, args)
         {
             LogEntry();
         }

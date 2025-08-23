@@ -468,9 +468,9 @@ public class ArchonControl : MonoBehaviour
 
 	public void Exit()
 	{
-		using (var Log = new LogContext(nameof(Exit)))
+		using (var log = new LogContext(nameof(Exit)))
 		{
-			Log.Write($"Offboarding");
+			log.Write($"Offboarding");
 
 			SetCameraIsInVehicle(false, false);
 

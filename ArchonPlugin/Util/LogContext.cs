@@ -23,6 +23,8 @@ public class LogContext : AbstractLogContext
     public override void WriteMessage(string message)
         => Log.Write(MakeMessage(message));
 
+    public void Warn(string message)
+        => Log.Warn(MakeMessage(message));
 
     public void Write(string message)
         => Log.Write(MakeMessage(message));

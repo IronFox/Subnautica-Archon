@@ -633,15 +633,16 @@ namespace Subnautica_Archon
             using var log = new LogContext(this, nameof(OnPrePlayerEntry));
             
             Control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended || !hadUnpausedFrame);
-            HudPingInstance.SetHudIcon(false);
+            HudPingInstance.SetHudIcon(log,false);
 
             base.OnPrePlayerEntry();
         }
 
         protected override void OnPlayerExit()
         {
+            using var log = new LogContext(this, nameof(OnPlayerExit));
             base.OnPlayerExit();
-            HudPingInstance.SetHudIcon(true);
+            HudPingInstance.SetHudIcon(log,true);
             Control.Exit();
 
         }
@@ -1898,19 +1899,20 @@ namespace Subnautica_Archon
 
         internal bool IsDockedBySavegame(PrefabIdentifier? prefabIdentifier)
         {
+            using var log = new LogContext(this, nameof(IsDockedBySavegame), prefabIdentifier!);
             if (DockedSubPrefabIds.IsNull())
             {
-                Log.Write($"No docked vehicles restored from last load operation");
+                log.Write($"No docked vehicles restored from last load operation");
                 return false;
             }
             if (prefabIdentifier.IsNull())
             {
-                Log.Error($"Candidate has no PrefabIdentifier");
+                log.Error($"Candidate has no PrefabIdentifier");
                 return false;
             }
             if (!DockedSubPrefabIds.Contains(prefabIdentifier.Id))
             {
-                Log.Error($"Prefab ID {prefabIdentifier.Id} is not declared in list of docked prefab IDs");
+                log.Error($"Prefab ID {prefabIdentifier.Id} is not declared in list of docked prefab IDs");
                 return false;
             }
             return true;

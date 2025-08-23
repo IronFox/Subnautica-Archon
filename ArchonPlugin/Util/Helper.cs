@@ -8,9 +8,10 @@ namespace Subnautica_Archon.Util
 {
     public static class Helper
     {
-        public static void ChangeAvatarInput(bool active)
+        public static void ChangeAvatarInput(LogContext ctx, bool active)
         {
-            Log.Write($"Changing avatar input: {active}");
+            
+            ctx.Write($"Changing avatar input: {active}");
             AvatarInputHandler.main.gameObject.SetActive(active);
         }
         public static PlayerReference GetPlayerReference()
@@ -85,20 +86,13 @@ namespace Subnautica_Archon.Util
             return copy;
         }
 
-        internal static void SetHudIcon(this PingInstance pingInstance, bool visible)
+        internal static void SetHudIcon(this PingInstance pingInstance, LogContext ctx, bool visible)
         {
+            ctx.Write($"Setting ping icon {pingInstance.NiceName()} to {visible}");
             pingInstance.SetVisible(visible);
             pingInstance.enabled = visible;
-        }
-
-        public static void SetName(this Vehicle vehicle, string name)
-        {
-            if (!vehicle)
-                return;
-            Log.Write($"Changing name of {vehicle.NiceName()} '{vehicle.GetName()}' -> '{name}'");
-            if (vehicle.subName)
-                vehicle.subName.SetName(name);
-            vehicle.vehicleName = name;
+            if (visible && !pingInstance.gameObject.activeInHierarchy)
+                ctx.Warn($"Ping instance gameObject is not active. The icon will still be invisible");
         }
 
     }

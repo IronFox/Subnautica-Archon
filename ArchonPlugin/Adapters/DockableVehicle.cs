@@ -32,13 +32,8 @@ namespace Subnautica_Archon.Adapters
             Archon = archon;
             IsDrone = Drone.IsOne(Vehicle);
             Log.Write($"IsDrone={IsDrone}, IsPlayerControlledDrone={IsPlayerControlledDrone}");
-            //if (!HasPlayer && !IsPlayerControlledDrone)
-            //    Log.Warn($"DockableVehicle(): Vehicle {Vehicle.NiceName()} does not have a player mounted. mounted vehicle = {Player.main.currentMountedVehicle.NiceName()}, testing = {Vehicle.NiceName()}, IsDrone = {Drone.IsOne(Vehicle)}");
-            //else
-            //    Log.Write($"DockableVehicle(): HasPlayer={HasPlayer}, IsPlayerControlledDrone={IsPlayerControlledDrone}");
             Mode = FieldAdapter.OfNonPublic<Player.Mode>(Player.main, "mode");
         }
-        //private Logging Log { get; } = new Logging(false,"Dockable",true,true);
         public Vehicle Vehicle { get; }
         public IVehicleAbstraction Abstraction { get; }
         public Archon Archon { get; }
@@ -186,8 +181,6 @@ namespace Subnautica_Archon.Adapters
         }
         private static Text ClassifyDepth(string template, float current, float max)
         {
-            //if (current <= 0)
-            //    return Text.Error($"{name}: {current}/{max}");
             var text = string.Format(template, M.Round(current, 0), M.Round(max, 0));
             if (current > max)
                 return Text.Error(text);
@@ -259,6 +252,8 @@ namespace Subnautica_Archon.Adapters
 
         public void RestoreDockedStateFromSaveGame()
         {
+            using var log = new LogContext(Log, nameof(RestoreDockedStateFromSaveGame));
+            
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             Vehicle.docked = true;
@@ -266,7 +261,10 @@ namespace Subnautica_Archon.Adapters
 
 
             if (Drone.Access(Vehicle, out var d))
+            {
+                log.Write($"Redocking craft is drone. Setting isAsleep to true");
                 d.isAsleep = true;
+            }
 
             //AddToQuickbar(true);
 
@@ -274,39 +272,50 @@ namespace Subnautica_Archon.Adapters
 
         private void CheckPingInstanceIsDeactivated()
         {
-            Log.Debug($"Checking ping instance for {Vehicle.NiceName()}");
+            using var log = new LogContext(Log, nameof(CheckPingInstanceIsDeactivated));
+            log.Write($"Checking ping instance for {Vehicle.NiceName()}");
             var pi = Abstraction.PingInstance;
             if (pi.enabled || pi.visible)
             {
-                Log.Write($"HudPingInstance on {Vehicle.NiceName()} is still enabled. Disabling it");
-                pi.SetHudIcon(false);
+                log.Write($"HudPingInstance on {Vehicle.NiceName()} is still enabled. Disabling it");
+                pi.SetHudIcon(log, false);
             }
         }
 
         private void SignalVehicleDocked()
         {
+            using var log = new LogContext(Log, nameof(SignalVehicleDocked));
             Abstraction.DockVehicle();
             CheckPingInstanceIsDeactivated();
         }
 
         public void BeginDocking()
         {
+            using var log = new LogContext(Log, nameof(BeginDocking));
             moduleSprites = null;
             if (HasPlayer)
             {
-                Helper.ChangeAvatarInput(false);
+                Helper.ChangeAvatarInput(log,false);
             }
             else if (Drone.Access(Vehicle, out var d))
             {
                 if (IsPlayerControlledDrone)
                 {
-                    Log.Write($"Stopping drone control");
+                    
+                    log.Write($"Stopping drone control");
                     d.StopControlling();
+                    
+                    if (IsPlayerControlledDrone)
+                        log.Warn($"StopControlling() has not been successful.");
+                    else
+                    {
+                        log.Write($"Player has stopped controlling drone");
+                    }
 
-                    Helper.ChangeAvatarInput(true);
+                    Helper.ChangeAvatarInput(log,true);
                     if (!Player.main.ToNormalMode(false) && Mode != Player.Mode.Normal)
                     {
-                        Log.Write($"ToNormalMode() refused and mode is not normal. Forcing to normal");
+                        log.Write($"ToNormalMode() refused and mode is not normal. Forcing to normal");
                         Mode.Set(Player.Mode.Normal);
                     }
                     Player.main.playerController.SetEnabled(true);
@@ -322,7 +331,7 @@ namespace Subnautica_Archon.Adapters
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
 
-            Abstraction.PingInstance.SetHudIcon(false);
+            Abstraction.PingInstance.SetHudIcon(log,false);
         }
 
 
@@ -360,34 +369,14 @@ namespace Subnautica_Archon.Adapters
         {
             using var log = new LogContext(Log, nameof(EndDocking));
 
-            //if (Vehicle is ModVehicle mv)
-            {
-                //CraftData.
-                //var module = ModVehicleUndockModule.GetPrototypeFor( mv );
-
-                Vehicle.docked = true;
-
-                //AddToQuickbar(false);
-
-
-            }
+            Vehicle.docked = true;
 
             if (HasPlayer)
             {
-
                 Vehicle.StartCoroutine(SwitchToArchon());
-
             }
             else
                 log.Write($"Not switching to archon, no player present");
-            //else if (Vehicle is Drone d)
-            //{
-            //    if (d.gameObject.activeSelf)
-            //    {
-            //        Log.Write($"Disabling drone");
-            //        d.gameObject.SetActive(false);
-            //    }
-            //}
         }
 
 
@@ -401,17 +390,6 @@ namespace Subnautica_Archon.Adapters
                 log.Write($"Player vehicle now {Player.main.GetVehicle().NiceName()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
                 log.Write($"A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>())}");
             }
-            //else if (Vehicle is Drone d)
-            //{
-            //    if (d.gameObject.activeSelf)
-            //    {
-            //        Log.Write($"Disabling drone");
-            //        d.gameObject.SetActive( false );
-            //    }
-            //}
-
-
-
         }
 
         public void UpdateWaitingForBayDoorClose()
@@ -424,23 +402,6 @@ namespace Subnautica_Archon.Adapters
                 if (!AvsUtils.FindVehicleInParents(Player.main.transform, out var v, new List<Transform>()))
                 {
                     Log.Error($"Unable to find mounted vehicle in player parent(s) at update #{UpdateCounter}. Did find {v.NiceName()}");
-                    //if (FixParentTo)
-                    //{
-                    //    Vehicle.StartCoroutine(SwitchToArchon());
-                    //    //Player.main.transform.parent = FixParentTo;
-
-                    //    if (AVS.Admin.Utils.FindVehicleInParents(Player.main.transform, out _, new List<Transform>()))
-                    //    {
-                    //        Log.Write($"Fixed to {FixParentTo.GetPath()}");
-                    //    }
-                    //    else
-                    //    {
-                    //        Log.Error($"Fix failed (tried {FixParentTo.GetPath()})");
-                    //        FixParentTo = null;
-                    //    }
-                    //}
-                    //else
-                    //    Log.Error($"Cannot fix. No correction target memorized");
                 }
             }
 
@@ -490,12 +451,8 @@ namespace Subnautica_Archon.Adapters
                 {
                     FieldAdapter.OfNonPublic<bool>(e, "onGround").Set(false);
                 }
-                //else
-                //    ChangeAvatarInput(false);
             }
 
-            //Log.Write($"Destroying pickupable (if any)");
-            //Object.Destroy(Vehicle.GetComponent<Pickupable>());
         }
 
 
@@ -512,17 +469,30 @@ namespace Subnautica_Archon.Adapters
 
         public void EndUndocking()
         {
+            using var log = new LogContext(Log, nameof(EndUndocking));
             Vehicle.liveMixin.shielded = false;
             Vehicle.crushDamage.enabled = true;
-            //if (Vehicle is ModVehicle)
             Vehicle.docked = false;
-            Abstraction.UndockVehicle(boardPlayer: true);
+            
+            
+            Abstraction.UndockVehicle(boardPlayer: !IsDrone);
+            Abstraction.PingInstance.SetHudIcon(log, true);
+            
+            if (!Vehicle.subName.pingInstance.isActiveAndEnabled ||
+                !Vehicle.subName.pingInstance.gameObject.activeInHierarchy || !Vehicle.subName.pingInstance.visible)
+                log.Warn($"There appears to be an issue with the ping instance: {Vehicle.subName.pingInstance.isActiveAndEnabled}, {Vehicle.subName.pingInstance.gameObject.activeInHierarchy}, {Vehicle.subName.pingInstance.visible}");
+            var ef = Vehicle.GetComponent<EnergyInterface>();
+            if (ef.IsNotNull() && !ef.enabled || !ef.gameObject.activeInHierarchy)
+                log.Warn($"There appears to be an issue with the energy interface: {ef.enabled}, {ef.gameObject.activeInHierarchy}");
 
 
             if (Drone.Access(Vehicle, out var d))
+            {
+                log.Write($"Undocking craft is drone. Setting isAsleep to false");
                 d.isAsleep = false;
+            }
             else
-                Helper.ChangeAvatarInput(true);
+                Helper.ChangeAvatarInput(log, true);
         }
 
         public void OnUndockingDone()
@@ -549,7 +519,10 @@ namespace Subnautica_Archon.Adapters
                 Abstraction.UndockVehicle(boardPlayer: false);
 
                 if (Drone.Access(Vehicle, out var d))
+                {
+                    log.Write($"Undocking craft is drone. Setting isAsleep to false");
                     d.isAsleep = false;
+                }
             }
             catch (Exception ex)
             {
