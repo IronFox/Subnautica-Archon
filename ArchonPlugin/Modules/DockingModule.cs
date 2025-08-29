@@ -8,9 +8,8 @@ namespace Subnautica_Archon.Modules
 {
     public class DockingModule : ArchonBaseModule
     {
-        public DockingModule() : base(ArchonModule.DockingModuleMk1)
-        {
-        }
+        public DockingModule(ArchonModController mp) : base(mp, ArchonModule.DockingModuleMk1)
+        { }
 
         public override Recipe Recipe =>
             NewRecipe
@@ -20,9 +19,6 @@ namespace Subnautica_Archon.Modules
                 .Add(TechType.Polyaniline, 2)
                 .Add(TechType.PrecursorIonCrystal, 1)
                 .Done();
-
-
-
 
         public override void OnAdded(AddActionParams param)
         {

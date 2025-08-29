@@ -1,8 +1,9 @@
-﻿using System;
+﻿using AVS.Log;
+using AVS.Util;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using UnityEngine;
-using AVS.Util;
 
 namespace Subnautica_Archon.Util
 {
@@ -138,7 +139,7 @@ namespace Subnautica_Archon.Util
 
         public Vehicle Vehicle { get; }
 
-        public bool ClearMountedDrone(LogContext ctx)
+        public bool ClearMountedDrone(SmartLog ctx)
         {
             var t = Vehicle.DroneType();
             if (t.IsNull())

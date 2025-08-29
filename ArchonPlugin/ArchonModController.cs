@@ -1,12 +1,12 @@
 ﻿using AVS;
 using AVS.Assets;
+using AVS.Log;
 using AVS.Patches;
 using AVS.UpgradeModules;
 using AVS.Util;
 using BepInEx;
 using HarmonyLib;
 using Nautilus.Handlers;
-using Nautilus.Utility.ModMessages;
 using Subnautica_Archon.Adapters;
 using Subnautica_Archon.Components;
 using Subnautica_Archon.Modules;
@@ -24,7 +24,7 @@ namespace Subnautica_Archon
 
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency(Nautilus.PluginInfo.PLUGIN_GUID, Nautilus.PluginInfo.PLUGIN_VERSION)]
-    public class MainPatcher : AVS.MainPatcher
+    public class ArchonModController : RootModController
     {
         private static StaticImages? staticImages;
         public static StaticImages StaticImages => staticImages ?? throw new NullReferenceException("StaticImages not initialized");
@@ -40,44 +40,50 @@ namespace Subnautica_Archon
 
         public override string ModName => "Archon";
 
+        public override Verbosity LogVerbosity => Verbosity.Verbose;
+
         public override void Awake()
         {
+            base.Awake();
+            using var log = SmartLog.For(this);
             try
             {
-                base.Awake();
-                Log.Write($"MainPatcher.Awake()");
+                log.Write($"MainPatcher.Awake()");
 
-                Archon.GetAssets();
+                Archon.GetAssets(this);
 
                 //ModMessageSystem.SendGlobal("FindMyUpdates", "https://raw.githubusercontent.com/IronFox/Subnautica-Archon/refs/heads/main/mod-info.json");
 
-                Log.Write($"MainPatcher.Awake() done");
+                log.Write($"MainPatcher.Awake() done");
 
             }
             catch (Exception ex)
             {
-                Log.Write($"MainPatcher.Awake()", ex);
+                log.Error($"MainPatcher.Awake()", ex);
             }
         }
 
 
         public override void Start()
         {
+            using var log = SmartLog.For(this);
             try
             {
                 base.Start();
-                Log.Write("MainPatcher.Start()");
+                log.Write("MainPatcher.Start()");
                 LanguageHandler.RegisterLocalizationFolder();
                 config = OptionsPanelHandler.RegisterModOptions<ArchonConfig>();
                 var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
                 harmony.PatchAll();
-                UWE.CoroutineHost.StartCoroutine(Register(Archon.staticModel!));
+                StartModCoroutine(
+                    nameof(ArchonModController) + '.' + nameof(Register),
+                    log => Register(log, Archon.staticModel!));
 
-                Log.Write("MainPatcher.Start() done");
+                log.Write("MainPatcher.Start() done");
             }
             catch (Exception ex)
             {
-                Log.Write("MainPatcher.Start()", ex);
+                log.Error("MainPatcher.Start()", ex);
             }
         }
         public static T CopyComponent<T>(T original, GameObject destination) where T : Component
@@ -92,32 +98,31 @@ namespace Subnautica_Archon
             return (T)copy;
         }
 
-        public static Sprite? LoadSprite(string filename)
+        public Sprite? LoadSprite(string filename)
         {
+            using var log = SmartLog.For(this);
             var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, filename);
             //Log.Write($"Trying to load sprite from {path}");
             try
             {
-                return SpriteHelper.GetSpriteRaw(path);
+                return SpriteHelper.GetSpriteRaw(this, path);
             }
             catch (Exception ex)
             {
-                Log.Write(ex);
+                log.Error($"Failed to load sprite from {filename}", ex);
                 return null;
             }
         }
 
 
-        private IEnumerator MyRegister(Archon archon, bool verbose)
+        private IEnumerator MyRegister(SmartLog log, Archon archon, bool verbose)
         {
+            var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage(this, "images/EmergencyTeleportationModule.png").Sprite);
+            var autoAdd = EmergencyTeleportationModule.Register(this, teleportNode);
+            TeleportationModuleA.RegisterAll(this, teleportNode);
 
-
-            var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage("images/EmergencyTeleportationModule.png").Sprite);
-            var autoAdd = EmergencyTeleportationModule.Register(teleportNode);
-            TeleportationModuleA.RegisterAll(teleportNode);
-
-            var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage("images/DockingModuleMk1.png").Sprite);
-            new DockingModule().Register(dockingNode);
+            var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage(this, "images/DockingModuleMk1.png").Sprite);
+            new DockingModule(this).Register(dockingNode);
 
 
             //Log.Write($"Loading emergency teleportation module: {autoAdd}");
@@ -128,35 +133,37 @@ namespace Subnautica_Archon
             var pickupable = instance.SafeGetComponent<Pickupable>();
             if (pickupable.IsNull())
             {
-                Log.Error($"Pickupable not found on {instance.NiceName()}");
+                log.Error($"Pickupable not found on {instance.NiceName()}");
             }
             else
             {
                 Archon.AutoAddEmergencyTeleport = pickupable;
             }
-            yield return VehicleRegistrar.RegisterVehicle(archon, verbose);
+            yield return VehicleRegistrar.RegisterVehicle(log, this, archon, verbose);
         }
 
 
-        public IEnumerator Register(GameObject staticModel)
+        public IEnumerator Register(SmartLog log, GameObject staticModel)
         {
             Coroutine? started = null;
             try
             {
-                Log.Write($"MainPatcher.Register({staticModel.NiceName()})");
+                log.Write($"MainPatcher.Register({staticModel.NiceName()})");
                 //Log.Write("model loaded: " + staticModel.name);
                 var sub = staticModel.EnsureComponent<Archon>();
                 //Log.Write("archon attached: " + sub.name);
 
-                started = UWE.CoroutineHost.StartCoroutine(MyRegister(sub, true));
+                started = StartModCoroutine(
+                    nameof(ArchonModController) + '.' + nameof(MyRegister),
+                    log => MyRegister(log, sub, true));
 
                 Assets.Behavior.Adapters.Log.AdapterFactory =
-                    tags => new LogAdapter(tags);
+                    tags => new LogAdapter(this, tags);
 
                 //TorpedoModule.RegisterAll();
                 //DriveModule.RegisterAll();
                 //NuclearBatteryModule.RegisterAll();
-                RepairModule.RegisterAll();
+                RepairModule.RegisterAll(this);
 
 
 
@@ -250,20 +257,20 @@ namespace Subnautica_Archon
                 //    }
                 //};
 
-                SoundAdapter.SoundCreator = new FModSoundCreator();
+                SoundAdapter.SoundCreator = new FModSoundCreator(this);
 
-                Log.Write("MainPatcher.Register() done");
+                log.Write("MainPatcher.Register() done");
             }
             catch (Exception ex)
             {
-                Log.Write($"MainPatcher.Register()", ex);
+                log.Error($"MainPatcher.Register()", ex);
             }
             yield return started;
         }
 
         protected override PatcherImages LoadImages()
         {
-            staticImages = new StaticImages();
+            staticImages = new StaticImages(this);
             return staticImages;
         }
     }

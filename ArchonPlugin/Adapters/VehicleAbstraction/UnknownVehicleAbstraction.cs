@@ -1,17 +1,21 @@
-﻿using Subnautica_Archon.Util;
+﻿using AVS;
+using Subnautica_Archon.Util;
 using Subnautica_Archon.Util.Reflection;
 
 namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
     internal class UnknownVehicleAbstraction : IVehicleAbstraction
     {
-        public UnknownVehicleAbstraction(Vehicle vehicle)
+        public UnknownVehicleAbstraction(RootModController rmc, Vehicle vehicle)
         {
+            Rmc = rmc;
             Vehicle = vehicle;
+
         }
 
         public bool IsVanilla => false;
 
+        public RootModController Rmc { get; }
         public Vehicle Vehicle { get; }
 
         public PingInstance PingInstance
@@ -28,8 +32,8 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         public void DockVehicle() { }
         public void BeginHelmControl()
         {
-            new MethodAdapter<Player, bool, bool>(Vehicle, "EnterVehicle").Invoke(Player.main, true, false);
-            new MethodAdapter(Vehicle, "OnPilotModeBegin").Invoke();
+            new MethodAdapter<Player, bool, bool>(Rmc, Vehicle, "EnterVehicle").Invoke(Player.main, true, false);
+            new MethodAdapter(Rmc, Vehicle, "OnPilotModeBegin").Invoke();
         }
 
         public void UndockVehicle(bool boardPlayer)

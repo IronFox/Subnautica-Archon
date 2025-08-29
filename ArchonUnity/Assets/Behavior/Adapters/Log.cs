@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace Assets.Behavior.Adapters
 {
@@ -38,37 +37,37 @@ namespace Assets.Behavior.Adapters
 
 
         private static ILogAdapter defaultAdapter;
-        public static ILogAdapter Default
-        {
-            get
-            {
-                if (defaultAdapter == null)
-                {
-                    defaultAdapter = AdapterFactory(Array.Empty<string>());
-                }
-                return defaultAdapter;
-            }
-        }
+        //public static ILogAdapter Default
+        //{
+        //    get
+        //    {
+        //        if (defaultAdapter == null)
+        //        {
+        //            defaultAdapter = AdapterFactory(Array.Empty<string>());
+        //        }
+        //        return defaultAdapter;
+        //    }
+        //}
 
-        public static void Write(string v)
-        {
-            Default.Write(v);
-        }
+        //public static void Write(string v)
+        //{
+        //    Default.Write(v);
+        //}
 
 
-        public static void LogWarning(string v)
-        {
-            Default.LogWarning(v);
-        }
+        //public static void LogWarning(string v)
+        //{
+        //    Default.LogWarning(v);
+        //}
 
-        public static void LogError(string v, Exception ex)
-        {
-            Default.LogError(v, ex);
-        }
-        public static void LogError(string v)
-        {
-            Default.LogError(v);
-        }
+        //public static void LogError(string v, Exception ex)
+        //{
+        //    Default.LogError(v, ex);
+        //}
+        //public static void LogError(string v)
+        //{
+        //    Default.LogError(v);
+        //}
     }
 
     internal class UnityLogAdapter : ILogAdapter
@@ -85,45 +84,47 @@ namespace Assets.Behavior.Adapters
             string tagLine = tags.Any() ? $"[{string.Join("] [", tags)}] " : "";
             return $"{DateTime.Now:HH:mm:ss.fff} {tagLine}: {msg}";
         }
-        public void LogDebug(string message)
+        public void Debug(string message)
         {
-            Debug.Log(MakeMessage(message, Tags.Append("Debug")));
+            UnityEngine.Debug.Log(MakeMessage(message, Tags.Append("Debug")));
         }
 
-        public void LogError(string message, Exception exception = null)
+        public void Error(string message, Exception exception = null)
         {
             if (exception == null)
-                Debug.LogError(MakeMessage(message, Tags));
+                UnityEngine.Debug.LogError(MakeMessage(message, Tags));
             else
             {
-                Debug.LogError(MakeMessage(message + ": " + exception.Message, Tags));
-                Debug.LogError(exception.StackTrace);
+                UnityEngine.Debug.LogError(MakeMessage(message + ": " + exception.Message, Tags));
+                UnityEngine.Debug.LogError(exception.StackTrace);
             }
         }
 
         public void Write(string message)
         {
-            Debug.Log(MakeMessage(message, Tags));
+            UnityEngine.Debug.Log(MakeMessage(message, Tags));
         }
 
-        public void LogWarning(string message)
+        public void Warn(string message)
         {
-            Debug.LogWarning(MakeMessage(message, Tags));
+            UnityEngine.Debug.LogWarning(MakeMessage(message, Tags));
         }
 
         public void LogException(Exception exception)
         {
-            Debug.LogException(exception);
+            UnityEngine.Debug.LogException(exception);
         }
+
+        public void Dispose()
+        { }
     }
 
-    public interface ILogAdapter
+    public interface ILogAdapter : IDisposable
     {
         string[] Tags { get; }
         void Write(string message);
-        void LogDebug(string message);
-        void LogWarning(string message);
-        void LogError(string message, Exception exception = null);
-        void LogException(Exception exception);
+        void Debug(string message);
+        void Warn(string message);
+        void Error(string message, Exception exception = null);
     }
 }

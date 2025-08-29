@@ -1,7 +1,7 @@
 ﻿using Assets.Behavior.Adapters;
+using Behavior.Util.Math;
 using System;
 using System.Collections.Generic;
-using Behavior.Util.Math;
 using UnityEngine;
 
 
@@ -41,7 +41,6 @@ public class Tug : MonoBehaviour
         }
     }
     private DockingFit fit;
-    private ILogAdapter Log { get; set; } = Assets.Behavior.Adapters.Log.Default;
 
     private float WaitSeconds { get; set; }
     private Undoable UndoTugging { get; } = new Undoable();
@@ -88,93 +87,99 @@ public class Tug : MonoBehaviour
         try
         {
             if (logAction)
-                Log.Write(actionDesc);
+                using (var log = Log.New())
+                    log.Write(actionDesc);
             action();
         }
         catch (Exception ex)
         {
-            Log.LogError(actionDesc, ex);
+            using (var log = Log.New())
+                log.Error(actionDesc, ex);
         }
         if (verifyIntegrity)
             CheckIntegrity();
-
     }
 
     private Location DockedLocation => Fit.CorrectDocked(Location.FromLocal(Owner.dockedBounds));
     private Location ParkLocation => Fit.CorrectDocked(Location.FromLocal(Owner.parkPostion));
     private int ReDisable { get; set; }
+
+    //private ILogAdapter NewLog() =>
+    //   Log.New($"Tug#{GetInstanceID()}", fit.GameObject.NiceName());
+
     internal void Bind(BayControl bayControl, DockingFit fit, TugStatus status)
     {
-        Log = Assets.Behavior.Adapters.Log.New($"Tug#{GetInstanceID()}", fit.GameObject.NiceName());
-
-        Log.Write($"Binding with status {status} and bounds {fit.Bounds}");
-        Owner = bayControl;
-        Status = status;
-        Fit = fit;
-
-        if (status != TugStatus.UndockedWaitingForTriggerExit)
-            fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
-
-        switch (status)
+        using (var log = Log.New())
         {
-            case TugStatus.Docking:
-                Do(fit.Dockable.BeginDocking, $"Dockable.BeginDocking()", verifyIntegrity: false);
-                break;
-            case TugStatus.Docked:
-                DockedLocation.ApplyTo(Fit.GameObject.transform);
+            log.Write($"Binding with status {status} and bounds {fit.Bounds}");
+            Owner = bayControl;
+            Status = status;
+            Fit = fit;
 
-                Do(fit.Dockable.RestoreDockedStateFromSaveGame, $"Dockable.RestoreDockedStateFromSaveGame()", verifyIntegrity: false);
-                ChangeActiveState(false);
-                Fit.Dockable.DisableAllEnabledRenderers(Renderers);
-                Fit.Dockable.DisableAllEnabledCanvases(Renderers);
-                Fit.Dockable.DisableAllEnabledLights(Lights);
-                Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
-                ReDisable = 100;
-                ParkLocation.ApplyTo(Fit.GameObject.transform);
+            if (status != TugStatus.UndockedWaitingForTriggerExit)
+                fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
 
-                //Fit.GetAllComponents<MonoBehaviour>()
-                //    .Where(x => x != this)
-                //    .ToEnabled()
-                //    .DisableAllEnabled(DisabledBehavioursOnBayDoorCloseWait);
+            switch (status)
+            {
+                case TugStatus.Docking:
+                    Do(fit.Dockable.BeginDocking, $"Dockable.BeginDocking()", verifyIntegrity: false);
+                    break;
+                case TugStatus.Docked:
+                    DockedLocation.ApplyTo(Fit.GameObject.transform);
 
-                break;
-            case TugStatus.Undocking:
-                Do(fit.Dockable.BeginUndocking, $"Dockable.BeginUndocking()", verifyIntegrity: false);
-                break;
+                    Do(fit.Dockable.RestoreDockedStateFromSaveGame, $"Dockable.RestoreDockedStateFromSaveGame()", verifyIntegrity: false);
+                    ChangeActiveState(false);
+                    Fit.Dockable.DisableAllEnabledRenderers(Renderers);
+                    Fit.Dockable.DisableAllEnabledCanvases(Renderers);
+                    Fit.Dockable.DisableAllEnabledLights(Lights);
+                    Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
+                    ReDisable = 100;
+                    ParkLocation.ApplyTo(Fit.GameObject.transform);
+
+                    //Fit.GetAllComponents<MonoBehaviour>()
+                    //    .Where(x => x != this)
+                    //    .ToEnabled()
+                    //    .DisableAllEnabled(DisabledBehavioursOnBayDoorCloseWait);
+
+                    break;
+                case TugStatus.Undocking:
+                    Do(fit.Dockable.BeginUndocking, $"Dockable.BeginUndocking()", verifyIntegrity: false);
+                    break;
+            }
+            fit.Dockable.DisableAllEnabledColliders(UndoTugging /*, forced: true*/);
+            fit.Dockable.DisableRigidbodies(UndoTugging, forced: true);
+
+
+
+            switch (status)
+            {
+                case TugStatus.UndockingWaitingForBayDoorOpen:
+
+                    ChangeActiveState(true);
+
+                    if (Fit.Dockable.ShouldUnfreezeImmediately)
+                        DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
+                    Renderers.UndoAndClear();
+                    Lights.UndoAndClear();
+
+                    AnimationStart = DockedLocation;
+                    AnimationEnd = () => AnimationStart;
+                    CheckIntegrity();
+                    Local(AnimationStart).ApplyTo(Fit.GameObject.transform);   //just in case
+                    Do(Fit.Dockable.PrepareUndocking, $"Dockable.PrepareUndocking()");
+                    Local(AnimationStart).ApplyTo(Fit.GameObject.transform);   //just in case
+                    break;
+                case TugStatus.Undocking:
+                    BeginUndocking();
+                    break;
+                default:
+                    AnimationStart = Location.FromGlobal(fit.Dockable.GameObject.transform);
+                    AnimationEnd = () => DockedLocation;
+                    RestartAnimation();
+                    break;
+            }
+            CheckIntegrity();
         }
-        fit.Dockable.DisableAllEnabledColliders(UndoTugging /*, forced: true*/);
-        fit.Dockable.DisableRigidbodies(UndoTugging, forced: true);
-
-
-
-        switch (status)
-        {
-            case TugStatus.UndockingWaitingForBayDoorOpen:
-
-                ChangeActiveState(true);
-
-                if (Fit.Dockable.ShouldUnfreezeImmediately)
-                    DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
-                Renderers.UndoAndClear();
-                Lights.UndoAndClear();
-
-                AnimationStart = DockedLocation;
-                AnimationEnd = () => AnimationStart;
-                CheckIntegrity();
-                Local(AnimationStart).ApplyTo(Fit.GameObject.transform);   //just in case
-                Do(Fit.Dockable.PrepareUndocking, $"Dockable.PrepareUndocking()");
-                Local(AnimationStart).ApplyTo(Fit.GameObject.transform);   //just in case
-                break;
-            case TugStatus.Undocking:
-                BeginUndocking();
-                break;
-            default:
-                AnimationStart = Location.FromGlobal(fit.Dockable.GameObject.transform);
-                AnimationEnd = () => DockedLocation;
-                RestartAnimation();
-                break;
-        }
-        CheckIntegrity();
     }
 
 
@@ -183,26 +188,29 @@ public class Tug : MonoBehaviour
     {
         if (Status != TugStatus.Undocking)
             throw new InvalidOperationException($"Cannot transition to free from {Status}");
-        Log.Write($"Free");
-        Status = TugStatus.UndockedWaitingForTriggerExit;
-        WaitSeconds = 0;
-
-        Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
-
-        UndoTugging.UndoAndClear();
-        Renderers.UndoAndClear();
-        Lights.UndoAndClear();
-        ParticleSystems.UndoAndClear();
-        DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
-
-        foreach (var body in Fit.GetAllComponents<Rigidbody>())
+        using (var log = Log.New())
         {
-            var v = Owner.archon.GetComponent<Rigidbody>().velocity;
-            body.velocity = v;
-            Log.Write($"Forwarded velocity {v} to [{body}] of {Fit}");
-        }
+            log.Write($"Free");
+            Status = TugStatus.UndockedWaitingForTriggerExit;
+            WaitSeconds = 0;
 
-        Do(Fit.Dockable.EndUndocking, $"Dockable.EndUndocking()");
+            Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
+
+            UndoTugging.UndoAndClear();
+            Renderers.UndoAndClear();
+            Lights.UndoAndClear();
+            ParticleSystems.UndoAndClear();
+            DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
+
+            foreach (var body in Fit.GetAllComponents<Rigidbody>())
+            {
+                var v = Owner.archon.GetComponent<Rigidbody>().velocity;
+                body.velocity = v;
+                log.Write($"Forwarded velocity {v} to [{body}] of {Fit}");
+            }
+
+            Do(Fit.Dockable.EndUndocking, $"Dockable.EndUndocking()");
+        }
     }
 
     private void ChangeActiveState(bool active)
@@ -216,90 +224,105 @@ public class Tug : MonoBehaviour
 
     public void CheckIntegrity()
     {
-        if (Status != TugStatus.UndockedWaitingForTriggerExit)
         {
-            if (Fit.GameObject.transform.parent != Owner.dockedSubRoot)
+            if (Status != TugStatus.UndockedWaitingForTriggerExit)
             {
-                Log.LogError($"Dockable resides in wrong parent ({Fit.GameObject.transform.parent.PathToString()}). Moving to {Owner.dockedSubRoot}");
-                Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
+                if (Fit.GameObject.transform.parent != Owner.dockedSubRoot)
+                {
+                    using (var log = Log.New())
+                        log.Error($"Dockable resides in wrong parent ({Fit.GameObject.transform.parent.PathToString()}). Moving to {Owner.dockedSubRoot}");
+                    Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
+                }
             }
-        }
-        else
-        {
-            if (Fit.GameObject.transform.IsChildOf(Owner.dockedSubRoot))
+            else
             {
-                Log.LogError($"{Fit} is still a child of {this}. Offloading");
-                Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
+                if (Fit.GameObject.transform.IsChildOf(Owner.dockedSubRoot))
+                {
+                    using (var log = Log.New())
+                        log.Error($"{Fit} is still a child of {this}. Offloading");
+                    Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
+                }
             }
+            ObjectUtil.RequireActive(this, Owner.archon.transform);
+            Owner.VerifyIntegrity();
         }
-        ObjectUtil.RequireActive(this, Owner.archon.transform);
-        Owner.VerifyIntegrity();
 
     }
 
     private void TransitionToDocked()
     {
-        Log.Write($"Docked");
-        Status = TugStatus.Docked;
-        ChangeActiveState(false);
+        using (var log = Log.New())
+        {
+
+            log.Write($"Docked");
+            Status = TugStatus.Docked;
+            ChangeActiveState(false);
 
 
-        Fit.Dockable.DisableAllEnabledRenderers(Renderers);
-        Fit.Dockable.DisableAllEnabledCanvases(Renderers);
-        Fit.Dockable.DisableAllEnabledLights(Lights);
-        Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
+            Fit.Dockable.DisableAllEnabledRenderers(Renderers);
+            Fit.Dockable.DisableAllEnabledCanvases(Renderers);
+            Fit.Dockable.DisableAllEnabledLights(Lights);
+            Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
 
-        DockedLocation.ApplyTo(Fit.GameObject.transform);
+            DockedLocation.ApplyTo(Fit.GameObject.transform);
 
 
-        Do(Fit.Dockable.OnDockingDone, $"Dockable.OnDockingDone()");
-        
-        ParkLocation.ApplyTo(Fit.GameObject.transform);
-        
+            Do(Fit.Dockable.OnDockingDone, $"Dockable.OnDockingDone()");
+
+            ParkLocation.ApplyTo(Fit.GameObject.transform);
+        }
+
     }
 
     private void TransitionToWaitingForBayDoorClose()
     {
-        Log.Write($"WaitingForBayDoorClose");
-        Status = TugStatus.DockingWaitingForBayDoorClose;
+        using (var log = Log.New())
+        {
 
-        //Fit.GetAllComponents<MonoBehaviour>()
-        //        .Where(x => x != this)
-        //        .ToEnabled()
-        //        .DisableAllEnabled(DisabledBehavioursOnBayDoorCloseWait);
+            log.Write($"WaitingForBayDoorClose");
+            Status = TugStatus.DockingWaitingForBayDoorClose;
 
-        UndoTugging.RedoAll(); //recheck these, seen falling brawn suits
+            //Fit.GetAllComponents<MonoBehaviour>()
+            //        .Where(x => x != this)
+            //        .ToEnabled()
+            //        .DisableAllEnabled(DisabledBehavioursOnBayDoorCloseWait);
 
-        Do(Fit.Dockable.EndDocking, $"Dockable.EndDocking()");
+            UndoTugging.RedoAll(); //recheck these, seen falling brawn suits
 
-        Local(AnimationEnd()).ApplyTo(Fit.GameObject.transform);   //just in case
+            Do(Fit.Dockable.EndDocking, $"Dockable.EndDocking()");
+
+            Local(AnimationEnd()).ApplyTo(Fit.GameObject.transform);   //just in case
+        }
     }
 
 
     private void BeginUndocking()
     {
-        Log.Write($"Undocking");
-
-        Status = TugStatus.Undocking;
-
-        DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
-        ParticleSystems.UndoAndClear();
-        Renderers.UndoAndClear();
-        Lights.UndoAndClear();
-
-
-        AnimationStart = DockedLocation;
-        AnimationStart.ApplyTo(Fit.GameObject);
-        AnimationEnd = () =>
+        using (var log = Log.New())
         {
-            var td = Location.FromLocal(Owner.dockingTrigger.transform);
-            if (Fit.Dockable.UndockUpright)
-                td = td.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
-            return td;
-        };
+            log.Write($"Undocking");
 
-        RestartAnimation();
-        Do(Fit.Dockable.BeginUndocking, $"Dockable.BeginUndocking()");
+            Status = TugStatus.Undocking;
+
+            DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
+            ParticleSystems.UndoAndClear();
+            Renderers.UndoAndClear();
+            Lights.UndoAndClear();
+
+
+            AnimationStart = DockedLocation;
+            AnimationStart.ApplyTo(Fit.GameObject);
+            AnimationEnd = () =>
+            {
+                var td = Location.FromLocal(Owner.dockingTrigger.transform);
+                if (Fit.Dockable.UndockUpright)
+                    td = td.WithGlobalRotation(Owner.transform, Quaternion.Euler(0, Owner.dockingTrigger.transform.eulerAngles.y, 0));
+                return td;
+            };
+
+            RestartAnimation();
+            Do(Fit.Dockable.BeginUndocking, $"Dockable.BeginUndocking()");
+        }
     }
 
     private Vector3 LocalPosition(Location desc)
@@ -348,162 +371,183 @@ public class Tug : MonoBehaviour
         AnimationSeconds = M.Distance(LocalPosition(AnimationStart), LocalPosition(AnimationEnd())) / Owner.dockingMetersPerSecond;
     }
 
-    
+
     public void PrepareForSaving()
     {
-        Log.Write(nameof(PrepareForSaving));
-        IsSaving = true;
+        using (var log = Log.New())
+        {
+            log.Write(nameof(PrepareForSaving));
+            IsSaving = true;
 
-        DisabledBehavioursOnBayDoorCloseWait.UndoAll();
-        UndoTugging.UndoAll();
-        ParticleSystems.UndoAll();
-        Renderers.UndoAll();
-        Lights.UndoAll();
-        //Fit.Dockable.Tag(Tag);
-        Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
+            DisabledBehavioursOnBayDoorCloseWait.UndoAll();
+            UndoTugging.UndoAll();
+            ParticleSystems.UndoAll();
+            Renderers.UndoAll();
+            Lights.UndoAll();
+            //Fit.Dockable.Tag(Tag);
+            Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
 
-        DockedLocation
-            .Globalize(Owner.archon.transform)
-            .TranslatedBy(M.V3(0, -1, 0))
-            .ApplyTo(Fit.GameObject);
+            DockedLocation
+                .Globalize(Owner.archon.transform)
+                .TranslatedBy(M.V3(0, -1, 0))
+                .ApplyTo(Fit.GameObject);
 
-        Do(Fit.Dockable.OnUndockedForSaving, $"Fit.Dockable.OnUndockedForSaving", false);
+            Do(Fit.Dockable.OnUndockedForSaving, $"Fit.Dockable.OnUndockedForSaving", false);
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (IsSaving)
         {
-            if (Time.deltaTime != 0)
+            if (IsSaving)
             {
-                Log.Write($"Saving assumed done. Reintegrating");
-
-                DisabledBehavioursOnBayDoorCloseWait.RedoAll();
-                UndoTugging.RedoAll();
-                ParticleSystems.RedoAll();
-                Renderers.RedoAll();
-                Lights.RedoAll();
-                Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
-                //Fit.Dockable.Untag(Tag);
-                Do(Fit.Dockable.OnRedockedAfterSaving, $"Fit.Dockable.OnRedockedAfterSaving");
-
-                DockedLocation.ApplyTo(Fit.GameObject);
-
-                IsSaving = false;
-            }
-            else
-            {
-                //Log.Write($"Saving assumed to continue");
-                return;
-            }
-        }
-
-
-        LastUpdate = DateTime.Now;
-        CheckIntegrity();
-        try
-        {
-            switch (Status)
-            {
-                case TugStatus.Docked:
-                    if (--ReDisable > 0)
+                if (Time.deltaTime != 0)
+                {
+                    using (var log = Log.New())
                     {
-                        ChangeActiveState(false);
-                        Fit.Dockable.DisableAllEnabledRenderers(Renderers);
-                        Fit.Dockable.DisableAllEnabledCanvases(Renderers);
-                        Fit.Dockable.DisableAllEnabledLights(Lights);
-                        Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
-                        ParkLocation.ApplyTo(Fit.GameObject.transform);
-                       // ReDisable = 10;
-                    }
-                    break;
-                case TugStatus.UndockedWaitingForTriggerExit:
-                    WaitSeconds += Time.deltaTime;
-                    if (WaitSeconds > 1 && !Owner.dockingTrigger.IsTracked(Fit.GameObject))
-                    {
-                        Log.Write("No longer in trigger zone. Releasing");
+                        log.Write($"Saving assumed done. Reintegrating");
 
-                        Do(Fit.Dockable.OnUndockingDone, $"Dockable.OnUndockingDone()");
-                        //if (transform.childCount > 0)
-                        //{
-                        //    Log.LogError($"Tug should not have children at this point but has {transform.childCount}");
-                        //    foreach (var c in transform.GetChildren())
-                        //    {
-                        //        Log.LogError($"Found [{c}]. Relocating out of tug");
-                        //        c.SetParent(Owner.archon.transform.parent);
-                        //    }
-                        //}
-
-                        Log.Write($"Destroying [{this}]");
-
-                        Destroy(this);
-                    }
-                    break;
-                case TugStatus.DockingWaitingForBayDoorClose:
-                    if (Owner.DoorsAreClosed)
-                    {
-                        Owner.ReleaseActive(this);
-                        Log.Write("Doors closed. Concluding");
-                        TransitionToDocked();
-                    }
-                    else
-                    {
+                        DisabledBehavioursOnBayDoorCloseWait.RedoAll();
                         UndoTugging.RedoAll();
-                        Local(AnimationEnd()).ApplyTo(Fit.GameObject.transform);   //just in case
-                        Do(Fit.Dockable.UpdateWaitingForBayDoorClose, "Dockable.UpdateWaitingForBayDoorClose()", logAction: false);
+                        ParticleSystems.RedoAll();
+                        Renderers.RedoAll();
+                        Lights.RedoAll();
+                        Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
+                        //Fit.Dockable.Untag(Tag);
+                        Do(Fit.Dockable.OnRedockedAfterSaving, $"Fit.Dockable.OnRedockedAfterSaving");
+
+                        DockedLocation.ApplyTo(Fit.GameObject);
+
+                        IsSaving = false;
                     }
-                    break;
-                case TugStatus.UndockingWaitingForBayDoorOpen:
-                    if (Owner.DoorsAreSufficientlyOpen)
-                    {
-                        Log.Write($"Doors open wide enough. Undocking");
-                        BeginUndocking();
-                    }
-                    else
-                    {
-                        Do(Fit.Dockable.UpdateWaitingForBayDoorOpen, "Dockable.UpdateWaitingForBayDoorOpen()", logAction: false);
-                        UndoTugging.RedoAll();
-                        Local(AnimationStart)
-                            .ApplyTo(Fit.GameObject.transform);
-                    }
-                    break;
-                case TugStatus.Docking:
-                case TugStatus.Undocking:
-                    AnimationProgress += Time.deltaTime / AnimationSeconds;
-                    if (AnimationProgress < 1)
-                    {
-                        Location
-                            .Lerp(
-                                Local(AnimationStart),
-                                Local(AnimationEnd()),
-                                M.Smooth(AnimationProgress))
-                            .ApplyTo(Fit.GameObject.transform);
-                    }
-                    else
-                    {
-                        Log.Write($"Animation end reached");
-                        Local(AnimationEnd())
-                            .ApplyTo(Fit.GameObject.transform);
-                        if (Status == TugStatus.Docking)
+                }
+                else
+                {
+                    //Log.Write($"Saving assumed to continue");
+                    return;
+                }
+            }
+
+
+            LastUpdate = DateTime.Now;
+            CheckIntegrity();
+            try
+            {
+                switch (Status)
+                {
+                    case TugStatus.Docked:
+                        if (--ReDisable > 0)
                         {
+                            ChangeActiveState(false);
+                            Fit.Dockable.DisableAllEnabledRenderers(Renderers);
+                            Fit.Dockable.DisableAllEnabledCanvases(Renderers);
+                            Fit.Dockable.DisableAllEnabledLights(Lights);
+                            Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
+                            ParkLocation.ApplyTo(Fit.GameObject.transform);
+                            // ReDisable = 10;
+                        }
+                        break;
+                    case TugStatus.UndockedWaitingForTriggerExit:
+                        WaitSeconds += Time.deltaTime;
+                        if (WaitSeconds > 1 && !Owner.dockingTrigger.IsTracked(Fit.GameObject))
+                        {
+                            using (var log = Log.New())
+                            {
+                                log.Write("No longer in trigger zone. Releasing");
 
-                            TransitionToWaitingForBayDoorClose();
+                                Do(Fit.Dockable.OnUndockingDone, $"Dockable.OnUndockingDone()");
+                                //if (transform.childCount > 0)
+                                //{
+                                //    Log.LogError($"Tug should not have children at this point but has {transform.childCount}");
+                                //    foreach (var c in transform.GetChildren())
+                                //    {
+                                //        Log.LogError($"Found [{c}]. Relocating out of tug");
+                                //        c.SetParent(Owner.archon.transform.parent);
+                                //    }
+                                //}
+
+                                log.Write($"Destroying [{this}]");
+
+                                Destroy(this);
+                            }
+                        }
+                        break;
+                    case TugStatus.DockingWaitingForBayDoorClose:
+                        if (Owner.DoorsAreClosed)
+                        {
+                            using (var log = Log.New())
+                            {
+                                Owner.ReleaseActive(this);
+                                log.Write("Doors closed. Concluding");
+                                TransitionToDocked();
+                            }
                         }
                         else
                         {
-                            TransitionToFree();
-                            Owner.ReleaseActive(this);
+                            UndoTugging.RedoAll();
+                            Local(AnimationEnd()).ApplyTo(Fit.GameObject.transform);   //just in case
+                            Do(Fit.Dockable.UpdateWaitingForBayDoorClose, "Dockable.UpdateWaitingForBayDoorClose()", logAction: false);
                         }
-                    }
+                        break;
+                    case TugStatus.UndockingWaitingForBayDoorOpen:
+                        if (Owner.DoorsAreSufficientlyOpen)
+                        {
+                            using (var log = Log.New())
+                            {
+                                log.Write($"Doors open wide enough. Undocking");
+                                BeginUndocking();
+                            }
+                        }
+                        else
+                        {
+                            Do(Fit.Dockable.UpdateWaitingForBayDoorOpen, "Dockable.UpdateWaitingForBayDoorOpen()", logAction: false);
+                            UndoTugging.RedoAll();
+                            Local(AnimationStart)
+                                .ApplyTo(Fit.GameObject.transform);
+                        }
+                        break;
+                    case TugStatus.Docking:
+                    case TugStatus.Undocking:
+                        AnimationProgress += Time.deltaTime / AnimationSeconds;
+                        if (AnimationProgress < 1)
+                        {
+                            Location
+                                .Lerp(
+                                    Local(AnimationStart),
+                                    Local(AnimationEnd()),
+                                    M.Smooth(AnimationProgress))
+                                .ApplyTo(Fit.GameObject.transform);
+                        }
+                        else
+                        {
+                            using (var log = Log.New())
+                            {
+                                log.Write($"Animation end reached");
+                                Local(AnimationEnd())
+                                    .ApplyTo(Fit.GameObject.transform);
+                                if (Status == TugStatus.Docking)
+                                {
+
+                                    TransitionToWaitingForBayDoorClose();
+                                }
+                                else
+                                {
+                                    TransitionToFree();
+                                    Owner.ReleaseActive(this);
+                                }
+                            }
+                        }
 
 
-                    break;
+                        break;
+                }
             }
-        }
-        catch (Exception e)
-        {
-            Log.LogException(e);
+            catch (Exception e)
+            {
+                using (var log = Log.New())
+                    log.Error($"Caught exception", e);
+            }
         }
     }
 
@@ -539,7 +583,7 @@ public readonly struct DockingFit
     public Quaternion Rotation { get; }
     public Vector3 CenterCorrection { get; }
     public Bounds3 Bounds { get; }
-    public GameObject GameObject => Dockable.GameObject;
+    public GameObject GameObject => Dockable?.GameObject;
 
     public DockingFit(IDockable dockable, Quaternion rotation, Bounds3 bounds)
     {

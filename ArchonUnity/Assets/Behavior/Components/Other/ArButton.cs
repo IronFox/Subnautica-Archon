@@ -17,24 +17,27 @@ public class ArButton : MonoBehaviour
     private Color disabledColor = new Color(0.25f, 0.25f, 0.25f);
     public void OnTrigger()
     {
-        if (archon == null)
+        using (var log = Log.New())
         {
-            Log.LogError("ArButton: OnTrigger called without archon set.");
-            return;
-        }
-        switch (function)
-        {
-            case Function.Undock:
-                archon.UndockSelected();
-                break;
-            case Function.SelectLeft:
-                archon.SelectLeft();
-                break;
-            case Function.SelectRight:
-                archon.SelectRight();
-                break;
-            default:
-                break;
+            if (archon == null)
+            {
+                log.Error("ArButton: OnTrigger called without archon set.");
+                return;
+            }
+            switch (function)
+            {
+                case Function.Undock:
+                    archon.UndockSelected();
+                    break;
+                case Function.SelectLeft:
+                    archon.SelectLeft();
+                    break;
+                case Function.SelectRight:
+                    archon.SelectRight();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 

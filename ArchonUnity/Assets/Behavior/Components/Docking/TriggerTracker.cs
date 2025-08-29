@@ -58,7 +58,8 @@ public class TriggerTracker : MonoBehaviour
     {
         Set.Add(other);
         if (logChanges)
-            Log.Default.Write("Registered entering " + other);
+            using (var log = Log.New())
+                log.Write("Registered entering " + other);
 #if DebugTracked
         tracked = Set.ToArray();
 #endif
@@ -68,7 +69,8 @@ public class TriggerTracker : MonoBehaviour
     {
         Set.Remove(other);
         if (logChanges)
-            Log.Default.Write("Registered leaving " + other);
+            using (var log = Log.New())
+                log.Write("Registered leaving " + other);
 #if DebugTracked
         tracked = Set.ToArray();
 #endif

@@ -1,8 +1,6 @@
 ﻿using Assets.Behavior.Adapters;
 using System;
 using System.Text;
-using Behavior.Util;
-using Behavior.Util.Log;
 using TMPro;
 using UnityEngine;
 
@@ -29,7 +27,7 @@ public class StatusConsole : CommonBoardingListener
 
     public override void SignalOnboardingBegin()
     {
-        using (var log = new LogContext(nameof(SignalOnboardingBegin)))
+        using (var log = Log.New())
         {
             var camera = CameraUtil.GetCamera(nameof(StatusConsole));
             if (!camera)
@@ -61,9 +59,12 @@ public class StatusConsole : CommonBoardingListener
 
     public void ToggleVisibility()
     {
-        enabled = !enabled;
-        statusText.enabled = enabled;
-        ConsoleControl.Write($"Toggled canvas visibility to {enabled}");
+        using (var log = Log.New())
+        {
+            enabled = !enabled;
+            statusText.enabled = enabled;
+            log.Write($"Toggled canvas visibility to {enabled}");
+        }
     }
 
 

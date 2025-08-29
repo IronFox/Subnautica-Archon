@@ -1,7 +1,7 @@
+using AVS.Util;
 using HarmonyLib;
 using Subnautica_Archon.Util;
 using System.Collections;
-using AVS.Util;
 using UnityEngine;
 
 
@@ -38,14 +38,15 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOnHandHoverPostfix");
             // control opening the modules hatch
-            if (__instance.GetComponentInParent<Archon>() != null)
+            var arc = __instance.GetComponentInParent<Archon>();
+            if (arc.IsNotNull())
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnHandHoverPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
                 __instance.GetComponentInParent<ArchonControl>().openUpgradeCover = true;
                 timeUntilClose = openDuration;
                 if (closeDoorCor.IsNull())
                 {
-                    closeDoorCor = UWE.CoroutineHost.StartCoroutine(closeDoorSoon(__instance.GetComponentInParent<ArchonControl>()));
+                    closeDoorCor = arc.Owner.StartModCoroutine(nameof(VehicleUpgradeConsoleInputPatcher) + '.' + nameof(closeDoorSoon), _ => closeDoorSoon(__instance.GetComponentInParent<ArchonControl>()));
                 }
             }
         }
@@ -56,10 +57,11 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOpenPDAPostfix");
             // control opening the modules hatch
-            if (__instance.GetComponentInParent<ArchonControl>() != null)
+            var arc = __instance.GetComponentInParent<Archon>();
+            if (arc.IsNotNull())
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOpenPDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
-                UWE.CoroutineHost.StopCoroutine(closeDoorCor);
+                arc.Owner.StopCoroutine(closeDoorCor);
             }
         }
 
@@ -69,10 +71,11 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOnClosePDAPostfix");
             // control opening the modules hatch
-            if (__instance.GetComponentInParent<ArchonControl>() != null)
+            var arc = __instance.GetComponentInParent<Archon>();
+            if (arc.IsNotNull())
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnClosePDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
-                closeDoorCor = UWE.CoroutineHost.StartCoroutine(closeDoorSoon(__instance.GetComponentInParent<ArchonControl>()));
+                closeDoorCor = arc.Owner.StartModCoroutine(nameof(VehicleUpgradeConsoleInputPatcher) + '.' + nameof(closeDoorSoon), _ => closeDoorSoon(__instance.GetComponentInParent<ArchonControl>()));
             }
         }
     }

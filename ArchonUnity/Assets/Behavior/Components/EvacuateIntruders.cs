@@ -12,7 +12,6 @@ public class EvacuateIntruders : MonoBehaviour
     private readonly List<Sphere> localSpheres = new List<Sphere>();
     private Collider[] buffer = new Collider[256];
 
-    private ILogAdapter log = Log.New("Intruders");
     private Coroutine myRoutine;
 
 
@@ -50,7 +49,8 @@ public class EvacuateIntruders : MonoBehaviour
                 if (hits >= buffer.Length)
                 {
                     buffer = new Collider[buffer.Length * 2];
-                    log.LogWarning($"Resized buffer to {buffer.Length}");
+                    using (var log = Log.New())
+                        log.Warn($"Resized buffer to {buffer.Length}");
                 }
             }
 
@@ -76,7 +76,8 @@ public class EvacuateIntruders : MonoBehaviour
                                 float d2 = meToWhat.sqrMagnitude;
                                 if (d2 == 0)    //can't pull
                                 {
-                                    log.LogWarning($"Pull candidate {candidate} is at distance 0");
+                                    using (var log = Log.New())
+                                        log.Warn($"Pull candidate {candidate} is at distance 0");
                                     continue;
                                 }
 
@@ -108,7 +109,8 @@ public class EvacuateIntruders : MonoBehaviour
                             {
                                 var least = allHits.Where(x => x.DistanceToHull < x.DistanceToCandidate).Least(x => x.DistanceToCandidate);
                                 var targetPosition = least.Origin + least.Direction * (least.DistanceToCandidate - 1);
-                                log.LogWarning($"Re-integrating {candidate.GameObject.NiceName()} to {targetPosition} at intR={least.DistanceToHull}, dist={least.DistanceToCandidate} ");
+                                using (var log = Log.New())
+                                    log.Warn($"Re-integrating {candidate.GameObject.NiceName()} to {targetPosition} at intR={least.DistanceToHull}, dist={least.DistanceToCandidate} ");
                                 candidate.GameObject.transform.position = targetPosition;
                             }
                         }
@@ -136,7 +138,8 @@ public class EvacuateIntruders : MonoBehaviour
                                         continue;
                                     if (candidateDistance2 == 0)    //can't push
                                     {
-                                        log.LogWarning($"Candidate {candidate} is at distance 0");
+                                        using (var log = Log.New())
+                                            log.Warn($"Candidate {candidate} is at distance 0");
                                         continue;
                                     }
                                     var distanceToCandidiate = Mathf.Sqrt(candidateDistance2);
@@ -173,7 +176,8 @@ public class EvacuateIntruders : MonoBehaviour
                                     if (exteriorRadius > hit.DistanceToCandidate - r)
                                     {
                                         var targetPosition = hit.Origin + -hit.Direction * (outerRadius + r * 1.2f);
-                                        log.LogWarning($"Evacuating {candidate} to {targetPosition} at extR={exteriorRadius}, dist={hit.DistanceToCandidate}, r={r} ");
+                                        using (var log = Log.New())
+                                            log.Warn($"Evacuating {candidate} to {targetPosition} at extR={exteriorRadius}, dist={hit.DistanceToCandidate}, r={r} ");
                                         candidate.GameObject.transform.position = targetPosition;
                                     }
                                 }
@@ -211,7 +215,8 @@ public class EvacuateIntruders : MonoBehaviour
                 continue;
             localSpheres.Add(new Sphere(sphere.transform.localPosition, sphere.radius * sphere.transform.localScale.x));
         }
-        log.Write($"Identified {localSpheres.Count} local spheres. Starting coroutine");
+        using (var log = Log.New())
+            log.Write($"Identified {localSpheres.Count} local spheres. Starting coroutine");
         myRoutine = StartCoroutine(Run());
     }
 

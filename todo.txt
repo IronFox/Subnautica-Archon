@@ -1,23 +1,16 @@
 batch:
 
+* check if https://github.com/SubnauticaModding/Nautilus/pull/630 works
+* recheck Tweaks and fixes
+* add module access
+* check if docked sub shielding is restored when redocking after saving
+* check Bed Teleport mod
+* check Easy Craft mod
 * silence UpdateVisualsPostfix
 
 
 batch done:
 
-* fixed VF vehicles assuming AVS ping sprites
-* changed undock behavior to not "board" an undocking drone, causing it to move unintentionally
-* fixed entire bounding box collider activation on docking vehicles (fixed drone control access)
-* fixed docking collider bounding box computation
-* fixed collider switch bug skipping a large number of interior colliders and causing log flooding
-* reduce airlock slide sound level
-* set material adaptation logging back to silent
-
-* done in 2023: check map mod (seems broken on 2023)
-* done: check if fabricator works on 2023 survival. reports of no power errors. It does, no bugs apparent
-* done: check what happens to a crush drone after it is re-deployed (do its components still work? - they did not, fixed)
-* done: check what happens to the bioreactor when it is completely full and loaded again (do fish disappear?). none disappeared in creative or survival
-* done: check equip ION power cells. no issues detected
 
 no:
 
@@ -72,13 +65,29 @@ later:
 		CreatureAction.swimBehaviour (SwimBehaviour)
 
 * Torpedo launchers
-* Flight module
+* Flight module	
+	- How would you safely disembark?
+		+ Maybe some sort of walkway around the outer airlocks?
+	- What should happen if you fell down and the Archon stayed in the sky?
+		+ Maybe a player item that teleports the Archon near the player?
 * Fear module (makes creatures run away from it)
 * Water filtration module
 
 done:
 
-
+* fixed VF vehicles assuming AVS ping sprites
+* changed undock behavior to not "board" an undocking drone, causing it to move unintentionally
+* fixed entire bounding box collider activation on docking vehicles (fixed drone control access)
+* fixed docking collider bounding box computation
+* fixed collider switch bug skipping a large number of interior colliders and causing log flooding
+* fixed various container related collider warnings
+* reduce airlock slide sound level
+* set material adaptation logging back to silent
+* done in 2023: check map mod (seems broken on 2023)
+* done: check if fabricator works on 2023 survival. reports of no power errors. It does, no bugs apparent
+* done: check what happens to a crush drone after it is re-deployed (do its components still work? - they did not, fixed)
+* done: check what happens to the bioreactor when it is completely full and loaded again (do fish disappear?). none disappeared in creative or survival
+* done: check equip ION power cells. no issues detected
 * fixed compatibility with vehicle framework
 * reduce airlock open whirl sound volume
 * fix docked sub type and module images

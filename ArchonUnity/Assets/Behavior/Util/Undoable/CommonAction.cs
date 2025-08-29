@@ -22,7 +22,9 @@ public abstract class CommonAction<T> : IAction where T : Object
         {
             if (!HaveLoggedGone)
             {
-                Log.Default.LogWarning($"Cannot execute {GetType().Name} operation on {TargetName}: target is gone");
+                using (var log = Log.New())
+                    log.Warn(
+                        $"Cannot execute {GetType().Name} operation on {TargetName}: target is gone");
                 HaveLoggedGone = true;
             }
             return false;
@@ -35,7 +37,8 @@ public abstract class CommonAction<T> : IAction where T : Object
         {
             if (!HaveLoggedGone)
             {
-                Log.Default.LogWarning($"Cannot execute operation {GetType().Name}.Do() on {TargetName}: target is gone");
+                using (var log = Log.New())
+                    log.Warn($"Cannot execute operation {GetType().Name}.Do() on {TargetName}: target is gone");
                 HaveLoggedGone = true;
             }
             return false;
@@ -52,7 +55,8 @@ public abstract class CommonAction<T> : IAction where T : Object
         {
             if (!HaveLoggedGone)
             {
-                Log.Default.LogWarning($"Cannot execute operation {GetType().Name}.Undo() on {TargetName}: target is gone");
+                using (var log = Log.New())
+                    log.Warn($"Cannot execute operation {GetType().Name}.Undo() on {TargetName}: target is gone");
                 HaveLoggedGone = true;
             }
             return;

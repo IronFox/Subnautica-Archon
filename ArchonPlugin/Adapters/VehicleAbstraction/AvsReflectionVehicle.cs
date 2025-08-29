@@ -1,4 +1,5 @@
-﻿using AVS.BaseVehicle;
+﻿using AVS;
+using AVS.BaseVehicle;
 using AVS.Util;
 using Subnautica_Archon.Util;
 using Subnautica_Archon.Util.Reflection;
@@ -9,22 +10,27 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
     internal class AvsReflectionVehicle
     {
+        public RootModController Rmc { get; }
         public Vehicle Vehicle { get; }
 
-        private AvsReflectionVehicle(Vehicle vehicle)
+        private AvsReflectionVehicle(RootModController rmc, Vehicle vehicle)
         {
+            Rmc = rmc;
             //AvsVehicle v;
             //v.IsPlayerControlling
             Vehicle = vehicle;
+
             pingInstance = PropertyAdapter.OfPublic<PingInstance>(Vehicle, nameof(AvsVehicle.HudPingInstance));
             _isScuttled = FieldAdapter.Of<bool>(Vehicle, nameof(AvsVehicle.isScuttled));
 
-            _playerExit = new MethodAdapter<bool>(Vehicle, nameof(AvsVehicle.PlayerExit));
-            _playerEntry = new MethodAdapter(Vehicle, nameof(AvsVehicle.PlayerEntry));
-            _beginPiloting = new MethodAdapter(Vehicle, nameof(AvsVehicle.BeginMainHelmControl));
-            _onVehicleUndocked = new MethodAdapter<bool, bool>(Vehicle, nameof(AvsVehicle.UndockVehicle));
-            _onVehicleDocked = new MethodAdapter<Vector3, bool>(Vehicle, nameof(AvsVehicle.DockVehicle));
-            _isPlayerControlling = new MethodAdapter(Vehicle, nameof(AvsVehicle.IsPlayerControlling));
+            _playerExit = new MethodAdapter<bool>(rmc, Vehicle, nameof(AvsVehicle.PlayerExit));
+            _playerEntry = new MethodAdapter(rmc, Vehicle, nameof(AvsVehicle.PlayerEntry));
+            _beginPiloting = new MethodAdapter(rmc, Vehicle, nameof(AvsVehicle.BeginMainHelmControl));
+            _onVehicleUndocked = new MethodAdapter<bool, bool>(rmc, Vehicle, nameof(AvsVehicle.UndockVehicle));
+            _onVehicleDocked = new MethodAdapter<Vector3, bool>(rmc, Vehicle, nameof(AvsVehicle.DockVehicle));
+            _isPlayerControlling = new MethodAdapter(rmc, Vehicle, nameof(AvsVehicle.IsPlayerControlling));
+            _onPilotModeEnd = new MethodAdapter(Rmc, Vehicle, "OnPilotModeEnd");
+
         }
         private readonly MethodAdapter<bool> _playerExit;
         private readonly MethodAdapter _playerEntry;
@@ -34,6 +40,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         private readonly PropertyAdapter<PingInstance> pingInstance;
         private readonly FieldAdapter<bool> _isScuttled;
         private readonly MethodAdapter _isPlayerControlling;
+        private readonly MethodAdapter _onPilotModeEnd;
 
         public void PlayerExit()
         {
@@ -74,14 +81,14 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 
         public static bool IsOne(Vehicle vehicle)
             => vehicle.IsAvsVehicle();
-        public static bool Access(Vehicle vehicle, [NotNullWhen(true)] out AvsReflectionVehicle? outVehicle)
+        public static bool Access(RootModController rmc, Vehicle vehicle, [NotNullWhen(true)] out AvsReflectionVehicle? outVehicle)
         {
             if (!vehicle.IsAvsVehicle())
             {
                 outVehicle = null;
                 return false;
             }
-            outVehicle = new AvsReflectionVehicle(vehicle);
+            outVehicle = new AvsReflectionVehicle(rmc, vehicle);
             return true;
         }
 

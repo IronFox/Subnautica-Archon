@@ -1,5 +1,4 @@
-﻿using Assets.Behavior.TransferTypes;
-using Behavior.Util.Log;
+﻿using Assets.Behavior.Adapters;
 using UnityEngine;
 
 public class AtlasImage : MonoBehaviour
@@ -11,7 +10,7 @@ public class AtlasImage : MonoBehaviour
         {
             if (value == _texture)
                 return;
-            using (var log = new LogContext(nameof(AtlasImage)+'.'+nameof(Texture), value ? value.texture.NiceName() : "null"))
+            using (var log = Log.New())
             {
                 _texture = value;
                 UpdateTexture();
@@ -40,7 +39,7 @@ public class AtlasImage : MonoBehaviour
         {
             if (!m)
             {
-                using (var log = new LogContext(nameof(AtlasImage) + '.' + nameof(Material)))
+                using (var log = Log.New())
                 {
                     log.Write($"Instantiating new material from {materialPrototype.NiceName()}");
                     m = new Material(materialPrototype);
@@ -55,7 +54,7 @@ public class AtlasImage : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
-        using (var log = new LogContext(nameof(AtlasImage) + '.' + nameof(Awake), this.NiceName()))
+        using (var log = Log.New())
         {
             _ = Renderer;
             UpdateTexture();
@@ -64,7 +63,7 @@ public class AtlasImage : MonoBehaviour
 
     private void UpdateTexture()
     {
-        using (var log = new LogContext(nameof(AtlasImage)+'.'+nameof(UpdateTexture), this.NiceName()))
+        using (var log = Log.New())
         {
             if (_texture)
                 log.Write($"Assigning texture {_texture.texture.NiceName()}");

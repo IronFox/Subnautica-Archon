@@ -1,33 +1,37 @@
 ﻿using AVS.Log;
 using System;
-using System.Linq;
 
 namespace Subnautica_Archon.Adapters
 {
     internal class LogAdapter : Assets.Behavior.Adapters.ILogAdapter
     {
-        public LogAdapter(string[] tags)
+        public LogAdapter(ArchonModController amc, string[] tags)
         {
             Tags = tags;
-            Writer = new LogWriter(
-                tags: tags.Prepend("Uty").ToArray(),
-                prefix: null
-            );
+            Writer = new SmartLog(amc, "Uty", 3, false, tags);
         }
-        public LogWriter Writer { get; }
+        public SmartLog Writer { get; }
         public string[] Tags { get; }
 
-        public void LogDebug(string message)
-            => Writer.Debug(message);
+        public void Debug(string message)
+        {
+            Writer.Debug(message);
+        }
 
-        public void LogError(string message, Exception? exception = null)
-            => Writer.Error(message, exception);
+        public void Dispose()
+        {
+            Writer.Dispose();
+        }
 
-        public void LogException(Exception exception)
-            => Writer.Error("Exception caught", exception);
+        public void Error(string message, Exception? exception = null)
+        {
+            Writer.Error(message, exception);
+        }
 
-        public void LogWarning(string message)
-            => Writer.Warn(message);
+        public void Warn(string message)
+        {
+            Writer.Warn(message);
+        }
 
         public void Write(string message)
             => Writer.Write(message);

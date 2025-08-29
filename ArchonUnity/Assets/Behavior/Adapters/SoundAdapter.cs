@@ -1,5 +1,5 @@
-﻿using System;
-using Assets.Behavior.Adapters;
+﻿using Assets.Behavior.Adapters;
+using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -39,7 +39,8 @@ public class SoundAdapter : MonoBehaviour
 
             if (Sound == null || (DeadForFrames > 10 && loop) || !Sound.ApplyLiveChanges(cfg))
             {
-                Log.Write($"Reinstantiating sound {this.NiceName()} for clip {clip.name}");
+                using (var log = Log.New())
+                    log.Write($"Reinstantiating sound {this.NiceName()} for clip {clip.name}");
                 Sound?.Dispose();
                 Sound = SoundCreator.Instantiate(cfg);
                 DeadForFrames = 0;
@@ -206,7 +207,7 @@ internal class EmulatedSpacialSound : IInstantiatedSound
     public bool ApplyLiveChanges(SoundConfig cfg)
     {
         if (cfg.AudioClip != Source.clip)
-            return false; 
+            return false;
         var blend = cfg.Is3D ? 1 : 0;
         Source.spatialBlend = blend;
         Source.pitch = cfg.Pitch;
@@ -241,7 +242,7 @@ internal class DefaultSound : IInstantiatedSound
     public SoundConfig Config { get; private set; }
 
     public bool Died => !Source;
-    
+
     private float hasPlayedFor = 0;
 
     public DefaultSound(AudioSource audioSource, SoundConfig config)

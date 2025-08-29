@@ -1,19 +1,26 @@
 ﻿using AVS.Audio;
+using AVS.Util;
 using FMOD;
 using Subnautica_Archon.Util;
 using UnityEngine;
-using AVS.Util;
 
 namespace Subnautica_Archon.Adapters
 {
     internal class FModSoundCreator : ISoundCreator
     {
         public float HalfDistance { get; set; } = 20f;
+        public ArchonModController Amc { get; }
+
+        public FModSoundCreator(ArchonModController amc)
+        {
+            Amc = amc;
+        }
         public IInstantiatedSound? Instantiate(SoundConfig cfg)
         {
             var sound = AVS.Audio.FModSoundCreator.Play(
                 new(
                     Owner: cfg.Owner,
+                    RMC: Amc,
                     AudioClip: cfg.AudioClip,
                     Loop: cfg.Loop,
                     HalfDistance: Mathf.Max(HalfDistance, cfg.MinDistance * 2),
@@ -22,9 +29,9 @@ namespace Subnautica_Archon.Adapters
                     Settings: new(
                         Volume: cfg.Volume,
                         Pitch: cfg.Pitch
-                        )), Log.Writer);
+                        )));
             if (sound.IsNull())
-                return null; 
+                return null;
             return new TranslatedFModSound(sound, cfg);
 
             //    );

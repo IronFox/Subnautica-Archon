@@ -15,7 +15,7 @@ namespace Subnautica_Archon.Util
 
         public static void Purge()
         {
-            var path = Path.Combine(MainPatcher.RootFolder, RecipePath);
+            var path = Path.Combine(ArchonModController.RootFolder, RecipePath);
             if (!File.Exists(path))
             {
                 Log.Write($"No existing recipe found at {path}");

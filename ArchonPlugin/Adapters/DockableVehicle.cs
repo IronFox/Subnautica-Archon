@@ -1,4 +1,7 @@
+using Assets.Behavior.TransferTypes;
 using AVS.Log;
+using AVS.Util;
+using Behavior.Util.Math;
 using Subnautica_Archon.Adapters.VehicleAbstraction;
 using Subnautica_Archon.Util;
 using Subnautica_Archon.Util.Reflection;
@@ -6,12 +9,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Assets.Behavior.TransferTypes;
-using AVS.Assets;
 using UnityEngine;
-using AVS.Util;
-using Behavior.Util.Math;
-using Object = UnityEngine.Object;
 
 
 namespace Subnautica_Archon.Adapters
@@ -21,17 +19,14 @@ namespace Subnautica_Archon.Adapters
     {
         private FieldAdapter<Player.Mode> Mode { get; }
 
-        public LogWriter Log { get; }
         public DockableVehicle(Vehicle vehicle, Archon archon)
         {
-            Log = new LogWriter(
-                prefix: "Dockable#" + Id,
-                "Mod");
+            using var log = SmartLog.For(archon.Owner, tags: "Dockable#" + Id);
             Vehicle = vehicle;
-            Abstraction = Vehicle.ToAbstraction();
+            Abstraction = Vehicle.ToAbstraction(archon.Owner);
             Archon = archon;
             IsDrone = Drone.IsOne(Vehicle);
-            Log.Write($"IsDrone={IsDrone}, IsPlayerControlledDrone={IsPlayerControlledDrone}");
+            log.Write($"IsDrone={IsDrone}, IsPlayerControlledDrone={IsPlayerControlledDrone}");
             Mode = FieldAdapter.OfNonPublic<Player.Mode>(Player.main, "mode");
         }
         public Vehicle Vehicle { get; }
@@ -93,7 +88,7 @@ namespace Subnautica_Archon.Adapters
                     // box3.transform.localRotation = Quaternion.identity;
                     // box3.transform.localScale = M.V3(bounds.Value.Size.x,bounds.Value.Size.y,0.1f);
                     //
-                    
+
                 }
 
                 return bounds.Value;
@@ -109,11 +104,11 @@ namespace Subnautica_Archon.Adapters
                 if (!imageLoaded)
                 {
                     imageLoaded = true;
-                    using var log = new LogContext(Log, nameof(Image));
+                    using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
                     var tt = CraftData.GetTechType(Vehicle.gameObject);
                     if (tt != TechType.None)
                     {
-                        log.Write($"Fetching image for {tt.AsString()}" );
+                        log.Write($"Fetching image for {tt.AsString()}");
                         image = SpriteManager.Get(tt, null);
                         if (image.IsNull() || image.texture.IsNull())
                         {
@@ -121,7 +116,7 @@ namespace Subnautica_Archon.Adapters
                         }
                         else
                             log.Write($"Image for {tt.AsString()} is {image.NiceName()}");
-                        
+
                     }
                     else
                     {
@@ -140,7 +135,7 @@ namespace Subnautica_Archon.Adapters
             {
                 if (moduleSprites != null)
                     return moduleSprites;
-                using var log = new LogContext(Log, nameof(Modules));
+                using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
                 var list = new List<Sprite>();
                 int at = 0;
                 foreach (InventoryItem mod in (IItemsContainer)Vehicle.modules)
@@ -252,8 +247,8 @@ namespace Subnautica_Archon.Adapters
 
         public void RestoreDockedStateFromSaveGame()
         {
-            using var log = new LogContext(Log, nameof(RestoreDockedStateFromSaveGame));
-            
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
+
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
             Vehicle.docked = true;
@@ -272,7 +267,7 @@ namespace Subnautica_Archon.Adapters
 
         private void CheckPingInstanceIsDeactivated()
         {
-            using var log = new LogContext(Log, nameof(CheckPingInstanceIsDeactivated));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             log.Write($"Checking ping instance for {Vehicle.NiceName()}");
             var pi = Abstraction.PingInstance;
             if (pi.enabled || pi.visible)
@@ -284,27 +279,27 @@ namespace Subnautica_Archon.Adapters
 
         private void SignalVehicleDocked()
         {
-            using var log = new LogContext(Log, nameof(SignalVehicleDocked));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             Abstraction.DockVehicle();
             CheckPingInstanceIsDeactivated();
         }
 
         public void BeginDocking()
         {
-            using var log = new LogContext(Log, nameof(BeginDocking));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             moduleSprites = null;
             if (HasPlayer)
             {
-                Helper.ChangeAvatarInput(log,false);
+                Helper.ChangeAvatarInput(log, false);
             }
             else if (Drone.Access(Vehicle, out var d))
             {
                 if (IsPlayerControlledDrone)
                 {
-                    
+
                     log.Write($"Stopping drone control");
                     d.StopControlling();
-                    
+
                     if (IsPlayerControlledDrone)
                         log.Warn($"StopControlling() has not been successful.");
                     else
@@ -312,7 +307,7 @@ namespace Subnautica_Archon.Adapters
                         log.Write($"Player has stopped controlling drone");
                     }
 
-                    Helper.ChangeAvatarInput(log,true);
+                    Helper.ChangeAvatarInput(log, true);
                     if (!Player.main.ToNormalMode(false) && Mode != Player.Mode.Normal)
                     {
                         log.Write($"ToNormalMode() refused and mode is not normal. Forcing to normal");
@@ -331,18 +326,17 @@ namespace Subnautica_Archon.Adapters
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
 
-            Abstraction.PingInstance.SetHudIcon(log,false);
+            Abstraction.PingInstance.SetHudIcon(log, false);
         }
 
 
-        private IEnumerator SwitchToArchon()
+        private IEnumerator SwitchToArchon(SmartLog log)
         {
-            var log = Log.Tag("SwitchToArchon");
             log.Write("(Re-)Switching player to archon");
 
             if (HasPlayer)
             {
-                new MethodAdapter(Vehicle, "OnPilotModeEnd").Invoke();
+                new MethodAdapter(Archon.Owner, Vehicle, "OnPilotModeEnd").Invoke();
                 SignalVehicleDocked();
                 Vehicle.DeselectSlots();
             }
@@ -352,28 +346,30 @@ namespace Subnautica_Archon.Adapters
             yield return new WaitForFixedUpdate();
             yield return new WaitForEndOfFrame();
 
-            using var log2 = new LogContext(log, nameof(SwitchToArchon));
+            //using var log2 = new LogContext(log, nameof(SwitchToArchon));
 
-            log2.Write($"Entering archon from transform parent {Player.main.transform.parent.NiceName()}");
+            log.Write($"Entering archon from transform parent {Player.main.transform.parent.NiceName()}");
             Archon.EnterFromDocking();
-            log2.Write($"Registering fix parent {Player.main.transform.parent.NiceName()}");
+            log.Write($"Registering fix parent {Player.main.transform.parent.NiceName()}");
             UpdateCounter = 0;
-            log2.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
-            log2.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
-            log2.Write($" A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, [])}");
-            Helper.ChangeAvatarInput(log2,true);
+            log.Write($"Player transform parent now {Player.main.transform.parent.GetPath()}");
+            log.Write($"Player vehicle now {Player.main.GetVehicle()} / {Player.main.GetVehicle().SafeGetTransform().GetPath()}");
+            log.Write($" A-Okay = {AvsUtils.FindVehicleInParents(Player.main.transform, out _, [])}");
+            Helper.ChangeAvatarInput(log, true);
         }
 
 
         public void EndDocking()
         {
-            using var log = new LogContext(Log, nameof(EndDocking));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
 
             Vehicle.docked = true;
 
             if (HasPlayer)
             {
-                Vehicle.StartCoroutine(SwitchToArchon());
+                Archon.Owner.StartModCoroutine(
+                    nameof(DockableVehicle) + '.' + nameof(SwitchToArchon),
+                    SwitchToArchon);
             }
             else
                 log.Write($"Not switching to archon, no player present");
@@ -382,7 +378,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OnDockingDone()
         {
-            using var log = new LogContext(Log, nameof(OnDockingDone));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
 
             if (HasPlayer)
             {
@@ -397,7 +393,7 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter++;
             if (HasPlayer)
             {
-                using var log = new LogContext(Log, nameof(UpdateWaitingForBayDoorClose));
+                using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
                 CheckPingInstanceIsDeactivated();
                 if (!AvsUtils.FindVehicleInParents(Player.main.transform, out var v, new List<Transform>()))
                 {
@@ -409,7 +405,7 @@ namespace Subnautica_Archon.Adapters
 
         private void SwitchToUndockingCraft()
         {
-            using var log = new LogContext(Log, nameof(SwitchToUndockingCraft));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
 
             Archon.SuspendAutoLeveling();
             try
@@ -434,8 +430,8 @@ namespace Subnautica_Archon.Adapters
 
         public void PrepareUndocking()
         {
-            using var log = new LogContext(Log, nameof(PrepareUndocking));
-            
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
+
             if (Drone.IsOne(Vehicle))
             {
                 log.Write($"Undocking craft is drone. No action necessary");
@@ -463,21 +459,21 @@ namespace Subnautica_Archon.Adapters
 
         public void BeginUndocking()
         {
-            using var log = new LogContext(Log, nameof(BeginUndocking));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             Abstraction.PingInstance.SetHudIcon(log, true);
         }
 
         public void EndUndocking()
         {
-            using var log = new LogContext(Log, nameof(EndUndocking));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             Vehicle.liveMixin.shielded = false;
             Vehicle.crushDamage.enabled = true;
             Vehicle.docked = false;
-            
-            
+
+
             Abstraction.UndockVehicle(boardPlayer: !IsDrone);
             Abstraction.PingInstance.SetHudIcon(log, true);
-            
+
             if (!Vehicle.subName.pingInstance.isActiveAndEnabled ||
                 !Vehicle.subName.pingInstance.gameObject.activeInHierarchy || !Vehicle.subName.pingInstance.visible)
                 log.Warn($"There appears to be an issue with the ping instance: {Vehicle.subName.pingInstance.isActiveAndEnabled}, {Vehicle.subName.pingInstance.gameObject.activeInHierarchy}, {Vehicle.subName.pingInstance.visible}");
@@ -508,7 +504,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OnUndockedForSaving()
         {
-            using var log = new LogContext(Log, nameof(OnUndockedForSaving));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             try
             {
                 Vehicle.liveMixin.shielded = false;
@@ -532,7 +528,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OnRedockedAfterSaving()
         {
-            using var log = new LogContext(Log, nameof(OnRedockedAfterSaving));
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             try
             {
                 Vehicle.liveMixin.shielded = true;

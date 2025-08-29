@@ -12,6 +12,7 @@ using AVS.VehicleComponents;
 using AVS.VehicleTypes;
 using FMOD.Studio;
 using FMODUnity;
+using Subnautica_Archon.Adapters;
 using Subnautica_Archon.Components;
 using Subnautica_Archon.Modules;
 using Subnautica_Archon.Util;
@@ -22,7 +23,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using Subnautica_Archon.Adapters;
 using UnityEngine;
 using Logger = AVS.Logger;
 
@@ -39,7 +39,7 @@ namespace Subnautica_Archon
             () =>
             new InvalidOperationException($"Trying to access Control before Awake()"));
 
-        public LogWriter Log { get; }
+
 
 
         public static readonly VehicleColor defaultBaseColor = new VehicleColor(new Color(0xDE, 0xDE, 0xDE) / 255f);
@@ -66,9 +66,9 @@ namespace Subnautica_Archon
 
         public VoiceLibrary? GetVoiceLibrary()
         {
-            if (MainPatcher.PluginConfig.voice == Voice.Off)
+            if (ArchonModController.PluginConfig.voice == Voice.Off)
                 return null;
-            VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out var voiceLibrary);
+            VoiceLibraries.TryGetValue(ArchonModController.PluginConfig.voice.ToString(), out var voiceLibrary);
             return voiceLibrary;
         }
         public Vector3? TeleportationTargetA { get; set; }
@@ -76,15 +76,15 @@ namespace Subnautica_Archon
 
 
         public Archon() : base(new VehicleConfiguration(
-            unlockedSprite: MainPatcher.StaticImages.ArchonCraftingSprite,
+            unlockedSprite: ArchonModController.StaticImages.ArchonCraftingSprite,
             maxHealth: 50000,
             crushDamage: 50000 / (60 * 2),    //damage so that total failure is achieved after 2 minutes at crush depth
             mass: 20000,
             numModules: 8,
-            craftingSprite: MainPatcher.StaticImages.ArchonCraftingSprite,
-            pingSprite: MainPatcher.StaticImages.ArchonPingSprite,
-            saveFileSprite: MainPatcher.StaticImages.ArchonPingSprite,
-            moduleBackgroundImage: MainPatcher.StaticImages.ModulesBackground,
+            craftingSprite: ArchonModController.StaticImages.ArchonCraftingSprite,
+            pingSprite: ArchonModController.StaticImages.ArchonPingSprite,
+            saveFileSprite: ArchonModController.StaticImages.ArchonPingSprite,
+            moduleBackgroundImage: ArchonModController.StaticImages.ModulesBackground,
             description: Language.main.Get("General.Description"),
             encyclopediaEntry: Language.main.Get("General.Encyclopedia"),
             canLeviathanGrab: false,
@@ -100,18 +100,14 @@ namespace Subnautica_Archon
                 .Add(TechType.Aerogel, 3)
                 .Add(TechType.Lubricant, 1)
                 .Done(),
-            getVoiceSoundVolume: () => MainPatcher.PluginConfig.voiceVolumePercent / 100f
+            getVoiceSoundVolume: () => ArchonModController.PluginConfig.voiceVolumePercent / 100f
             * 0.5f
 
             ,
-            getVoiceSubtitlesEnabled: () => MainPatcher.PluginConfig.showVoiceSubtitles
+            getVoiceSubtitlesEnabled: () => ArchonModController.PluginConfig.showVoiceSubtitles
         ))
         {
-            Log = new LogWriter(
-                prefix: $"V" + Id,
-                "Mod");
-            //Log = new MyLogger(this);
-            Log.Write($"Constructed");
+            //can't use log here, instance not assigned yet
             MenuTracker.OnOpen += () =>
             {
                 if (control != null)
@@ -154,15 +150,14 @@ namespace Subnautica_Archon
                         list =>
                         {
                             DockedSubPrefabIds = list;
-                            Log.Write($"Docked sub prefabs restored from file: {string.Join(", ", list)}");
+                            using var log = NewModLog();
+                            log.Write($"Docked sub prefabs restored from file: {string.Join(", ", list)}");
                         }
                         )
                 ));
             base.CreateDataBlocks(addBlock);
         }
 
-        //public override float ExitVelocityLimit => 100f;    //any speed is good
-        public override bool LogDebug => true;
         public IEnumerable<QuickSlot> QuickSlots
         {
             get
@@ -176,8 +171,8 @@ namespace Subnautica_Archon
 
         public override void OnFinishedLoading()
         {
-            using var log = new LogContext(this, nameof(OnFinishedLoading));
-            
+            using var log = NewModLog();
+
             log.Write($"Comparing colors {BaseColor} and {StripeColor}");
             if (BaseColor == VehicleColor.Default && StripeColor == VehicleColor.Default)
             {
@@ -251,12 +246,10 @@ namespace Subnautica_Archon
         //    };
 
 
-        public static GameObject GetAssets()
+        public static GameObject GetAssets(ArchonModController amc)
         {
-            using var log = new LogContext(
-                new LogWriter(prefix: $"Prefab", "Mod"),
-                nameof(GetAssets));
-            
+            using var log = SmartLog.For(amc);
+
             try
             {
                 var modPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -315,8 +308,8 @@ namespace Subnautica_Archon
 
         public override void Awake()
         {
-            using var log = new LogContext(this, nameof(Awake));
-            
+            using var log = NewModLog();
+
             worldForces.aboveWaterDrag = worldForces.underwaterDrag = 0;
 
 
@@ -388,7 +381,7 @@ namespace Subnautica_Archon
 
             base.Awake();
 
-            if (MainPatcher.PluginConfig.defaultToFirstPerson)
+            if (ArchonModController.PluginConfig.defaultToFirstPerson)
                 Control.SetCameraFirstPerson(true);
 
         }
@@ -438,7 +431,7 @@ namespace Subnautica_Archon
         private Coroutine? autoLevelRoutine;
         public override void DeselectSlots()
         {
-            using var log = new LogContext(this, nameof(DeselectSlots));
+            using var log = NewModLog();
             if (exitLimitsSuspended)
                 base.DeselectSlots();
             else
@@ -446,7 +439,9 @@ namespace Subnautica_Archon
                 if (!AbortAutoLeveling())
                 {
                     log.Write("Starting new exit loop");
-                    autoLevelRoutine = StartCoroutine(AutoLevelThenExit());
+                    autoLevelRoutine = Owner.StartModCoroutine(
+                        nameof(Archon) + '.' + nameof(AutoLevelThenExit),
+                        AutoLevelThenExit);
                 }
             }
         }
@@ -455,8 +450,8 @@ namespace Subnautica_Archon
         {
             if (autoLevelRoutine != null)
             {
-                using var log = new LogContext(this, nameof(AbortAutoLeveling));
-                
+                using var log = NewModLog();
+
                 log.Write("Exit loop in progress. Aborting");
                 StopCoroutine(autoLevelRoutine);
                 autoLevelRoutine = null;
@@ -468,13 +463,13 @@ namespace Subnautica_Archon
             return false;
         }
 
-        private IEnumerator AutoLevelThenExit()
+        private IEnumerator AutoLevelThenExit(SmartLog log)
         {
-            Log.Write(nameof(AutoLevelThenExit));
+            log.Write(nameof(AutoLevelThenExit));
             var voiceLibrary = GetVoiceLibrary();
             if (Control.IsLevel)
             {
-                Log.Write("Archon is level. Exiting now");
+                log.Write("Archon is level. Exiting now");
 
 
                 base.DeselectSlots();
@@ -482,7 +477,7 @@ namespace Subnautica_Archon
                 yield break;
             }
 
-            Log.Write("Archon is not level. Leveling out");
+            log.Write("Archon is not level. Leveling out");
             var voice = voiceLibrary?.GetRandomAutoLeveling();
             VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Starting"));
 
@@ -496,21 +491,21 @@ namespace Subnautica_Archon
                 remaining -= Time.deltaTime;
                 yield return null;
             }
-            Log.Write("Archon is level or deadline has passed");
+            log.Write("Archon is level or deadline has passed");
             autoLevelRoutine = null;
             if (Control.doAutoLevel)
             {
-                Log.Write("Archon leveling has not been aborted");
+                log.Write("Archon leveling has not been aborted");
                 Control.doAutoLevel = false;
                 if (Control.IsLevel)
                 {
-                    Log.Write("Archon is level. Exiting");
+                    log.Write("Archon is level. Exiting");
 
                     base.DeselectSlots();
                 }
                 else
                 {
-                    Log.Write("Archon is not level. Not exiting");
+                    log.Write("Archon is not level. Not exiting");
 
                     voice = voiceLibrary?.GetRandomAutoLevelingHasFailed();
                     VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.Leveling.Failed"));
@@ -523,7 +518,7 @@ namespace Subnautica_Archon
         {
             if (!isInitialized)
             {
-                using var log = new LogContext(this, nameof(LazyInit));
+                using var log = NewModLog();
                 log.Write($"LocalInit() first time");
                 isInitialized = true;
                 try
@@ -589,7 +584,8 @@ namespace Subnautica_Archon
 
         public override void SetBaseColor(VehicleColor color)
         {
-            Log.Write($"Updating sub base color to {color}");
+            using var log = NewModLog();
+            log.Write($"Updating sub base color to {color}");
             base.SetBaseColor(color);
 
             var listeners = GetComponentsInChildren<IColorListener>();
@@ -600,7 +596,8 @@ namespace Subnautica_Archon
 
         public override void SetStripeColor(VehicleColor color)
         {
-            Log.Write($"Updating sub stripe color to {color}");
+            using var log = NewModLog();
+            log.Write($"Updating sub stripe color to {color}");
             base.SetStripeColor(color);
 
             var listeners = GetComponentsInChildren<IColorListener>();
@@ -611,7 +608,7 @@ namespace Subnautica_Archon
 
         public override void Start()
         {
-            using var log = new LogContext(this, nameof(Start));
+            using var log = NewModLog();
             try
             {
 
@@ -630,19 +627,19 @@ namespace Subnautica_Archon
 
         protected override void OnPrePlayerEntry()
         {
-            using var log = new LogContext(this, nameof(OnPrePlayerEntry));
-            
+            using var log = NewModLog();
+
             Control.Enter(Helper.GetPlayerReference(), skipOrientation: exitLimitsSuspended || !hadUnpausedFrame);
-            HudPingInstance.SetHudIcon(log,false);
+            HudPingInstance.SetHudIcon(log, false);
 
             base.OnPrePlayerEntry();
         }
 
         protected override void OnPlayerExit()
         {
-            using var log = new LogContext(this, nameof(OnPlayerExit));
+            using var log = NewModLog();
             base.OnPlayerExit();
-            HudPingInstance.SetHudIcon(log,true);
+            HudPingInstance.SetHudIcon(log, true);
             Control.Exit();
 
         }
@@ -651,7 +648,7 @@ namespace Subnautica_Archon
 
         protected override void OnPreBeginHelmControl(Helm helm)
         {
-            using var log = new LogContext(this, nameof(OnPreBeginHelmControl));
+            using var log = NewModLog();
             try
             {
                 base.OnPreBeginHelmControl(helm);
@@ -677,7 +674,7 @@ namespace Subnautica_Archon
 
         protected override void OnBeginHelmControl(Helm helm)
         {
-            using var log = new LogContext(this, nameof(OnBeginHelmControl));
+            using var log = NewModLog();
             try
             {
                 base.OnBeginHelmControl(helm);
@@ -694,7 +691,7 @@ namespace Subnautica_Archon
 
         protected override void OnPreEndHelmControl()
         {
-            using var log = new LogContext(this, nameof(OnPreEndHelmControl));
+            using var log = NewModLog();
             try
             {
 
@@ -709,7 +706,7 @@ namespace Subnautica_Archon
 
         protected override void OnEndHelmControl()
         {
-            using var log = new LogContext(this, nameof(OnEndHelmControl));
+            using var log = NewModLog();
             try
             {
                 base.OnEndHelmControl();
@@ -752,7 +749,7 @@ namespace Subnautica_Archon
 
         private void SetWaterProxiesEnabled(bool enable)
         {
-            using var log = new LogContext(this, nameof(SetWaterProxiesEnabled), enable);
+            using var log = NewModLog();
             var clipProxyParent = transform.Find("WaterClipProxy");
             var seamoth = SeamothHelper.Seamoth;
             if (seamoth.IsNull())
@@ -768,9 +765,9 @@ namespace Subnautica_Archon
                 {
                     isGood = true;
                     if (enable)
-                        WaterClipUtil.BindProxy(Log, clipProxyParent.gameObject, meta.distanceField, meta.localBounds);
+                        WaterClipUtil.BindProxy(Owner, clipProxyParent.gameObject, meta.distanceField, meta.localBounds);
                     else
-                        WaterClipUtil.UnbindProxy(Log, clipProxyParent.gameObject);
+                        WaterClipUtil.UnbindProxy(Owner, clipProxyParent.gameObject);
                     log.Write($"Flushing children...");
                     clipProxyParent.DestroyChildren();
                     log.Write($"All done");
@@ -841,7 +838,7 @@ namespace Subnautica_Archon
                 }
             }
         }
-        
+
         public bool WillRechargingDocked { get; private set; }
         public bool WillRepairDocked { get; private set; }
 
@@ -960,7 +957,7 @@ namespace Subnautica_Archon
                         float level = RepairModule.GetRelativeSelfRepair(RepairModule.GetFrom(this));
                         if (level > 0)
                         {
-                            WillRepairDocked = true;                             
+                            WillRepairDocked = true;
                             foreach (var docked in Control.bayControl.Docked)
                             {
                                 if (docked is DockableVehicle v)
@@ -1185,7 +1182,7 @@ namespace Subnautica_Archon
                     nonBlackBaseColor = BaseColor.RGB;
                 if (StripeColor.RGB != Color.black)
                     nonBlackStripeColor = StripeColor.RGB;
-                switch (MainPatcher.PluginConfig.interiorLights)
+                switch (ArchonModController.PluginConfig.interiorLights)
                 {
                     case InteriorLights.Full:
                         Control.minimumInteriorLightPriority = 0;
@@ -1199,8 +1196,8 @@ namespace Subnautica_Archon
 
                 }
 
-                Control.flipFreeHorizontalRotationInReverse = MainPatcher.PluginConfig.flipFreeHorizontalRotationInReverse;
-                Control.flipFreeVerticalRotationInReverse = MainPatcher.PluginConfig.flipFreeVerticalRotationInReverse;
+                Control.flipFreeHorizontalRotationInReverse = ArchonModController.PluginConfig.flipFreeHorizontalRotationInReverse;
+                Control.flipFreeVerticalRotationInReverse = ArchonModController.PluginConfig.flipFreeVerticalRotationInReverse;
 
                 if (Input.GetKeyDown(KeyCode.F7))
                 {
@@ -1283,7 +1280,7 @@ namespace Subnautica_Archon
                     Control.lookUpAxis = lookDelta.y * 0.1f;
                 }
 
-                Control.floodLightShadows = MainPatcher.PluginConfig.floodLightShadows;
+                Control.floodLightShadows = ArchonModController.PluginConfig.floodLightShadows;
 
                 ProcessEnergyRecharge();
                 ProcessRegeneration();
@@ -1302,19 +1299,19 @@ namespace Subnautica_Archon
                 {
                     Control.zoomAxis = -Input.GetAxis("Mouse ScrollWheel")
                         +
-                        ((Input.GetKey(MainPatcher.PluginConfig.btnAltZoomOut) ? 1f : 0f)
-                        - (Input.GetKey(MainPatcher.PluginConfig.btnAltZoomIn) ? 1f : 0f)) * 0.02f
+                        ((Input.GetKey(ArchonModController.PluginConfig.btnAltZoomOut) ? 1f : 0f)
+                        - (Input.GetKey(ArchonModController.PluginConfig.btnAltZoomIn) ? 1f : 0f)) * 0.02f
                         ;
                 }
 
                 if (Control.IsBeingControlled
-                    && Input.GetKeyDown(MainPatcher.PluginConfig.toggleFreeCamera)
+                    && Input.GetKeyDown(ArchonModController.PluginConfig.toggleFreeCamera)
                     && engine != null)
                 {
                     Control.ToggleCurrentFreeCamera();
                     engine.freeCamera = Control.UseFreeCamera;
                 }
-                if (Input.GetKeyDown(MainPatcher.PluginConfig.btnChangeExternalCameraHeight))
+                if (Input.GetKeyDown(ArchonModController.PluginConfig.btnChangeExternalCameraHeight))
                 {
                     Control.positionCameraBelowSub = !Control.positionCameraBelowSub;
                 }
@@ -1404,6 +1401,7 @@ namespace Subnautica_Archon
 
         internal void SetModuleCount(ArchonModule moduleType, int count)
         {
+            using var log = NewModLog();
             //var tm = GetTorpedoMark();
             //var bm = GetBatteryMark();
             //var dm = GetDriveMark();
@@ -1427,25 +1425,26 @@ namespace Subnautica_Archon
                 if (rm != rm2)
                     ErrorMessage.AddMessage(Language.main.GetFormat($"Modules.RepairCapacityChanged", VehicleName, Language.main.Get("Capacity." + rm2)));
             }
-            Debug.Log($"Changed counts of {moduleType} to {moduleCounts[(int)moduleType]}");
+            log.Write($"Changed module counts of {moduleType} to {moduleCounts[(int)moduleType]}");
         }
 
         internal void EnterFromDocking()
         {
-            Log.Write(nameof(EnterFromDocking));
+            using var log = NewModLog();
+            log.Write(nameof(EnterFromDocking));
             SuspendAutoLeveling();
 
             var dockingHatchEntry = transform.Find("Docking Hatch/Exit");
             if (dockingHatchEntry)
             {
-                Log.Write($"Docking hatch entry found at {dockingHatchEntry.position}");
+                log.Write($"Docking hatch entry found at {dockingHatchEntry.position}");
                 PlayerEntry(new VehicleHatchDefinition(gameObject, dockingHatchEntry, dockingHatchEntry, dockingHatchEntry));
                 //Player.main.transform.position = dockingHatchEntry.position;
                 //Player.main.transform.rotation = dockingHatchEntry.rotation;
             }
             else
             {
-                Log.Error($"Docking hatch entry not found. Entering helm");
+                log.Error($"Docking hatch entry not found. Entering helm");
                 ClosestPlayerEntry();
                 BeginHelmControl(Com.Helms[0]);
             }
@@ -1490,16 +1489,17 @@ namespace Subnautica_Archon
 
         protected override SubmarineComposition GetSubmarineComposition()
         {
+            using var log = SmartLog.For(Owner);
             var voiceLibraries = transform.GetComponentsInChildren<VoiceLibrary>();
             if (voiceLibraries.Length == 0)
             {
-                Log.Error("Voice libraries not found. Autopilot will not have a voice");
+                log.Error("Voice libraries not found. Autopilot will not have a voice");
             }
             else
             {
                 foreach (var voiceLibrary in voiceLibraries)
                 {
-                    Log.Write($"Registering voice library {voiceLibrary.voiceName}");
+                    log.Write($"Registering voice library {voiceLibrary.voiceName}");
                     VoiceLibraries[voiceLibrary.voiceName] = voiceLibrary;
                 }
             }
@@ -1515,7 +1515,7 @@ namespace Subnautica_Archon
                     var entry = hatch.Find("Entry");
                     if (!exit || !entry)
                     {
-                        Log.Error("Hatch children not found of " + hatch);
+                        log.Error("Hatch children not found of " + hatch);
                         continue;
                     }
                     hatchList.Add(new VehicleHatchDefinition(
@@ -1525,7 +1525,7 @@ namespace Subnautica_Archon
                         entry: entry)
                     );
                 }
-                Log.Write($"Detected {hatchList.Count} hatch(es)");
+                log.Write($"Detected {hatchList.Count} hatch(es)");
             }
 
             var arButtons = transform.GetComponentsInChildren<ArButton>(true);
@@ -1539,14 +1539,14 @@ namespace Subnautica_Archon
             var storageRootTransform = transform.Find("StorageRoot");
             if (storageRootTransform.IsNull())
             {
-                Log.Warn($"Storage root not found. Creating new one");
+                log.Warn($"Storage root not found. Creating new one");
                 storageRootTransform = new GameObject("StorageRoot").transform;
                 storageRootTransform.parent = transform;
                 storageRootTransform.localPosition = Vector3.zero;
             }
             else
             {
-                Log.Write($"Found storage root {storageRootTransform.NiceName()}");
+                log.Write($"Found storage root {storageRootTransform.NiceName()}");
             }
 
 
@@ -1580,7 +1580,7 @@ namespace Subnautica_Archon
             if (waterTank != null)
             {
                 var content = waterTank.Find("Content").OrRequired(() => waterTank);
-                
+
                 mwps.Add(new MobileWaterPark(
                     displayName: AVS.Localization.Text.Translated("Component.WaterTank"),
                     root: waterTank.gameObject,
@@ -1591,7 +1591,7 @@ namespace Subnautica_Archon
             }
             else
             {
-                Log.Write($"Water tank not found");
+                log.Write($"Water tank not found");
             }
             List<GameObject> waterClipProxies = new List<GameObject>();
             var clipProxies = transform.Find("WaterClipProxy");
@@ -1618,13 +1618,13 @@ namespace Subnautica_Archon
                     if (position != null)
                         plugProxies.Add(position);
                     else
-                        Log.Write($"Plug {plug.NiceName()} does not have a 'Proxy' child");
+                        log.Write($"Plug {plug.NiceName()} does not have a 'Proxy' child");
                 }
             }
             else
-                Log.Write($"Plugs not found");
+                log.Write($"Plugs not found");
 
-            Log.Write($"Determined {plugProxies.Count} upgrade panel plug(s)");
+            log.Write($"Determined {plugProxies.Count} upgrade panel plug(s)");
 
             if (ui)
             {
@@ -1637,7 +1637,7 @@ namespace Subnautica_Archon
                 ));
             }
             else
-                Log.Write($"Upgrades interface not found");
+                log.Write($"Upgrades interface not found");
 
             var batteries = new List<VehicleBatteryDefinition>();
 
@@ -1651,7 +1651,7 @@ namespace Subnautica_Archon
                     var b = cells.GetChild(i);
                     var slot = b.Find("Slot");
                     if (slot.IsNull())
-                        Log.Warn($"Power cell slot not found in {b.NiceName()}");
+                        log.Warn($"Power cell slot not found in {b.NiceName()}");
                     if (b != null)
                     {
                         batteries.Add(new VehicleBatteryDefinition(
@@ -1662,7 +1662,7 @@ namespace Subnautica_Archon
                 }
             }
             else
-                Log.Write($"Unable to locate 'Interior/Power Cell Panel/Cells' child");
+                log.Write($"Unable to locate 'Interior/Power Cell Panel/Cells' child");
 
             var helms = new List<Helm>();
             var helm = transform.Find("Helm");
@@ -1671,16 +1671,16 @@ namespace Subnautica_Archon
                 var seat = helm.Find("Seat");
                 if (!seat)
                 {
-                    Log.Error($"Helm seat not found in {helm.NiceName()}");
+                    log.Error($"Helm seat not found in {helm.NiceName()}");
                     seat = helm; //use helm as player control location
                 }
                 else
                 {
-                    Log.Write($"Helm seat found at {seat.position}");
+                    log.Write($"Helm seat found at {seat.position}");
                 }
                 var helmExit = helm.Find($"ExitLocation");
                 if (!helmExit)
-                    Log.Write($"Helm exit not found for {helm.NiceName()}");
+                    log.Write($"Helm exit not found for {helm.NiceName()}");
 
                 helms.Add(new Helm
                 (
@@ -1691,14 +1691,14 @@ namespace Subnautica_Archon
                 ));
             }
             else
-                Log.Error("Helm not found");
+                log.Error("Helm not found");
 
             var tetherSources = new List<GameObject>();
             var tether = transform.Find("Tether");
             if (!tether)
             {
 
-                Log.Error("Tether not found. No tethers will be defined");
+                log.Error("Tether not found. No tethers will be defined");
 
             }
             else
@@ -1708,14 +1708,14 @@ namespace Subnautica_Archon
                     var t = trans.GetComponent<SphereCollider>();
                     if (!t)
                     {
-                        Log.Error($"Tether {trans} does not hace a sphere collider");
+                        log.Error($"Tether {trans} does not hace a sphere collider");
                         continue;
                     }
                     t.radius = t.transform.localScale.x;
                     t.transform.localScale = Vector3.one;
                     tetherSources.Add(t.gameObject);
                 }
-                Log.Write($"Recorded {tetherSources.Count} tether source(s)");
+                log.Write($"Recorded {tetherSources.Count} tether source(s)");
             }
 
 
@@ -1732,7 +1732,7 @@ namespace Subnautica_Archon
             return new SubmarineComposition(
                 engine: engine,
                 hatches: hatchList,
-                collisionModel: [ transform.Find("CollisionModel").gameObject ],
+                collisionModel: [transform.Find("CollisionModel").gameObject],
                 boundingBoxCollider: transform.Find("EntireBoundingBox").GetComponent<BoxCollider>(),
                 storageRootObject: storageRootTransform.gameObject,
                 modularStorages: modularStorageList,
@@ -1753,15 +1753,16 @@ namespace Subnautica_Archon
 
         void IAutopilotEventListener.Signal(AutopilotEvent autopilotEvent)
         {
-            Log.Write($"Received autopilot event {autopilotEvent}");
+            using var log = NewModLog();
+            log.Write($"Received autopilot event {autopilotEvent}");
 
             switch (autopilotEvent)
             {
                 case AutopilotEvent.PlayerEntry:
                     {
                         VoiceLibrary? voiceLibrary = null;
-                        if (MainPatcher.PluginConfig.voice != Voice.Off)
-                            VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out voiceLibrary);
+                        if (ArchonModController.PluginConfig.voice != Voice.Off)
+                            VoiceLibraries.TryGetValue(ArchonModController.PluginConfig.voice.ToString(), out voiceLibrary);
                         bool isCombined = false;
                         var voices = voiceLibrary?.GetRandomWelcome(out isCombined).ToList();
                         List<float> gaps = new List<float>();
@@ -1772,11 +1773,12 @@ namespace Subnautica_Archon
                             {
                                 gaps.Add(0.1f);
                             }
-                            if (Autopilot is { 
-                                HealthStatus: AutopilotStatus.HealthSafe,
-                                PowerStatus: AutopilotStatus.PowerSafe,
-                                DepthStatus: AutopilotStatus.DepthSafe
-                            })
+                            if (Autopilot is
+                                {
+                                    HealthStatus: AutopilotStatus.HealthSafe,
+                                    PowerStatus: AutopilotStatus.PowerSafe,
+                                    DepthStatus: AutopilotStatus.DepthSafe
+                                })
                             {
                                 if (!isCombined) //combined welcome does not blend well with status green voice
                                 {
@@ -1829,8 +1831,8 @@ namespace Subnautica_Archon
             Log.Write($"Received autopilot event {statusChange.NewStatus}");
 
             VoiceLibrary? voiceLibrary = null;
-            if (MainPatcher.PluginConfig.voice != Voice.Off)
-                VoiceLibraries.TryGetValue(MainPatcher.PluginConfig.voice.ToString(), out voiceLibrary);
+            if (ArchonModController.PluginConfig.voice != Voice.Off)
+                VoiceLibraries.TryGetValue(ArchonModController.PluginConfig.voice.ToString(), out voiceLibrary);
 
             {
                 switch (statusChange.NewStatus)
@@ -1899,7 +1901,7 @@ namespace Subnautica_Archon
 
         internal bool IsDockedBySavegame(PrefabIdentifier? prefabIdentifier)
         {
-            using var log = new LogContext(this, nameof(IsDockedBySavegame), prefabIdentifier!);
+            using var log = NewModLog();
             if (DockedSubPrefabIds.IsNull())
             {
                 log.Write($"No docked vehicles restored from last load operation");

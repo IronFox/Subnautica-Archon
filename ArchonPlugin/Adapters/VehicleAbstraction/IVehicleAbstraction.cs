@@ -1,4 +1,5 @@
-﻿using AVS.BaseVehicle;
+﻿using AVS;
+using AVS.BaseVehicle;
 
 namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
@@ -22,36 +23,37 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         /// <param name="boardPlayer">If true, the player will be boarded into the vehicle.</param>
         void UndockVehicle(bool boardPlayer);
 
+
         PingInstance PingInstance { get; }
     }
 
 
     public static class VehicleAbstraction
     {
-        public static IVehicleAbstraction ToAbstraction(this Vehicle? vehicle)
+        public static IVehicleAbstraction ToAbstraction(this Vehicle? vehicle, RootModController rmc)
         {
             switch (vehicle)
             {
                 case Exosuit prawnSuit:
-                    return new PrawnSuitAbstraction(prawnSuit);
+                    return new PrawnSuitAbstraction(rmc, prawnSuit);
                 case SeaMoth seaMoth:
-                    return new SeamothAbstraction(seaMoth);
+                    return new SeamothAbstraction(rmc, seaMoth);
                 case null:
                     return new NullVehicleAbstraction();
             }
 
-            if (VFVehicle.Access(vehicle, out var vfVehicle))
+            if (VFVehicle.Access(rmc, vehicle, out var vfVehicle))
             {
                 return new VFVehicleAbstraction(vfVehicle);
             }
 
-            if (AvsReflectionVehicle.Access(vehicle, out var avsVehicle))
+            if (AvsReflectionVehicle.Access(rmc, vehicle, out var avsVehicle))
             {
                 return new AvsReflectionVehicleAbstraction(avsVehicle);
             }
             if (vehicle is AvsVehicle av)
                 return new AvsVehicleAbstraction(av);
-            return new UnknownVehicleAbstraction(vehicle);
+            return new UnknownVehicleAbstraction(rmc, vehicle);
         }
 
     }

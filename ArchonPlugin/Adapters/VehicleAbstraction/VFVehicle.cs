@@ -1,8 +1,9 @@
-﻿using System;
+﻿using AVS;
+using AVS.Util;
 using Subnautica_Archon.Util;
 using Subnautica_Archon.Util.Reflection;
+using System;
 using System.Diagnostics.CodeAnalysis;
-using AVS.Util;
 using UnityEngine;
 using Void = Subnautica_Archon.Util.Void;
 
@@ -10,10 +11,12 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
     internal class VFVehicle
     {
+        public RootModController Rmc { get; }
         public Vehicle Vehicle { get; }
 
-        private VFVehicle(Vehicle vehicle)
+        private VFVehicle(RootModController rmc, Vehicle vehicle)
         {
+            Rmc = rmc;
             Vehicle = vehicle;
             pingInstance = FieldAdapter.Of<PingInstance>(Vehicle, "pingInstance");
             _isScuttled = FieldAdapter.Of<bool>(Vehicle, "isScuttled");
@@ -69,7 +72,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             _beginPiloting.ExecuteOn(Vehicle);
         }
 
-        private bool TryCall<T>(ref Ternary<T> ternary, params object?[] args) where T: BaseMethodAdapter
+        private bool TryCall<T>(ref Ternary<T> ternary, params object?[] args) where T : BaseMethodAdapter
         {
             if (ternary.IsSetNotFailed)
                 try
@@ -90,9 +93,9 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         public void OnVehicleDocked(Vector3 exitLocation)
         {
             if (!_onVehicleDocked0.IsSet)
-                _onVehicleDocked0.Set(new MethodAdapter<Vehicle, Vector3>(Vehicle, "OnVehicleDocked", ignoreMissing: true));
+                _onVehicleDocked0.Set(new MethodAdapter<Vehicle, Vector3>(Rmc, Vehicle, "OnVehicleDocked", ignoreMissing: true));
             if (!_onVehicleDocked1.IsSet)
-                _onVehicleDocked1.Set(new MethodAdapter<Vector3>(Vehicle, "OnVehicleDocked", ignoreMissing: true));
+                _onVehicleDocked1.Set(new MethodAdapter<Vector3>(Rmc, Vehicle, "OnVehicleDocked", ignoreMissing: true));
             if (!TryCall(ref _onVehicleDocked0, Vehicle, exitLocation)
                 && !TryCall(ref _onVehicleDocked1, Vehicle))
                 Log.Error("OnVehicleDocked method not found on Vehicle");
@@ -142,14 +145,14 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 
         public static bool IsOne(Vehicle vehicle)
             => vehicle.IsVFVehicle();
-        public static bool Access(Vehicle vehicle, [NotNullWhen(true)] out VFVehicle? outVehicle)
+        public static bool Access(RootModController rmc, Vehicle vehicle, [NotNullWhen(true)] out VFVehicle? outVehicle)
         {
             if (!vehicle.IsVFVehicle())
             {
                 outVehicle = null;
                 return false;
             }
-            outVehicle = new VFVehicle(vehicle);
+            outVehicle = new VFVehicle(rmc, vehicle);
             return true;
         }
 

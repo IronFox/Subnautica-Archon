@@ -1,17 +1,17 @@
-﻿using System;
+﻿using AVS.Log;
+using AVS.Util;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
-using AVS.Util;
 
 namespace Subnautica_Archon.Util
 {
     public static class Helper
     {
-        public static void ChangeAvatarInput(LogContext ctx, bool active)
+        public static void ChangeAvatarInput(SmartLog log, bool active)
         {
-            
-            ctx.Write($"Changing avatar input: {active}");
+
+            log.Write($"Changing avatar input: {active}");
             AvatarInputHandler.main.gameObject.SetActive(active);
         }
         public static PlayerReference GetPlayerReference()
@@ -86,7 +86,7 @@ namespace Subnautica_Archon.Util
             return copy;
         }
 
-        internal static void SetHudIcon(this PingInstance pingInstance, LogContext ctx, bool visible)
+        internal static void SetHudIcon(this PingInstance pingInstance, SmartLog ctx, bool visible)
         {
             ctx.Write($"Setting ping icon {pingInstance.NiceName()} to {visible}");
             pingInstance.SetVisible(visible);

@@ -100,7 +100,8 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T : Component
         }
         catch (Exception ex)
         {
-            Log.Default.LogError($"ComponentSet.Update()", ex);
+            using (var log = Log.New())
+                log.Error($"ComponentSet.Update()", ex);
         }
     }
 
@@ -150,7 +151,8 @@ public class ComponentSet<T> : IDisposable, IEnumerable<T> where T : Component
 
     public void Dispose()
     {
-        Log.Default.LogWarning($"ComponentSet dispose");
+        using (var log = Log.New())
+            log.Warn($"ComponentSet dispose");
     }
 
     public void UpdateIfChanged(ref int versionNumber, ref T[] array)
