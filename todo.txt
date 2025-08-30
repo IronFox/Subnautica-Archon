@@ -2,21 +2,25 @@ batch:
 
 * test innate storage access on VF vehicles
 
-* check if docked sub shielding is restored when redocking after saving
 * silence UpdateVisualsPostfix
-* reduce bay door sound level
 
 batch done:
 
+* added option to reduce engine sound volume
+* added chinese (simplified) localization
+* reduced bay door sound level
 * added look sensitivity slider
 * added logging verbosity choice
 * added storage access
 * added module access
+* docked sub shielding is now preserved during save pause
 * fixed storage display
+
 * recheck Tweaks and fixes (works)
 * check if https://github.com/SubnauticaModding/Nautilus/pull/630 works (not yet released)
 * check Bed Teleport mod (broken)
 * check Easy Craft mod (bugged right now)
+* check if docked sub shielding is restored when redocking after saving (can't reproduce)
 
 no:
 
