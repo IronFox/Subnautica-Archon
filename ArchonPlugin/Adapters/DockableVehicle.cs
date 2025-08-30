@@ -573,9 +573,7 @@ namespace Subnautica_Archon.Adapters
             using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             try
             {
-                Vehicle.liveMixin.shielded = false;
-                Vehicle.crushDamage.enabled = true;
-
+                //Vehicle.liveMixin.shielded = false;
                 Vehicle.docked = false;
 
                 Abstraction.UndockVehicle(boardPlayer: false);
@@ -598,8 +596,6 @@ namespace Subnautica_Archon.Adapters
             try
             {
                 Vehicle.liveMixin.shielded = true;
-                Vehicle.crushDamage.enabled = false;
-
                 Vehicle.docked = true;
 
                 Abstraction.DockVehicle();
