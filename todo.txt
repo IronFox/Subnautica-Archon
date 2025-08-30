@@ -1,16 +1,22 @@
 batch:
 
-* check if https://github.com/SubnauticaModding/Nautilus/pull/630 works
-* recheck Tweaks and fixes
-* add module access
-* check if docked sub shielding is restored when redocking after saving
-* check Bed Teleport mod
-* check Easy Craft mod
-* silence UpdateVisualsPostfix
+* test innate storage access on VF vehicles
 
+* check if docked sub shielding is restored when redocking after saving
+* silence UpdateVisualsPostfix
+* reduce bay door sound level
 
 batch done:
 
+* added look sensitivity slider
+* added logging verbosity choice
+* added storage access
+* added module access
+* fixed storage display
+* recheck Tweaks and fixes (works)
+* check if https://github.com/SubnauticaModding/Nautilus/pull/630 works (not yet released)
+* check Bed Teleport mod (broken)
+* check Easy Craft mod (bugged right now)
 
 no:
 
@@ -48,8 +54,6 @@ later:
 * fix horizontal rotation control sluggish when not leaning near ocean surface or at low speed
 * add vertical submarine shadow to map
 * add hud speed display + GPS + map
-* add storage and upgrade panel access for docked subs
-* fix storage display for docked subs when using innate storages
 * implement fish tank
 	+ for reference: 
 		WaterPark.GetBreedingPartner
