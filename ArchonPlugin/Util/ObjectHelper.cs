@@ -1,8 +1,8 @@
-﻿using System;
+﻿using AVS.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using AVS.Util;
 
 namespace Subnautica_Archon.Util
 {
@@ -41,25 +41,8 @@ namespace Subnautica_Archon.Util
             return string.Join("/", parts);
 
         }
-        public static string GetPath(this Component c)
-        {
-            try
-            {
-                return GetPath(c.transform) + $":{c.name}[{c.GetInstanceID()}]({c.GetType()})";
-            }
-            catch (Exception)
-            {
-                try
-                {
-                    return c.name;
-                }
-                catch (Exception ex)
-                {
-                    return ex.Message;
-                }
-            }
-        }
-        
+        public static string GetPath(this Component c, Transform? root = null) => c.PathToString(root);
+
         public static IReadOnlyList<Type> GetHierarchyOf(Type? t)
         {
             if (t.IsNull())

@@ -89,7 +89,7 @@ public class ArButton : MonoBehaviour
         material = new Material(materialPrototype);
         r.material = material;
         inactiveColor = material.color;
-        ArButtonAdapter.Instrument(this);
+        ArButtonAdapter.Instrument(archon, this);
     }
     public bool IsHandOver => handOverAge < 10;
 

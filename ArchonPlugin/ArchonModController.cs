@@ -186,9 +186,10 @@ namespace Subnautica_Archon
                     return wf.IsAboveWater();
                 };
 
-                ArButtonAdapter.Instrument = arButton =>
+                ArButtonAdapter.Instrument = (archon, arButton) =>
                 {
-                    log.Write($"Instrumenting AR button {arButton.GetPath()}");
+                    using var log = SmartLog.For(this);
+                    log.Write($"Instrumenting AR button {arButton.GetPath(archon.transform)}");
                     var helper = arButton.gameObject.EnsureComponent<ArchonArButton>();
                     helper.arButton = arButton;
                 };
