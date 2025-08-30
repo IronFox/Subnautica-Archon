@@ -160,6 +160,9 @@ public class DefaultSoundCreator : ISoundCreator
         AudioPatcher.Patch(source);
         source.Play();
 
+        //using (var log = Log.New())
+        //  log.Write($"Playing sound {soundConfig.AudioClip.name} on {soundConfig.Owner.name} (is3D={soundConfig.Is3D}, loop={soundConfig.Loop}, volume={soundConfig.Volume})");
+
         return new DefaultSound(source, soundConfig);
     }
 }
@@ -272,7 +275,7 @@ internal class DefaultSound : IInstantiatedSound
             if (Source.isPlaying)
                 Source.Stop();
         }
-        else if (!Source.isPlaying && (cfg.Loop || hasPlayedFor < cfg.AudioClip.length))
+        else if (!Source.isPlaying && (cfg.Loop || hasPlayedFor < cfg.AudioClip.length * 0.5f))
             Source.Play();
 
         Config = cfg;
