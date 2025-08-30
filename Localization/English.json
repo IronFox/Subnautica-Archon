@@ -141,6 +141,11 @@
 	"Option.InteriorLights.Reduced": "Reduced (faster)",
 	"Option.InteriorLights.Minimal": "Minimal (fastest)",
 	"Option.DefaultToFirstPerson": "Default to Cockpit Camera",
+	"Option.LookSensitivity": "Look Sensitivity",
+	"Option.LogVerbosity": "Logging Verbosity",
+	"Option.LogVerbosity.Verbose": "Detailed logging",
+	"Option.LogVerbosity.Regular": "Regular logging",
+	"Option.LogVerbosity.WarningsAndErrorsOnly": "Minimal logging",
 	
 	
 	"Subtitle.Voice.Welcome": "Welcome Aboard",

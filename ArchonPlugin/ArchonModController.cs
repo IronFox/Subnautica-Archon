@@ -41,7 +41,7 @@ namespace Subnautica_Archon
 
         public override string ModName => "Archon";
 
-        public override Verbosity LogVerbosity => Verbosity.Verbose;
+        public override Verbosity LogVerbosity => config?.logLevel ?? Verbosity.Verbose;
 
         public override void Awake()
         {

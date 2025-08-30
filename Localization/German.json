@@ -140,7 +140,12 @@
 	"Option.InteriorLights.Reduced": "Reduziert (schneller)",
 	"Option.InteriorLights.Minimal": "Minimal (am schnellsten)",
 	"Option.DefaultToFirstPerson": "Kamera initial im Cockpit",
-
+	"Option.LookSensitivity": "Kamerasensibilität",
+	"Option.LogVerbosity": "Log-Level",
+	"Option.LogVerbosity.Verbose": "Alles",
+	"Option.LogVerbosity.Regular": "Regulär",
+	"Option.LogVerbosity.WarningsAndErrorsOnly": "Minimal",
+	
 	
 	"Subtitle.Voice.Welcome": "Willkommen an Bord",
 	"Subtitle.Voice.Depth.Dangerous": "Achtung: Maximale Tiefe erreicht",

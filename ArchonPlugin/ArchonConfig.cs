@@ -1,3 +1,4 @@
+using AVS.Log;
 using Nautilus.Json;
 using Nautilus.Options.Attributes;
 using Subnautica_Archon;
@@ -48,6 +49,15 @@ public class ArchonConfig : ConfigFile
 
     [Slider(DefaultValue = 100.0f, Format = "{0:F0}%", Label = "Look Sensitivity", LabelLanguageId = "Option.LookSensitivity", Min = 1f, Max = 200.0f, Step = 1f)]
     public float lookSensitivity = 100.0f;
+
+    [Choice("Log Level",
+        "Option.LogVerbosity.Verbose",
+        "Option.LogVerbosity.Regular",
+        "Option.LogVerbosity.WarningsAndErrorsOnly",
+        LabelLanguageId = "Option.LogVerbosity"
+    )]
+    public Verbosity logLevel = Verbosity.Regular;
+
     //[Toggle("Hold Sprint to Boost")]
     //public bool holdToBoost = false;
 
