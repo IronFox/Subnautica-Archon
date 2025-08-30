@@ -1,23 +1,23 @@
 {
 	"AVS.VehicleDefaultName": "Archon",
-	
+
 	"AVS.Reactor_DedicatedBattery_ChargeValueText": "{1}/{2} ({0})",
-	
+
 	"AVS.Fabricator_Node_DepthModules": "Tiefenmodule",
 	"AVS.Fabricator_DisplayName": "Archon-Fabrikator",
 	"AVS.Fabricator_Description": "Fabrikator für Archon-Module",
-	
+
 	"AVS.ColorPicker_Tab_Exterior": "Außen",
 	"AVS.ColorPicker_Tab_Accent": "Akzent",
 	"AVS.ColorPicker_Tab_Interior": "Innen",
 	"AVS.ColorPicker_Tab_Name": "Name",
-	
+
 	"AVS.Reactor_WhitelistWithPowerValue": "Energiepotenziale erlaubter Materialien",
 	"AVS.Reactor_WhitelistPlain": "Erlaubte Materialien",
-	
+
 	"AVS.Command_NothingToUndock": "Nichts zum abdocken gefunden",
 	"AVS.Command_UndockingVehicle": "Docke Fahrzeug ab",
-	
+
 	"AVS.HandHover_ControlPanel_Empty": "Keine Funktion",
 	"AVS.HandHover_ControlPanel_Headlights": "Scheinwerfer",
 	"AVS.HandHover_ControlPanel_Floodlights": "Flutlichter",
@@ -26,53 +26,53 @@
 	"AVS.HandHover_ControlPanel_DefaultColor": "Standardfarbe",
 	"AVS.HandHover_ControlPanel_Power": "Energie",
 	"AVS.HandHover_ControlPanel_Autopilot": "Autopilot",
-	
+
 	"AVS.HandOver_BatterySlot": "Batterie",
 	"AVS.HandOver_AutopilotBatterySlot": "Autopilot-Batterie",
-	
+
 	"AVS.HandHover_OpenStorage": "{0} öffnen",
-	
+
 	"AVS.HandHover_Vehicle_Enter": "{0} betreten",
 	"AVS.HandHover_Vehicle_Exit": "{0} verlassen",
 	"AVS.HandHover_Vehicle_StartHelmControl": "Steuer übernehmen",
-	
+
 	"AVS.HandHover_Reactor_Charge": "Bioreaktor: {0}/{1}",
 	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Rechte Maustaste oder rechte Triggertaste drücken, um die Liste erlaubter Materialien anzuzeigen",
 	"AVS.HandHover_Vehicle_DeconstructionPercent": "Archon Rückbau: {0}",
-	
+
 	"AVS.HandHover_Docked_StatusCharged": "Archon komplett geladen. Integrität bei {0}",
 	"AVS.HandHover_Docked_StatusCharging": "Archon lädt ({0}). Integrität bei {0}",
-	
+
 	"AVS.Module_Depth1_DisplayName": "Archon-Tiefenmodul Mark 1",
 	"AVS.Module_Depth1_Description": "Erlaubt sicheres Tauchen bis auf 500 Meter. Stapelt nicht",
 	"AVS.Module_Depth2_DisplayName": "Archon-Tiefenmodul Mark 2",
 	"AVS.Module_Depth2_Description": "Erlaubt sicheres Tauchen bis auf 1100 Meter. Stapelt nicht",
 	"AVS.Module_Depth3_DisplayName": "Archon-Tiefenmodul Mark 3",
 	"AVS.Module_Depth3_Description": "Erlaubt sicheres Tauchen bis auf 1700 Meter. Stapelt nicht",
-	
+
 	"AVS.Report_AddedToStorage": "{0} hinzugefügt",
-	
+
 	"AVS.Error_UpgradeNotRemovable_StorageNotEmpty": "Nicht-leere Frachtmodule können nicht entfernt werden",
 	"AVS.Error_UpgradeNotAddable_Incompatible": "Warnung: Archon-Module sind zu anderen Fahrzeugen nicht kompatibel",
-	
+
 	"AVS.Error_CannotAdd_StorageFull": "Gegenstand kann nicht hinzugefügt werden. Das Frachtmodul ist voll",
 	"AVS.Error_CannotExitHelmControl": "Automatische Nivellierung fehlgeschlagen. Steuerkontrolle kann nicht verlassen werden",
 	"AVS.Error_CannotRemoveMaterialsFromReactor": "Hinzugefügte Brennmaterialien können nicht entfernt werden",
-	
+
 	"AVS.Error_MobileWaterPark_CannotAdd_FishIsDead": "Kann toten Fisch {0} nicht zu {1} hinzufügen",
 	"AVS.Error_MobileWaterPark_CannotAdd_EggIsHatched": "Kann aufgebrauchtes Ei {0} nicht zu {1} hinzufügen",
 	"AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "Kann {0} nicht zu {1} hinzufügen. Nur lebende Fische und Eier können zum Fischtank hinzugefügt werden",
 	"AVS.Error_MobileWaterPark_CannotRemove_HatchingEgg": "Kann {0} nicht von {1} entfernen. Das Ei inkubiert bereits",
-	
+
 	"Error.EmergencyTeleportationModule.CannotRemoveLast": "Die Archon benötigt stets ein installiertes Notfall-Teleportationsmodul",
-	
+
 	"Modules.DockingModuleMk1.Name": "Archon-Dockmodul Mark 1",
 	"Modules.DockingModuleMk1.Description": "Taschen-expandiert die Raumzeit, um mehr Hangarkapazität zu schaffen. Jedes installierte Modul erhöht die maximale Anzahl aufgenommener Kleinfahrzeuge um 1",
-	
+
 	"Modules.Group.RepairModule": "Reparaturmodule",
 	"Modules.Group.Teleportation": "Teleportationsmodule",
 	"Modules.Group.Docking": "Dockmodule",
-	
+
 	"Modules.RepairModuleMk1.Name": "Archon-Selbstreparaturmodul Mark 1",
 	"Modules.RepairModuleMk1.Description": "Erlaubt der Archon, sich selbst zu reparieren. Repariert {0}% pro Sekunde. Stapelt nicht",
 	"Modules.RepairModuleMk2.Name": "Archon-Selbstreparaturmodul Mark 2",
@@ -83,33 +83,33 @@
 	"Modules.EmergencyTeleportationModule.Description": "Ermöglicht das gesamte Uboot an einen vorbestimmen Ort zu teleportieren. Mindestens eins muss immer installiert sein. Stapelt nicht",
 	"Modules.TeleportationModuleA.Name": "Archon-Teleportationsmodule (A)",
 	"Modules.TeleportationModuleA.Description": "Ermöglicht das gesamte Uboot an einen frei wählbaren Ort zu teleportieren. Doppelt aktivieren, um die aktuelle Position aufzuzeichnen. Einfach aktivieren, um zu teleportieren. Stapelt nicht",
-	
+
 	"Modules.Teleportation.LocationRecorded": "Teleportation: Aktuelle Position aufgezeichnet",
-	
+
 	"Modules.DockingCapacityChanged": "{0}: Die maximale Anzahl gleichzeitig aufnehmbarer Kleinfahrzeuge hat sich auf {1} geändert",
 	"Modules.RepairCapacityChanged": "{0}: Selbstreparaturfähigkeit jetzt {1}",
-	
+
 	"Modules.DockingModule.CannotRemoveOccupied": "Dockmodule können nicht entfernt werden, so lange sie in Gebrauch sind",
-	
+
 	"Capacity.RepairModuleMk1": "Mark 1",
 	"Capacity.RepairModuleMk2": "Mark 2",
 	"Capacity.RepairModuleMk3": "Mark 3",
-	
+
 	"Component.WaterTank": "Fischtank",
 	"Component.Bioreactor": "Bioreaktor",
 	"Component.ModularStorage": "Modulares Frachtmodul",
-	
+
 	"General.Description": "Ubootmutterschiff",
 	"General.Encyclopedia": "Die Archon ist eine luxuriöse, extrem robuste, mobile Kommandozentrale mit integriertem Hangar für Kleinfahrzeuge. Kann an jeder mobilen Fahrzeugstation gebaut werden.\n\nEigenschaften:\n- Erweiterbarer Hangar für mehrere Kleinfahrzeuge\n- Virtuelle Sensorrekonstruktion\n- Bioreaktor\n- Fischtank\n- Dynamische Umgebungskarte\n\nMetriken:\n- Maximalgeschwindigkeit: 26 m/s\n- Initiale Tauchtiefe: 300m\n- Maximale Tauchtiefe: 1700m\n- Erweiterungsmodule: 8\n- Größe: 26.8m x 15.9m x 79.8m",
-	
-	
+
+
 	"Dockable.Text.HealthUnknown": "Integrität: Unbekannt",
 	"Dockable.Text.Health": "Integrität: {0}",
 	"Dockable.Text.PowerUnknown": "Ladestand: Unbekannt",
 	"Dockable.Text.Power": "Ladestand: {0}",
 	"Dockable.Text.Depth": "Tiefe: {0}/{1}m",
 	"Dockable.Text.Storage": "Last: {0}/{1}",
-	
+
 	"Unity.Modules": "Erweiterungsmodule",
 	"Unity.PowerCells": "Batterien",
 	"Unity.NothingDocked": "Hangar leer",
@@ -118,8 +118,8 @@
 	"AR.SelectLeft": "Vorheriges angedocktes Fahrzeug auswählen",
 	"AR.SelectRight": "Nächstes angedocktes Fahrzeug auswählen",
 	"AR.OpenModules": "Erweiterungsmodule des gewählten Fahrzeugs",
-	"AR.OpenStorage": "Lastmodul #{0} des gewählten Fahrzeugs",	
-	
+	"AR.OpenStorage": "Lastmodul #{0} des gewählten Fahrzeugs",
+
 	"Option.FloodLightShadows": "Flutlichtschatten",
 	"Option.FloodLightShadows.None": "Keine",
 	"Option.FloodLightShadows.Hard": "Hart",
@@ -141,12 +141,13 @@
 	"Option.InteriorLights.Minimal": "Minimal (am schnellsten)",
 	"Option.DefaultToFirstPerson": "Kamera initial im Cockpit",
 	"Option.LookSensitivity": "Kamerasensibilität",
+	"Option.EngineSoundVolume": "Antriebs-Lautstärke",
 	"Option.LogVerbosity": "Log-Level",
 	"Option.LogVerbosity.Verbose": "Alles",
 	"Option.LogVerbosity.Regular": "Regulär",
 	"Option.LogVerbosity.WarningsAndErrorsOnly": "Minimal",
-	
-	
+
+
 	"Subtitle.Voice.Welcome": "Willkommen an Bord",
 	"Subtitle.Voice.Depth.Dangerous": "Achtung: Maximale Tiefe erreicht",
 	"Subtitle.Voice.Depth.Critical": "Warnung: Maximale Tiefe überschritten",
@@ -158,6 +159,6 @@
 	"Subtitle.Voice.Leveling.Starting": "Starte Nivellierung",
 	"Subtitle.Voice.Leveling.Failed": "Nivellierung hatte keinen Erfolg nach 5 Sekunden. Kann Steuerkontrolle nicht verlassen. Bitte die Archon zu einem offeneren Ort navigieren und erneut versuchen.",
 	"Subtitle.Voice.CriticalHealth.RepairEnabled": "Kritischer Schaden festgestellt. Notfallreparatursystem aktiviert",
-	"Subtitle.Voice.CriticalHealth.RepairDone": "Integrität außerhalb des kritischen Bereichs. Notfallreparatursystem deaktiviert",
-	
+	"Subtitle.Voice.CriticalHealth.RepairDone": "Integrität außerhalb des kritischen Bereichs. Notfallreparatursystem deaktiviert"
+
 }

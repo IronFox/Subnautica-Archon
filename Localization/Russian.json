@@ -1,23 +1,23 @@
 {
 	"AVS.VehicleDefaultName": "Архонт",
-	
+
 	"AVS.Reactor_DedicatedBattery_ChargeValueText": "{1}/{2} ({0})",
-	
+
 	"AVS.Fabricator_Node_DepthModules": "Улучшения глубины",
 	"AVS.Fabricator_DisplayName": "Фабрикатор Архонта",
 	"AVS.Fabricator_Description": "Фабрикатор для модулей улучшения Архонта",
-	
+
 	"AVS.ColorPicker_Tab_Exterior": "Внешний вид",
 	"AVS.ColorPicker_Tab_Accent": "Акцент",
 	"AVS.ColorPicker_Tab_Interior": "Интерьер",
 	"AVS.ColorPicker_Tab_Name": "Имя",
-	
+
 	"AVS.Reactor_WhitelistWithPowerValue": "Потенциалы мощности разрешенных ингредиентов",
 	"AVS.Reactor_WhitelistPlain": "Разрешенные ингредиенты",
-	
+
 	"AVS.Command_NothingToUndock": "Нечего отстыковывать",
 	"AVS.Command_UndockingVehicle": "Выполнение операции отстыковки",
-	
+
 	"AVS.HandHover_ControlPanel_Empty": "Нет функции",
 	"AVS.HandHover_ControlPanel_Headlights": "Фары",
 	"AVS.HandHover_ControlPanel_Floodlights": "Прожекторы",
@@ -26,53 +26,53 @@
 	"AVS.HandHover_ControlPanel_DefaultColor": "Цвет по умолчанию",
 	"AVS.HandHover_ControlPanel_Power": "Питание",
 	"AVS.HandHover_ControlPanel_Autopilot": "Автопилот",
-	
+
 	"AVS.HandOver_BatterySlot": "Батарея",
 	"AVS.HandOver_AutopilotBatterySlot": "Батарея автопилота",
-	
+
 	"AVS.HandHover_OpenStorage": "Открыть {0}",
-	
+
 	"AVS.HandHover_Vehicle_Enter": "Войти в {0}",
 	"AVS.HandHover_Vehicle_Exit": "Выйти из {0}",
 	"AVS.HandHover_Vehicle_StartHelmControl": "Взять управление",
-	
+
 	"AVS.HandHover_Reactor_Charge": "Биореактор: {0}/{1}",
 	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Нажмите правую кнопку мыши или правый бампер, чтобы показать список разрешенных материалов",
 	"AVS.HandHover_Vehicle_DeconstructionPercent": "Разборка Архонта: {0}",
-	
+
 	"AVS.HandHover_Docked_StatusCharged": "Архонт полностью заряжен. Здоровье на {0}",
 	"AVS.HandHover_Docked_StatusCharging": "Архонт заряжается ({0}). Здоровье на {0}",
-	
+
 	"AVS.Module_Depth1_DisplayName": "Модуль глубины Архонта MK1",
 	"AVS.Module_Depth1_Description": "Увеличивает безопасную глубину погружения до 500 м. Не суммируется",
 	"AVS.Module_Depth2_DisplayName": "Модуль глубины Архонта MK2",
 	"AVS.Module_Depth2_Description": "Увеличивает безопасную глубину погружения до 1100 м. Не суммируется",
 	"AVS.Module_Depth3_DisplayName": "Модуль глубины Архонта MK3",
 	"AVS.Module_Depth3_Description": "Увеличивает безопасную глубину погружения до 1700 м. Не суммируется",
-	
+
 	"AVS.Report_AddedToStorage": "{0} добавлено",
-	
+
 	"AVS.Error_UpgradeNotRemovable_StorageNotEmpty": "Невозможно удалить это улучшение хранилища, потому что оно не пустое",
 	"AVS.Error_UpgradeNotAddable_Incompatible": "Предупреждение: это улучшение Архонта несовместимо с этим транспортным средством",
-	
+
 	"AVS.Error_CannotAdd_StorageFull": "Невозможно добавить предмет. Хранилище заполнено",
 	"AVS.Error_CannotExitHelmControl": "Автоматическое выравнивание не удалось. Вы не можете выйти из-под управления сейчас",
 	"AVS.Error_CannotRemoveMaterialsFromReactor": "Невозможно извлечь материалы из биореактора",
-	
+
 	"AVS.Error_MobileWaterPark_CannotAdd_FishIsDead": "Вы не можете добавить мертвую {0} в {1}",
 	"AVS.Error_MobileWaterPark_CannotAdd_EggIsHatched": "Вы не можете добавить вылупившуюся {0} в {1}",
 	"AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "Невозможно добавить {0} в {1}. Это ни совместимая живая рыба, ни вылупляемое яйцо",
 	"AVS.Error_MobileWaterPark_CannotRemove_HatchingEgg": "Невозможно извлечь {0} из {1}. Яйцо уже вылупляется",
-	
+
 	"Error.EmergencyTeleportationModule.CannotRemoveLast": "Архонту требуется один установленный модуль экстренной телепортации",
-	
+
 	"Modules.DockingModuleMk1.Name": "Модуль стыковки Архонта Mk1",
 	"Modules.DockingModuleMk1.Description": "Расширяет карманное пространство-время, чтобы обеспечить больше места для стыковки. Каждый установленный модуль увеличивает количество транспортных средств, которые могут быть пристыкованы, на 1",
-	
+
 	"Modules.Group.RepairModule": "Модули ремонта",
 	"Modules.Group.Teleportation": "Модули телепортации",
 	"Modules.Group.Docking": "Модули стыковки",
-	
+
 	"Modules.RepairModuleMk1.Name": "Модуль саморемонта Архонта Mk1",
 	"Modules.RepairModuleMk1.Description": "Включает возможности саморемонта Архонта. Ремонтирует {0}% в секунду. Не суммируется",
 	"Modules.RepairModuleMk2.Name": "Модуль саморемонта Архонта Mk2",
@@ -83,33 +83,33 @@
 	"Modules.EmergencyTeleportationModule.Description": "Включает экстренную телепортацию Архонта. Должен быть установлен как минимум один модуль этого типа. Не суммируется",
 	"Modules.TeleportationModuleA.Name": "Модуль телепортации Архонта (A)",
 	"Modules.TeleportationModuleA.Description": "Включает телепортацию Архонта (A). Дважды нажмите, чтобы записать местоположение. Активируйте, чтобы телепортироваться. Не суммируется",
-	
+
 	"Modules.Teleportation.LocationRecorded": "Телепортация: Текущее местоположение записано",
-	
+
 	"Modules.DockingCapacityChanged": "{0} максимальное количество пристыкованных транспортных средств изменено на {1}",
 	"Modules.RepairCapacityChanged": "{0} возможность саморемонта изменена на {1}",
-	
+
 	"Modules.DockingModule.CannotRemoveOccupied": "Невозможно удалить модуль стыковки, пока он используется пристыкованным аппаратом",
-	
+
 	"Capacity.RepairModuleMk1": "Mk1",
 	"Capacity.RepairModuleMk2": "Mk2",
 	"Capacity.RepairModuleMk3": "Mk3",
-	
+
 	"Component.WaterTank": "Резервуар для воды",
 	"Component.Bioreactor": "Биореактор",
 	"Component.ModularStorage": "Модульное хранилище",
-	
+
 	"General.Description": "Подводная лодка-матка",
 	"General.Encyclopedia": "Архонт - это роскошный, чрезвычайно прочный мобильный командный центр со встроенным ангаром для небольших аппаратов. Вы можете изготовить его в любой мобильной бухте для транспортных средств.\n\nОсобенности:\n- Расширяемый ангар для нескольких небольших аппаратов\n- Реконструкция голографического датчика\n- Биореактор\n- Аквариум\n- Карта окружающей среды\n\nРейтинги:\n- Максимальная скорость: 26 м/с\n- Глубина разрушения: 300 м\n- Максимальная глубина разрушения (улучшенная): 1700 м\n- Слоты для улучшений: 8\n- Размеры: 26.8 м x 15.9 м x 79.8 м",
-	
-	
+
+
 	"Dockable.Text.HealthUnknown": "Целостность: Неизвестно",
 	"Dockable.Text.Health": "Целостность: {0}",
 	"Dockable.Text.PowerUnknown": "Заряд: Неизвестно",
 	"Dockable.Text.Power": "Заряд: {0}",
 	"Dockable.Text.Depth": "Глубина: {0}/{1} м",
 	"Dockable.Text.Storage": "Хранилище: {0}/{1}",
-	
+
 	"Unity.Modules": "Панель модуля улучшения",
 	"Unity.PowerCells": "Панель батарей",
 	"Unity.NothingDocked": "Стыковочный отсек пуст",
@@ -117,7 +117,7 @@
 	"AR.Undock": "Отстыковать выбранный аппарат",
 	"AR.SelectLeft": "Выбрать предыдущий пристыкованный аппарат",
 	"AR.SelectRight": "Выбрать следующий пристыкованный аппарат",
-	
+
 	"Option.FloodLightShadows": "Тени от прожекторов",
 	"Option.FloodLightShadows.None": "Нет",
 	"Option.FloodLightShadows.Hard": "Жесткие",
@@ -133,8 +133,18 @@
 	"Option.AutopilotVoice": "Активный голос автопилота",
 	"Option.AutopilotVoice.Off": "Выключено",
 	"Option.AutopilotVoice.Default": "По умолчанию",
-	
-	
+  "Option.InteriorLights": "Освещение интерьера",
+  "Option.InteriorLights.Full": "Полное",
+  "Option.InteriorLights.Reduced": "Сниженное (быстрее)",
+  "Option.InteriorLights.Minimal": "Минимальное (самое быстрое)",
+  "Option.DefaultToFirstPerson": "По умолчанию: камера кабины",
+  "Option.LookSensitivity": "Чувствительность обзора",
+  "Option.EngineSoundVolume": "Громкость звука двигателя",
+  "Option.LogVerbosity": "Подробность журналирования",
+  "Option.LogVerbosity.Verbose": "Подробное журналирование",
+  "Option.LogVerbosity.Regular": "Обычное журналирование",
+	"Option.LogVerbosity.WarningsAndErrorsOnly": "Минимальное журналирование",
+
 	"Subtitle.Voice.Welcome": "Добро пожаловать на борт",
 	"Subtitle.Voice.Depth.Dangerous": "Предупреждение о глубине",
 	"Subtitle.Voice.Depth.Critical": "Повреждение корпуса неизбежно",
