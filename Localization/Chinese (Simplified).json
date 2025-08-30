@@ -1,0 +1,161 @@
+{
+  "AVS.VehicleDefaultName": "Archon",
+
+  "AVS.Reactor_DedicatedBattery_ChargeValueText": "{1}/{2} ({0})",
+
+  "AVS.Fabricator_Node_DepthModules": "深度升级",
+  "AVS.Fabricator_DisplayName": "Archon 制造器",
+  "AVS.Fabricator_Description": "用于 Archon 升级模块的制造器",
+
+  "AVS.ColorPicker_Tab_Exterior": "外部",
+  "AVS.ColorPicker_Tab_Accent": "强调色",
+  "AVS.ColorPicker_Tab_Interior": "内部",
+  "AVS.ColorPicker_Tab_Name": "名称",
+
+  "AVS.Reactor_WhitelistWithPowerValue": "允许材料的能量潜值",
+  "AVS.Reactor_WhitelistPlain": "允许的材料",
+
+  "AVS.Command_NothingToUndock": "没有可解除停靠的对象",
+  "AVS.Command_UndockingVehicle": "正在执行解除停靠操作",
+
+  "AVS.HandHover_ControlPanel_Empty": "无功能",
+  "AVS.HandHover_ControlPanel_Headlights": "前照灯",
+  "AVS.HandHover_ControlPanel_Floodlights": "泛光灯",
+  "AVS.HandHover_ControlPanel_NavLights": "航行灯",
+  "AVS.HandHover_ControlPanel_InteriorLights": "内部照明",
+  "AVS.HandHover_ControlPanel_DefaultColor": "默认颜色",
+  "AVS.HandHover_ControlPanel_Power": "电源",
+  "AVS.HandHover_ControlPanel_Autopilot": "自动驾驶",
+
+  "AVS.HandOver_BatterySlot": "电池",
+  "AVS.HandOver_AutopilotBatterySlot": "自动驾驶电池",
+
+  "AVS.HandHover_OpenStorage": "打开 {0}",
+
+  "AVS.HandHover_Vehicle_Enter": "进入 {0}",
+  "AVS.HandHover_Vehicle_Exit": "离开 {0}",
+  "AVS.HandHover_Vehicle_StartHelmControl": "接管控制",
+
+  "AVS.HandHover_Reactor_Charge": "生物反应堆：{0}/{1}",
+  "AVS.HandHoverSub_Reactor_ShowWhitelist": "按鼠标右键或右扳机以显示允许的材料列表",
+  "AVS.HandHover_Vehicle_DeconstructionPercent": "Archon 拆解进度：{0}",
+
+  "AVS.HandHover_Docked_StatusCharged": "Archon 已完全充电。耐久度 {0}",
+  "AVS.HandHover_Docked_StatusCharging": "Archon 正在充电（{0}）。耐久度 {0}",
+
+  "AVS.Module_Depth1_DisplayName": "Archon 深度模块 Mk1",
+  "AVS.Module_Depth1_Description": "将安全潜深提升至 500 米。不叠加",
+  "AVS.Module_Depth2_DisplayName": "Archon 深度模块 Mk2",
+  "AVS.Module_Depth2_Description": "将安全潜深提升至 1100 米。不叠加",
+  "AVS.Module_Depth3_DisplayName": "Archon 深度模块 Mk3",
+  "AVS.Module_Depth3_Description": "将安全潜深提升至 1700 米。不叠加",
+
+  "AVS.Report_AddedToStorage": "已添加 {0}",
+
+  "AVS.Error_UpgradeNotRemovable_StorageNotEmpty": "无法移除此储物升级，因为其不为空",
+  "AVS.Error_UpgradeNotAddable_Incompatible": "警告：此 Archon 升级与该载具不兼容",
+
+  "AVS.Error_CannotAdd_StorageFull": "无法添加物品。储物空间已满",
+  "AVS.Error_CannotExitHelmControl": "自动校平失败。当前无法退出舵位控制",
+  "AVS.Error_CannotRemoveMaterialsFromReactor": "无法从生物反应堆中取出材料",
+
+  "AVS.Error_MobileWaterPark_CannotAdd_FishIsDead": "不能将死亡的 {0} 放入 {1}",
+  "AVS.Error_MobileWaterPark_CannotAdd_EggIsHatched": "不能将已孵化的 {0} 放入 {1}",
+  "AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "无法将 {0} 放入 {1}。既不是兼容的活体鱼类，也不是可孵化的蛋",
+  "AVS.Error_MobileWaterPark_CannotRemove_HatchingEgg": "无法从 {1} 取出 {0}。该蛋已开始孵化",
+
+  "Error.EmergencyTeleportationModule.CannotRemoveLast": "Archon 需要至少安装一个紧急传送模块",
+
+  "Modules.DockingModuleMk1.Name": "Archon 停靠模块 Mk1",
+  "Modules.DockingModuleMk1.Description": "口袋扩展时空以提供更多停靠空间。每安装一个模块，停靠容量增加 1",
+
+  "Modules.Group.RepairModule": "维修模块",
+  "Modules.Group.Teleportation": "传送模块",
+  "Modules.Group.Docking": "停靠模块",
+
+  "Modules.RepairModuleMk1.Name": "Archon 自我修复模块 Mk1",
+  "Modules.RepairModuleMk1.Description": "启用 Archon 自我修复能力。每秒修复 {0}%。不叠加",
+  "Modules.RepairModuleMk2.Name": "Archon 自我修复模块 Mk2",
+  "Modules.RepairModuleMk2.Description": "启用 Archon 自我修复能力。每秒修复 {0}%。不叠加",
+  "Modules.RepairModuleMk3.Name": "Archon 自我修复模块 Mk3",
+  "Modules.RepairModuleMk3.Description": "启用 Archon 自我修复能力。每秒修复 {0}%。不叠加",
+  "Modules.EmergencyTeleportationModule.Name": "Archon 紧急传送模块",
+  "Modules.EmergencyTeleportationModule.Description": "启用 Archon 紧急传送。必须至少安装一个此类型模块。不叠加",
+  "Modules.TeleportationModuleA.Name": "Archon 传送模块（A）",
+  "Modules.TeleportationModuleA.Description": "启用 Archon 传送至任意已记录位置（A）。双击记录位置。激活以传送。不叠加",
+
+  "Modules.Teleportation.LocationRecorded": "传送：已记录当前位置",
+
+  "Modules.DockingCapacityChanged": "{0} 可停靠载具的最大数量已变更为 {1}",
+  "Modules.RepairCapacityChanged": "{0} 自我修复能力已变更为 {1}",
+
+  "Modules.DockingModule.CannotRemoveOccupied": "停靠模块正被已停靠载具使用，无法移除",
+
+  "Capacity.RepairModuleMk1": "Mk1",
+  "Capacity.RepairModuleMk2": "Mk2",
+  "Capacity.RepairModuleMk3": "Mk3",
+
+  "Component.WaterTank": "水箱",
+  "Component.Bioreactor": "生物反应堆",
+  "Component.ModularStorage": "模块化储物",
+
+  "General.Description": "潜艇母舰",
+  "General.Encyclopedia": "Archon 是一艘豪华且极其坚固的移动指挥中心，内置小型载具机库。你可以在任意移动载具制造台上制造它。\n\n特性：\n- 可扩展的多机位机库\n- 全息传感重建\n- 生物反应堆\n- 鱼缸\n- 环境地图\n\n参数：\n- 最高速度：26 m/s\n- 压毁深度：300 m\n- 最大压毁深度（升级后）：1700 m\n- 升级插槽：8\n- 尺寸：26.8 m x 15.9 m x 79.8 m",
+
+  "Dockable.Text.HealthUnknown": "结构完整性：未知",
+  "Dockable.Text.Health": "结构完整性：{0}",
+  "Dockable.Text.PowerUnknown": "电量：未知",
+  "Dockable.Text.Power": "电量：{0}",
+  "Dockable.Text.Depth": "深度：{0}/{1} 米",
+  "Dockable.Text.Storage": "存储：{0}/{1}",
+
+  "Unity.Modules": "升级模块面板",
+  "Unity.PowerCells": "电池面板",
+  "Unity.NothingDocked": "停靠舱为空",
+  "AR.None": "无功能",
+  "AR.Undock": "解除停靠所选载具",
+  "AR.SelectLeft": "选择上一个已停靠载具",
+  "AR.SelectRight": "选择下一个已停靠载具",
+  "AR.OpenModules": "打开载具升级模块",
+  "AR.OpenStorage": "打开载具储物 #{0}",
+
+  "Option.FloodLightShadows": "泛光灯阴影",
+  "Option.FloodLightShadows.None": "无",
+  "Option.FloodLightShadows.Hard": "硬阴影",
+  "Option.FloodLightShadows.Soft": "软阴影",
+  "Option.Button.ToggleFreeCamera": "切换自由相机",
+  "Option.Button.ChangeExternalCameraHeight": "调整第三人称相机垂直位置",
+  "Option.Button.AltZoomIn": "相机放大",
+  "Option.Button.AltZoomOut": "相机缩小",
+  "Option.FlipFreeHorizontalRotationInReverse": "倒车时水平控制反转",
+  "Option.FlipFreeVerticalRotationInReverse": "倒车时垂直控制反转",
+  "Option.VoiceVolume": "自动驾驶语音音量",
+  "Option.ShowVoiceSubtitles": "显示自动驾驶语音字幕",
+  "Option.AutopilotVoice": "自动驾驶语音",
+  "Option.AutopilotVoice.Off": "无",
+  "Option.AutopilotVoice.Eve": "Eve",
+  "Option.InteriorLights": "内部照明",
+  "Option.InteriorLights.Full": "全开",
+  "Option.InteriorLights.Reduced": "减弱（更快）",
+  "Option.InteriorLights.Minimal": "最低（最快）",
+  "Option.DefaultToFirstPerson": "默认使用座舱视角",
+  "Option.LookSensitivity": "视角灵敏度",
+  "Option.EngineSoundVolume": "引擎音量",
+  "Option.LogVerbosity": "日志详细程度",
+  "Option.LogVerbosity.Verbose": "详细日志",
+  "Option.LogVerbosity.Regular": "常规日志",
+  "Option.LogVerbosity.WarningsAndErrorsOnly": "最少日志",
+
+  "Subtitle.Voice.Welcome": "欢迎登船",
+  "Subtitle.Voice.Depth.Dangerous": "深度警告",
+  "Subtitle.Voice.Depth.Critical": "船体即将受损",
+  "Subtitle.Voice.Health.Dangerous": "结构完整性受损",
+  "Subtitle.Voice.Health.Critical": "结构即将崩溃",
+  "Subtitle.Voice.Power.Dangerous": "电池电量警告",
+  "Subtitle.Voice.Power.Critical": "电池电量耗尽",
+  "Subtitle.Voice.Teleportation.Start": "传送：正在建立空间通道。请稍候……",
+  "Subtitle.Voice.Leveling.Starting": "Archon 未处于水平状态。正在校平",
+  "Subtitle.Voice.Leveling.Failed": "5 秒内自动校平失败。此处无法退出。请驶向可使潜艇校平的区域后重试。",
+  "Subtitle.Voice.CriticalHealth.RepairEnabled": "检测到严重损伤。正在启动紧急修复",
+  "Subtitle.Voice.CriticalHealth.RepairDone": "健康度已脱离危急范围。正在停用紧急修复"
+}
