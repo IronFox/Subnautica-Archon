@@ -9,11 +9,14 @@ public class ArButton : MonoBehaviour
         Undock,
         SelectLeft,
         SelectRight,
+        OpenModules,
+        OpenStorage,
     }
     private int handOverAge = 0;
 
     public Material materialPrototype;
     public ArchonControl archon;
+    public int parameter;
     private Color disabledColor = new Color(0.25f, 0.25f, 0.25f);
     public void OnTrigger()
     {
@@ -22,6 +25,11 @@ public class ArButton : MonoBehaviour
             if (archon == null)
             {
                 log.Error("ArButton: OnTrigger called without archon set.");
+                return;
+            }
+            if (!IsEnabled)
+            {
+                log.Error($"ArButton: OnTrigger called but button is disabled. Function={function}");
                 return;
             }
             switch (function)
@@ -35,6 +43,12 @@ public class ArButton : MonoBehaviour
                 case Function.SelectRight:
                     archon.SelectRight();
                     break;
+                case Function.OpenModules:
+                    archon.SelectedDockable.OpenModules();
+                    break;
+                case Function.OpenStorage:
+                    archon.SelectedDockable.OpenStorage(parameter);
+                    break;
                 default:
                     break;
             }
@@ -47,14 +61,12 @@ public class ArButton : MonoBehaviour
         {
             switch (function)
             {
-                case Function.Undock:
-                    return archon.HasSelectedDockable;
                 case Function.SelectLeft:
                     return archon.bayControl.NumUndockableVehicles > 1;
                 case Function.SelectRight:
                     return archon.bayControl.NumUndockableVehicles > 1;
                 default:
-                    return false;
+                    return archon.HasSelectedDockable;
             }
         }
     }
@@ -69,14 +81,15 @@ public class ArButton : MonoBehaviour
     private Material material;
     public Function function = Function.None;
     // Start is called before the first frame update
-    void Start()
+    void Awake()
     {
         if (archon == null)
             archon = GetComponentInParent<ArchonControl>();
-        r = GetComponent<Renderer>();
+        r = GetComponentInChildren<Renderer>();
         material = new Material(materialPrototype);
         r.material = material;
         inactiveColor = material.color;
+        ArButtonAdapter.Instrument(this);
     }
     public bool IsHandOver => handOverAge < 10;
 
@@ -86,7 +99,7 @@ public class ArButton : MonoBehaviour
     {
         handOverAge++;
 
-        material.color =
+        r.material.color =
             IsEnabled
                 ? (IsHandOver
                     ? activeColor

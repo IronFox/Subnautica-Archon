@@ -1450,7 +1450,7 @@ public class ArchonControl : MonoBehaviour
         }
     }
 
-
+    public IDockable SelectedDockable => selectedDockable;
     public bool HasSelectedDockable => selectedDockable != null;
     public void SignalDockedChange(IDockable dockable)
     {
@@ -1484,7 +1484,13 @@ public class ArchonControl : MonoBehaviour
                 return;
             }
 
+
             List<IDockable> docked = bayControl.Docked.ToList();
+            log.Write($"Navigating left among {docked.Count} undockable(s)");
+            foreach (var dockable in docked)
+            {
+                log.Write($" - {dockable.Name}");
+            }
             int idx = docked.IndexOf(selectedDockable);
             selectedDockable = idx < 0 ? docked.FirstOrDefault() : docked[(idx - 1 + docked.Count) % docked.Count];
             SignalDockableSelectedOrChanged();
@@ -1505,6 +1511,11 @@ public class ArchonControl : MonoBehaviour
             }
 
             List<IDockable> docked = bayControl.Docked.ToList();
+            log.Write($"Navigating right among {docked.Count} undockable(s)");
+            foreach (var dockable in docked)
+            {
+                log.Write($" - {dockable.Name}");
+            }
             int idx = docked.IndexOf(selectedDockable);
             selectedDockable = idx < 0 ? docked.FirstOrDefault() : docked[(idx + 1) % docked.Count];
             SignalDockableSelectedOrChanged();

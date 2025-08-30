@@ -1,4 +1,5 @@
-﻿using AVS;
+﻿using Assets.Behavior.Adapters;
+using AVS;
 using AVS.Assets;
 using AVS.Log;
 using AVS.Patches;
@@ -158,7 +159,7 @@ namespace Subnautica_Archon
                     log => MyRegister(log, sub, true));
 
                 Assets.Behavior.Adapters.Log.AdapterFactory =
-                    tags => new LogAdapter(this, tags);
+                    p => new LogAdapter(this, p.ForceLazy, p.Tags);
 
                 //TorpedoModule.RegisterAll();
                 //DriveModule.RegisterAll();
@@ -183,6 +184,13 @@ namespace Subnautica_Archon
                 {
                     var wf = go.GetComponent<WorldForces>();
                     return wf.IsAboveWater();
+                };
+
+                ArButtonAdapter.Instrument = arButton =>
+                {
+                    log.Write($"Instrumenting AR button {arButton.GetPath()}");
+                    var helper = arButton.gameObject.EnsureComponent<ArchonArButton>();
+                    helper.arButton = arButton;
                 };
 
                 DockingAdapter.ToDockable = (go, archonControl, filter) =>

@@ -13,7 +13,6 @@ using AVS.VehicleTypes;
 using FMOD.Studio;
 using FMODUnity;
 using Subnautica_Archon.Adapters;
-using Subnautica_Archon.Components;
 using Subnautica_Archon.Modules;
 using Subnautica_Archon.Util;
 using System;
@@ -1528,13 +1527,7 @@ namespace Subnautica_Archon
                 log.Write($"Detected {hatchList.Count} hatch(es)");
             }
 
-            var arButtons = transform.GetComponentsInChildren<ArButton>(true);
-            foreach (var arButton in arButtons)
-            {
-                //Log.Write($"Found AR button {arButton.name} at {arButton.transform.position}");
-                var helper = arButton.gameObject.EnsureComponent<ArchonArButton>();
-                helper.arButton = arButton;
-            }
+
 
             var storageRootTransform = transform.Find("StorageRoot");
             if (storageRootTransform.IsNull())

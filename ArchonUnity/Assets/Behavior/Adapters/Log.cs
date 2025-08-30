@@ -15,12 +15,16 @@ namespace Assets.Behavior.Adapters
     {
         public static ILogAdapter New(params string[] tags)
         {
-            return AdapterFactory(tags);
+            return AdapterFactory((false, tags));
+        }
+        public static ILogAdapter NewLazy(params string[] tags)
+        {
+            return AdapterFactory((true, tags));
         }
 
-        private static Func<string[], ILogAdapter> adapterFactory
-            = (tag) => new UnityLogAdapter(tag);
-        public static Func<string[], ILogAdapter> AdapterFactory
+        private static Func<(bool ForceLazy, string[] Tags), ILogAdapter> adapterFactory
+            = (p) => new UnityLogAdapter(p.Tags);
+        public static Func<(bool ForceLazy, string[] Tags), ILogAdapter> AdapterFactory
         {
             get => adapterFactory;
             set
@@ -30,44 +34,11 @@ namespace Assets.Behavior.Adapters
                     throw new ArgumentNullException(nameof(value), "AdapterFactory cannot be null");
                 }
                 adapterFactory = value;
-                defaultAdapter = adapterFactory(Array.Empty<string>()); ;
-                //defaultAdapter.Write($"Logging adapter updated");
             }
         }
 
 
-        private static ILogAdapter defaultAdapter;
-        //public static ILogAdapter Default
-        //{
-        //    get
-        //    {
-        //        if (defaultAdapter == null)
-        //        {
-        //            defaultAdapter = AdapterFactory(Array.Empty<string>());
-        //        }
-        //        return defaultAdapter;
-        //    }
-        //}
 
-        //public static void Write(string v)
-        //{
-        //    Default.Write(v);
-        //}
-
-
-        //public static void LogWarning(string v)
-        //{
-        //    Default.LogWarning(v);
-        //}
-
-        //public static void LogError(string v, Exception ex)
-        //{
-        //    Default.LogError(v, ex);
-        //}
-        //public static void LogError(string v)
-        //{
-        //    Default.LogError(v);
-        //}
     }
 
     internal class UnityLogAdapter : ILogAdapter

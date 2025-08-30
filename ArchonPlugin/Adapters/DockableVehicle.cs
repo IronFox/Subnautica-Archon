@@ -156,6 +156,28 @@ namespace Subnautica_Archon.Adapters
             }
         }
 
+        private int numStorageModules = -1;
+
+        public int StorageCount
+        {
+            get
+            {
+                if (numStorageModules >= 0)
+                    return numStorageModules;
+                int count = IterateStorages().Count();
+
+                numStorageModules = count;
+                return numStorageModules;
+            }
+        }
+
+        private void ClearCachedData()
+        {
+            moduleSprites = null;
+            numStorageModules = -1;
+            storageText = null;
+        }
+
         public string Name => Vehicle.GetVehicleName();
 
         public string ClassName => Vehicle.GetType().Name + " Class";
@@ -221,29 +243,73 @@ namespace Subnautica_Archon.Adapters
             }
         }
 
+        private Text? storageText = null;
+
         public Text StorageText
         {
             get
             {
+                if (storageText != null)
+                    return storageText.Value;
                 int count = 0;
                 int total = 0;
-                for (int i = 0; i < 20; i++)
+                foreach (var s in IterateStorages())
                 {
-                    try
-                    {
-                        var storage = Vehicle.GetStorageInSlot(i, TechType.VehicleStorageModule);
-                        if (storage != null)
-                        {
-                            count += storage.sizeX * storage.sizeY;
-                            total += storage.Sum(x => x.width * x.height);
-                        }
-                    }
-                    catch (IndexOutOfRangeException)
-                    { }//odd but w/e
+                    total += s.sizeX * s.sizeY;
+                    count += s.Sum(x => x.width * x.height);
                 }
-                return Text.Info(Language.main.GetFormat("Dockable.Text.Storage", count, total));
+                storageText = Text.Info(Language.main.GetFormat("Dockable.Text.Storage", count, total));
+                return storageText.Value;
             }
         }
+
+        private IEnumerable<ItemsContainer> IterateStorages()
+        {
+            if (Vehicle is Exosuit ex)
+            {
+                yield return ex.storageContainer.container;
+                yield break;
+            }
+
+            var innateStorage = Vehicle.GetType().Assembly.GetType("InnateStorageContainer", false);
+            if (innateStorage != null)
+            {
+                var storage2 = Vehicle.GetComponentsInChildren(innateStorage, includeInactive: true);
+                foreach (var s in storage2)
+                {
+                    var a0 = PropertyAdapter.OfPublic<ItemsContainer>(Archon.Owner, s, "container");
+                    if (a0.IsValid)
+                    {
+                        yield return a0.Value;
+                    }
+                    else
+                    {
+                        var a1 = PropertyAdapter.OfPublic<ItemsContainer>(Archon.Owner, s, "Container");
+                        if (a1.IsValid)
+                        {
+                            yield return a1.Value;
+                        }
+                    }
+                }
+            }
+            List<ItemsContainer> storages = new List<ItemsContainer>();
+            for (int i = 0; i < 20; i++)
+            {
+                try
+                {
+                    var storage = Vehicle.GetStorageInSlot(i, TechType.VehicleStorageModule);
+                    if (storage != null)
+                    {
+                        storages.Add(storage);
+                    }
+                }
+                catch (IndexOutOfRangeException)
+                { }//odd but w/e
+            }
+            foreach (var s in storages)
+                yield return s;
+        }
+
 
         public void RestoreDockedStateFromSaveGame()
         {
@@ -287,7 +353,7 @@ namespace Subnautica_Archon.Adapters
         public void BeginDocking()
         {
             using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
-            moduleSprites = null;
+            ClearCachedData();
             if (HasPlayer)
             {
                 Helper.ChangeAvatarInput(log, false);
@@ -577,31 +643,61 @@ namespace Subnautica_Archon.Adapters
 
         private void OnClosePDA(PDA pda)
         {
-            Log.Write($"PDA closed after opening modules");
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
+
+            log.Write($"PDA closed after opening modules");
             try
             {
+                ClearCachedData();
                 Archon.Control.SignalDockedChange(this);
             }
             catch (Exception ex)
             {
-                Log.Error($"Error while signaling docked change after closing PDA", ex);
+                log.Error($"Error while signaling docked change after closing PDA", ex);
             }
         }
         public void OpenModules()
         {
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
             try
             {
 
-                PDA pDA = Player.main.GetPDA();
+                PDA pda = Player.main.GetPDA();
                 Inventory.main.SetUsedStorage(Vehicle.modules);
-                if (!pDA.Open(PDATab.Inventory, onCloseCallback: OnClosePDA))
+                if (!pda.Open(PDATab.Inventory, onCloseCallback: OnClosePDA))
                 {
-                    OnClosePDA(pDA);
+                    OnClosePDA(pda);
                 }
             }
             catch (Exception ex)
             {
-                Log.Error($"Error while opening modules", ex);
+                log.Error($"Error while opening modules", ex);
+            }
+        }
+
+        public void OpenStorage(int storageIndex)
+        {
+            using var log = SmartLog.For(Archon.Owner, tags: "Dockable#" + Id);
+            var s = IterateStorages().ElementAtOrDefault(storageIndex);
+            if (s != null)
+            {
+                try
+                {
+                    PDA pda = Player.main.GetPDA();
+                    Inventory.main.SetUsedStorage(s);
+                    if (!pda.Open(PDATab.Inventory, onCloseCallback: OnClosePDA))
+                    {
+                        OnClosePDA(pda);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    log.Error($"Error while opening storage #{storageIndex}", ex);
+                }
+            }
+            else
+            {
+                log.Warn($"No storage found in {Vehicle.NiceName()} at index {storageIndex} to open");
             }
         }
     }

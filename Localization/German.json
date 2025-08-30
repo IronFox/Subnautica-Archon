@@ -117,6 +117,8 @@
 	"AR.Undock": "Ausgewähltes Fahrzeug abdocken",
 	"AR.SelectLeft": "Vorheriges angedocktes Fahrzeug auswählen",
 	"AR.SelectRight": "Nächstes angedocktes Fahrzeug auswählen",
+	"AR.OpenModules": "Erweiterungsmodule des gewählten Fahrzeugs",
+	"AR.OpenStorage": "Lastmodul #{0} des gewählten Fahrzeugs",	
 	
 	"Option.FloodLightShadows": "Flutlichtschatten",
 	"Option.FloodLightShadows.None": "Keine",

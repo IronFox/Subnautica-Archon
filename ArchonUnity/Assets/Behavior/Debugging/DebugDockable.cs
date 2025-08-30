@@ -1,7 +1,7 @@
 ﻿using Assets.Behavior.TransferTypes;
+using Behavior.Util.Math;
 using System.Collections.Generic;
 using System.Linq;
-using Behavior.Util.Math;
 using UnityEngine;
 
 public class DebugDockable : MonoBehaviour, IDockable
@@ -56,6 +56,7 @@ public class DebugDockable : MonoBehaviour, IDockable
     public Text StorageText
         => Text.Info($"Storage: {storageUsage}/{storageCapacity}");
 
+    public int StorageCount => 3;
 
     public void BeginDocking()
     {
@@ -137,5 +138,8 @@ public class DebugDockable : MonoBehaviour, IDockable
     { }
 
     public void OnRedockedAfterSaving()
+    { }
+
+    public void OpenStorage(int storageIndex)
     { }
 }

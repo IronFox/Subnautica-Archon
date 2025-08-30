@@ -20,7 +20,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             //v.IsPlayerControlling
             Vehicle = vehicle;
 
-            pingInstance = PropertyAdapter.OfPublic<PingInstance>(Vehicle, nameof(AvsVehicle.HudPingInstance));
+            pingInstance = PropertyAdapter.OfPublic<PingInstance>(Rmc, Vehicle, nameof(AvsVehicle.HudPingInstance));
             _isScuttled = FieldAdapter.Of<bool>(Vehicle, nameof(AvsVehicle.isScuttled));
 
             _playerExit = new MethodAdapter<bool>(rmc, Vehicle, nameof(AvsVehicle.PlayerExit));

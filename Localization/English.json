@@ -117,6 +117,9 @@
 	"AR.Undock": "Undock selected craft",
 	"AR.SelectLeft": "Select previous docked craft",
 	"AR.SelectRight": "Select next docked craft",
+	"AR.OpenModules": "Open vehicle upgrade modules",
+	"AR.OpenStorage": "Open vehicle storage #{0}",
+	
 	
 	"Option.FloodLightShadows": "Floodlight Shadows",
 	"Option.FloodLightShadows.None": "None",

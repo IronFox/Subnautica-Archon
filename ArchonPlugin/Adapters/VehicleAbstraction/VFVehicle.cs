@@ -46,13 +46,13 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             get
             {
                 if (!_isUnderCommand.IsValid)
-                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(Vehicle, "IsUnderCommand");
+                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(Rmc, Vehicle, "IsUnderCommand");
                 return _isUnderCommand.Value;
             }
             set
             {
                 if (!_isUnderCommand.IsValid)
-                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(Vehicle, "IsUnderCommand");
+                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(Rmc, Vehicle, "IsUnderCommand");
                 _isUnderCommand.Set(value);
             }
         }

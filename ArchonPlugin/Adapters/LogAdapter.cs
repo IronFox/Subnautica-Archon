@@ -5,10 +5,10 @@ namespace Subnautica_Archon.Adapters
 {
     internal class LogAdapter : Assets.Behavior.Adapters.ILogAdapter
     {
-        public LogAdapter(ArchonModController amc, string[] tags)
+        public LogAdapter(ArchonModController amc, bool forceLazy, string[] tags)
         {
             Tags = tags;
-            Writer = new SmartLog(amc, "Uty", 3, false, tags);
+            Writer = new SmartLog(amc, domain: "Uty", frameDelta: 3, tags: tags, forceLazy: forceLazy);
         }
         public SmartLog Writer { get; }
         public string[] Tags { get; }

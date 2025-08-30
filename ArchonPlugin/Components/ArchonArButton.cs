@@ -16,7 +16,7 @@ namespace Subnautica_Archon.Components
             if (arButton != null)
             {
                 arButton.OnHandOver();
-                HandReticle.main.SetText(HandReticle.TextType.Hand, $"AR.{arButton.function}", translate: true, GameInput.Button.LeftHand);
+                HandReticle.main.SetText(HandReticle.TextType.Hand, Language.main.GetFormat($"AR.{arButton.function}", arButton.parameter + 1), translate: false, GameInput.Button.LeftHand);
                 HandReticle.main.SetText(HandReticle.TextType.HandSubscript, string.Empty, translate: false);
                 if (arButton.IsEnabled)
                 {
