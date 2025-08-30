@@ -102,7 +102,7 @@ public class ArButton : MonoBehaviour
         r.material.color =
             IsEnabled
                 ? (IsHandOver
-                    ? M.Color(inactiveColor * 1.5f, inactiveColor.a + 0.5f)
+                    ? M.Color(inactiveColor * 1.5f, inactiveColor.a + 0.3f)
                     : inactiveColor
                     )
                 : disabledColor;
