@@ -58,7 +58,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 758644db8b557f547943092354a55195, type: 2}
+  - {fileID: 2100000, guid: 4d4d29c450f83694d869c27699780af5, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -90,7 +90,6 @@ GameObject:
   - component: {fileID: 1108925747187151768}
   - component: {fileID: 4470721989399321101}
   - component: {fileID: 3569731570740378121}
-  - component: {fileID: 5581515374798591436}
   m_Layer: 0
   m_Name: Storage
   m_TagString: Untagged
@@ -138,20 +137,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c7909efe84d292d4792896f1ec7c8d08, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  materialPrototype: {fileID: 2100000, guid: 758644db8b557f547943092354a55195, type: 2}
+  materialPrototype: {fileID: 2100000, guid: 4d4d29c450f83694d869c27699780af5, type: 2}
   archon: {fileID: 0}
   parameter: 0
-  activeColor: {r: 1, g: 1, b: 1, a: 1}
+  activeColor: {r: 0.6792453, g: 0.96110845, b: 1, a: 1}
   function: 5
---- !u!114 &5581515374798591436
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2702772434032470815}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c80e50678384d9246a8021b0f18baf65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
