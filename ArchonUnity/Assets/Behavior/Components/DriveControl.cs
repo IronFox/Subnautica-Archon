@@ -113,7 +113,7 @@ public class DriveControl : MonoBehaviour
                 //Log.Write($"DriveControl.Update: Speed: {speed} -> {audioThrust}");
                 //if (audioThrust > 0)
                 {
-                    regularAudioSource.volume = initialLevel * (0.1f + 0.9f * audioThrust);
+                    regularAudioSource.volume = initialLevel * archon.engineSoundVolume * (0.1f + 0.9f * audioThrust);
                     regularAudioSource.pitch = initialPitch * (1 + audioThrust * 0.5f);
                     //regularAudioSource.enabled = true;
                 }

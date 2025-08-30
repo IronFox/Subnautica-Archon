@@ -45,6 +45,7 @@ public class ArchonControl : MonoBehaviour
     public float lookRightAxis;
     public float lookUpAxis;
     public float interiorLightScale = 1;
+    public float engineSoundVolume = 1;
 
     private bool isMovingInReverse;
 

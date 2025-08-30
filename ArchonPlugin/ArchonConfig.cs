@@ -47,8 +47,11 @@ public class ArchonConfig : ConfigFile
     )]
     public Voice voice = Voice.Eve;
 
-    [Slider(DefaultValue = 100.0f, Format = "{0:F0}%", Label = "Look Sensitivity", LabelLanguageId = "Option.LookSensitivity", Min = 1f, Max = 200.0f, Step = 1f)]
+    [Slider(DefaultValue = 100.0f, Format = "{0:F0}%", Label = "Look Sensitivity", LabelLanguageId = "Option.LookSensitivity", Min = 1f, Max = 200f, Step = 1f)]
     public float lookSensitivity = 100.0f;
+
+    [Slider(DefaultValue = 100f, Format = "{0:F0}%", Label = "Engine Sound Volume", LabelLanguageId = "Option.EngineSoundVolume", Min = 0f, Max = 100f, Step = 5f)]
+    public float engineSoundVolume = 100f;
 
     [Choice("Log Level",
         "Option.LogVerbosity.Verbose",
