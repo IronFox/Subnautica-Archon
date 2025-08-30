@@ -180,7 +180,7 @@ namespace Subnautica_Archon.Adapters
 
         public string Name => Vehicle.GetVehicleName();
 
-        public string ClassName => Vehicle.GetType().Name + " Class";
+        public string ClassName => $"<{Vehicle.GetType().Name}>";
 
         private static Text Classify(string template, float current, float max, bool plus)
         {
