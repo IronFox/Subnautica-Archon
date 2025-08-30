@@ -1275,8 +1275,8 @@ namespace Subnautica_Archon
                     Control.lookRightAxis = Control.lookUpAxis = 0;
                 else
                 {
-                    Control.lookRightAxis = lookDelta.x * 0.1f;
-                    Control.lookUpAxis = lookDelta.y * 0.1f;
+                    Control.lookRightAxis = lookDelta.x * 1e-3f * ArchonModController.PluginConfig.lookSensitivity;
+                    Control.lookUpAxis = lookDelta.y * 1e-3f * ArchonModController.PluginConfig.lookSensitivity;
                 }
 
                 Control.floodLightShadows = ArchonModController.PluginConfig.floodLightShadows;

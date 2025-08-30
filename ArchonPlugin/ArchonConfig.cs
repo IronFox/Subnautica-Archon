@@ -45,6 +45,9 @@ public class ArchonConfig : ConfigFile
         LabelLanguageId = "Option.AutopilotVoice"
     )]
     public Voice voice = Voice.Eve;
+
+    [Slider(DefaultValue = 100.0f, Format = "{0:F0}%", Label = "Look Sensitivity", LabelLanguageId = "Option.LookSensitivity", Min = 1f, Max = 200.0f, Step = 1f)]
+    public float lookSensitivity = 100.0f;
     //[Toggle("Hold Sprint to Boost")]
     //public bool holdToBoost = false;
 
