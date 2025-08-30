@@ -24,9 +24,11 @@ public class BayControl : MonoBehaviour
     public Transform dockedBounds;
     public Transform dockingColliders;
     public Transform parkPostion;
-    public SoundAdapter bayDoorSound;
+    public SoundAdapter bayDoorSlideSound;
     public SoundAdapter bayDoorLockSound;
     public SoundAdapter bayDoorUnlockSound;
+
+    private float initialBayDoorSlideSoundVolume = 1;
 
 
     public int maxDockedVehicles = 2;
@@ -101,6 +103,7 @@ public class BayControl : MonoBehaviour
         using (var log = Log.New())
         {
             permittedBounds = dockedBounds.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true, excludeFrom: null);
+            initialBayDoorSlideSoundVolume = bayDoorSlideSound ? bayDoorSlideSound.volume : 1;
             RedetectDocked();
         }
     }
@@ -505,8 +508,8 @@ public class BayControl : MonoBehaviour
         if (wasClosed && nowClosed)
         {
             openAnimation.Stop();
-            if (bayDoorSound != null)
-                bayDoorSound.volume = 0;
+            if (bayDoorSlideSound != null)
+                bayDoorSlideSound.volume = 0;
             //bayDoorSound.play = false;
             progress = 0;
             return;
@@ -519,26 +522,26 @@ public class BayControl : MonoBehaviour
         if (wasClosed && !nowClosed)
         {
             using (var log = Log.New())
-                log.Write(nameof(Update) + $": (wasClosed={wasClosed}, nowClosed={nowClosed}, progress={progress}, open={open}) Bay doors opening. Playing lock sound");
+                log.Write(nameof(Update) + $": Opening (wasClosed={wasClosed}, nowClosed={nowClosed}, progress={progress}, open={open}) Bay doors opening. Playing lock sound");
             //progress = -0.5f / secondsToOpen;
             bayDoorUnlockSound.Play();
         }
         else if (preProgress > soundPreSeconds / totalSeconds && progress <= soundPreSeconds / totalSeconds)
         {
             using (var log = Log.New())
-                log.Write(nameof(Update) + $": (wasClosed={wasClosed}, nowClosed={nowClosed}, preProgress={preProgress}, progress={progress}, open={open}) Bay doors closing. Playing lock sound");
+                log.Write(nameof(Update) + $": Closing (wasClosed={wasClosed}, nowClosed={nowClosed}, preProgress={preProgress}, progress={progress}, open={open}) Bay doors closing. Playing lock sound");
 
             bayDoorLockSound.Play();
         }
 
 
-        if (bayDoorSound != null)
+        if (bayDoorSlideSound != null)
         {
-            if (!bayDoorSound.play)
-                bayDoorSound.volume = 0;
+            if (!bayDoorSlideSound.play)
+                bayDoorSlideSound.volume = 0;
             else
-                bayDoorSound.volume = 1f - M.Sqr((progress - 0.5f) * 2f);
-            bayDoorSound.play = true;
+                bayDoorSlideSound.volume = (1f - M.Sqr((progress - 0.5f) * 2f)) * initialBayDoorSlideSoundVolume;
+            bayDoorSlideSound.play = true;
 
         }
 
