@@ -10,6 +10,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 
@@ -46,6 +47,7 @@ namespace Subnautica_Archon.Adapters
         public bool HasPlayer => !IsDrone && Player.main.currentMountedVehicle == Vehicle;
         public bool IsPlayerControlledDrone => Drone.Access(RMC, Vehicle, out var d) && d.IsPlayerControlling();
 
+        private IReadOnlyList<ItemsContainer>? CachedStorages { get; set; } = null;
         public GameObject GameObject => Vehicle.gameObject;
         private int UpdateCounter { get; set; }
         private static int idCounter = 0;
@@ -174,7 +176,7 @@ namespace Subnautica_Archon.Adapters
             {
                 if (numStorageModules >= 0)
                     return numStorageModules;
-                int count = IterateStorages().Count();
+                int count = GetStorages().Count();
 
                 numStorageModules = count;
                 return numStorageModules;
@@ -186,6 +188,7 @@ namespace Subnautica_Archon.Adapters
             moduleSprites = null;
             numStorageModules = -1;
             storageText = null;
+            CachedStorages = null;
         }
 
         public string Name => Vehicle.GetVehicleName();
@@ -263,7 +266,7 @@ namespace Subnautica_Archon.Adapters
                     return storageText.Value;
                 int count = 0;
                 int total = 0;
-                foreach (var s in IterateStorages())
+                foreach (var s in GetStorages())
                 {
                     total += s.sizeX * s.sizeY;
                     count += s.Sum(x => x.width * x.height);
@@ -273,35 +276,83 @@ namespace Subnautica_Archon.Adapters
             }
         }
 
-        private IEnumerable<ItemsContainer> IterateStorages()
+
+        private Type? FindTypeIn(System.Reflection.Assembly asm, Type baseType, string typeName)
         {
+            using var log = NewLog();
+            log.Debug($"Searching for type '{typeName}' in assembly {asm.FullName} (base type {baseType.Name})");
+            var innateStorage = asm.ExportedTypes.FirstOrDefault(x => x.Name == "InnateStorageContainer");
+            if (innateStorage.IsNull())
+            {
+                log.Debug($"InnateStorageContainer not found in assembly {asm.FullName}");
+                foreach (var t in asm.ExportedTypes)
+                {
+                    log.Debug($" - Exported type: {t.Name} / {t.FullName}");
+                }
+            }
+            else
+                log.Debug($"Found InnateStorageContainer as {innateStorage.FullName}");
+            return innateStorage;
+        }
+
+        private IReadOnlyList<ItemsContainer> GetStorages()
+        {
+            if (CachedStorages.IsNotNull())
+                return CachedStorages;
+            CachedStorages = IntlIterateStorages().ToList();
+            return CachedStorages;
+        }
+
+        private ValueTernary<(Type Type, PropertyInfo Container)> innateStorageAccess;
+        private IEnumerable<ItemsContainer> IntlIterateStorages()
+        {
+            using var log = NewLog(true);
             if (Vehicle is Exosuit ex)
             {
+                log.Debug($"Exosuit detected, returning its innate storage container");
                 yield return ex.storageContainer.container;
                 yield break;
             }
-
-            var innateStorage = Vehicle.GetType().Assembly.GetType("InnateStorageContainer", false);
-            if (innateStorage != null)
+            if (!Abstraction.IsVanilla)
             {
-                var storage2 = Vehicle.GetComponentsInChildren(innateStorage, includeInactive: true);
-                foreach (var s in storage2)
+                if (!innateStorageAccess.IsSet)
                 {
-                    var a0 = PropertyAdapter.OfPublic<ItemsContainer>(RMC, s, "container");
-                    if (a0.IsValid)
+                    var t = Vehicle.GetType();
+                    Type? innateStorage = null;
+                    while (t.IsNotNull() && t != typeof(Vehicle) && innateStorage.IsNull())
                     {
-                        yield return a0.Value;
+
+                        var asm = t.Assembly;
+                        innateStorage = FindTypeIn(asm, t, "InnateStorageContainer");
+                        t = t.BaseType;
+                    }
+                    log.Debug($"Identified InnateStorageContainer: {innateStorage?.FullName}");
+                    var property = GetContainerPropertyOf(innateStorage);
+
+                    if (innateStorage.IsNotNull() && property.IsNotNull())
+                    {
+                        innateStorageAccess.Set((innateStorage, property));
                     }
                     else
+                        innateStorageAccess.Set(null);
+                    innateStorageAccess.HasFailed = property.IsNull();
+                }
+
+                if (innateStorageAccess.IsSetNotFailed)
+                {
+                    var innateStorage = innateStorageAccess.Item!.Value;
+                    log.Debug($"InnateStorageContainer type is {innateStorage.Type} / {innateStorage.Type.FullName}, searching for such components");
+                    var storage2 = Vehicle.GetComponentsInChildren(innateStorage.Type, includeInactive: true);
+                    log.Debug($"Found {storage2.Length} innate storage components");
+                    foreach (var s in storage2)
                     {
-                        var a1 = PropertyAdapter.OfPublic<ItemsContainer>(RMC, s, "Container");
-                        if (a1.IsValid)
-                        {
-                            yield return a1.Value;
-                        }
+                        yield return (ItemsContainer)innateStorage.Container.GetValue(s);
                     }
                 }
+                else
+                    log.Debug($"InnateStorageContainer not found in assembly {Vehicle.GetType().Assembly.FullName}");
             }
+
             List<ItemsContainer> storages = new List<ItemsContainer>();
             for (int i = 0; i < 20; i++)
             {
@@ -320,6 +371,30 @@ namespace Subnautica_Archon.Adapters
                 yield return s;
         }
 
+        private PropertyInfo? GetContainerPropertyOf(Type? innateStorage)
+        {
+            using var log = NewLog();
+            if (innateStorage.IsNotNull())
+            {
+                var a0 = innateStorage.GetProperty("container", BindingFlags.Instance | BindingFlags.Public);
+                if (a0.IsNotNull() && a0.PropertyType == typeof(ItemsContainer))
+                {
+                    log.Debug($"Found 'container' property on innate storage component {innateStorage.FullName}");
+                    return a0;
+                }
+                else
+                {
+                    var a1 = innateStorage.GetProperty("Container", BindingFlags.Instance | BindingFlags.Public);
+                    if (a0.IsNotNull() && a0.PropertyType == typeof(ItemsContainer))
+                    {
+                        log.Debug($"Found 'Container' property on innate storage component {innateStorage.FullName}");
+                        return a1;
+                    }
+                }
+            }
+            log.Warn($"Innate storage component {innateStorage?.FullName} has no accessible 'container' or 'Container' property");
+            return null;
+        }
 
         public void RestoreDockedStateFromSaveGame()
         {
@@ -668,12 +743,22 @@ namespace Subnautica_Archon.Adapters
             using var log = NewLog();
             try
             {
-
                 PDA pda = Player.main.GetPDA();
-                Inventory.main.SetUsedStorage(Vehicle.modules);
-                if (!pda.Open(PDATab.Inventory, onCloseCallback: OnClosePDA))
+                if (Vehicle.upgradesInput.IsNotNull())
                 {
-                    OnClosePDA(pda);
+                    log.Write($"Opening modules via upgradesInput");
+                    RMC.StartModCoroutine(nameof(DockableVehicle) + '.' + nameof(OpenModules) + ".OpenViaUpgradesInput", MonitorOpenModulesViaUpgradesInput);
+                    Vehicle.upgradesInput.OnHandHover(null);
+                    Vehicle.upgradesInput.OnHandClick(null);
+                }
+                else
+                {
+                    log.Write($"Opening modules via PDA and inventory");
+                    Inventory.main.SetUsedStorage(Vehicle.modules);
+                    if (!pda.Open(PDATab.Inventory, onCloseCallback: OnClosePDA))
+                    {
+                        OnClosePDA(pda);
+                    }
                 }
             }
             catch (Exception ex)
@@ -682,10 +767,27 @@ namespace Subnautica_Archon.Adapters
             }
         }
 
+        private IEnumerator MonitorOpenModulesViaUpgradesInput(SmartLog log)
+        {
+            PDA pda = Player.main.GetPDA();
+            log.Write($"Waiting for PDA to open");
+            yield return new WaitUntil(() => pda.isOpen);
+            log.Write($"PDA is open, waiting for it to close");
+            yield return new WaitUntil(() => !pda.isOpen);
+            log.Write($"PDA is closed");
+            OnClosePDA(pda);
+        }
+
         public void OpenStorage(int storageIndex)
         {
             using var log = NewLog();
-            var s = IterateStorages().ElementAtOrDefault(storageIndex);
+            var storage = GetStorages();
+            if (storageIndex < 0 || storageIndex >= storage.Count)
+            {
+                log.Warn($"Invalid storage index {storageIndex}, only {storage.Count} storages available");
+                return;
+            }
+            var s = storage[storageIndex];
             if (s != null)
             {
                 try
