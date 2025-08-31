@@ -1,5 +1,6 @@
 ﻿using AVS;
 using AVS.BaseVehicle;
+using AVS.Log;
 using AVS.Util;
 using Subnautica_Archon.Util;
 using Subnautica_Archon.Util.Reflection;
@@ -10,18 +11,18 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
     internal class AvsReflectionVehicle
     {
-        public RootModController Rmc { get; }
+        public RootModController RMC { get; }
         public Vehicle Vehicle { get; }
 
         private AvsReflectionVehicle(RootModController rmc, Vehicle vehicle)
         {
-            Rmc = rmc;
+            RMC = rmc;
             //AvsVehicle v;
             //v.IsPlayerControlling
             Vehicle = vehicle;
 
-            pingInstance = PropertyAdapter.OfPublic<PingInstance>(Rmc, Vehicle, nameof(AvsVehicle.HudPingInstance));
-            _isScuttled = FieldAdapter.Of<bool>(Vehicle, nameof(AvsVehicle.isScuttled));
+            pingInstance = PropertyAdapter.OfPublic<PingInstance>(rmc, Vehicle, nameof(AvsVehicle.HudPingInstance));
+            _isScuttled = FieldAdapter.Of<bool>(rmc, Vehicle, nameof(AvsVehicle.isScuttled));
 
             _playerExit = new MethodAdapter<bool>(rmc, Vehicle, nameof(AvsVehicle.PlayerExit));
             _playerEntry = new MethodAdapter(rmc, Vehicle, nameof(AvsVehicle.PlayerEntry));
@@ -29,7 +30,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             _onVehicleUndocked = new MethodAdapter<bool, bool>(rmc, Vehicle, nameof(AvsVehicle.UndockVehicle));
             _onVehicleDocked = new MethodAdapter<Vector3, bool>(rmc, Vehicle, nameof(AvsVehicle.DockVehicle));
             _isPlayerControlling = new MethodAdapter(rmc, Vehicle, nameof(AvsVehicle.IsPlayerControlling));
-            _onPilotModeEnd = new MethodAdapter(Rmc, Vehicle, "OnPilotModeEnd");
+            _onPilotModeEnd = new MethodAdapter(rmc, Vehicle, "OnPilotModeEnd");
 
         }
         private readonly MethodAdapter<bool> _playerExit;
@@ -67,7 +68,8 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             var pi = pingInstance.Value;
             if (pi.IsNull())
             {
-                Log.Error("pingInstance not set on " + Vehicle.NiceName());
+                using var log = SmartLog.LazyFor(RMC);
+                log.Error("pingInstance not set on " + Vehicle.NiceName());
                 return false;
             }
             return pi.enabled || pi.visible;

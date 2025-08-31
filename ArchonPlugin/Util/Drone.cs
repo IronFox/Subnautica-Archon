@@ -1,4 +1,5 @@
-﻿using AVS.Log;
+﻿using AVS;
+using AVS.Log;
 using AVS.Util;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -11,21 +12,26 @@ namespace Subnautica_Archon.Util
     internal struct Void { };
     internal class SimpleMethodHelper<ReturnType>
     {
-        public SimpleMethodHelper(string methodName, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public)
+        public SimpleMethodHelper(RootModController rmc, string methodName, BindingFlags bindingFlags = BindingFlags.Instance | BindingFlags.Public)
         {
+            RMC = rmc;
             MethodName = methodName;
             BindingFlags = bindingFlags;
         }
 
         private MethodInfo? _methodInfo;
+
+        public RootModController RMC { get; }
         public string MethodName { get; }
         public BindingFlags BindingFlags { get; }
 
         public ReturnType ExecuteOn(object? target, params object[] parameters)
         {
+            using var log = SmartLog.For(RMC);
+
             if (target == null)
             {
-                Log.Error("Target object == null");
+                log.Error("Target object == null");
                 return default!;
             }
             if (_methodInfo.IsNull())
@@ -33,7 +39,7 @@ namespace Subnautica_Archon.Util
                 _methodInfo = target.GetType().GetMethod(MethodName, BindingFlags);
                 if (_methodInfo.IsNull())
                 {
-                    Log.Error($"Unable to find method {MethodName} on {target.GetType()}");
+                    log.Error($"Unable to find method {MethodName} on {target.GetType()}");
                     return default!;
                 }
             }
@@ -48,7 +54,7 @@ namespace Subnautica_Archon.Util
             }
             catch (Exception ex)
             {
-                Log.Error($"Failed to invoke method {MethodName} on {target}: {ex}");
+                log.Error($"Failed to invoke method {MethodName} on {target}: {ex}");
                 Debug.LogException(ex);
                 return default!;
             }
@@ -59,70 +65,59 @@ namespace Subnautica_Archon.Util
 
     public class Drone
     {
-        private readonly SimpleMethodHelper<bool> _isPlayerControlling
-            = new SimpleMethodHelper<bool>("IsPlayerControlling");
-        private readonly SimpleMethodHelper<Void> _stopControlling
-            = new SimpleMethodHelper<Void>("StopControlling");
-        private FieldInfo? _isAsleepField;
-        private PropertyInfo? _isAsleepProperty;
-        private Drone(Vehicle vehicle)
+        private readonly SimpleMethodHelper<bool> _isPlayerControlling;
+        private readonly SimpleMethodHelper<Void> _stopControlling;
+        private TernaryValue<FieldOrPropertyAdapter<bool>> _isAsleep;
+        private Drone(RootModController rmc, Vehicle vehicle)
         {
+            RMC = rmc;
             Vehicle = vehicle;
+            _isPlayerControlling = new SimpleMethodHelper<bool>(rmc, "IsPlayerControlling");
+            _stopControlling = new SimpleMethodHelper<Void>(rmc, "StopControlling");
         }
 
         public static bool IsOne(Vehicle vehicle)
             => vehicle.IsDrone();
-        public static bool Access(Vehicle vehicle, [NotNullWhen(true)] out Drone? drone)
+        public static bool Access(RootModController rmc, Vehicle vehicle, [NotNullWhen(true)] out Drone? drone)
         {
             if (!vehicle.IsDrone())
             {
                 drone = null;
                 return false;
             }
-            drone = new Drone(vehicle);
+            drone = new Drone(rmc, vehicle);
             return true;
         }
 
-        private bool AllocateSleepingFieldOrProperty()
+        private bool AllocateSleepingFieldOrProperty([NotNullWhen(true)] out FieldOrPropertyAdapter<bool> access)
         {
-            if (_isAsleepField.IsNull() && _isAsleepProperty.IsNull())
+            if (!_isAsleep.IsSet)
             {
-                _isAsleepField = Vehicle.GetType().GetField("isAsleep", BindingFlags.Public | BindingFlags.Instance);
-                if (_isAsleepField.IsNull())
+                _isAsleep.Set(FieldOrPropertyAdapter.OfPublic<bool>(RMC, Vehicle, "isAsleep"));
+                if (!_isAsleep.Item!.Value.IsValid)
                 {
-                    _isAsleepProperty = Vehicle.GetType().GetProperty("isAsleep", BindingFlags.Public | BindingFlags.Instance);
-                    if (_isAsleepProperty.IsNull())
-                    {
-                        Log.Error($"Unable to find field or property isAsleep on {Vehicle.GetType()}");
-                        return false;
-                    }
+                    _isAsleep.HasFailed = true;
+                    access = default;
+                    return false;
                 }
             }
-            return true;
+            access = _isAsleep.Item!.Value;
+            return _isAsleep.IsSetNotFailed;
         }
 
-        public bool isAsleep
+        public bool IsAsleep
         {
             get
             {
-                if (!AllocateSleepingFieldOrProperty())
+                if (!AllocateSleepingFieldOrProperty(out var acc))
                     return false;
-                return _isAsleepField != null
-                    ? (bool)_isAsleepField.GetValue(Vehicle)
-                    : (bool)_isAsleepProperty!.GetValue(Vehicle);
+                return acc.Value;
             }
             set
             {
-                if (!AllocateSleepingFieldOrProperty())
+                if (!AllocateSleepingFieldOrProperty(out var acc))
                     return;
-                if (_isAsleepField != null)
-                {
-                    _isAsleepField.SetValue(Vehicle, value);
-                }
-                else
-                {
-                    _isAsleepProperty!.SetValue(Vehicle, value);
-                }
+                acc.Set(value);
             }
         }
 
@@ -136,6 +131,7 @@ namespace Subnautica_Archon.Util
             _stopControlling.ExecuteOn(Vehicle);
         }
 
+        public RootModController RMC { get; }
 
         public Vehicle Vehicle { get; }
 

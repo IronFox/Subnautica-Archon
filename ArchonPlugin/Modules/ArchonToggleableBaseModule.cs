@@ -1,4 +1,5 @@
-﻿using AVS.Crafting;
+﻿using AVS;
+using AVS.Crafting;
 using AVS.Log;
 using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
@@ -68,11 +69,12 @@ namespace Subnautica_Archon.Modules
         public static IReadOnlyDictionary<TechType, ArchonToggleableBaseModule> Registered => All;
         public static IReadOnlyDictionary<ArchonModule, TechType> TechTypeMap => AllReverse;
 
-        public static TechType GetTechTypeOf(ArchonModule module)
+        public static TechType GetTechTypeOf(RootModController rmc, ArchonModule module)
         {
             if (TechTypeMap.TryGetValue(module, out var type))
                 return type;
-            Log.Error($"Unable to retrieve tech type of archon module {module}: not registered");
+            using var log = SmartLog.LazyFor(rmc);
+            log.Error($"Unable to retrieve tech type of archon module {module}: not registered");
             return TechType.None;
         }
 

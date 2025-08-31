@@ -1,4 +1,5 @@
 ﻿using AVS;
+using AVS.Log;
 using AVS.Util;
 using Subnautica_Archon.Util;
 using Subnautica_Archon.Util.Reflection;
@@ -9,35 +10,28 @@ using Void = Subnautica_Archon.Util.Void;
 
 namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
-    internal class VFVehicle
+    internal class VFVehicle(RootModController rmc, Vehicle vehicle)
     {
-        public RootModController Rmc { get; }
-        public Vehicle Vehicle { get; }
+        public RootModController RMC { get; } = rmc;
+        public Vehicle Vehicle { get; } = vehicle;
 
-        private VFVehicle(RootModController rmc, Vehicle vehicle)
-        {
-            Rmc = rmc;
-            Vehicle = vehicle;
-            pingInstance = FieldAdapter.Of<PingInstance>(Vehicle, "pingInstance");
-            _isScuttled = FieldAdapter.Of<bool>(Vehicle, "isScuttled");
-        }
 
         private readonly SimpleMethodHelper<Void> _playerExit
-            = new SimpleMethodHelper<Void>("PlayerExit");
+            = new SimpleMethodHelper<Void>(rmc, "PlayerExit");
 
         private readonly SimpleMethodHelper<Void> _playerEntry
-            = new SimpleMethodHelper<Void>("PlayerEntry");
+            = new SimpleMethodHelper<Void>(rmc, "PlayerEntry");
 
         private readonly SimpleMethodHelper<Void> _beginPiloting
-            = new SimpleMethodHelper<Void>("BeginPiloting");
+            = new SimpleMethodHelper<Void>(rmc, "BeginPiloting");
 
         private readonly SimpleMethodHelper<Void> _onVehicleUndocked
-            = new SimpleMethodHelper<Void>("OnVehicleUndocked");
+            = new SimpleMethodHelper<Void>(rmc, "OnVehicleUndocked");
 
         private Ternary<MethodAdapter<Vehicle, Vector3>> _onVehicleDocked0;
         private Ternary<MethodAdapter<Vector3>> _onVehicleDocked1;
-        private readonly FieldAdapter<PingInstance> pingInstance;
-        private readonly FieldAdapter<bool> _isScuttled;
+        private readonly FieldAdapter<PingInstance> pingInstance = FieldAdapter.Of<PingInstance>(rmc, vehicle, "pingInstance");
+        private readonly FieldAdapter<bool> _isScuttled = FieldAdapter.Of<bool>(rmc, vehicle, "isScuttled");
         private PropertyAdapter<bool> _isUnderCommand;
 
 
@@ -46,13 +40,13 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
             get
             {
                 if (!_isUnderCommand.IsValid)
-                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(Rmc, Vehicle, "IsUnderCommand");
+                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(RMC, Vehicle, "IsUnderCommand");
                 return _isUnderCommand.Value;
             }
             set
             {
                 if (!_isUnderCommand.IsValid)
-                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(Rmc, Vehicle, "IsUnderCommand");
+                    _isUnderCommand = PropertyAdapter.OfPublic<bool>(RMC, Vehicle, "IsUnderCommand");
                 _isUnderCommand.Set(value);
             }
         }
@@ -74,6 +68,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 
         private bool TryCall<T>(ref Ternary<T> ternary, params object?[] args) where T : BaseMethodAdapter
         {
+            using var log = SmartLog.LazyFor(RMC);
             if (ternary.IsSetNotFailed)
                 try
                 {
@@ -82,7 +77,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
                 }
                 catch (MissingMethodException)
                 {
-                    Log.Warn($"{ternary.Item} does not exist after all");
+                    log.Warn($"{ternary.Item} does not exist after all");
                     ternary.HasFailed = true;
                 }
 
@@ -92,13 +87,14 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 
         public void OnVehicleDocked(Vector3 exitLocation)
         {
+            using var log = SmartLog.LazyFor(RMC);
             if (!_onVehicleDocked0.IsSet)
-                _onVehicleDocked0.Set(new MethodAdapter<Vehicle, Vector3>(Rmc, Vehicle, "OnVehicleDocked", ignoreMissing: true));
+                _onVehicleDocked0.Set(new MethodAdapter<Vehicle, Vector3>(RMC, Vehicle, "OnVehicleDocked", ignoreMissing: true));
             if (!_onVehicleDocked1.IsSet)
-                _onVehicleDocked1.Set(new MethodAdapter<Vector3>(Rmc, Vehicle, "OnVehicleDocked", ignoreMissing: true));
+                _onVehicleDocked1.Set(new MethodAdapter<Vector3>(RMC, Vehicle, "OnVehicleDocked", ignoreMissing: true));
             if (!TryCall(ref _onVehicleDocked0, Vehicle, exitLocation)
                 && !TryCall(ref _onVehicleDocked1, Vehicle))
-                Log.Error("OnVehicleDocked method not found on Vehicle");
+                log.Error("OnVehicleDocked method not found on Vehicle");
         }
 
         public PingInstance HudPingInstance
@@ -114,10 +110,11 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 
         public bool HudIconIsEnabled()
         {
+            using var log = SmartLog.LazyFor(RMC);
             var pi = pingInstance.Value;
             if (pi.IsNull())
             {
-                Log.Error("pingInstance not set on " + Vehicle.NiceName());
+                log.Error("pingInstance not set on " + Vehicle.NiceName());
                 return false;
             }
             return pi.enabled || pi.visible;
@@ -125,11 +122,11 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 
         public void SetHudIcon(bool visible)
         {
-
+            using var log = SmartLog.LazyFor(RMC);
             var pi = pingInstance.Value;
             if (pi.IsNull())
             {
-                Log.Error("pingInstance not set on " + Vehicle.NiceName());
+                log.Error("pingInstance not set on " + Vehicle.NiceName());
                 return;
             }
             pi.SetVisible(visible);

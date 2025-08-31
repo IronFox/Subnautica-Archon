@@ -1,4 +1,5 @@
-﻿using AVS.Log;
+﻿using AVS;
+using AVS.Log;
 using AVS.Util;
 using System.Collections.Generic;
 using System.Reflection;
@@ -65,22 +66,23 @@ namespace Subnautica_Archon.Util
             => string.Join(", ", source);
 
 
-        public static T Clone<T>(T obj) where T : new()
+        public static T Clone<T>(RootModController rmc, T obj) where T : new()
         {
             T copy = new T();
+            using var log = SmartLog.For(rmc);
             foreach (var f in typeof(T).GetFields(BindingFlags.Instance | BindingFlags.Public))
             {
-                Log.Write($"Duplicating property {f} on {obj} to {copy}");
+                log.Write($"Duplicating property {f} on {obj} to {copy}");
                 f.SetValue(copy, f.GetValue(obj));
             }
             foreach (var p in typeof(T).GetProperties(BindingFlags.Instance | BindingFlags.Public))
                 if (p.CanWrite)
                 {
-                    Log.Write($"Duplicating property {p} on {obj} to {copy}");
+                    log.Write($"Duplicating property {p} on {obj} to {copy}");
                     p.SetValue(copy, p.GetValue(obj));
                 }
                 else
-                    Log.Write($"Cannot duplicate property {p} on {obj} to {copy} (readonly)");
+                    log.Write($"Cannot duplicate property {p} on {obj} to {copy} (readonly)");
 
 
             return copy;

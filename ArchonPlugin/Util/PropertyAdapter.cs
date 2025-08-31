@@ -14,7 +14,7 @@ namespace Subnautica_Archon.Util
             if (p.IsNull())
             {
                 using var log = SmartLog.For(rmc);
-                log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+                log.Error($"Unable to find non-public property '{name}' on <{target.GetType()}> '{target}'");
             }
             return new PropertyAdapter<T>(p, target);
         }
@@ -31,7 +31,7 @@ namespace Subnautica_Archon.Util
             if (p.IsNull())
             {
                 using var log = SmartLog.For(rmc);
-                log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+                log.Error($"Unable to find public property '{name}' on <{target.GetType()}> '{target}'");
             }
             return new PropertyAdapter<T>(p, target);
         }

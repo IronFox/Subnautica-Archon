@@ -290,7 +290,8 @@ namespace Subnautica_Archon
 
         void OnDestroy()
         {
-            Util.Log.Write($"{VehicleName} " + nameof(OnDestroy));
+            using var log = NewModLog();
+            log.Write($"{VehicleName} " + nameof(OnDestroy));
             destroyed = true;
         }
 
@@ -314,13 +315,15 @@ namespace Subnautica_Archon
 
             BayControl.OnDockingFailedFull = (_, _) =>
             {
-                Log.Write($"full");
+                using var log = NewModLog();
+                log.Write($"full");
                 AVS.Logger.PDANote("Cannot dock: Hangar is full", 3f);
             };
 
             BayControl.OnDockingFailedTooLarge = (_, _) =>
             {
-                Log.Write($"too large");
+                using var log = NewModLog();
+                log.Write($"too large");
                 AVS.Logger.PDANote("Cannot dock: Your vehicle is too large", 3f);
             };
 
@@ -833,7 +836,8 @@ namespace Subnautica_Archon
                 if (!fixedUpdateError)
                 {
                     fixedUpdateError = true;
-                    Log.Error(nameof(FixedUpdate), ex);
+                    using var log = NewModLog();
+                    log.Error(nameof(FixedUpdate), ex);
                 }
             }
         }
@@ -908,6 +912,7 @@ namespace Subnautica_Archon
 
                 if (delta > 0)
                 {
+                    using var log = NewLazyModLog();
 
                     var criticalHealingLimit = liveMixin.maxHealth * 0.1f;
                     var critical = liveMixin.health < liveMixin.maxHealth * 0.05f;
@@ -917,7 +922,7 @@ namespace Subnautica_Archon
                         VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.CriticalHealth.RepairEnabled", 1));
 
 
-                        Log.Warn($"Vehicle at critical health. Reviving. Setting invincible. Enabling emergency self healing");
+                        log.Warn($"Vehicle at critical health. Reviving. Setting invincible. Enabling emergency self healing");
                         liveMixin.invincible = true;
                         isInCriticalRecovery = true;
                     }
@@ -947,7 +952,7 @@ namespace Subnautica_Archon
                         AudioClip? voice = GetVoiceLibrary()?.GetRandomEmergencyRepairConcluded();
                         VoiceQueue.Play(new VoiceLine(voice, "Subtitle.Voice.CriticalHealth.RepairDone", 1));
 
-                        Log.Warn($"Emergency healing concluded switching off");
+                        log.Warn($"Emergency healing concluded switching off");
                         isInCriticalRecovery = false;
                         liveMixin.invincible = false;
                     }
@@ -1099,7 +1104,8 @@ namespace Subnautica_Archon
                 return;
             if (on && (Control.batteryDead || Control.powerOff))
             {
-                Log.Warn($"Battery dead or ship powered off. Cannot turn lights on");
+                using var log = NewModLog();
+                log.Warn($"Battery dead or ship powered off. Cannot turn lights on");
                 return;
             }
             Control.floodLights = on;
@@ -1154,6 +1160,8 @@ namespace Subnautica_Archon
 
         public override void Update()
         {
+            using var log = NewLazyModLog();
+
             try
             {
                 LazyInit();
@@ -1198,6 +1206,7 @@ namespace Subnautica_Archon
                 Control.flipFreeHorizontalRotationInReverse = ArchonModController.PluginConfig.flipFreeHorizontalRotationInReverse;
                 Control.flipFreeVerticalRotationInReverse = ArchonModController.PluginConfig.flipFreeVerticalRotationInReverse;
 
+
                 if (Input.GetKeyDown(KeyCode.F7))
                 {
                     //if (Player.main.currentMountedVehicle != null)
@@ -1224,7 +1233,7 @@ namespace Subnautica_Archon
                         //OutOfBoundsWarp
                         //EcoTarget
                         //SDFCutout
-                        Log.Write("Debug action");
+                        log.Write("Debug action");
                         //Log.Write($"@{transform.position}");
 
                         //Log.Write($"Modules now: ");
@@ -1259,7 +1268,7 @@ namespace Subnautica_Archon
 
                 if (!liveMixin.IsAlive() || wasDead)
                 {
-                    Log.Warn($"Vehicle reported as dead. Reviving. Setting invincible");
+                    log.Warn($"Vehicle reported as dead. Reviving. Setting invincible");
                     UnscuttleVehicle();
                     wasDead = false;
                     liveMixin.health = liveMixin.maxHealth * 0.01f;
@@ -1332,7 +1341,7 @@ namespace Subnautica_Archon
             }
             catch (Exception ex)
             {
-                Log.Error(nameof(Update), ex);
+                log.Error(nameof(Update), ex);
             }
         }
 
@@ -1822,7 +1831,9 @@ namespace Subnautica_Archon
 
         void IAutopilotEventListener.Signal(AutopilotStatusChange statusChange)
         {
-            Log.Write($"Received autopilot event {statusChange.NewStatus}");
+            using var log = NewModLog();
+
+            log.Write($"Received autopilot event {statusChange.NewStatus}");
 
             VoiceLibrary? voiceLibrary = null;
             if (ArchonModController.PluginConfig.voice != Voice.Off)
@@ -1889,7 +1900,7 @@ namespace Subnautica_Archon
                         }
                         break;
                 }
-                Log.Write($"Received autopilot status change: {statusChange.PreviousStatus} -> {statusChange.NewStatus}");
+                log.Write($"Received autopilot status change: {statusChange.PreviousStatus} -> {statusChange.NewStatus}");
             }
         }
 
