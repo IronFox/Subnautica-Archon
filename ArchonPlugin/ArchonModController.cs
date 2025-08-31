@@ -49,128 +49,28 @@ namespace Subnautica_Archon
             using var log = SmartLog.For(this);
             try
             {
-                log.Write($"MainPatcher.Awake()");
+                log.Write($"ArchonModController.Awake()");
 
                 Archon.GetAssets(this);
 
                 //ModMessageSystem.SendGlobal("FindMyUpdates", "https://raw.githubusercontent.com/IronFox/Subnautica-Archon/refs/heads/main/mod-info.json");
 
-                log.Write($"MainPatcher.Awake() done");
+                log.Write($"ArchonModController.Awake() done");
 
             }
             catch (Exception ex)
             {
-                log.Error($"MainPatcher.Awake()", ex);
+                log.Error($"ArchonModController.Awake()", ex);
             }
         }
 
-
-        public override void Start()
+        private void DefineAdapters()
         {
             using var log = SmartLog.For(this);
             try
             {
-                base.Start();
-                log.Write("MainPatcher.Start()");
-                LanguageHandler.RegisterLocalizationFolder();
-                config = OptionsPanelHandler.RegisterModOptions<ArchonConfig>();
-                var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
-                harmony.PatchAll();
-                StartModCoroutine(
-                    nameof(ArchonModController) + '.' + nameof(Register),
-                    log => Register(log, Archon.staticModel!));
-
-                log.Write("MainPatcher.Start() done");
-            }
-            catch (Exception ex)
-            {
-                log.Error("MainPatcher.Start()", ex);
-            }
-        }
-        public static T CopyComponent<T>(T original, GameObject destination) where T : Component
-        {
-            System.Type type = original.GetType();
-            Component copy = destination.EnsureComponent(type);
-            System.Reflection.FieldInfo[] fields = type.GetFields();
-            foreach (System.Reflection.FieldInfo field in fields)
-            {
-                field.SetValue(copy, field.GetValue(original));
-            }
-            return (T)copy;
-        }
-
-        public Sprite? LoadSprite(string filename)
-        {
-            using var log = SmartLog.For(this);
-            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, filename);
-            //Log.Write($"Trying to load sprite from {path}");
-            try
-            {
-                return SpriteHelper.GetSpriteRaw(this, path);
-            }
-            catch (Exception ex)
-            {
-                log.Error($"Failed to load sprite from {filename}", ex);
-                return null;
-            }
-        }
-
-
-        private IEnumerator MyRegister(SmartLog log, Archon archon, bool verbose)
-        {
-            var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage(this, "images/EmergencyTeleportationModule.png").Sprite);
-            var autoAdd = EmergencyTeleportationModule.Register(this, teleportNode);
-            TeleportationModuleA.RegisterAll(this, teleportNode);
-
-            var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage(this, "images/DockingModuleMk1.png").Sprite);
-            new DockingModule(this).Register(dockingNode);
-
-
-            //Log.Write($"Loading emergency teleportation module: {autoAdd}");
-            var coroutine = CraftData.GetPrefabForTechTypeAsync(autoAdd);
-            yield return coroutine;
-            var instance = coroutine.GetResult();
-            //Log.Write($"Got module: {instance.NiceName()}");
-            var pickupable = instance.SafeGetComponent<Pickupable>();
-            if (pickupable.IsNull())
-            {
-                log.Error($"Pickupable not found on {instance.NiceName()}");
-            }
-            else
-            {
-                Archon.AutoAddEmergencyTeleport = pickupable;
-            }
-            yield return VehicleRegistrar.RegisterVehicle(log, this, archon, verbose);
-        }
-
-
-        public IEnumerator Register(SmartLog log, GameObject staticModel)
-        {
-            Coroutine? started = null;
-            try
-            {
-                log.Write($"MainPatcher.Register({staticModel.NiceName()})");
-                //Log.Write("model loaded: " + staticModel.name);
-                var sub = staticModel.EnsureComponent<Archon>();
-                //Log.Write("archon attached: " + sub.name);
-
-                started = StartModCoroutine(
-                    nameof(ArchonModController) + '.' + nameof(MyRegister),
-                    log => MyRegister(log, sub, true));
-
                 Assets.Behavior.Adapters.Log.AdapterFactory =
                     p => new LogAdapter(this, p.ForceLazy, p.Tags);
-
-                //TorpedoModule.RegisterAll();
-                //DriveModule.RegisterAll();
-                //NuclearBatteryModule.RegisterAll();
-                RepairModule.RegisterAll(this);
-
-
-
-
-
-
                 AudioPatcher.Patcher = (source) => FreezeTimePatcher.Register(source);
 
                 PlayerAdapter.Player = () => Player.mainObject;
@@ -188,7 +88,7 @@ namespace Subnautica_Archon
 
                 ArButtonAdapter.Instrument = (archon, arButton) =>
                 {
-                    using var log = SmartLog.For(this);
+                    using var log = new SmartLog(this, Domain.Mod, 0, parameters: [archon, arButton], nameOverride: "ArButtonAdapter.Instrument");
                     log.Write($"Instrumenting AR button {arButton.GetPath(archon.transform)}");
                     var helper = arButton.gameObject.EnsureComponent<ArchonArButton>();
                     helper.arButton = arButton;
@@ -226,56 +126,123 @@ namespace Subnautica_Archon
                     return go == Player.mainObject;// go.transform.IsChildOf(Player.mainObject.transform);
                 };
 
-                //TargetAdapter.ResolveTarget = (go, rb) =>
-                //{
-                //    var mixin = go.GetComponent<LiveMixin>();
-                //    if (mixin.IsNull())
-                //        return null;
-                //    var vehicle = go.GetComponent<Vehicle>();
-                //    if (vehicle != null)
-                //        return null;    //don't target vehicles
-                //    if (go.name.Contains("Cyclops-MainPrefab"))
-                //        return null;    //don't target cyclops
-                //    return new MixinTargetAdapter(go, rb, mixin);
-
-                //};
-                //RigidbodyPatcher.Patch = (go, rb) =>
-                //{
-                //    try
-                //    {
-                //        //Log.Write($"Patching rigidbody for {go}");
-                //        rb.drag = 10f;
-                //        rb.angularDrag = 10f;
-                //        rb.useGravity = false;
-                //        //rb.interpolation = RigidbodyInterpolation.Extrapolate;
-                //        //rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-
-                //        var worldForces = CopyComponent<WorldForces>(SeamothHelper.Seamoth.GetComponent<SeaMoth>().worldForces, go);
-                //        worldForces.useRigidbody = rb;
-                //        worldForces.underwaterGravity = 0f;
-                //        worldForces.aboveWaterGravity = 9.8f;
-                //        worldForces.waterDepth = 0f;
-                //        worldForces.lockInterpolation = true;
-
-                //        //Log.Write("Rigidbody patched: " + rb);
-                //    }
-                //    catch (Exception ex)
-                //    {
-                //        Log.Write("RigidbodyAdapter.MakeRigidbody", ex);
-                //        throw;
-                //    }
-                //};
-
                 SoundAdapter.SoundCreator = new FModSoundCreator(this);
-
-                log.Write("MainPatcher.Register() done");
             }
             catch (Exception ex)
             {
-                log.Error($"MainPatcher.Register()", ex);
+                log.Error($"ArchonModController.DefineAdapters()", ex);
             }
-            yield return started;
         }
+
+        private TechType RegisterModules()
+        {
+            using var log = SmartLog.For(this);
+            try
+            {
+                log.Write("Registering Archon modules");
+
+                var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage(this, "images/EmergencyTeleportationModule.png").Sprite);
+                var autoAdd = EmergencyTeleportationModule.Register(this, teleportNode);
+                TeleportationModuleA.RegisterAll(this, teleportNode);
+
+                var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage(this, "images/DockingModuleMk1.png").Sprite);
+                new DockingModule(this).Register(dockingNode); log.Write("Archon modules registered");
+
+                return autoAdd;
+            }
+            catch (Exception ex)
+            {
+                log.Error($"ArchonModController.RegisterModules()", ex);
+                return TechType.None;
+            }
+        }
+
+
+        public override void Start()
+        {
+            using var log = SmartLog.For(this);
+            try
+            {
+                base.Start();
+                log.Write("ArchonModController.Start()");
+                LanguageHandler.RegisterLocalizationFolder();
+                config = OptionsPanelHandler.RegisterModOptions<ArchonConfig>();
+                var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
+                harmony.PatchAll();
+
+                DefineAdapters();
+                var sub = Archon.staticModel!;
+                var arc = sub.EnsureComponent<Archon>();
+
+                var autoAdd = RegisterModules();
+
+                StartModCoroutine(
+                    nameof(ArchonModController) + '.' + nameof(Register),
+                    log => Register(log, arc, autoAdd, PluginConfig.logLevel == Verbosity.Verbose));
+
+                log.Write("ArchonModController.Start() done");
+            }
+            catch (Exception ex)
+            {
+                log.Error("ArchonModController.Start()", ex);
+            }
+        }
+        public static T CopyComponent<T>(T original, GameObject destination) where T : Component
+        {
+            System.Type type = original.GetType();
+            Component copy = destination.EnsureComponent(type);
+            System.Reflection.FieldInfo[] fields = type.GetFields();
+            foreach (System.Reflection.FieldInfo field in fields)
+            {
+                field.SetValue(copy, field.GetValue(original));
+            }
+            return (T)copy;
+        }
+
+        public Sprite? LoadSprite(string filename)
+        {
+            using var log = SmartLog.For(this);
+            var path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!, filename);
+            //Log.Write($"Trying to load sprite from {path}");
+            try
+            {
+                return SpriteHelper.GetSpriteRaw(this, path);
+            }
+            catch (Exception ex)
+            {
+                log.Error($"Failed to load sprite from {filename}", ex);
+                return null;
+            }
+        }
+
+
+        private IEnumerator Register(SmartLog log, Archon archon, TechType autoAdd, bool verbose)
+        {
+
+            GameObject? instance = null;
+
+            if (autoAdd != TechType.None)
+            {
+                //Log.Write($"Loading emergency teleportation module: {autoAdd}");
+                var coroutine = CraftData.GetPrefabForTechTypeAsync(autoAdd);
+                yield return coroutine;
+                instance = coroutine.GetResult();
+            }
+
+            //Log.Write($"Got module: {instance.NiceName()}");
+            var pickupable = instance.SafeGetComponent<Pickupable>();
+            if (pickupable.IsNull())
+            {
+                if (autoAdd != TechType.None)
+                    log.Error($"Pickupable not found on {instance.NiceName()}");
+            }
+            else
+            {
+                Archon.AutoAddEmergencyTeleport = pickupable;
+            }
+            yield return VehicleRegistrar.RegisterVehicle(log, this, archon, verbose);
+        }
+
 
         protected override PatcherImages LoadImages()
         {

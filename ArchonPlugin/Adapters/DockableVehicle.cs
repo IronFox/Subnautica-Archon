@@ -10,6 +10,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 
@@ -20,13 +21,19 @@ namespace Subnautica_Archon.Adapters
     {
         private FieldAdapter<Player.Mode> Mode { get; }
 
+        private SmartLog NewLog(bool forceLazy = false, IReadOnlyList<object?>? parameters = null, [CallerFilePath] string callerFilePath = "", [CallerMemberName] string memberName = "")
+        {
+            return new SmartLog(RMC, frameDelta: 1, domain: Domain.Mod, tags: ["Dockable#" + Id], nameOverride: SmartLog.DeriveCallerName(callerFilePath, memberName), forceLazy: forceLazy, parameters: parameters);
+        }
+
+
         public DockableVehicle(Vehicle vehicle, Archon archon)
         {
-            using var log = SmartLog.For(archon.Owner, tags: "Dockable#" + Id);
+            RMC = archon.Owner;
+            using var log = NewLog(parameters: [vehicle, archon]);
             Vehicle = vehicle;
             Abstraction = Vehicle.ToAbstraction(archon.Owner);
             Archon = archon;
-            RMC = archon.Owner;
             IsDrone = Drone.IsOne(Vehicle);
             log.Write($"IsDrone={IsDrone}, IsPlayerControlledDrone={IsPlayerControlledDrone}");
             Mode = FieldAdapter.OfNonPublic<Player.Mode>(RMC, Player.main, "mode");
@@ -107,7 +114,7 @@ namespace Subnautica_Archon.Adapters
                 if (!imageLoaded)
                 {
                     imageLoaded = true;
-                    using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+                    using var log = NewLog();
                     var tt = CraftData.GetTechType(Vehicle.gameObject);
                     if (tt != TechType.None)
                     {
@@ -138,7 +145,7 @@ namespace Subnautica_Archon.Adapters
             {
                 if (moduleSprites != null)
                     return moduleSprites;
-                using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+                using var log = NewLog();
                 var list = new List<Sprite>();
                 int at = 0;
                 foreach (InventoryItem mod in (IItemsContainer)Vehicle.modules)
@@ -316,7 +323,7 @@ namespace Subnautica_Archon.Adapters
 
         public void RestoreDockedStateFromSaveGame()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
 
             Vehicle.liveMixin.shielded = true;
             Vehicle.crushDamage.enabled = false;
@@ -336,7 +343,7 @@ namespace Subnautica_Archon.Adapters
 
         private void CheckPingInstanceIsDeactivated()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             log.Write($"Checking ping instance for {Vehicle.NiceName()}");
             var pi = Abstraction.PingInstance;
             if (pi.enabled || pi.visible)
@@ -348,14 +355,14 @@ namespace Subnautica_Archon.Adapters
 
         private void SignalVehicleDocked()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             Abstraction.DockVehicle();
             CheckPingInstanceIsDeactivated();
         }
 
         public void BeginDocking()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             ClearCachedData();
             if (HasPlayer)
             {
@@ -430,7 +437,7 @@ namespace Subnautica_Archon.Adapters
 
         public void EndDocking()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
 
             Vehicle.docked = true;
 
@@ -447,7 +454,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OnDockingDone()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
 
             if (HasPlayer)
             {
@@ -462,7 +469,7 @@ namespace Subnautica_Archon.Adapters
             UpdateCounter++;
             if (HasPlayer)
             {
-                using var log = SmartLog.LazyFor(RMC, tags: ["Dockable#" + Id]);
+                using var log = NewLog(true);
                 CheckPingInstanceIsDeactivated();
                 if (!AvsUtils.FindVehicleInParents(Player.main.transform, out var v, new List<Transform>()))
                 {
@@ -474,7 +481,7 @@ namespace Subnautica_Archon.Adapters
 
         private void SwitchToUndockingCraft()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
 
             Archon.SuspendAutoLeveling();
             try
@@ -499,7 +506,7 @@ namespace Subnautica_Archon.Adapters
 
         public void PrepareUndocking()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
 
             if (Drone.IsOne(Vehicle))
             {
@@ -528,13 +535,13 @@ namespace Subnautica_Archon.Adapters
 
         public void BeginUndocking()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             Abstraction.PingInstance.SetHudIcon(log, true);
         }
 
         public void EndUndocking()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             Vehicle.liveMixin.shielded = false;
             Vehicle.crushDamage.enabled = true;
             Vehicle.docked = false;
@@ -573,7 +580,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OnUndockedForSaving()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             try
             {
                 //Vehicle.liveMixin.shielded = false;
@@ -595,7 +602,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OnRedockedAfterSaving()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             try
             {
                 Vehicle.liveMixin.shielded = true;
@@ -619,7 +626,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OpenStorage()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             try
             {
                 for (int i = 0; i < 20; i++)
@@ -643,7 +650,7 @@ namespace Subnautica_Archon.Adapters
 
         private void OnClosePDA(PDA pda)
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
 
             log.Write($"PDA closed after opening modules");
             try
@@ -658,7 +665,7 @@ namespace Subnautica_Archon.Adapters
         }
         public void OpenModules()
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             try
             {
 
@@ -677,7 +684,7 @@ namespace Subnautica_Archon.Adapters
 
         public void OpenStorage(int storageIndex)
         {
-            using var log = SmartLog.For(RMC, tags: "Dockable#" + Id);
+            using var log = NewLog();
             var s = IterateStorages().ElementAtOrDefault(storageIndex);
             if (s != null)
             {
