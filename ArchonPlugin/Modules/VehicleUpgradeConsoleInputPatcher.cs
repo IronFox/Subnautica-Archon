@@ -32,8 +32,8 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOnHandHoverPostfix");
             // control opening the modules hatch
-            var arc = __instance.GetComponentInParent<Archon>();
-            if (arc.IsNotNull())
+            var arc = __instance.SafeGetComponentInParent<Archon>();
+            if (arc.IsNotNull() && arc.upgradesInput == __instance)
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnHandHoverPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
                 arc.Control.openUpgradeCover = true;
@@ -51,11 +51,12 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOpenPDAPostfix");
             // control opening the modules hatch
-            var arc = __instance.GetComponentInParent<Archon>();
-            if (arc.IsNotNull())
+            var arc = __instance.SafeGetComponentInParent<Archon>();
+            if (arc.IsNotNull() && arc.upgradesInput == __instance)
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOpenPDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
-                arc.Owner.StopCoroutine(closeDoorCor);
+                if (closeDoorCor.IsNotNull())
+                    arc.Owner.StopCoroutine(closeDoorCor);
             }
         }
 
@@ -65,8 +66,8 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOnClosePDAPostfix");
             // control opening the modules hatch
-            var arc = __instance.GetComponentInParent<Archon>();
-            if (arc.IsNotNull())
+            var arc = __instance.SafeGetComponentInParent<Archon>();
+            if (arc.IsNotNull() && arc.upgradesInput == __instance)
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnClosePDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
                 closeDoorCor = arc.Owner.StartModCoroutine(nameof(VehicleUpgradeConsoleInputPatcher) + '.' + nameof(closeDoorSoon), log => closeDoorSoon(log, arc));

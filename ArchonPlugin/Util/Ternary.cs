@@ -16,7 +16,7 @@ public struct Ternary<T> where T : class
     }
 }
 
-public struct TernaryValue<T> where T : struct
+public struct ValueTernary<T> where T : struct
 {
     public T? Item { get; private set; }
     public bool IsSet { get; private set; }
