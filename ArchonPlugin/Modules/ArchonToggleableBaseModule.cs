@@ -1,11 +1,13 @@
-﻿using AVS.Crafting;
+﻿using AVS;
+using AVS.Crafting;
+using AVS.Log;
 using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
+using AVS.Util;
 using Subnautica_Archon.Exceptions;
 using Subnautica_Archon.Util;
 using System;
 using System.Collections.Generic;
-using AVS.Util;
 using UnityEngine;
 
 namespace Subnautica_Archon.Modules
@@ -38,16 +40,16 @@ namespace Subnautica_Archon.Modules
 
         public string MarkFromType => GetMarkFromType(Module);
 
-        public ArchonToggleableBaseModule(ArchonModule module)
+        public ArchonToggleableBaseModule(ArchonModController mp, ArchonModule module)
         {
             Module = module;
+            Owner = mp;
             var path = $"images/{module}.png";
-            icon = MainPatcher.LoadSprite(path);
+            icon = mp.LoadSprite(path);
             if (icon.IsNull())
                 throw new InitializationException($"Error while constructing {module} {this}: File {path} not found");
         }
-
-
+        public override AVS.RootModController Owner { get; }
 
         public virtual TechType Register(Node node)
         {
@@ -67,25 +69,27 @@ namespace Subnautica_Archon.Modules
         public static IReadOnlyDictionary<TechType, ArchonToggleableBaseModule> Registered => All;
         public static IReadOnlyDictionary<ArchonModule, TechType> TechTypeMap => AllReverse;
 
-        public static TechType GetTechTypeOf(ArchonModule module)
+        public static TechType GetTechTypeOf(RootModController rmc, ArchonModule module)
         {
             if (TechTypeMap.TryGetValue(module, out var type))
                 return type;
-            Log.Error($"Unable to retrieve tech type of archon module {module}: not registered");
+            using var log = SmartLog.LazyFor(rmc);
+            log.Error($"Unable to retrieve tech type of archon module {module}: not registered");
             return TechType.None;
         }
 
         public override bool IsVehicleSpecific => true;
         public override void OnAdded(AddActionParams param)
         {
+            using var log = SmartLog.For(Owner);
             base.OnAdded(param);
             var now = DateTime.Now;
 
-            Log.Write($"ArchonBaseModule[{Module}].OnAdded(vehicle={param.Vehicle.NiceName()},isAdded={param.Added},slot={param.SlotID})");
+            log.Write($"ArchonBaseModule[{Module}].OnAdded(vehicle={param.Vehicle.NiceName()},isAdded={param.Added},slot={param.SlotID})");
             var archon = param.Vehicle as Archon;
             if (archon.IsNull())
             {
-                Log.Error($"Added to incompatible vehicle {param.Vehicle.NiceName()}");
+                log.Error($"Added to incompatible vehicle {param.Vehicle.NiceName()}");
                 ErrorMessage.AddWarning("This is an Archon upgrade and will not work on other subs!");
                 return;
             }

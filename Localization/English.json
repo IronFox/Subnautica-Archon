@@ -1,23 +1,23 @@
 {
 	"AVS.VehicleDefaultName": "Archon",
-	
+
 	"AVS.Reactor_DedicatedBattery_ChargeValueText": "{1}/{2} ({0})",
-	
+
 	"AVS.Fabricator_Node_DepthModules": "Depth Upgrades",
 	"AVS.Fabricator_DisplayName": "Archon Fabricator",
 	"AVS.Fabricator_Description": "Fabricator for Archon upgrade modules",
-	
+
 	"AVS.ColorPicker_Tab_Exterior": "Exterior",
 	"AVS.ColorPicker_Tab_Accent": "Accent",
 	"AVS.ColorPicker_Tab_Interior": "Interior",
 	"AVS.ColorPicker_Tab_Name": "Name",
-	
+
 	"AVS.Reactor_WhitelistWithPowerValue": "Permitted Ingredient Power Potentials",
 	"AVS.Reactor_WhitelistPlain": "Permitted Ingredients",
-	
+
 	"AVS.Command_NothingToUndock": "Nothing to undock",
 	"AVS.Command_UndockingVehicle": "Executing undock operation",
-	
+
 	"AVS.HandHover_ControlPanel_Empty": "No function",
 	"AVS.HandHover_ControlPanel_Headlights": "Headlights",
 	"AVS.HandHover_ControlPanel_Floodlights": "Floodlights",
@@ -26,53 +26,53 @@
 	"AVS.HandHover_ControlPanel_DefaultColor": "Default color",
 	"AVS.HandHover_ControlPanel_Power": "Power",
 	"AVS.HandHover_ControlPanel_Autopilot": "Autopilot",
-	
+
 	"AVS.HandOver_BatterySlot": "Battery",
 	"AVS.HandOver_AutopilotBatterySlot": "Autopilot battery",
-	
+
 	"AVS.HandHover_OpenStorage": "Open {0}",
-	
+
 	"AVS.HandHover_Vehicle_Enter": "Enter {0}",
 	"AVS.HandHover_Vehicle_Exit": "Exit {0}",
 	"AVS.HandHover_Vehicle_StartHelmControl": "Take Control",
-	
+
 	"AVS.HandHover_Reactor_Charge": "Bioreactor: {0}/{1}",
 	"AVS.HandHoverSub_Reactor_ShowWhitelist": "Press the right mouse button or right trigger to show the list of allowed materials",
 	"AVS.HandHover_Vehicle_DeconstructionPercent": "Archon deconstruction: {0}",
-	
+
 	"AVS.HandHover_Docked_StatusCharged": "Archon fully charged. Health at {0}",
 	"AVS.HandHover_Docked_StatusCharging": "Archon charging ({0}). Health at {0}",
-	
+
 	"AVS.Module_Depth1_DisplayName": "Archon Depth Module Mk1",
 	"AVS.Module_Depth1_Description": "Enhances safe diving depth to 500m. Does not stack",
 	"AVS.Module_Depth2_DisplayName": "Archon Depth Module Mk2",
 	"AVS.Module_Depth2_Description": "Enhances safe diving depth to 1100m. Does not stack",
 	"AVS.Module_Depth3_DisplayName": "Archon Depth Module Mk3",
 	"AVS.Module_Depth3_Description": "Enhances safe diving depth to 1700m. Does not stack",
-	
+
 	"AVS.Report_AddedToStorage": "{0} added",
-	
+
 	"AVS.Error_UpgradeNotRemovable_StorageNotEmpty": "Cannot remove this storage upgrade because it is not empty",
 	"AVS.Error_UpgradeNotAddable_Incompatible": "Warning: This Archon upgrade is not compatible to this vehicle",
-	
+
 	"AVS.Error_CannotAdd_StorageFull": "Cannot add item. Storage is full",
 	"AVS.Error_CannotExitHelmControl": "Autoleveling has failed. You cannot exit helm control right now",
 	"AVS.Error_CannotRemoveMaterialsFromReactor": "Cannot remove materials from the bioreactor",
-	
+
 	"AVS.Error_MobileWaterPark_CannotAdd_FishIsDead": "You cannot add dead {0} to {1}",
 	"AVS.Error_MobileWaterPark_CannotAdd_EggIsHatched": "You cannot add hatched {0} to {1}",
 	"AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "Cannot add {0} to {1}. Neither a compatible living fish, nor a hatchable egg",
 	"AVS.Error_MobileWaterPark_CannotRemove_HatchingEgg": "Cannot remove {0} from {1}. The egg is already hatching",
-	
+
 	"Error.EmergencyTeleportationModule.CannotRemoveLast": "The Archon requires one installed emergency teleportation module",
-	
+
 	"Modules.DockingModuleMk1.Name": "Archon Docking Module Mk1",
 	"Modules.DockingModuleMk1.Description": "Pocket-expands space-time to provide more docking space. Each installed module increases the number of craft that can be docked by 1",
-	
+
 	"Modules.Group.RepairModule": "Repair Modules",
 	"Modules.Group.Teleportation": "Teleportation Modules",
 	"Modules.Group.Docking": "Docking Modules",
-	
+
 	"Modules.RepairModuleMk1.Name": "Archon Self Repair Module Mk1",
 	"Modules.RepairModuleMk1.Description": "Enables Archon self repair capabilities. Repairs {0}% per second. Does not stack",
 	"Modules.RepairModuleMk2.Name": "Archon Self Repair Module Mk2",
@@ -83,33 +83,33 @@
 	"Modules.EmergencyTeleportationModule.Description": "Enables Archon emergency teleportation. At least one module of this type must be installed. Does not stack",
 	"Modules.TeleportationModuleA.Name": "Archon Teleportation Module (A)",
 	"Modules.TeleportationModuleA.Description": "Enables Archon teleportation to any recorded location (A). Double-tab to record a location. Activate to teleport. Does not stack",
-	
+
 	"Modules.Teleportation.LocationRecorded": "Teleportation: Recorded current location",
-	
+
 	"Modules.DockingCapacityChanged": "{0} max number of docked vehicles changed to {1}",
 	"Modules.RepairCapacityChanged": "{0} self repair capability changed to {1}",
-	
+
 	"Modules.DockingModule.CannotRemoveOccupied": "Cannot remove docking module while it is in use by docked craft",
-	
+
 	"Capacity.RepairModuleMk1": "Mk1",
 	"Capacity.RepairModuleMk2": "Mk2",
 	"Capacity.RepairModuleMk3": "Mk3",
-	
+
 	"Component.WaterTank": "Water Tank",
 	"Component.Bioreactor": "Bioreactor",
 	"Component.ModularStorage": "Modular Storage",
-	
+
 	"General.Description": "Submarine mothership",
 	"General.Encyclopedia": "The Archon is a luxurious, extremely resilient mobile command center with an integrated hangar for smaller craft. You can craft it at any Mobile Vehicle Bay.\n\nFeatures:\n- Expandable hangar for multiple smaller craft\n- Holographic sensor reconstruction\n- Bioreactor\n- Fish tank\n- Environment map\n\nRatings:\n- Top Speed: 26m/s\n- Crush Depth: 300m\n- Max Crush Depth (upgraded): 1700m\n- Upgrade slots: 8\n- Dimensions: 26.8m x 15.9m x 79.8m",
-	
-	
+
+
 	"Dockable.Text.HealthUnknown": "Integrity: Unknown",
 	"Dockable.Text.Health": "Integrity: {0}",
 	"Dockable.Text.PowerUnknown": "Charge: Unknown",
 	"Dockable.Text.Power": "Charge: {0}",
 	"Dockable.Text.Depth": "Depth: {0}/{1}m",
 	"Dockable.Text.Storage": "Storage: {0}/{1}",
-	
+
 	"Unity.Modules": "Upgrade Module Panel",
 	"Unity.PowerCells": "Battery Panel",
 	"Unity.NothingDocked": "Docking Bay Empty",
@@ -117,7 +117,10 @@
 	"AR.Undock": "Undock selected craft",
 	"AR.SelectLeft": "Select previous docked craft",
 	"AR.SelectRight": "Select next docked craft",
-	
+	"AR.OpenModules": "Open vehicle upgrade modules",
+	"AR.OpenStorage": "Open vehicle storage #{0}",
+
+
 	"Option.FloodLightShadows": "Floodlight Shadows",
 	"Option.FloodLightShadows.None": "None",
 	"Option.FloodLightShadows.Hard": "Hard",
@@ -138,8 +141,14 @@
 	"Option.InteriorLights.Reduced": "Reduced (faster)",
 	"Option.InteriorLights.Minimal": "Minimal (fastest)",
 	"Option.DefaultToFirstPerson": "Default to Cockpit Camera",
-	
-	
+	"Option.LookSensitivity": "Look Sensitivity",
+	"Option.EngineSoundVolume": "Engine Sound Volume",
+	"Option.LogVerbosity": "Logging Verbosity",
+	"Option.LogVerbosity.Verbose": "Detailed logging",
+	"Option.LogVerbosity.Regular": "Regular logging",
+	"Option.LogVerbosity.WarningsAndErrorsOnly": "Minimal logging",
+
+
 	"Subtitle.Voice.Welcome": "Welcome Aboard",
 	"Subtitle.Voice.Depth.Dangerous": "Depth Warning",
 	"Subtitle.Voice.Depth.Critical": "Hull Damage Imminent",
@@ -151,6 +160,6 @@
 	"Subtitle.Voice.Leveling.Starting": "Archon is not level. Leveling out",
 	"Subtitle.Voice.Leveling.Failed": "Failed to auto-level in 5 seconds. Cannot exit here. Please navigate to an area where the submarine can level out and try again.",
 	"Subtitle.Voice.CriticalHealth.RepairEnabled": "Critical damage detected. Activating emergency repair",
-	"Subtitle.Voice.CriticalHealth.RepairDone": "Health outside critical range. Disabling emergency repair",
-	
+	"Subtitle.Voice.CriticalHealth.RepairDone": "Health outside critical range. Disabling emergency repair"
+
 }

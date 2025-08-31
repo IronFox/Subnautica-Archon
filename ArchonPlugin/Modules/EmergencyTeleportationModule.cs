@@ -10,8 +10,8 @@ namespace Subnautica_Archon.Modules
 {
     internal class EmergencyTeleportationModule : AbstractTeleportationModule
     {
-        private EmergencyTeleportationModule()
-            : base(ArchonModule.EmergencyTeleportationModule, TeleportationType.Emergency)
+        private EmergencyTeleportationModule(ArchonModController mp)
+            : base(mp, ArchonModule.EmergencyTeleportationModule, TeleportationType.Emergency)
         { }
 
 
@@ -20,9 +20,9 @@ namespace Subnautica_Archon.Modules
 
         //(647.0, -19.1, 381.9)
         //@(811.5, -19.2, 350.5)
-        public new static TechType Register(Node node)
+        public static TechType Register(ArchonModController mp, Node node)
         {
-            Type = ((ArchonToggleableBaseModule)new EmergencyTeleportationModule()).Register(node);
+            Type = new EmergencyTeleportationModule(mp).Register(node);
             return Type;
         }
 

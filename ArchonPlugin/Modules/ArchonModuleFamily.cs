@@ -8,7 +8,7 @@ namespace Subnautica_Archon.Modules
     public abstract class ArchonModuleFamily<T> : ArchonBaseModule
         where T : ArchonModuleFamily<T>
     {
-        protected ArchonModuleFamily(ArchonModule module) : base(module)
+        protected ArchonModuleFamily(ArchonModController mp, ArchonModule module) : base(mp, module)
         {
         }
         private static Dictionary<TechType, T> Family { get; } = new Dictionary<TechType, T>();

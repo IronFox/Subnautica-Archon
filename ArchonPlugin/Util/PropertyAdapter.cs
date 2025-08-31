@@ -1,38 +1,46 @@
-﻿using System;
-using System.Reflection;
+﻿using AVS;
+using AVS.Log;
 using AVS.Util;
+using System;
+using System.Reflection;
 
 namespace Subnautica_Archon.Util
 {
     public static class PropertyAdapter
     {
-        public static PropertyAdapter<T> OfNonPublic<T>(object target, string name)
+        public static PropertyAdapter<T> OfNonPublic<T>(RootModController rmc, object target, string name)
         {
             var p = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.NonPublic);
             if (p.IsNull())
-                Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+            {
+                using var log = SmartLog.For(rmc);
+                log.Error($"Unable to find non-public property '{name}' on <{target.GetType()}> '{target}'");
+            }
             return new PropertyAdapter<T>(p, target);
         }
 
-        public static PropertyAdapter<T> OfNonPublic<T>(UnityEngine.Object target, string name)
+        public static PropertyAdapter<T> OfNonPublic<T>(RootModController rmc, UnityEngine.Object target, string name)
         {
             if (!target)
                 return default;
-            return OfNonPublic<T>((object)target, name);
+            return OfNonPublic<T>(rmc, (object)target, name);
         }
-        public static PropertyAdapter<T> OfPublic<T>(object target, string name)
+        public static PropertyAdapter<T> OfPublic<T>(RootModController rmc, object target, string name)
         {
             var p = target.GetType().GetProperty(name, BindingFlags.Instance | BindingFlags.Public);
             if (p.IsNull())
-                Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+            {
+                using var log = SmartLog.For(rmc);
+                log.Error($"Unable to find public property '{name}' on <{target.GetType()}> '{target}'");
+            }
             return new PropertyAdapter<T>(p, target);
         }
 
-        public static PropertyAdapter<T> OfPublic<T>(UnityEngine.Object target, string name)
+        public static PropertyAdapter<T> OfPublic<T>(RootModController rmc, UnityEngine.Object target, string name)
         {
             if (!target)
                 return default;
-            return OfPublic<T>((object)target, name);
+            return OfPublic<T>(rmc, (object)target, name);
         }
     }
 

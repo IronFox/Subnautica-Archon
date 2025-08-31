@@ -10,10 +10,13 @@ internal class ZeroVelocityAction : CommonAction<Rigidbody>
     {
         if (TypedTarget.velocity.sqrMagnitude > 0)
         {
-            Log.Default.Write($"Clearing velocity of {TypedTarget.NiceName()}");
+            using (var log = Log.New())
+            {
+                log.Write($"Clearing velocity of {TypedTarget.NiceName()}");
 
-            TypedTarget.velocity = Vector3.zero;
-            return true;
+                TypedTarget.velocity = Vector3.zero;
+                return true;
+            }
         }
         return false;
     }

@@ -2,9 +2,9 @@
 using AVS.Configuration;
 using AVS.UpgradeModules;
 using AVS.UpgradeModules.Variations;
+using AVS.Util;
 using System.Collections.Generic;
 using UnityEngine;
-using AVS.Util;
 
 namespace Subnautica_Archon.Modules
 {
@@ -14,14 +14,14 @@ namespace Subnautica_Archon.Modules
         public override float EnergyCostPerSecond => 25; //~5% of all batteries full
 
 
-        private TeleportationModuleA()
-            : base(ArchonModule.TeleportationModuleA, TeleportationType.Normal_A)
+        private TeleportationModuleA(ArchonModController mp)
+            : base(mp, ArchonModule.TeleportationModuleA, TeleportationType.Normal_A)
         { }
 
         public static TechType Type { get; private set; } = TechType.None;
-        public static TechType RegisterAll(Node node)
+        public static TechType RegisterAll(ArchonModController mp, Node node)
         {
-            Type = new TeleportationModuleA().Register(node);
+            Type = new TeleportationModuleA(mp).Register(node);
             autoDisplace.Add(Type);
             return Type;
         }
@@ -52,15 +52,16 @@ namespace Subnautica_Archon.Modules
                 {
                     ResetTeleportation(vehicle);
 
+                    using var log = vehicle.NewModLog();
                     if (IsKeyPress(state))
                     {
                         Subtitles.Add(Language.main.Get("Modules.Teleportation.LocationRecorded"));
-                        vehicle.Log.Debug($"OnToggle: Recording location");
+                        log.Debug($"OnToggle: Recording location");
                         vehicle.TeleportationTargetA = vehicle.transform.position;
                         vehicle.TeleportationOrientationA = vehicle.transform.rotation.eulerAngles;
                     }
                     else
-                        vehicle.Log.Debug($"OnToggle: TeleportationModule1 deactivated on vehicle {vehicle.NiceName()} in slot {state.SlotID} at time {state.EventTime}. This is not a keypress");
+                        log.Debug($"OnToggle: TeleportationModule1 deactivated on vehicle {vehicle.NiceName()} in slot {state.SlotID} at time {state.EventTime}. This is not a keypress");
                 }
             }
 

@@ -1,13 +1,10 @@
-﻿using Assets.Behavior.Interfaces;
+﻿using Assets.Behavior.Adapters;
+using Assets.Behavior.Interfaces;
 using Assets.Behavior.TransferTypes;
-using System;
-using Behavior.Util;
-using Behavior.Util.Log;
 using Behavior.Util.Math;
-using JetBrains.Annotations;
+using System;
 using TMPro;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
 {
@@ -38,7 +35,7 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
 
     public void OnDockableSelectedOrChanged(IDockable dockable)
     {
-        using (var log = new LogContext(nameof(OnDockableSelectedOrChanged), dockable))
+        using (var log = Log.New())
         {
 
             this.dockable = dockable;
@@ -51,8 +48,8 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
                 SpriteRenderer im;
                 if (i < moduleContainer.childCount)
                 {
-                    
-                    container = moduleContainer.GetChild(i); 
+
+                    container = moduleContainer.GetChild(i);
                     im = container.GetComponentInChildren<SpriteRenderer>();
                     if (im.sprite == mod[i])
                         continue;
@@ -67,11 +64,11 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
                 if (mod[i])
                 {
                     var spriteBounds = Bounds2.From(mod[i].vertices);
-                    var scale = 1f / Mathf.Max(spriteBounds.X.Size,spriteBounds.Y.Size);
+                    var scale = 1f / Mathf.Max(spriteBounds.X.Size, spriteBounds.Y.Size);
                     im.transform.localScale = M.V3(scale);
                 }
 
-                
+
             }
 
             while (mod.Length < moduleContainer.childCount)
@@ -102,12 +99,12 @@ public class ArScreenControl : MonoBehaviour, IDockableSelectionListener
             if (sprite)
             {
                 var spriteBounds = BoundsBuilder2.From(sprite.vertices);
-                var scale = 1f / Mathf.Max(spriteBounds.X.Size,spriteBounds.Y.Size);
+                var scale = 1f / Mathf.Max(spriteBounds.X.Size, spriteBounds.Y.Size);
                 subImage.transform.localScale = M.V3(scale);
             }
 
             //subImage.transform.localScale = 
-            
+
             nextUpdateInSeconds = 1;
         }
     }

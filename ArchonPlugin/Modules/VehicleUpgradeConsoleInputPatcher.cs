@@ -1,7 +1,8 @@
+using AVS.Log;
+using AVS.Util;
 using HarmonyLib;
 using Subnautica_Archon.Util;
 using System.Collections;
-using AVS.Util;
 using UnityEngine;
 
 
@@ -14,22 +15,15 @@ namespace Subnautica_Archon
         const float openDuration = 0.5f;
         static float timeUntilClose = 0f;
         static Coroutine? closeDoorCor = null;
-        public static IEnumerator closeDoorSoon(ArchonControl control)
+        public static IEnumerator closeDoorSoon(SmartLog log, Archon archon)
         {
             while (timeUntilClose > 0)
             {
                 timeUntilClose -= Time.deltaTime;
                 yield return null;
             }
-            if (control.IsNull())
-            {
-                Log.Warn($"VehicleUpgradeConsoleInputPatcher.closeDoorSoon: Control.IsNull() in {nameof(closeDoorSoon)}");
-            }
-            else
-            {
-                Log.Warn($"VehicleUpgradeConsoleInputPatcher.closeDoorSoon: Timeout passed. Closing");
-                control.openUpgradeCover = false;
-            }
+            log.Warn($"VehicleUpgradeConsoleInputPatcher.closeDoorSoon: Timeout passed. Closing");
+            archon.Control.openUpgradeCover = false;
             closeDoorCor = null;
         }
         [HarmonyPostfix]
@@ -38,14 +32,15 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOnHandHoverPostfix");
             // control opening the modules hatch
-            if (__instance.GetComponentInParent<Archon>() != null)
+            var arc = __instance.GetComponentInParent<Archon>();
+            if (arc.IsNotNull())
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnHandHoverPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
-                __instance.GetComponentInParent<ArchonControl>().openUpgradeCover = true;
+                arc.Control.openUpgradeCover = true;
                 timeUntilClose = openDuration;
                 if (closeDoorCor.IsNull())
                 {
-                    closeDoorCor = UWE.CoroutineHost.StartCoroutine(closeDoorSoon(__instance.GetComponentInParent<ArchonControl>()));
+                    closeDoorCor = arc.Owner.StartModCoroutine(nameof(VehicleUpgradeConsoleInputPatcher) + '.' + nameof(closeDoorSoon), log => closeDoorSoon(log, arc));
                 }
             }
         }
@@ -56,10 +51,11 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOpenPDAPostfix");
             // control opening the modules hatch
-            if (__instance.GetComponentInParent<ArchonControl>() != null)
+            var arc = __instance.GetComponentInParent<Archon>();
+            if (arc.IsNotNull())
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOpenPDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
-                UWE.CoroutineHost.StopCoroutine(closeDoorCor);
+                arc.Owner.StopCoroutine(closeDoorCor);
             }
         }
 
@@ -69,10 +65,11 @@ namespace Subnautica_Archon
         {
             //Debug.Log("VehicleUpgradeConsoleInputOnClosePDAPostfix");
             // control opening the modules hatch
-            if (__instance.GetComponentInParent<ArchonControl>() != null)
+            var arc = __instance.GetComponentInParent<Archon>();
+            if (arc.IsNotNull())
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnClosePDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
-                closeDoorCor = UWE.CoroutineHost.StartCoroutine(closeDoorSoon(__instance.GetComponentInParent<ArchonControl>()));
+                closeDoorCor = arc.Owner.StartModCoroutine(nameof(VehicleUpgradeConsoleInputPatcher) + '.' + nameof(closeDoorSoon), log => closeDoorSoon(log, arc));
             }
         }
     }

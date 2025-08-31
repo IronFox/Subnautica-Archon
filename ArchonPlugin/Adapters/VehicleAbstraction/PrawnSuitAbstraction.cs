@@ -1,8 +1,10 @@
-﻿namespace Subnautica_Archon.Adapters.VehicleAbstraction
+﻿using AVS;
+
+namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
     internal class PrawnSuitAbstraction : VanillaVehicleAbstraction<Exosuit>
     {
-        public PrawnSuitAbstraction(Exosuit prawnSuit) : base(prawnSuit)
+        public PrawnSuitAbstraction(RootModController rmc, Exosuit prawnSuit) : base(rmc, prawnSuit)
         { }
     }
 }

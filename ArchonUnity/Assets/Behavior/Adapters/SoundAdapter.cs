@@ -1,5 +1,5 @@
-﻿using System;
-using Assets.Behavior.Adapters;
+﻿using Assets.Behavior.Adapters;
+using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -39,7 +39,8 @@ public class SoundAdapter : MonoBehaviour
 
             if (Sound == null || (DeadForFrames > 10 && loop) || !Sound.ApplyLiveChanges(cfg))
             {
-                Log.Write($"Reinstantiating sound {this.NiceName()} for clip {clip.name}");
+                using (var log = Log.New())
+                    log.Write($"Reinstantiating sound {this.NiceName()} for clip {clip.name}");
                 Sound?.Dispose();
                 Sound = SoundCreator.Instantiate(cfg);
                 DeadForFrames = 0;
@@ -159,6 +160,9 @@ public class DefaultSoundCreator : ISoundCreator
         AudioPatcher.Patch(source);
         source.Play();
 
+        //using (var log = Log.New())
+        //  log.Write($"Playing sound {soundConfig.AudioClip.name} on {soundConfig.Owner.name} (is3D={soundConfig.Is3D}, loop={soundConfig.Loop}, volume={soundConfig.Volume})");
+
         return new DefaultSound(source, soundConfig);
     }
 }
@@ -206,7 +210,7 @@ internal class EmulatedSpacialSound : IInstantiatedSound
     public bool ApplyLiveChanges(SoundConfig cfg)
     {
         if (cfg.AudioClip != Source.clip)
-            return false; 
+            return false;
         var blend = cfg.Is3D ? 1 : 0;
         Source.spatialBlend = blend;
         Source.pitch = cfg.Pitch;
@@ -241,7 +245,7 @@ internal class DefaultSound : IInstantiatedSound
     public SoundConfig Config { get; private set; }
 
     public bool Died => !Source;
-    
+
     private float hasPlayedFor = 0;
 
     public DefaultSound(AudioSource audioSource, SoundConfig config)
@@ -271,7 +275,7 @@ internal class DefaultSound : IInstantiatedSound
             if (Source.isPlaying)
                 Source.Stop();
         }
-        else if (!Source.isPlaying && (cfg.Loop || hasPlayedFor < cfg.AudioClip.length))
+        else if (!Source.isPlaying && (cfg.Loop || hasPlayedFor < cfg.AudioClip.length * 0.5f))
             Source.Play();
 
         Config = cfg;

@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using AVS;
+using AVS.Log;
+using System.Collections.Generic;
 using System.IO;
 
 namespace Subnautica_Archon.Util
@@ -13,22 +15,23 @@ namespace Subnautica_Archon.Util
 
         private const string RecipePath = @".\recipes\Archon_recipe.json";
 
-        public static void Purge()
+        public static void Purge(RootModController rmc)
         {
-            var path = Path.Combine(MainPatcher.RootFolder, RecipePath);
+            using var log = SmartLog.For(rmc);
+            var path = Path.Combine(ArchonModController.RootFolder, RecipePath);
             if (!File.Exists(path))
             {
-                Log.Write($"No existing recipe found at {path}");
+                log.Write($"No existing recipe found at {path}");
                 return;
             }
             var content = File.ReadAllText(path);
             if (PurgeContents.Contains(content))
             {
-                Log.Write($"Purging {path}");
+                log.Write($"Purging {path}");
                 File.Delete(path);
             }
             else
-                Log.Warn($"Content mismatch. Not purging {path}");
+                log.Warn($"Content mismatch. Not purging {path}");
         }
 
 

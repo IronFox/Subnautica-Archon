@@ -1,25 +1,27 @@
-using System;
+using Assets.Behavior.Adapters;
 using UnityEngine;
 using UnityEngine.Rendering;
 
 public static class ShaderUtil
 {
-    public static MaterialAccess Access(Transform t, int materialIndex=0)
+    public static MaterialAccess Access(Transform t, int materialIndex = 0)
     {
         var renderer = t.GetComponent<MeshRenderer>();
         if (renderer == null)
         {
-            ConsoleControl.Write($"Warning: MeshRenderer component expected in {t.name}[{t.GetInstanceID()}]");
+            using (var log = Log.New())
+                log.Warn($"Warning: MeshRenderer component expected in {t.name}[{t.GetInstanceID()}]");
             return default;
         }
 
         if (renderer.materials.Length <= materialIndex)
         {
-            ConsoleControl.Write($"Warning: MeshRenderer ({t.name}[{t.GetInstanceID()}]) expected to have at least {materialIndex} material(s) but has {renderer.materials.Length}");
+            using (var log = Log.New())
+                log.Warn($"Warning: MeshRenderer ({t.name}[{t.GetInstanceID()}]) expected to have at least {materialIndex} material(s) but has {renderer.materials.Length}");
             return default;
         }
 
-        return new MaterialAccess(t,renderer.materials[materialIndex]);
+        return new MaterialAccess(t, renderer.materials[materialIndex]);
 
     }
 
@@ -59,13 +61,15 @@ public readonly struct MaterialAccess
             }
         if (idx < 0)
         {
-            ConsoleControl.Write($"Warning: {Target} does not have property '{name}'");
+            using (var log = Log.New())
+                log.Warn($"Warning: {Target} does not have property '{name}'");
             return false;
         }
         var t = Material.shader.GetPropertyType(idx);
         if (t != type)
         {
-            ConsoleControl.Write($"Warning: {Target} property type {t} does not match expected type {type}");
+            using (var log = Log.New())
+                log.Warn($"Warning: {Target} does not have property '{name}' of expected type {type}");
             return false;
         }
         return true;
@@ -78,7 +82,8 @@ public readonly struct MaterialAccess
         var current = Material.GetFloat(name);
         if (current != value)
         {
-            ConsoleControl.Write($"Setting {Target} float {name} {current} -> {value}");
+            using (var log = Log.New())
+                log.Warn($"Setting {Target} float {name} {current} -> {value}");
             Material.SetFloat(name, value);
         }
         return true;
@@ -91,7 +96,8 @@ public readonly struct MaterialAccess
         var current = Material.GetTexture(name);
         if (current != value)
         {
-            ConsoleControl.Write($"Setting {Target} texture {name} {current} -> {value}");
+            using (var log = Log.New())
+                log.Warn($"Setting {Target} texture {name} {current} -> {value}");
             Material.SetTexture(name, value);
         }
         return true;

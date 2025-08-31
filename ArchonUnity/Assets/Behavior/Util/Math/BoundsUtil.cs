@@ -1,8 +1,7 @@
 using Assets.Behavior.Adapters;
-using System.Collections.Generic;
-using Behavior.Util.Log;
 using Behavior.Util.Math;
 using JetBrains.Annotations;
+using System.Collections.Generic;
 using UnityEngine;
 
 public static class BoundsUtil
@@ -143,34 +142,38 @@ public static class BoundsUtil
                     {
                         case MeshCollider mc:
                             foreach (var corner in mc.sharedMesh.bounds.GetCornerPoints())
-                                bounds.Encapsulate(matrixToRoot * M.V4(corner,1));
+                                bounds.Encapsulate(matrixToRoot * M.V4(corner, 1));
                             if (!wasTooBig && IsTooBig(bounds))
-                                Log.Default.LogError(
-                                    $"Computed bounds have gotten too large ({bounds}) after using collider bounds {mc.sharedMesh.bounds} on {t}");
+                                using (var log = Log.New())
+                                    log.Error(
+                                        $"Computed bounds have gotten too large ({bounds}) after using collider bounds {mc.sharedMesh.bounds} on {t}");
                             break;
                         case BoxCollider box:
                             foreach (var corner in box.GetCornerPoints())
-                                bounds.Encapsulate(matrixToRoot * M.V4(corner,1));
+                                bounds.Encapsulate(matrixToRoot * M.V4(corner, 1));
                             if (!wasTooBig && IsTooBig(bounds))
-                                Log.Default.LogError(
+                                using (var log = Log.New())
+                                    log.Error(
                                     $"Computed bounds have gotten too large ({bounds}) after using collider box {box.center}-{box.size} on {t}");
                             break;
                         case SphereCollider sphere:
-                        {
-                            
-                            var center = matrixToRoot * M.V4(sphere.center,1);
-                            var radius3 = M.Abs((Vector3)(matrixToRoot * M.V4(sphere.radius, 0)));
-                            bounds.Encapsulate(new Bounds(center, radius3*2));
-                            if (!wasTooBig && IsTooBig(bounds))
-                                Log.Default.LogError(
-                                    $"Computed bounds have gotten too large ({bounds}) after using collider sphere {sphere.center} r{sphere.radius} on {t}");
-                        }
+                            {
+
+                                var center = matrixToRoot * M.V4(sphere.center, 1);
+                                var radius3 = M.Abs((Vector3)(matrixToRoot * M.V4(sphere.radius, 0)));
+                                bounds.Encapsulate(new Bounds(center, radius3 * 2));
+                                if (!wasTooBig && IsTooBig(bounds))
+                                    using (var log = Log.New())
+                                        log.Error(
+                                            $"Computed bounds have gotten too large ({bounds}) after using collider sphere {sphere.center} r{sphere.radius} on {t}");
+                            }
                             break;
                         case CapsuleCollider capsule:
                             foreach (var corner in capsule.GetCornerPoints())
-                                bounds.Encapsulate(matrixToRoot * M.V4(corner,1));
+                                bounds.Encapsulate(matrixToRoot * M.V4(corner, 1));
                             if (!wasTooBig && IsTooBig(bounds))
-                                Log.Default.LogError(
+                                using (var log = Log.New())
+                                    log.Error(
                                     $"Computed bounds have gotten too large ({bounds}) after using collider capsule {capsule.center} r{capsule.radius} h{capsule.height} on {t}");
                             break;
 
@@ -185,7 +188,7 @@ public static class BoundsUtil
                     continue;
 
                 RecurseComputeBounds(matrixToRoot * child.ToLocalMatrix(), child, ref bounds,
-                    includeRenderers: includeRenderers, includeColliders: includeColliders, excludeFrom:excludeFrom);
+                    includeRenderers: includeRenderers, includeColliders: includeColliders, excludeFrom: excludeFrom);
                 //.Where(x => x.enabled)
                 //matrixToRoot = matrixToRoot* transform.ToLocalMatrix();
             }
@@ -193,14 +196,14 @@ public static class BoundsUtil
 
     }
 
-    
-    
+
+
 
     public static Bounds3 ComputeScaledLocalBounds(this Transform rootTransform, bool includeRenderers, bool includeColliders, [CanBeNull] Transform excludeFrom)
     {
         Bounds bounds = new Bounds(Vector3.zero, M.V3(0));
 
-        RecurseComputeBounds(Matrix4x4.TRS(Vector3.zero, Quaternion.identity, rootTransform.localScale), rootTransform, ref bounds, includeRenderers: includeRenderers, includeColliders: includeColliders, excludeFrom:excludeFrom);
+        RecurseComputeBounds(Matrix4x4.TRS(Vector3.zero, Quaternion.identity, rootTransform.localScale), rootTransform, ref bounds, includeRenderers: includeRenderers, includeColliders: includeColliders, excludeFrom: excludeFrom);
 
         return Bounds3.From(bounds);
     }

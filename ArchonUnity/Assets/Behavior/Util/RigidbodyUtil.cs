@@ -1,6 +1,4 @@
 using Assets.Behavior.Adapters;
-using Behavior.Util;
-using Behavior.Util.Log;
 using UnityEngine;
 
 public static class RigidbodyUtil
@@ -9,7 +7,7 @@ public static class RigidbodyUtil
     {
         if (rb && rb.isKinematic)
             return;
-        using (var log = new LogContext(nameof(SetKinematic)))
+        using (var log = Log.New())
         {
             if (!rb)
             {
@@ -30,7 +28,7 @@ public static class RigidbodyUtil
     {
         if (rb && !rb.isKinematic)
             return;
-        using (var log = new LogContext(nameof(UnsetKinematic)))
+        using (var log = Log.New())
         {
             if (!rb)
             {
@@ -52,7 +50,7 @@ public static class RigidbodyUtil
 
         if (rb.isKinematic != shouldBeKinematic)
         {
-            using (var log = new LogContext(nameof(CheckIsKinematic)))
+            using (var log = Log.New())
             {
 
                 if (shouldBeKinematic)

@@ -7,18 +7,18 @@ namespace Subnautica_Archon.Modules
 {
     public class RepairModule : ArchonModuleFamily<RepairModule>
     {
-        public RepairModule(ArchonModule module)
-            : base(module)
+        public RepairModule(ArchonModController amc, ArchonModule module)
+            : base(amc, module)
         {
         }
 
-        public static void RegisterAll()
+        public static void RegisterAll(ArchonModController amc)
         {
-            var node = Node.Create("ArchonRepairModules", Language.main.Get("Modules.Group.RepairModule"), SpriteHelper.RequireImage("images/repairModule.png").Sprite);
+            var node = Node.Create("ArchonRepairModules", Language.main.Get("Modules.Group.RepairModule"), SpriteHelper.RequireImage(amc, "images/repairModule.png").Sprite);
 
-            new RepairModule(ArchonModule.RepairModuleMk1).Register(node);
-            new RepairModule(ArchonModule.RepairModuleMk2).Register(node);
-            new RepairModule(ArchonModule.RepairModuleMk3).Register(node);
+            new RepairModule(amc, ArchonModule.RepairModuleMk1).Register(node);
+            new RepairModule(amc, ArchonModule.RepairModuleMk2).Register(node);
+            new RepairModule(amc, ArchonModule.RepairModuleMk3).Register(node);
         }
 
 

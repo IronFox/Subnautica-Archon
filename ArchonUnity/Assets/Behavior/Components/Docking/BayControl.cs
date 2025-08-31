@@ -1,9 +1,8 @@
 ﻿using Assets.Behavior.Adapters;
+using Behavior.Util.Math;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Behavior.Util.Log;
-using Behavior.Util.Math;
 using UnityEngine;
 
 public class BayControl : MonoBehaviour
@@ -25,9 +24,11 @@ public class BayControl : MonoBehaviour
     public Transform dockedBounds;
     public Transform dockingColliders;
     public Transform parkPostion;
-    public SoundAdapter bayDoorSound;
+    public SoundAdapter bayDoorSlideSound;
     public SoundAdapter bayDoorLockSound;
     public SoundAdapter bayDoorUnlockSound;
+
+    private float initialBayDoorSlideSoundVolume = 1;
 
 
     public int maxDockedVehicles = 2;
@@ -43,75 +44,79 @@ public class BayControl : MonoBehaviour
         => TugFromGameObject(dockedSub.transform, destroyIfInvalid, out tug, out dockable, out undockCheckResult);
     private bool TugFromGameObject(Transform tugCandidate, bool destroyIfInvalid, out Tug tug, out IDockable dockable, out UndockingCheckResult undockCheckResult)
     {
-        //if (tugCandidate.childCount != 1)
-        //{
-        //    Log.LogError($"Tug candidate [{tugCandidate}] has does not have exactly one child (has {tugCandidate.childCount})");
-        //    if (destroyIfInvalid)
-        //    {
-        //        Log.LogError($"Destroying");
-        //        Destroy(tugCandidate);
-        //    }
-        //    tug = null;
-        //    dockable = null;
-        //    undockCheckResult = UndockingCheckResult.NotDocked;
-        //    return false;
-        //}
-        if (tugCandidate.parent != dockedSubRoot)
+        using (var log = Log.New())
         {
-            Log.Default.LogError($"Tug candidate [{tugCandidate}] resides in wrong parent ([{tugCandidate.parent}], should be [{dockedSubRoot}]).");
-            if (destroyIfInvalid)
-            {
-                Log.Default.LogError($"Destroying");
-                Destroy(tugCandidate);
-            }
-            tug = null;
-            dockable = null;
-            undockCheckResult = UndockingCheckResult.NotDocked;
-            return false;
-        }
-        //        var sub = tugCandidate.GetChild(0);
-        dockable = DockingAdapter.ToDockable(tugCandidate.gameObject, archon, DockingAdapter.Filter.All);
-        if (dockable == null)
-        {
-            Log.Default.LogError($"Tug candidate [{tugCandidate}] failed to convert to dockable. Probably something else");
-            //if (destroyIfInvalid)
+            //if (tugCandidate.childCount != 1)
             //{
-            //    Log.LogError($"Destroying");
-            //    Destroy(tugCandidate);
+            //    Log.LogError($"Tug candidate [{tugCandidate}] has does not have exactly one child (has {tugCandidate.childCount})");
+            //    if (destroyIfInvalid)
+            //    {
+            //        Log.LogError($"Destroying");
+            //        Destroy(tugCandidate);
+            //    }
+            //    tug = null;
+            //    dockable = null;
+            //    undockCheckResult = UndockingCheckResult.NotDocked;
+            //    return false;
             //}
-            tug = null;
-            undockCheckResult = UndockingCheckResult.NotDockable;
-            return false;
-        }
+            if (tugCandidate.parent != dockedSubRoot)
+            {
+                log.Error($"Tug candidate [{tugCandidate}] resides in wrong parent ([{tugCandidate.parent}], should be [{dockedSubRoot}]).");
+                if (destroyIfInvalid)
+                {
+                    log.Error($"Destroying");
+                    Destroy(tugCandidate);
+                }
+                tug = null;
+                dockable = null;
+                undockCheckResult = UndockingCheckResult.NotDocked;
+                return false;
+            }
+            //        var sub = tugCandidate.GetChild(0);
+            dockable = DockingAdapter.ToDockable(tugCandidate.gameObject, archon, DockingAdapter.Filter.All);
+            if (dockable == null)
+            {
+                log.Error($"Tug candidate [{tugCandidate}] failed to convert to dockable. Probably something else");
+                //if (destroyIfInvalid)
+                //{
+                //    Log.LogError($"Destroying");
+                //    Destroy(tugCandidate);
+                //}
+                tug = null;
+                undockCheckResult = UndockingCheckResult.NotDockable;
+                return false;
+            }
 
-        tug = Tug.GetOrAdd(tugCandidate);
-        //if (!tug)
-        //{
-        //    Log.LogError($"Tug candidate {tugCandidate} has no tug. Creating");
-        //    tug = tugCandidate.gameObject.AddComponent<Tug>();
-        //}
-        undockCheckResult = UndockingCheckResult.Ok;
-        return true;
+            tug = Tug.GetOrAdd(tugCandidate);
+            //if (!tug)
+            //{
+            //    Log.LogError($"Tug candidate {tugCandidate} has no tug. Creating");
+            //    tug = tugCandidate.gameObject.AddComponent<Tug>();
+            //}
+            undockCheckResult = UndockingCheckResult.Ok;
+            return true;
+        }
     }
 
     void Awake()
     {
-        using (var log = new LogContext(nameof(BayControl) + '.' + nameof(Awake)))
+        using (var log = Log.New())
         {
             permittedBounds = dockedBounds.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true, excludeFrom: null);
+            initialBayDoorSlideSoundVolume = bayDoorSlideSound ? bayDoorSlideSound.volume : 1;
             RedetectDocked();
         }
     }
 
     public void SignalLoading()
     {
-        Log.Write(nameof(SignalLoading));
-        isLoading = true;
+        using (var log = Log.New())
+            isLoading = true;
     }
 
     public int RedetectDocked()
     {
-        using (var log = new LogContext(nameof(RedetectDocked)))
+        using (var log = Log.New())
         {
 
 
@@ -170,7 +175,7 @@ public class BayControl : MonoBehaviour
                 }
                 catch (Exception e)
                 {
-                    log.Error($"Caught exception",e);
+                    log.Error($"Caught exception", e);
                 }
 
             }
@@ -232,11 +237,12 @@ public class BayControl : MonoBehaviour
                 bounds = Bounds3.CenterBox(bounds.Center, M.V3(bounds.Size.x, bounds.Size.z, bounds.Size.y)); //flip y and z
                 var fit2 = new DockingFit(d, Quaternion.AngleAxis(90, Vector3.right), bounds);
                 //log.Write($"Testing rotated fit {fit.CenterCorrection}, {fit.Bounds.size}");
-                
+
 
                 if (!permittedBounds.ContainsCentered(fit2.Bounds))
                 {
-                    Log.Default.LogError(
+                    using (var log = Log.New())
+                        log.Error(
                         $"Candidate vehicle {d} is still too large to dock ({fit1.Bounds} and {fit2.Bounds} exceed {permittedBounds})");
                     return null;
                 }
@@ -262,12 +268,14 @@ public class BayControl : MonoBehaviour
         ObjectUtil.RequireActive(this, archon.transform);
         if (active)
         {
-            Log.Write($"Cannot undock right now. Still busy working on {active}");
+            using (var log = Log.New())
+                log.Write($"Cannot undock right now. Still busy working on {active}");
             return UndockingCheckResult.Busy;
         }
         if (!dockedSub)
         {
-            Log.Default.LogError($"Attempted to undock <null> sub");
+            using (var log = Log.New())
+                log.Error($"Attempted to undock <null> sub");
             return UndockingCheckResult.DoesNotExist;
         }
         if (UndockingIsObstructed())
@@ -298,23 +306,26 @@ public class BayControl : MonoBehaviour
 
     public void Undock(GameObject dockedSub)
     {
-        ObjectUtil.RequireActive(this, archon.transform);
-        if (active)
+        using (var log = Log.New())
         {
-            Log.Default.LogError($"(Un)docking in progress. Cannot undock right now");
-            return;
+            ObjectUtil.RequireActive(this, archon.transform);
+            if (active)
+            {
+                log.Error($"(Un)docking in progress. Cannot undock right now");
+                return;
+            }
+            if (!dockedSub)
+            {
+                log.Error($"Requested sub does not exist");
+                return;
+            }
+            if (UndockingIsObstructed())
+                return;
+            if (!TugFromDocked(dockedSub, false, out var tug, out var dockable, out _))
+                return;
+            tug.Bind(this, tug.Fit, TugStatus.UndockingWaitingForBayDoorOpen);
+            active = tug;
         }
-        if (!dockedSub)
-        {
-            Log.Default.LogError($"Requested sub does not exist");
-            return;
-        }
-        if (UndockingIsObstructed())
-            return;
-        if (!TugFromDocked(dockedSub, false, out var tug, out var dockable, out _))
-            return;
-        tug.Bind(this, tug.Fit, TugStatus.UndockingWaitingForBayDoorOpen);
-        active = tug;
     }
 
     public void VerifyIntegrity()
@@ -352,19 +363,23 @@ public class BayControl : MonoBehaviour
 
     public void ReleaseActive(Tug tug)
     {
-        if (tug.Status == TugStatus.Undocking || tug.Status == TugStatus.UndockedWaitingForTriggerExit)
-            DecNumDockedVehicles(tug);
-
-        if (active == tug)
+        using (var log = Log.New())
         {
-            Log.Write(nameof(ReleaseActive) + $": {tug}");
+
+            if (tug.Status == TugStatus.Undocking || tug.Status == TugStatus.UndockedWaitingForTriggerExit)
+                DecNumDockedVehicles(tug);
+
+            if (active == tug)
+            {
+                log.Write(nameof(ReleaseActive) + $": {tug}");
 
 
-            VerifyIntegrity();
-            active = null;
+                VerifyIntegrity();
+                active = null;
+            }
+            else
+                log.Error($"Cannot release active. Requesting tug is {tug}. Expected tug is {active}");
         }
-        else
-            Log.Default.LogError($"Cannot release active. Requesting tug is {tug}. Expected tug is {active}");
     }
 
     public bool DoorsAreOpen => progress == 1;
@@ -381,19 +396,23 @@ public class BayControl : MonoBehaviour
     {
         DockedTugs.Update((id, tug) =>
         {
-            Log.Default.LogError($"Lost tug [{id}]");
+            using (var log = Log.New())
+                log.Error($"Lost tug [{id}]");
             NumDockedVehicles--;
         });
         if (isLoading)
         {
-            if (Time.deltaTime == 0)
+            using (var log = Log.New())
             {
-                Log.Write($"Loading assumed to continue");
-                return;
+                if (Time.deltaTime == 0)
+                {
+                    log.Write($"Loading assumed to continue");
+                    return;
+                }
+                isLoading = false;
+                log.Write($"Loading assumed done. Redetecting docked vehicles");
+                RedetectDocked();
             }
-            isLoading = false;
-            Log.Write($"Loading assumed done. Redetecting docked vehicles");
-            RedetectDocked();
         }
 
         var open = false;
@@ -471,11 +490,11 @@ public class BayControl : MonoBehaviour
 
 
 
-		float soundPreSeconds = 0.5f;
+        float soundPreSeconds = 0.5f;
 
-		float totalSeconds = soundPreSeconds + secondsToOpen;
+        float totalSeconds = soundPreSeconds + secondsToOpen;
 
-		var wasClosed = progress <= 0;
+        var wasClosed = progress <= 0;
         var preProgress = progress;
         if (open)
             progress = Math.Min(1, progress + Time.deltaTime / totalSeconds);
@@ -489,8 +508,8 @@ public class BayControl : MonoBehaviour
         if (wasClosed && nowClosed)
         {
             openAnimation.Stop();
-            if (bayDoorSound != null)
-                bayDoorSound.volume = 0;
+            if (bayDoorSlideSound != null)
+                bayDoorSlideSound.volume = 0;
             //bayDoorSound.play = false;
             progress = 0;
             return;
@@ -502,32 +521,34 @@ public class BayControl : MonoBehaviour
 
         if (wasClosed && !nowClosed)
         {
-            Log.Write(nameof(Update) + $": (wasClosed={wasClosed}, nowClosed={nowClosed}, progress={progress}, open={open}) Bay doors opening. Playing lock sound");
+            using (var log = Log.New())
+                log.Write(nameof(Update) + $": Opening (wasClosed={wasClosed}, nowClosed={nowClosed}, progress={progress}, open={open}) Bay doors opening. Playing lock sound");
             //progress = -0.5f / secondsToOpen;
             bayDoorUnlockSound.Play();
         }
-        else if (preProgress > soundPreSeconds/totalSeconds && progress <= soundPreSeconds/totalSeconds)
+        else if (preProgress > soundPreSeconds / totalSeconds && progress <= soundPreSeconds / totalSeconds)
         {
-            Log.Write(nameof(Update) + $": (wasClosed={wasClosed}, nowClosed={nowClosed}, preProgress={preProgress}, progress={progress}, open={open}) Bay doors closing. Playing lock sound");
+            using (var log = Log.New())
+                log.Write(nameof(Update) + $": Closing (wasClosed={wasClosed}, nowClosed={nowClosed}, preProgress={preProgress}, progress={progress}, open={open}) Bay doors closing. Playing lock sound");
 
             bayDoorLockSound.Play();
         }
 
 
-        if (bayDoorSound != null)
+        if (bayDoorSlideSound != null)
         {
-            if (!bayDoorSound.play)
-                bayDoorSound.volume = 0;
+            if (!bayDoorSlideSound.play)
+                bayDoorSlideSound.volume = 0;
             else
-                bayDoorSound.volume = 1f - M.Sqr((progress - 0.5f) * 2f);
-            bayDoorSound.play = true;
+                bayDoorSlideSound.volume = (1f - M.Sqr((progress - 0.5f) * 2f)) * initialBayDoorSlideSoundVolume;
+            bayDoorSlideSound.play = true;
 
         }
 
 
         if (!openAnimation.isPlaying)
             openAnimation.Play();
-		float animationProgress = M.Saturate( (progress - soundPreSeconds/totalSeconds) / (secondsToOpen / totalSeconds));
+        float animationProgress = M.Saturate((progress - soundPreSeconds / totalSeconds) / (secondsToOpen / totalSeconds));
         foreach (AnimationState state in openAnimation)
         {
             state.normalizedTime = M.Saturate(animationProgress);
@@ -536,28 +557,31 @@ public class BayControl : MonoBehaviour
 
     public void PrepareForSaving()
     {
-        var children = dockedSubRoot.GetChildren().ToList();
-        Log.Write(nameof(PrepareForSaving) + $" on {children.Count} docked sub candidate(s)");
-        for (int i = 0; i < children.Count; i++)
+        using (var log = Log.New())
         {
-            var tugCandidate = children[i];
-            try
+            var children = dockedSubRoot.GetChildren().ToList();
+            log.Write(nameof(PrepareForSaving) + $" on {children.Count} docked sub candidate(s)");
+            for (int i = 0; i < children.Count; i++)
             {
-                var tug = Tug.Get(tugCandidate);
-                if (tug && tug.HasGoodFit)
+                var tugCandidate = children[i];
+                try
                 {
-                    Log.LogWarning($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is valid. Saving");
-                    tug.PrepareForSaving();
+                    var tug = Tug.Get(tugCandidate);
+                    if (tug && tug.HasGoodFit)
+                    {
+                        log.Warn($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is valid. Saving");
+                        tug.PrepareForSaving();
+                    }
+                    else
+                        log.Warn($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is either not a tug ({tug}) or not well fit. Skipping");
                 }
-                else
-                    Log.LogWarning($"#{i}/{dockedSubRoot.childCount} {tugCandidate.NiceName()} is either not a tug ({tug}) or not well fit. Skipping");
-            }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
 
+            }
+            log.Write(nameof(PrepareForSaving) + $" done");
         }
-        Log.Write(nameof(PrepareForSaving) + $" done");
     }
 }

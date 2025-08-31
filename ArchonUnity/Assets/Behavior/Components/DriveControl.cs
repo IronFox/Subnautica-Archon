@@ -68,7 +68,8 @@ public class DriveControl : MonoBehaviour
         bool cameraIsExternal = !archon.CameraIsInVehicle;
         if (cameraWasExternal != cameraIsExternal && wasEverInWater)
         {
-            Log.Default.Write("Switching propeller visibility since vehicle is not out of water and camera is external changed");
+            using (var log = Log.New())
+                log.Write("Switching propeller visibility since vehicle is not out of water and camera is external changed");
             cameraWasExternal = cameraIsExternal;
 
             foreach (var p in fullWhenCameraIsExternalPropellers)
@@ -106,13 +107,13 @@ public class DriveControl : MonoBehaviour
                 speed *= waterDensity;
                 if (!archon.IsBeingControlled)
                     speed = 0;
-                
+
 
                 var audioThrust = speed / 30;
                 //Log.Write($"DriveControl.Update: Speed: {speed} -> {audioThrust}");
                 //if (audioThrust > 0)
                 {
-                    regularAudioSource.volume = initialLevel * (0.1f + 0.9f * audioThrust);
+                    regularAudioSource.volume = initialLevel * archon.engineSoundVolume * (0.1f + 0.9f * audioThrust);
                     regularAudioSource.pitch = initialPitch * (1 + audioThrust * 0.5f);
                     //regularAudioSource.enabled = true;
                 }

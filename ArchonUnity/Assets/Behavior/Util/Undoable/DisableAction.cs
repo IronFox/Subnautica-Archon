@@ -1,5 +1,4 @@
 ﻿using Assets.Behavior.Adapters;
-using Behavior.Util.Log;
 using UnityEngine;
 
 internal class DisableAction : IAction
@@ -21,7 +20,7 @@ internal class DisableAction : IAction
         {
             if (!HaveLoggedGone)
             {
-                using (var log = new LogContext(nameof(DisableAction) + "." + nameof(Do)))
+                using (var log = Log.New())
                 {
                     log.Warn($"Cannot set {Enabled.PropertyName} on {TargetName}: target is gone");
                     HaveLoggedGone = true;
@@ -33,7 +32,7 @@ internal class DisableAction : IAction
         {
             if (Enabled.LogChange)
             {
-                using (var log = new LogContext(nameof(DisableAction) + "." + nameof(Do)))
+                using (var log = Log.New())
                 {
                     log.Write($"Setting {Enabled.PropertyName} := false on {Enabled.Target.NiceName()}");
                 }
@@ -53,7 +52,7 @@ internal class DisableAction : IAction
         {
             if (!HaveLoggedGone)
             {
-                using (var log = new LogContext(nameof(DisableAction) + "." + nameof(Undo)))
+                using (var log = Log.New())
                 {
                     log.Warn($"Cannot revert {Enabled.PropertyName} on {TargetName}: target is gone");
                 }
@@ -66,7 +65,7 @@ internal class DisableAction : IAction
         {
             if (Enabled.LogChange)
             {
-                using (var log = new LogContext(nameof(DisableAction) + "." + nameof(Undo)))
+                using (var log = Log.New())
                 {
                     log.Write($"Setting {Enabled.PropertyName}:=true on {Enabled.Target.NiceName()}");
                 }

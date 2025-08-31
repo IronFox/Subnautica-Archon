@@ -1,9 +1,8 @@
 using Assets.Behavior.Adapters;
+using JetBrains.Annotations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Behavior.Util.Log;
-using JetBrains.Annotations;
 using UnityEngine;
 
 public static class ObjectUtil
@@ -124,11 +123,11 @@ public static class ObjectUtil
         return $"<{o.GetType().Name}> '{s}' [{o.GetInstanceID()}]";
     }
 
-    
-    
+
+
     public static string ComponentToString(this Component c, [CanBeNull] Transform terminator = null)
     {
-        return c.transform.parent.PathToString(terminator,false)+'/'+c.NiceName();
+        return c.transform.parent.PathToString(terminator, false) + '/' + c.NiceName();
     }
 
     public static string PathToString(this Transform t, [CanBeNull] Transform terminator = null, bool includeInstanceNumber = true)
@@ -213,7 +212,8 @@ public static class ObjectUtil
             return;
         if (!c.enabled)
         {
-            Log.Default.LogError($"{c.NiceName()} has been disabled. Re-enabling");
+            using (var log = Log.New())
+                log.Error($"{c.NiceName()} has been disabled. Re-enabling");
             c.enabled = true;
         }
         if (c.isActiveAndEnabled)
@@ -233,7 +233,8 @@ public static class ObjectUtil
         {
             if (!current.gameObject.activeSelf)
             {
-                Log.Default.LogError($"{current.gameObject.NiceName()} has been deactivated. Re-activating");
+                using (var log = Log.New())
+                    log.Error($"{current.gameObject.NiceName()} has been deactivated. Re-activating");
                 current.gameObject.SetActive(false);
 
                 if (testFunction())
@@ -244,7 +245,8 @@ public static class ObjectUtil
 
         if (!rootTransform.gameObject.activeSelf)
         {
-            Log.Default.LogError($"{rootTransform.gameObject.NiceName()} has been deactivated. Re-activating");
+            using (var log = Log.New())
+                log.Error($"{rootTransform.gameObject.NiceName()} has been deactivated. Re-activating");
             rootTransform.gameObject.SetActive(true);
         }
 

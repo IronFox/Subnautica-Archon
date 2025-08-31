@@ -1,57 +1,63 @@
-﻿using System;
-using System.Reflection;
+﻿using AVS;
+using AVS.Log;
 using AVS.Util;
+using System;
+using System.Reflection;
 
 namespace Subnautica_Archon.Util
 {
     public static class FieldAdapter
     {
-        public static FieldAdapter<T> OfNonPublic<T>(object target, string name)
+        public static FieldAdapter<T> OfNonPublic<T>(RootModController rmc, object target, string name)
         {
+            using var log = SmartLog.LazyFor(rmc);
             var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
             if (f.IsNull())
-                Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+                log.Error($"Unable to find non-public field '{name}' on <{target.GetType()}> '{target}'");
             return new FieldAdapter<T>(f, target);
         }
 
-        public static FieldAdapter<T> OfNonPublic<T>(UnityEngine.Object target, string name)
+        public static FieldAdapter<T> OfNonPublic<T>(RootModController rmc, UnityEngine.Object target, string name)
         {
+            using var log = SmartLog.LazyFor(rmc);
             if (!target)
                 return default;
-            return OfNonPublic<T>((object)target, name);
+            return OfNonPublic<T>(rmc, (object)target, name);
         }
-        public static FieldAdapter<T> OfPublic<T>(object target, string name)
+        public static FieldAdapter<T> OfPublic<T>(RootModController rmc, object target, string name)
         {
+            using var log = SmartLog.LazyFor(rmc);
             var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public);
             if (f.IsNull())
-                Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+                log.Error($"Unable to find public field '{name}' on <{target.GetType()}> '{target}'");
             else if (f.FieldType != typeof(T))
             {
-                Log.Error($"Field '{name}' on <{target.GetType()}> '{target}' is of type {f.FieldType}, expected {typeof(T)}");
+                log.Error($"Field '{name}' on <{target.GetType()}> '{target}' is of type {f.FieldType}, expected {typeof(T)}");
                 return default;
             }
             return new FieldAdapter<T>(f, target);
         }
 
-        public static FieldAdapter<T> OfPublic<T>(UnityEngine.Object target, string name)
+        public static FieldAdapter<T> OfPublic<T>(RootModController rmc, UnityEngine.Object target, string name)
         {
             if (!target)
                 return default;
-            return OfPublic<T>((object)target, name);
+            return OfPublic<T>(rmc, (object)target, name);
         }
-        public static FieldAdapter<T> Of<T>(object target, string name)
+        public static FieldAdapter<T> Of<T>(RootModController rmc, object target, string name)
         {
+            using var log = SmartLog.LazyFor(rmc);
             var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             if (f.IsNull())
-                Log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
+                log.Error($"Unable to find field '{name}' on <{target.GetType()}> '{target}'");
             return new FieldAdapter<T>(f, target);
         }
 
-        public static FieldAdapter<T> Of<T>(UnityEngine.Object target, string name)
+        public static FieldAdapter<T> Of<T>(RootModController rmc, UnityEngine.Object target, string name)
         {
             if (!target)
                 return default;
-            return Of<T>((object)target, name);
+            return Of<T>(rmc, (object)target, name);
         }
     }
 

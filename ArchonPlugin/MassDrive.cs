@@ -1,16 +1,13 @@
 ﻿using AVS.Engines;
 using Subnautica_Archon.Modules;
-using Subnautica_Archon.Util;
 using UnityEngine;
 
 namespace Subnautica_Archon
 {
     public class MassDrive : AbstractEngine
     {
-        private MyLogger Log { get; }
         public MassDrive()
         {
-            Log = new MyLogger(this);
             AngularDrag = 1;
         }
 

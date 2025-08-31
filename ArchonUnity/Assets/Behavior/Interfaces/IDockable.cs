@@ -1,6 +1,6 @@
 using Assets.Behavior.TransferTypes;
-using System.Collections.Generic;
 using Behavior.Util.Math;
+using System.Collections.Generic;
 using UnityEngine;
 
 public interface IDockable
@@ -115,17 +115,23 @@ public interface IDockable
     /// </summary>
     Text CrushText { get; }
     /// <summary>
-    /// The complete crush storage utilization text to show if this vehicle is selected.
+    /// The complete storage utilization text to show if this vehicle is selected.
     /// Should contain a localized label
     /// </summary>
     Text StorageText { get; }
+
+
+    /// <summary>
+    /// The number of storage modules this vehicle has.
+    /// </summary>
+    int StorageCount { get; }
 
     /// <summary>
     /// Opens vehicle storage of this vehicle in the PDA.
     /// If the vehicle has multiple storages, the first
     /// one is opened.
     /// </summary>
-    void OpenStorage();
+    void OpenStorage(int storageIndex);
     /// <summary>
     /// Opens the module panel in the PDA
     /// </summary>

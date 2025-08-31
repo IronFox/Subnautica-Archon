@@ -1,3 +1,4 @@
+using AVS.Log;
 using Nautilus.Json;
 using Nautilus.Options.Attributes;
 using Subnautica_Archon;
@@ -45,6 +46,21 @@ public class ArchonConfig : ConfigFile
         LabelLanguageId = "Option.AutopilotVoice"
     )]
     public Voice voice = Voice.Eve;
+
+    [Slider(DefaultValue = 100.0f, Format = "{0:F0}%", Label = "Look Sensitivity", LabelLanguageId = "Option.LookSensitivity", Min = 1f, Max = 200f, Step = 1f)]
+    public float lookSensitivity = 100.0f;
+
+    [Slider(DefaultValue = 100f, Format = "{0:F0}%", Label = "Engine Sound Volume", LabelLanguageId = "Option.EngineSoundVolume", Min = 0f, Max = 100f, Step = 5f)]
+    public float engineSoundVolume = 100f;
+
+    [Choice("Log Level",
+        "Option.LogVerbosity.Verbose",
+        "Option.LogVerbosity.Regular",
+        "Option.LogVerbosity.WarningsAndErrorsOnly",
+        LabelLanguageId = "Option.LogVerbosity"
+    )]
+    public Verbosity logLevel = Verbosity.Regular;
+
     //[Toggle("Hold Sprint to Boost")]
     //public bool holdToBoost = false;
 

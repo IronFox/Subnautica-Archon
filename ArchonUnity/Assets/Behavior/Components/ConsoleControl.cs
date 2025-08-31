@@ -1,5 +1,4 @@
-﻿using Assets.Behavior.Adapters;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -58,7 +57,8 @@ public class ConsoleControl : MonoBehaviour
 
     public static void WriteException(string whileDoing, Exception ex)
     {
-        Log.LogError($"Caught exception during {whileDoing}: {ex.Message}", ex);
+        Debug.LogError($"Caught exception during {whileDoing}: {ex.Message}");
+        Debug.LogException(ex);
         //Write(ex.StackTrace);
 
         //Debug.LogException(ex);
@@ -69,7 +69,7 @@ public class ConsoleControl : MonoBehaviour
     {
         if (string.IsNullOrWhiteSpace(text))
             return;
-        Log.Write(text);
+        Debug.Log(text);
         var line = new Line(text);
         foreach (var control in Instances)
             control.AddLine(line);

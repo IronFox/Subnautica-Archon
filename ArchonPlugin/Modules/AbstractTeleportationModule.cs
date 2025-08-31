@@ -1,14 +1,15 @@
 ﻿using Assets.Behavior.TransferTypes;
 using AVS;
 using AVS.UpgradeModules.Variations;
-using UnityEngine;
 using AVS.Util;
+using UnityEngine;
 
 namespace Subnautica_Archon.Modules
 {
-    public abstract class AbstractTeleportationModule(ArchonModule module, TeleportationType type)
-        : ArchonToggleableBaseModule(module)
+    public abstract class AbstractTeleportationModule(ArchonModController mp, ArchonModule module, TeleportationType type)
+        : ArchonToggleableBaseModule(mp, module)
     {
+
         public static float SecondsUntilTeleport { get; } = 5f;
         public override float RepeatDelay => 0;
         public TeleportationType TeleportationType { get; } = type;
@@ -25,9 +26,10 @@ namespace Subnautica_Archon.Modules
                 return;
             var target = GetTargetPosition(vehicle);
             var orientation = GetTargetOrientation(vehicle);
+            using var log = vehicle.NewModLog();
             if (target.IsNull() || orientation.IsNull())
             {
-                vehicle.Log.Debug($"{Module}.OnRepeat: No target or orientation set for vehicle {vehicle.NiceName()} in slot {state.SlotID} at time {state.EventTime}");
+                log.Debug($"{Module}.OnRepeat: No target or orientation set for vehicle {vehicle.NiceName()} in slot {state.SlotID} at time {state.EventTime}");
                 return;
             }
             var voiceLibrary = vehicle.GetVoiceLibrary();
@@ -56,7 +58,7 @@ namespace Subnautica_Archon.Modules
                 }
                 else
                 {
-                    vehicle.Log.Write($"TeleportationModule1.OnRepeat: Teleportation finished, teleporting vehicle {state.Vehicle} to {target}");
+                    log.Write($"TeleportationModule1.OnRepeat: Teleportation finished, teleporting vehicle {state.Vehicle} to {target}");
 
 
 
@@ -74,7 +76,7 @@ namespace Subnautica_Archon.Modules
             }
             catch (System.Exception ex)
             {
-                vehicle.Log.Error($"TeleportationModule1.OnRepeat: Exception occurred", ex);
+                log.Error($"TeleportationModule1.OnRepeat: Exception occurred", ex);
                 state.Deactivate();
             }
         }

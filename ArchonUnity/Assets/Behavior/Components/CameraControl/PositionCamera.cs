@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using Behavior.Util;
-using JetBrains.Annotations;
+﻿using Assets.Behavior.Adapters;
 using UnityEngine;
 
 public class PositionCamera : MonoBehaviour
@@ -36,21 +34,25 @@ public class PositionCamera : MonoBehaviour
     public bool IsInVehicle => isFirstPerson && archon.zoomedInIsCockpit;
     void Start()
     {
-        //scanner= GetComponentInChildren<TargetScanner>();
-        target = subRoot.transform.TransformPoint(referenceBoundingBox.center);
-        distanceToTarget = Vector3.Distance(referenceBoundingBox.transform.position, transform.transform.position);
+        using (var log = Log.New())
+        {
+            //scanner= GetComponentInChildren<TargetScanner>();
+            target = subRoot.transform.TransformPoint(referenceBoundingBox.center);
+            distanceToTarget = Vector3.Distance(referenceBoundingBox.transform.position, transform.transform.position);
 
 
-        minDistanceToTarget = (referenceBoundingBox.transform.localPosition.z
-                                - referenceBoundingBox.transform.localScale.z
-                                    * referenceBoundingBox.size.z) * -0.55f;
-        maxDistanceToTarget = minDistanceToTarget * 5;
-        ConsoleControl.Write($"Valid 3rd person camera distance range is [{minDistanceToTarget},{maxDistanceToTarget}]");
-        distanceToTarget = Mathf.Clamp(distanceToTarget, minDistanceToTarget, maxDistanceToTarget);
-        ConsoleControl.Write($"3rd camera distance set to {distanceToTarget}");
-        verticalOffset =
-            referenceBoundingBox.size.y * referenceBoundingBox.transform.localScale.y * 1.1f;
-        
+            minDistanceToTarget = (referenceBoundingBox.transform.localPosition.z
+                                    - referenceBoundingBox.transform.localScale.z
+                                        * referenceBoundingBox.size.z) * -0.55f;
+            maxDistanceToTarget = minDistanceToTarget * 5;
+            log.Write($"Valid 3rd person camera distance range is [{minDistanceToTarget},{maxDistanceToTarget}]");
+            distanceToTarget = Mathf.Clamp(distanceToTarget, minDistanceToTarget, maxDistanceToTarget);
+            log.Write($"3rd camera distance set to {distanceToTarget}");
+            verticalOffset =
+
+                referenceBoundingBox.size.y * referenceBoundingBox.transform.localScale.y * 1.1f;
+        }
+
     }
 
     private string loggedCollider;
@@ -91,7 +93,7 @@ public class PositionCamera : MonoBehaviour
             //}
 
             //transform.position = target.position + transform.forward * forwardRadius;
-            if (zoomAxis > 0 )
+            if (zoomAxis > 0)
             {
                 isFirstPerson = false;
             }

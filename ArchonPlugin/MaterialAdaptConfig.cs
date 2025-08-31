@@ -7,7 +7,14 @@ namespace Subnautica_Archon
     public class MaterialAdaptConfig : DefaultMaterialAdaptConfig
     {
         public MaterialAdaptConfig()
-            : base(MaterialLog.Silent)
+            : base(
+                  ArchonModController.PluginConfig.logLevel switch
+                  {
+                      Verbosity.WarningsAndErrorsOnly => MaterialLog.Silent,
+                      Verbosity.Regular => MaterialLog.Silent,
+                      Verbosity.Verbose => MaterialLog.Verbose,
+                      _ => MaterialLog.Default
+                  })
         { }
 
         public override UnityMaterialData ConvertUnityMaterial(UnityMaterialData materialData)

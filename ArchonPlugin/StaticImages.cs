@@ -1,4 +1,5 @@
 ﻿using AVS.Assets;
+using AVS.Log;
 using AVS.Util;
 using Subnautica_Archon.Util;
 using UnityEngine;
@@ -20,24 +21,25 @@ namespace Subnautica_Archon
             FabricatorIcon: FabricatorIcon,
             DepthModuleNodeIcon: DepthModuleNodeIcon)
     {
-        private static Sprite Load(string filename)
+        private static Sprite Load(ArchonModController amc, string filename)
         {
-            Log.Write($"Loading sprite from {filename}");
-            var rs = SpriteHelper.GetSpriteRaw(filename);
+            using var log = SmartLog.For(amc);
+            log.Write($"Loading sprite from {filename}");
+            var rs = SpriteHelper.GetSpriteRaw(amc, filename);
             if (rs.IsNull())
                 throw new System.IO.FileNotFoundException($"Sprite file not found: {filename}");
             return rs;
         }
 
-        public StaticImages() : this(
-            DepthModule1Icon: Load("images/depth_module_1.png"),
-            DepthModule2Icon: Load("images/depth_module_2.png"),
-            DepthModule3Icon: Load("images/depth_module_3.png"),
-            DepthModuleNodeIcon: Load("images/depth_module_node.png"),
-            FabricatorIcon: Load("images/fabricator.png"),
-            ModulesBackground: Load("images/archon_module_background.png"),
-            ArchonCraftingSprite: Load("images/archon_crafting_sprite.png"),
-            ArchonPingSprite: Load("images/archon_ping_sprite.png")
+        public StaticImages(ArchonModController amc) : this(
+            DepthModule1Icon: Load(amc, "images/depth_module_1.png"),
+            DepthModule2Icon: Load(amc, "images/depth_module_2.png"),
+            DepthModule3Icon: Load(amc, "images/depth_module_3.png"),
+            DepthModuleNodeIcon: Load(amc, "images/depth_module_node.png"),
+            FabricatorIcon: Load(amc, "images/fabricator.png"),
+            ModulesBackground: Load(amc, "images/archon_module_background.png"),
+            ArchonCraftingSprite: Load(amc, "images/archon_crafting_sprite.png"),
+            ArchonPingSprite: Load(amc, "images/archon_ping_sprite.png")
             )
         {
         }

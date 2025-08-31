@@ -1,8 +1,9 @@
-﻿using System;
+﻿using AVS;
+using AVS.Log;
+using AVS.Util;
+using System;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
-using AVS.Util;
 
 namespace Subnautica_Archon.Util.Reflection
 {
@@ -10,22 +11,25 @@ namespace Subnautica_Archon.Util.Reflection
     {
         public bool IsEmpty => Method.IsNull() || !Target;
         protected MethodInfo? Method { get; }
+        public RootModController Rmc { get; }
         protected UnityEngine.Object Target { get; }
 
 
 
-        protected BaseMethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing, params Type[] parameterTypes)
+        protected BaseMethodAdapter(RootModController rmc, UnityEngine.Object target, string methodName, bool ignoreMissing, params Type[] parameterTypes)
         {
+            Rmc = rmc;
             Target = target;
             MethodName = methodName;
+            using var log = SmartLog.For(rmc);
             if (target.IsNull())
             {
-                Log.Error("Given target game object is empty");
+                log.Error("Given target game object is empty");
                 return;
             }
             if (string.IsNullOrEmpty(methodName))
             {
-                Log.Error("Given method name is empty");
+                log.Error("Given method name is empty");
                 return;
             }
             try
@@ -34,13 +38,12 @@ namespace Subnautica_Archon.Util.Reflection
                 if (Method.IsNull())
                 {
                     if (!ignoreMissing)
-                        Log.Error($"Unable to find method {methodName} with parameters ({string.Join(", ", parameterTypes.Select(x => x.ToString()))}) on object of type {target.GetType()}");
+                        log.Error($"Unable to find method {methodName} with parameters ({string.Join(", ", parameterTypes.Select(x => x.ToString()))}) on object of type {target.GetType()}");
                 }
             }
             catch (Exception ex)
             {
-                Log.Error($"Failed to get method {methodName} on {Target}: {ex}");
-                Debug.LogException(ex);
+                log.Error($"Failed to get method {methodName} on {Target}: {ex}", ex);
             }
         }
 
@@ -53,34 +56,34 @@ namespace Subnautica_Archon.Util.Reflection
         {
             if (Method.IsNull())
                 return;
+            using var log = SmartLog.For(Rmc);
             if (!Target)
             {
-                Log.Error($"Unable to invoke method {Method.Name} since owning object has expired");
+                log.Error($"Unable to invoke method {Method.Name} since owning object has expired");
                 return;
             }
             try
             {
-                Log.Debug($"Invoking method {Method.Name} on {Target} with parameters ({string.Join(", ", p)})");
+                log.Debug($"Invoking method {Method.Name} on {Target} with parameters ({string.Join(", ", p)})");
                 Method.Invoke(Target, p);
             }
             catch (Exception ex)
             {
-                Log.Error($"Failed to invoke method {Method.Name} on {Target}: {ex}");
-                Debug.LogException(ex);
+                log.Error($"Failed to invoke method {Method.Name} on {Target}: {ex}", ex);
             }
         }
     }
 
-    public class MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
-        : BaseMethodAdapter(target, methodName, ignoreMissing)
+    public class MethodAdapter(RootModController rmc, UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+        : BaseMethodAdapter(rmc, target, methodName, ignoreMissing)
     {
         public void Invoke()
         {
             base.Invoke();
         }
     }
-    public class MethodAdapter<T>(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
-        : BaseMethodAdapter(target, methodName, ignoreMissing, typeof(T))
+    public class MethodAdapter<T>(RootModController rmc, UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+        : BaseMethodAdapter(rmc, target, methodName, ignoreMissing, typeof(T))
     {
         public void Invoke(T p)
         {
@@ -89,8 +92,8 @@ namespace Subnautica_Archon.Util.Reflection
     }
     public class MethodAdapter<T0, T1> : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
-            : base(target, methodName, ignoreMissing, typeof(T0), typeof(T1))
+        public MethodAdapter(RootModController rmc, UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+            : base(rmc, target, methodName, ignoreMissing, typeof(T0), typeof(T1))
         { }
 
         public void Invoke(T0 p0, T1 p1)
@@ -100,8 +103,8 @@ namespace Subnautica_Archon.Util.Reflection
     }
     public class MethodAdapter<T0, T1, T2> : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
-            : base(target, methodName, ignoreMissing, typeof(T0), typeof(T1), typeof(T2))
+        public MethodAdapter(RootModController rmc, UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+            : base(rmc, target, methodName, ignoreMissing, typeof(T0), typeof(T1), typeof(T2))
         { }
 
         public void Invoke(T0 p0, T1 p1, T2 p2)
@@ -111,8 +114,8 @@ namespace Subnautica_Archon.Util.Reflection
     }
     public class MethodAdapter<T0, T1, T2, T3> : BaseMethodAdapter
     {
-        public MethodAdapter(UnityEngine.Object target, string methodName, bool ignoreMissing = false)
-            : base(target, methodName, ignoreMissing, typeof(T0), typeof(T1), typeof(T2), typeof(T3))
+        public MethodAdapter(RootModController rmc, UnityEngine.Object target, string methodName, bool ignoreMissing = false)
+            : base(rmc, target, methodName, ignoreMissing, typeof(T0), typeof(T1), typeof(T2), typeof(T3))
         { }
 
         public void Invoke(T0 p0, T1 p1, T2 p2, T3 p3)
