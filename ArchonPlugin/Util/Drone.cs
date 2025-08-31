@@ -67,7 +67,7 @@ namespace Subnautica_Archon.Util
     {
         private readonly SimpleMethodHelper<bool> _isPlayerControlling;
         private readonly SimpleMethodHelper<Void> _stopControlling;
-        private TernaryValue<FieldOrPropertyAdapter<bool>> _isAsleep;
+        private ValueTernary<FieldOrPropertyAdapter<bool>> _isAsleep;
         private Drone(RootModController rmc, Vehicle vehicle)
         {
             RMC = rmc;
