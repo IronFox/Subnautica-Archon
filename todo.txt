@@ -6,6 +6,8 @@ batch:
 
 batch done:
 
+* fixed undocking edge cases
+* fixed bioreactor name when opening storage
 * added option to reduce engine sound volume
 * added chinese (simplified) localization
 * reduced bay door sound level
