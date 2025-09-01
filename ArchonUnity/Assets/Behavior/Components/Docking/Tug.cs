@@ -387,14 +387,10 @@ public class Tug : MonoBehaviour
             //Fit.Dockable.Tag(Tag);
             Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
 
-            //if (Status == TugStatus.Dock
-            //    && Status != TugStatus.Docking
-            //    && Status != TugStatus.UndockingWaitingForBayDoorOpen
-            //    && Status != TugStatus.UndockedWaitingForTriggerExit)
-            //    DockedLocation
-            //        .Globalize(Owner.archon.transform)
-            //        .TranslatedBy(M.V3(0, -1, 0))
-            //        .ApplyTo(Fit.GameObject);
+            if (Status == TugStatus.Docked)
+                ParkLocation
+                    .Globalize(Owner.archon.transform)
+                    .ApplyTo(Fit.GameObject);
 
             Do(Fit.Dockable.OnUndockedForSaving, $"Fit.Dockable.OnUndockedForSaving", false);
         }
