@@ -359,19 +359,6 @@ namespace Assets.Behavior.Components.Docking
         }
 
 
-        private Location Global(Location desc)
-        {
-            switch (desc.Locality)
-            {
-                case TransformLocality.Global:
-                    return desc;
-                case TransformLocality.Local:
-                    return desc.Globalize(Owner.transform);
-                default:
-                    return desc;
-            }
-        }
-
         private void RestartAnimation()
         {
             AnimationProgress = 0;
@@ -397,7 +384,7 @@ namespace Assets.Behavior.Components.Docking
 
                 if (Status == TugStatus.Docked)
                     ParkLocation
-                        .Globalize(Owner.archon.transform)
+                        .Globalize()
                         .ApplyTo(Fit.GameObject);
 
                 Do(Fit.Dockable.OnUndockedForSaving, $"Fit.Dockable.OnUndockedForSaving", false);
@@ -433,7 +420,12 @@ namespace Assets.Behavior.Components.Docking
                     }
                     else
                     {
-                        //Log.Write($"Saving assumed to continue");
+                        if (Status == TugStatus.Docked)
+                            ParkLocation
+                                .Globalize()
+                                .ApplyTo(Fit.GameObject);                        //Log.Write($"Saving assumed to continue");
+                        Fit.Dockable.ForceDisableAllRenderers(Renderers);
+
                         return;
                     }
                 }
