@@ -156,7 +156,7 @@ public class ArchonControl : MonoBehaviour
 
     private bool wasEverBoarded;
 
-    private bool shouldBeKinematic;
+    private bool shouldBeKinematic = true;
     public bool IsBeingControlled => currentlyControlled && !forceCockpitCamera;
 
     public bool UseFreeCamera => positionCamera.isFirstPerson
@@ -493,8 +493,8 @@ public class ArchonControl : MonoBehaviour
             if (boardedBy)
             {
                 boardedBy = default;
-                RigidbodyUtil.UnsetKinematic(rb);
-                shouldBeKinematic = false;
+                //RigidbodyUtil.UnsetKinematic(rb);
+                //shouldBeKinematic = false;
             }
 
             helmSeatController.MoveToControlPosition();
@@ -506,6 +506,9 @@ public class ArchonControl : MonoBehaviour
     {
         using (var log = Log.New())
         {
+            RigidbodyUtil.UnsetKinematic(rb);
+            shouldBeKinematic = false;
+
             wasEverBoarded = true;
             checkFloatingCharacterForSeconds = 0;
             lastOnboarded = DateTime.Now;
@@ -1420,7 +1423,7 @@ public class ArchonControl : MonoBehaviour
                 forceAutoLevelInSeconds = float.MaxValue;
             }
 
-            rb.CheckIsKinematic(shouldBeKinematic);
+            rb.CheckIsKinematic(shouldBeKinematic && !outOfWater);
 
             if (rb.drag != 0)
             {
