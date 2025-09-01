@@ -1423,7 +1423,7 @@ public class ArchonControl : MonoBehaviour
                 forceAutoLevelInSeconds = float.MaxValue;
             }
 
-            rb.CheckIsKinematic(shouldBeKinematic && !outOfWater);
+            rb.CheckIsKinematic(shouldBeKinematic && !outOfWater && (wasEverBoarded || bayControl.NumDockedVehicles > 0));
 
             if (rb.drag != 0)
             {
