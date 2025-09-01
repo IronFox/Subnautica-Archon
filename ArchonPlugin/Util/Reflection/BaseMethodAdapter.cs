@@ -21,7 +21,7 @@ namespace Subnautica_Archon.Util.Reflection
             Rmc = rmc;
             Target = target;
             MethodName = methodName;
-            using var log = SmartLog.For(rmc, parameters: [target, methodName, ignoreMissing, parameterTypes]);
+            using var log = SmartLog.For(rmc, parameters: Params.Of(target, methodName, ignoreMissing, parameterTypes));
             if (target.IsNull())
             {
                 log.Error("Given target game object is empty");

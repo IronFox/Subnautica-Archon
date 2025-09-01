@@ -1,4 +1,5 @@
 using Assets.Behavior.TransferTypes;
+using Assets.Behavior.Util.Math;
 using AVS;
 using AVS.Assets;
 using AVS.Log;
@@ -23,7 +24,7 @@ namespace Subnautica_Archon.Adapters
     {
         private FieldAdapter<Player.Mode> Mode { get; }
 
-        private SmartLog NewLog(bool forceLazy = false, IReadOnlyList<object?>? parameters = null, [CallerFilePath] string callerFilePath = "", [CallerMemberName] string memberName = "")
+        private SmartLog NewLog(bool forceLazy = false, LogParameters? parameters = null, [CallerFilePath] string callerFilePath = "", [CallerMemberName] string memberName = "")
         {
             return new SmartLog(RMC, frameDelta: 1, domain: Domain.Mod, tags: ["Dockable#" + Id], nameOverride: SmartLog.DeriveCallerName(callerFilePath, memberName), forceLazy: forceLazy, parameters: parameters);
         }
@@ -32,7 +33,7 @@ namespace Subnautica_Archon.Adapters
         public DockableVehicle(Vehicle vehicle, Archon archon)
         {
             RMC = archon.Owner;
-            using var log = NewLog(parameters: [vehicle, archon]);
+            using var log = NewLog(parameters: Params.Of(vehicle, archon));
             Vehicle = vehicle;
             Abstraction = Vehicle.ToAbstraction(archon.Owner);
             Archon = archon;

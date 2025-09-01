@@ -88,8 +88,8 @@ namespace Subnautica_Archon
 
                 ArButtonAdapter.Instrument = (archon, arButton) =>
                 {
-                    using var log = new SmartLog(this, Domain.Mod, 0, parameters: [archon, arButton], nameOverride: "ArButtonAdapter.Instrument");
-                    log.Write($"Instrumenting AR button {arButton.GetPath(archon.transform)}");
+                    using var log = new SmartLog(this, Domain.Mod, 0, parameters: Params.Of(archon, arButton), nameOverride: "ArButtonAdapter.Instrument");
+                    log.Debug($"Instrumenting AR button {arButton.GetPath(archon.transform)}");
                     var helper = arButton.gameObject.EnsureComponent<ArchonArButton>();
                     helper.arButton = arButton;
                 };
@@ -144,6 +144,8 @@ namespace Subnautica_Archon
                 var teleportNode = Node.Create("ArchonTeleportationGroup", Language.main.Get("Modules.Group.Teleportation"), SpriteHelper.RequireImage(this, "images/EmergencyTeleportationModule.png").Sprite);
                 var autoAdd = EmergencyTeleportationModule.Register(this, teleportNode);
                 TeleportationModuleA.RegisterAll(this, teleportNode);
+
+                RepairModule.RegisterAll(this);
 
                 var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage(this, "images/DockingModuleMk1.png").Sprite);
                 new DockingModule(this).Register(dockingNode); log.Write("Archon modules registered");

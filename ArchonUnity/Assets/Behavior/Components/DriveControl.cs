@@ -53,125 +53,127 @@ public class DriveControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        thrust = Mathf.Clamp(thrust, -1, 1);
-
-        if (archon.outOfWater)
-            waterDensity -= Time.deltaTime;
-        else
+        using (var log = Log.NewLazy())
         {
-            waterDensity += Time.deltaTime;
-            wasEverInWater = true;
-        }
+            thrust = Mathf.Clamp(thrust, -1, 1);
 
-        waterDensity = Mathf.Clamp01(waterDensity);
-
-        bool cameraIsExternal = !archon.CameraIsInVehicle;
-        if (cameraWasExternal != cameraIsExternal && wasEverInWater)
-        {
-            using (var log = Log.New())
-                log.Write("Switching propeller visibility since vehicle is not out of water and camera is external changed");
-            cameraWasExternal = cameraIsExternal;
-
-            foreach (var p in fullWhenCameraIsExternalPropellers)
+            if (archon.outOfWater)
+                waterDensity -= Time.deltaTime;
+            else
             {
-                if (p != null)
-                    p.gameObject.SetActive(cameraIsExternal);
+                waterDensity += Time.deltaTime;
+                wasEverInWater = true;
             }
-            foreach (var p in halfPropellers)
-            {
-                if (p != null)
-                    p.gameObject.SetActive(!cameraIsExternal);
-            }
-        }
-        if (Time.deltaTime > 0)
-        {
-            var speed = -Vector3.Dot(transform.position - lastMainPosition, transform.forward) / Time.deltaTime;
-            speed *= waterDensity;
-            float rot = maxRPS * (speed / 10 + thrust) * Time.deltaTime;
-            foreach (var p in alwaysFullPropellers)
-            {
-                Rotate(p, rot);
-            }
-            foreach (var p in fullWhenCameraIsExternalPropellers)
-            {
-                Rotate(p, rot);
-            }
-        }
 
+            waterDensity = Mathf.Clamp01(waterDensity);
 
-        if (regularAudioSource != null)
-        {
-            if (Time.deltaTime > 0)
+            bool cameraIsExternal = !archon.CameraIsInVehicle;
+            if (cameraWasExternal != cameraIsExternal && wasEverInWater)
             {
-                float speed = (transform.position - lastMainPosition).magnitude / Time.deltaTime;
-                speed *= waterDensity;
-                if (!archon.IsBeingControlled)
-                    speed = 0;
+                log.Debug("Switching propeller visibility since vehicle is not out of water and camera is external changed");
+                cameraWasExternal = cameraIsExternal;
 
-
-                var audioThrust = speed / 30;
-                //Log.Write($"DriveControl.Update: Speed: {speed} -> {audioThrust}");
-                //if (audioThrust > 0)
+                foreach (var p in fullWhenCameraIsExternalPropellers)
                 {
-                    regularAudioSource.volume = initialLevel * archon.engineSoundVolume * (0.1f + 0.9f * audioThrust);
-                    regularAudioSource.pitch = initialPitch * (1 + audioThrust * 0.5f);
-                    //regularAudioSource.enabled = true;
+                    if (p != null)
+                        p.gameObject.SetActive(cameraIsExternal);
+                }
+                foreach (var p in halfPropellers)
+                {
+                    if (p != null)
+                        p.gameObject.SetActive(!cameraIsExternal);
                 }
             }
-            //else
-            //  regularAudioSource.enabled = false;
-        }
-
-        if (overdrive > 0)
-        {
-            if (overdriveAudioSource != null)
+            if (Time.deltaTime > 0)
             {
-                //overdriveAudioSource.volume = overdrive;
-                //overdriveAudioSource.pitch = 0.5f + overdrive;
-                //overdriveAudioSource.enabled = true;
+                var speed = -Vector3.Dot(transform.position - lastMainPosition, transform.forward) / Time.deltaTime;
+                speed *= waterDensity;
+                float rot = maxRPS * (speed / 10 + thrust) * Time.deltaTime;
+                foreach (var p in alwaysFullPropellers)
+                {
+                    Rotate(p, rot);
+                }
+                foreach (var p in fullWhenCameraIsExternalPropellers)
+                {
+                    Rotate(p, rot);
+                }
             }
-            if (overdriveParticleSystem != null)
+
+
+            if (regularAudioSource != null)
             {
-                var em = overdriveParticleSystem.emission;
-                em.enabled = true;
-                var main = overdriveParticleSystem.main;
-                main.startSize = overdrive;
-                main.startLifetime = 0.2f * overdrive;
+                if (Time.deltaTime > 0)
+                {
+                    float speed = (transform.position - lastMainPosition).magnitude / Time.deltaTime;
+                    speed *= waterDensity;
+                    if (!archon.IsBeingControlled)
+                        speed = 0;
+
+
+                    var audioThrust = speed / 30;
+                    //Log.Write($"DriveControl.Update: Speed: {speed} -> {audioThrust}");
+                    //if (audioThrust > 0)
+                    {
+                        regularAudioSource.volume = initialLevel * archon.engineSoundVolume * (0.1f + 0.9f * audioThrust);
+                        regularAudioSource.pitch = initialPitch * (1 + audioThrust * 0.5f);
+                        //regularAudioSource.enabled = true;
+                    }
+                }
+                //else
+                //  regularAudioSource.enabled = false;
             }
-        }
-        else
-        {
-            //if (overdriveAudioSource != null)
-            //    overdriveAudioSource.enabled = false;
-            if (overdriveParticleSystem != null)
+
+            if (overdrive > 0)
             {
-                var em = overdriveParticleSystem.emission;
-                em.enabled = false;
+                if (overdriveAudioSource != null)
+                {
+                    //overdriveAudioSource.volume = overdrive;
+                    //overdriveAudioSource.pitch = 0.5f + overdrive;
+                    //overdriveAudioSource.enabled = true;
+                }
+                if (overdriveParticleSystem != null)
+                {
+                    var em = overdriveParticleSystem.emission;
+                    em.enabled = true;
+                    var main = overdriveParticleSystem.main;
+                    main.startSize = overdrive;
+                    main.startLifetime = 0.2f * overdrive;
+                }
             }
+            else
+            {
+                //if (overdriveAudioSource != null)
+                //    overdriveAudioSource.enabled = false;
+                if (overdriveParticleSystem != null)
+                {
+                    var em = overdriveParticleSystem.emission;
+                    em.enabled = false;
+                }
+            }
+
+
+            if (regularParticleSystem != null)
+            {
+                var inh = regularParticleSystem.inheritVelocity;
+                inh.mode = ParticleSystemInheritVelocityMode.Initial;
+
+                var module = regularParticleSystem.main;
+                module.startSpeedMultiplier = emissionSpeed * thrust;
+
+                var em = regularParticleSystem.emission;
+
+                var velocity = regularParticleSystem.transform.position - lastPosition;
+
+                em.enabled = thrust > 0 && Vector3.Dot(velocity, regularParticleSystem.transform.forward) < 0;
+                em.rateOverTimeMultiplier = emissionRate * 5 * (M.Abs(thrust) + overdrive);
+
+                lastPosition = regularParticleSystem.transform.position;
+            }
+            if (Time.deltaTime > 0)
+                lastMainPosition = transform.position;
+            //foreach (var p in propellers)
+            //    p.Rotate(0, 0, thrust * maxRPS * Time.deltaTime);
         }
-
-
-        if (regularParticleSystem != null)
-        {
-            var inh = regularParticleSystem.inheritVelocity;
-            inh.mode = ParticleSystemInheritVelocityMode.Initial;
-
-            var module = regularParticleSystem.main;
-            module.startSpeedMultiplier = emissionSpeed * thrust;
-
-            var em = regularParticleSystem.emission;
-
-            var velocity = regularParticleSystem.transform.position - lastPosition;
-
-            em.enabled = thrust > 0 && Vector3.Dot(velocity, regularParticleSystem.transform.forward) < 0;
-            em.rateOverTimeMultiplier = emissionRate * 5 * (M.Abs(thrust) + overdrive);
-
-            lastPosition = regularParticleSystem.transform.position;
-        }
-        if (Time.deltaTime > 0)
-            lastMainPosition = transform.position;
-        //foreach (var p in propellers)
-        //    p.Rotate(0, 0, thrust * maxRPS * Time.deltaTime);
     }
 
     private void Rotate(Transform propeller, float rot)

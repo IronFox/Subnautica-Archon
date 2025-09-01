@@ -1,82 +1,110 @@
 ﻿using Assets.Behavior.Adapters;
+using Assets.Behavior.Components;
+using Assets.Behavior.Components.Animations;
+using Assets.Behavior.Components.Docking;
+using Assets.Behavior.Components.Other;
+using Assets.Behavior.Components.Watchdog;
 using Assets.Behavior.Interfaces;
 using Assets.Behavior.TransferTypes;
 using Assets.Behavior.Util;
+using Assets.Behavior.Util.Undoable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-#pragma warning disable IDE0090
+
+
 
 public class ArchonControl : MonoBehaviour
 {
-    public KeyCode openConsoleKey = KeyCode.F7;
-
-    public Transform interior;
-    public Transform interiorLights;
-    public GameObject[] glass;
-    public Transform exterior;
-    public Transform dockingTrigger;
-    public Transform dockedSpace;
-    public Transform hangarRoot;
-    public Transform exteriorModel;
-    //public Renderer[] onEnterDisableShadows;
-    public Renderer exteriorInteriorShadowCaster;
-    public Renderer interiorExteriorShadowCaster;
-    public Material mapHologramMaterial;
-    public Bioreactor bioreactor;
-
-    public PlayerDetector powerCellPlayerDetector;
-
-    public AnimationController upgradeCoverAnimation;
-    public AnimationController powerCellAnimation;
-
-    public TeleportationAnimation teleportationAnimation;
-    public HudTeleportationAnimation hudTeleportationAnimation;
-
-    public float secondsToTeleport = 100;
-    public float teleportationProgress = 0;
-    public TeleportationType teleportationType = TeleportationType.None;
+    [Header("Input Axes")]
     public float forwardAxis;
     public float rightAxis;
     public float upAxis;
     public float zoomAxis;
     public float lookRightAxis;
     public float lookUpAxis;
-    public float interiorLightScale = 1;
-    public float engineSoundVolume = 1;
 
+
+    [Header("Other Stati")]
+    public bool batteryDead;
+    public float currentEnergy = 0.5f;
+    public float currentHealth = 0.5f;
+    public bool doAutoLevel;
+    public float engineSoundVolume = 1;
+    public float environmentalLeanIntensity = 1;
+    public bool flipFreeHorizontalRotationInReverse = true;
+    public bool flipFreeVerticalRotationInReverse = false;
+    public bool floodLights;
+    public LightShadows floodLightShadows = LightShadows.None;
+    public bool forceCockpitCamera;
+    public bool freeCameraInCockpit = false;
+    public bool freeCameraInExternalCamera = true;
+    public float interiorLightScale = 1;
+    public bool isHealing;
     private bool isMovingInReverse;
+    public int maxDockedVehicles = 2;
+    public float maxEnergy = 1;
+    public float maxHealth = 1;
+    public int minimumInteriorLightPriority;
+    public KeyCode openConsoleKey = KeyCode.F7;
+    public bool openUpgradeCover;
+    public bool openPowerCellCover;
+    public bool positionCameraBelowSub;
+    public bool powerOff;
+    public bool reactorIsCharging;
+    public float rotationDegreesPerSecond = 20;
+    public float secondsToTeleport = 100;
+    public TeleportationType teleportationType = TeleportationType.None;
+    public float teleportationProgress = 0;
+    public bool outOfWater;
+    public bool zoomedInIsCockpit = true;
+
+    //public Renderer[] onEnterDisableShadows;
+
+    [Header("Linked components")]
+    public DriveControl backFacingLeft;
+    public DriveControl backFacingRight;
+    public BayControl bayControl;
+    public Bioreactor bioreactor;
+    public Transform dockingTrigger;
+    public Transform dockedSpace;
+    public Transform exterior;
+    public Renderer exteriorInteriorShadowCaster;
+    public Transform exteriorModel;
+    public DriveControl forwardFacingLeft;
+    public DriveControl forwardFacingRight;
+    public GameObject[] glass;
+    public Transform hangarRoot;
+    public HealingLight[] healingLights;
+    public HelmSeatController helmSeatController;
+    public HudTeleportationAnimation hudTeleportationAnimation;
+    public Transform interior;
+    public Renderer interiorExteriorShadowCaster;
+    public Transform interiorLights;
+    public Material mapHologramMaterial;
+    public AnimationController powerCellAnimation;
+    public PlayerDetector powerCellPlayerDetector;
+    public StatusConsole statusConsole;
+    public TeleportationAnimation teleportationAnimation;
+    public Transform trailSpace;
+    public Transform trailSpaceCameraContainer;
+    public AnimationController upgradeCoverAnimation;
+
+
+
+
 
     public const int OuterShellLayer = 30;
 
     //public bool overdriveActive;
-    public bool outOfWater;
-    public bool freeCameraInCockpit = false;
-    public bool freeCameraInExternalCamera = true;
-    public bool flipFreeHorizontalRotationInReverse = true;
-    public bool flipFreeVerticalRotationInReverse = false;
-    public int minimumInteriorLightPriority;
     private int effectiveInteriorLightPriority;
 
-    public bool doAutoLevel;
 
-    public bool positionCameraBelowSub;
-    public float environmentalLeanIntensity = 1;
 
-    public bool zoomedInIsCockpit = true;
-    public bool forceCockpitCamera;
-    public bool powerOff;
-    public bool batteryDead;
-    public bool reactorIsCharging;
-    public bool openUpgradeCover;
-    public bool openPowerCellCover;
 
-    public bool floodLights;
-    public LightShadows floodLightShadows = LightShadows.None;
 
-    public int maxDockedVehicles = 2;
 
     private DateTime lastOnboarded;
     private IDockable selectedDockable;
@@ -84,22 +112,16 @@ public class ArchonControl : MonoBehaviour
     private bool boardedLeave;
     private PlayerReference boardedBy,
                     controlledBy;
-    private readonly Undoable controlUndo = new Undoable();
+    private readonly UndoableActions controlUndo = new UndoableActions();
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
 
     public bool CameraIsInVehicle { get; private set; }
 
-    public float maxEnergy = 1;
-    public float currentEnergy = 0.5f;
-    public float maxHealth = 1;
-    public float currentHealth = 0.5f;
-    public bool isHealing;
 
     private float forceAutoLevelInSeconds = float.MaxValue;
 
     private FirstPersonMarkers firstPersonMarkers;
 
-    public float rotationDegreesPerSecond = 20;
 
     private bool interiorLightsEnabled;
     private EnergyLevel energyLevel;
@@ -107,23 +129,13 @@ public class ArchonControl : MonoBehaviour
     private Transform cameraRoot;
     private bool helmCameraIsInVehicle;
 
-    public DriveControl forwardFacingLeft;
-    public DriveControl backFacingLeft;
-    public DriveControl forwardFacingRight;
-    public DriveControl backFacingRight;
 
-    public HealingLight[] healingLights;
-    public HelmSeatController helmSeatController;
 
-    public Transform trailSpace;
-    public Transform trailSpaceCameraContainer;
-    public StatusConsole statusConsole;
 
     private RotateCamera rotateCamera;
     private PositionCamera positionCamera;
     private NonCameraOrientation nonCameraOrientation;
     private FallOrientation fallOrientation;
-    public BayControl bayControl;
     private HullLightController hullLightController;
 
     private DirectionalDrag drag;
@@ -140,6 +152,7 @@ public class ArchonControl : MonoBehaviour
     private bool cameraIsInTrailspace;
 
     private ColliderWatchdog colliderWatchdog;
+    private RigidbodyWatchdog rigidbodyWatchdog;
 
     private bool wasEverBoarded;
 
@@ -237,7 +250,7 @@ public class ArchonControl : MonoBehaviour
 
     private void SetCollidersEnabled(IEnumerable<Collider> colliders, bool enable)
     {
-        colliderWatchdog.SetCollidersEnabled(colliders, enable);
+        colliderWatchdog.Include(colliders, enable);
     }
 
     private void UpdateInteriorCollidersAndLights(bool enable)
@@ -618,6 +631,7 @@ public class ArchonControl : MonoBehaviour
     private void Awake()
     {
         colliderWatchdog = GetComponent<ColliderWatchdog>();
+        rigidbodyWatchdog = GetComponent<RigidbodyWatchdog>();
         hullLightController = GetComponentInChildren<HullLightController>();
         evacuateIntruders = GetComponentInChildren<EvacuateIntruders>();
         drag = GetComponentInChildren<DirectionalDrag>();
@@ -1289,6 +1303,7 @@ public class ArchonControl : MonoBehaviour
 
             if (lastLightColor == setLightColor && effectiveInteriorLightPriority == minimumInteriorLightPriority)
                 return;
+            lastLightColor = setLightColor;
             effectiveInteriorLightPriority = minimumInteriorLightPriority;
             ILightListener[] listeners = GetComponentsInChildren<ILightListener>(true);
             listeners.ForEach(

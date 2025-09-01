@@ -1,145 +1,156 @@
 ﻿using Assets.Behavior.TransferTypes;
+using Assets.Behavior.Util.Math;
 using Behavior.Util.Math;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-public class DebugDockable : MonoBehaviour, IDockable
+namespace Assets.Behavior.Debugging
 {
-    public bool undockUpright = true;
+    /// <summary>
+    /// A simple implementation of IDockable for debugging purposes.
+    /// </summary>
+    [DisallowMultipleComponent]
+    [AddComponentMenu("Behavior/Debugging/DebugDockable")]
 
-    public GameObject GameObject => base.gameObject;
-
-    public bool ShouldUnfreezeImmediately => false;
-
-    public bool IsDocked { get; private set; } = false;
-
-    public bool UndockUpright => undockUpright;
-
-    public Bounds3 debugOutBounds;
-    public Bounds3 debugOutBounds2;
-    public int health = 100;
-    public int maxHealth = 100;
-    public string vehicleName = "Unnamed";
-    public Bounds3 LocalBounds { get; private set; }
-
-    public HashSet<string> Tags { get; } = new HashSet<string>();
-
-    public Texture2D texture;
-    public Texture2D[] moduleTextures;
-    public int crushDepth = 300;
-
-    public Sprite Image => SpriteUtil.ToSprite(texture);
-
-    public int storageCapacity = 16;
-    public int storageUsage = 3;
-
-    public int power = 64;
-    public int powerCapacity = 100;
-
-
-    public Sprite[] Modules => moduleTextures.Select(SpriteUtil.ToSprite).ToArray();
-
-    public string Name => vehicleName;
-
-    public string ClassName => nameof(DebugDockable);
-
-    public Text HealthText
-        => Text.Info($"Health: {health.Percentage(maxHealth)}");
-
-    public Text PowerText
-        => Text.Warning($"Power: {power.Percentage(powerCapacity)}");
-
-    public Text CrushText
-        => Text.Info($"Crush: {M.Round(-transform.position.y, 0).ToStr()}/{crushDepth}m");
-
-    public Text StorageText
-        => Text.Info($"Storage: {storageUsage}/{storageCapacity}");
-
-    public int StorageCount => 3;
-
-    public void BeginDocking()
+    public class DebugDockable : MonoBehaviour, IDockable
     {
-        IsDocked = true;
+        public bool undockUpright = true;
+
+        public GameObject GameObject => base.gameObject;
+
+        public bool ShouldUnfreezeImmediately => false;
+
+        public bool IsDocked { get; private set; } = false;
+
+        public bool UndockUpright => undockUpright;
+
+        public Bounds3 debugOutBounds;
+        public Bounds3 debugOutBounds2;
+        public int health = 100;
+        public int maxHealth = 100;
+        public string vehicleName = "Unnamed";
+        public Bounds3 LocalBounds { get; private set; }
+
+        public HashSet<string> Tags { get; } = new HashSet<string>();
+
+        public Texture2D texture;
+        public Texture2D[] moduleTextures;
+        public int crushDepth = 300;
+
+        public Sprite Image => SpriteUtil.ToSprite(texture);
+
+        public int storageCapacity = 16;
+        public int storageUsage = 3;
+
+        public int power = 64;
+        public int powerCapacity = 100;
+
+
+        public Sprite[] Modules => moduleTextures.Select(SpriteUtil.ToSprite).ToArray();
+
+        public string Name => vehicleName;
+
+        public string ClassName => nameof(DebugDockable);
+
+        public Text HealthText
+            => Text.Info($"Health: {health.Percentage(maxHealth)}");
+
+        public Text PowerText
+            => Text.Warning($"Power: {power.Percentage(powerCapacity)}");
+
+        public Text CrushText
+            => Text.Info($"Crush: {M.Round(-transform.position.y, 0).ToStr()}/{crushDepth}m");
+
+        public Text StorageText
+            => Text.Info($"Storage: {storageUsage}/{storageCapacity}");
+
+        public int StorageCount => 3;
+
+        public void BeginDocking()
+        {
+            IsDocked = true;
+        }
+
+        public void EndDocking()
+        { }
+
+        public void BeginUndocking()
+        {
+            IsDocked = false;
+        }
+
+        public void EndUndocking()
+        { }
+
+        public IEnumerable<T> GetAllComponents<T>() where T : Component
+            => gameObject.GetComponentsInChildren<T>();
+
+
+        void Awake()
+        {
+            LocalBounds = debugOutBounds = transform.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true, excludeFrom: null);
+            debugOutBounds2 = transform.ComputeScaledLocalBounds(includeRenderers: true, includeColliders: false, excludeFrom: null);
+        }
+
+        // Start is called before the first frame update
+        void Start()
+        {
+
+        }
+
+        // Update is called once per frame
+        void Update()
+        {
+
+        }
+
+        public void OpenStorage()
+        { }
+        public void OpenModules()
+        { }
+
+        public void OnDockingDone()
+        { }
+
+        public void UpdateWaitingForBayDoorClose()
+        { }
+
+        public void PrepareUndocking()
+        { }
+
+        public void UpdateWaitingForBayDoorOpen()
+        { }
+
+        public void OnUndockingDone()
+        { }
+
+        public void RestoreDockedStateFromSaveGame()
+        { }
+
+        public void Tag(string tag)
+        {
+            Tags.Add(tag);
+        }
+
+        public void Untag(string tag)
+        {
+            Tags.Remove(tag);
+        }
+
+        public bool IsTagged(string tag)
+        {
+            return Tags.Contains(tag);
+        }
+
+        public void OnUndockedForSaving()
+        { }
+
+        public void OnRedockedAfterSaving()
+        { }
+
+        public void OpenStorage(int storageIndex)
+        { }
     }
 
-    public void EndDocking()
-    { }
-
-    public void BeginUndocking()
-    {
-        IsDocked = false;
-    }
-
-    public void EndUndocking()
-    { }
-
-    public IEnumerable<T> GetAllComponents<T>() where T : Component
-        => gameObject.GetComponentsInChildren<T>();
-
-
-    void Awake()
-    {
-        LocalBounds = debugOutBounds = transform.ComputeScaledLocalBounds(includeRenderers: false, includeColliders: true, excludeFrom: null);
-        debugOutBounds2 = transform.ComputeScaledLocalBounds(includeRenderers: true, includeColliders: false, excludeFrom: null);
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
-    public void OpenStorage()
-    { }
-    public void OpenModules()
-    { }
-
-    public void OnDockingDone()
-    { }
-
-    public void UpdateWaitingForBayDoorClose()
-    { }
-
-    public void PrepareUndocking()
-    { }
-
-    public void UpdateWaitingForBayDoorOpen()
-    { }
-
-    public void OnUndockingDone()
-    { }
-
-    public void RestoreDockedStateFromSaveGame()
-    { }
-
-    public void Tag(string tag)
-    {
-        Tags.Add(tag);
-    }
-
-    public void Untag(string tag)
-    {
-        Tags.Remove(tag);
-    }
-
-    public bool IsTagged(string tag)
-    {
-        return Tags.Contains(tag);
-    }
-
-    public void OnUndockedForSaving()
-    { }
-
-    public void OnRedockedAfterSaving()
-    { }
-
-    public void OpenStorage(int storageIndex)
-    { }
 }

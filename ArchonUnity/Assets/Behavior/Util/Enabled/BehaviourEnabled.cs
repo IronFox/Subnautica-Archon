@@ -1,26 +1,33 @@
 ﻿using UnityEngine;
 
-internal class BehaviourEnabled : IEnabled
+namespace Assets.Behavior.Util.Enabled
 {
-    private readonly Behaviour x;
 
-    public BehaviourEnabled(Behaviour x)
+    internal class BehaviourEnabled : IEnabled
     {
-        this.x = x;
+        private readonly Behaviour x;
+
+        public BehaviourEnabled(Behaviour x)
+        {
+            this.x = x;
+        }
+
+        public Object Target => x;
+
+        public bool IsEnabled => x.enabled;
+
+        public bool LogChange => true;
+
+        public string PropertyName => "enabled";
+
+        public bool SetEnabled(bool enabled)
+        {
+            if (x.enabled == enabled)
+                return false;
+            x.enabled = enabled;
+            return true;
+        }
+        public bool Equals(IEnabled other) => other is BehaviourEnabled r && r.x == x;
+
     }
-
-    public Object Target => x;
-
-    public bool IsEnabled => x.enabled;
-
-    public bool LogChange => true;
-
-    public string PropertyName => "enabled";
-
-    public void SetEnabled(bool enabled)
-    {
-        x.enabled = enabled;
-    }
-    public bool Equals(IEnabled other) => other is BehaviourEnabled r && r.x == x;
-
 }

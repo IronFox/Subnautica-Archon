@@ -1,11 +1,19 @@
 ﻿using UnityEngine;
 
-public class DebugHelm : DebugHandTarget
+namespace Assets.Behavior.Debugging
 {
-    public Transform exit;
-    public override void OnTrigger(ArchonControl archon, FpsTest player)
+    /// <summary>
+    /// Simple helm for testing the ArchonControl system.
+    /// </summary>
+
+    public class DebugHelm : DebugHandTarget
     {
-        player.EnterHelm(archon, this);
+        public Transform exit;
+        public override void OnTrigger(ArchonControl archon, FpsTest player)
+        {
+            player.EnterHelm(archon, this);
+        }
+
     }
 
 }

@@ -1,67 +1,75 @@
 using Assets.Behavior.Adapters;
 using UnityEngine;
 
-public static class RigidbodyUtil
+namespace Assets.Behavior.Util
 {
-    public static void SetKinematic(this Rigidbody rb)
+    /// <summary>
+    /// Utility methods for working with Rigidbodies.
+    /// </summary>
+    public static class RigidbodyUtil
     {
-        if (rb && rb.isKinematic)
-            return;
-        using (var log = Log.New())
+        public static bool SetKinematic(this Rigidbody rb)
         {
-            if (!rb)
+            if (rb && rb.isKinematic)
+                return false;
+            using (var log = Log.NewLazy())
             {
-                log.Error("Rigidbody is null, cannot set kinematic state.");
-                return;
-            }
-
-            log.Write($"Setting [{rb.NiceName()}].isKinematic := true");
-            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            rb.interpolation = RigidbodyInterpolation.None;
-            rb.isKinematic = true;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-            //rb.interpolation = RigidbodyInterpolation.None;
-        }
-    }
-
-    public static void UnsetKinematic(this Rigidbody rb)
-    {
-        if (rb && !rb.isKinematic)
-            return;
-        using (var log = Log.New())
-        {
-            if (!rb)
-            {
-                log.Error("Rigidbody is null, cannot unset kinematic state.");
-                return;
-            }
-
-            log.Write($"Setting [{rb.NiceName()}].isKinematic := false");
-            rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
-            rb.interpolation = RigidbodyInterpolation.None;
-            rb.isKinematic = false;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
-            rb.interpolation = RigidbodyInterpolation.Extrapolate;
-        }
-    }
-
-    public static void CheckIsKinematic(this Rigidbody rb, bool shouldBeKinematic)
-    {
-
-        if (rb.isKinematic != shouldBeKinematic)
-        {
-            using (var log = Log.New())
-            {
-
-                if (shouldBeKinematic)
+                if (!rb)
                 {
-                    log.Warn("Re-enabling kinematic state");
-                    rb.SetKinematic();
+                    log.Error("Rigidbody is null, cannot set kinematic state.");
+                    return false;
                 }
-                else
+
+                log.Debug($"Setting [{rb.NiceName()}].isKinematic := true");
+                rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                rb.interpolation = RigidbodyInterpolation.None;
+                rb.isKinematic = true;
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+                //rb.interpolation = RigidbodyInterpolation.None;
+                return true;
+            }
+        }
+
+        public static bool UnsetKinematic(this Rigidbody rb)
+        {
+            if (rb && !rb.isKinematic)
+                return false;
+            using (var log = Log.NewLazy())
+            {
+                if (!rb)
                 {
-                    log.Warn("Re-disabling kinematic state");
-                    rb.UnsetKinematic();
+                    log.Error("Rigidbody is null, cannot unset kinematic state.");
+                    return false;
+                }
+
+                log.Debug($"Setting [{rb.NiceName()}].isKinematic := false");
+                rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                rb.interpolation = RigidbodyInterpolation.None;
+                rb.isKinematic = false;
+                rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+                rb.interpolation = RigidbodyInterpolation.Extrapolate;
+                return true;
+            }
+        }
+
+        public static void CheckIsKinematic(this Rigidbody rb, bool shouldBeKinematic)
+        {
+
+            if (rb.isKinematic != shouldBeKinematic)
+            {
+                using (var log = Log.New())
+                {
+
+                    if (shouldBeKinematic)
+                    {
+                        log.Warn("Re-enabling kinematic state");
+                        rb.SetKinematic();
+                    }
+                    else
+                    {
+                        log.Warn("Re-disabling kinematic state");
+                        rb.UnsetKinematic();
+                    }
                 }
             }
         }
