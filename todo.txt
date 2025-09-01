@@ -1,29 +1,18 @@
 batch:
 
+* use Renderer.forceRenderingOff on docked subs instead of Renderer.enabled
+	- keep on during undock for save
+* re-enable forced positioning on undock for save if docked sub has completed docking
+* when disembarking, disable and watch rigid bodies on the archon 
+	- excluding those in the docking bay
+	- including those on otherwise excluded hierarchies
+
 * test innate storage access on VF vehicles
 
 * silence UpdateVisualsPostfix
 
 batch done:
 
-* overhauled logging infrastructure
-* fixed undocking edge cases
-* fixed bioreactor name when opening storage
-* added option to reduce engine sound volume
-* added chinese (simplified) localization
-* reduced bay door sound level
-* added look sensitivity slider
-* added logging verbosity choice
-* added storage access
-* added module access
-* docked sub shielding is now preserved during save pause
-* fixed storage display
-
-* recheck Tweaks and fixes (works)
-* check if https://github.com/SubnauticaModding/Nautilus/pull/630 works (not yet released)
-* check Bed Teleport mod (broken)
-* check Easy Craft mod (bugged right now)
-* check if docked sub shielding is restored when redocking after saving (can't reproduce)
 
 no:
 
@@ -41,7 +30,7 @@ maybe:
 
 later:
 
-* controls on the HUD, potentially fading after a while
+* control help on the HUD, potentially fading after a while
 * allow map resource selection for visualization
 * revise healing light repetition
 * fix teleportation sounds
@@ -86,6 +75,23 @@ later:
 
 done:
 
+* overhauled logging infrastructure
+* fixed undocking edge cases
+* fixed bioreactor name when opening storage
+* added option to reduce engine sound volume
+* added chinese (simplified) localization
+* reduced bay door sound level
+* added look sensitivity slider
+* added logging verbosity choice
+* added storage access
+* added module access
+* docked sub shielding is now preserved during save pause
+* fixed storage display
+* recheck Tweaks and fixes (works)
+* check if https://github.com/SubnauticaModding/Nautilus/pull/630 works (not yet released)
+* check Bed Teleport mod (broken)
+* check Easy Craft mod (bugged right now)
+* check if docked sub shielding is restored when redocking after saving (can't reproduce)
 * fixed VF vehicles assuming AVS ping sprites
 * changed undock behavior to not "board" an undocking drone, causing it to move unintentionally
 * fixed entire bounding box collider activation on docking vehicles (fixed drone control access)

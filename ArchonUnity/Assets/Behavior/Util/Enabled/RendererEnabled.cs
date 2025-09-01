@@ -1,26 +1,30 @@
 ﻿using UnityEngine;
 
-internal class RendererEnabled : IEnabled
+namespace Assets.Behavior.Util.Enabled
 {
-    private readonly Renderer x;
 
-    public RendererEnabled(Renderer x)
+    internal class RendererEnabled : IEnabled
     {
-        this.x = x;
-    }
+        private readonly Renderer x;
 
-    public Object Target => x;
+        public RendererEnabled(Renderer x)
+        {
+            this.x = x;
+        }
 
-    public bool IsEnabled => x.enabled;
+        public Object Target => x;
 
-    public bool LogChange => false;
+        public bool IsEnabled => x.enabled;
 
-    public string PropertyName => "enabled";
+        public bool LogChange => false;
 
-    public bool Equals(IEnabled other) => other is RendererEnabled r && r.x == x;
+        public string PropertyName => "enabled";
 
-    public void SetEnabled(bool enabled)
-    {
-        x.enabled = enabled;
+        public bool Equals(IEnabled other) => other is RendererEnabled r && r.x == x;
+
+        public void SetEnabled(bool enabled)
+        {
+            x.enabled = enabled;
+        }
     }
 }

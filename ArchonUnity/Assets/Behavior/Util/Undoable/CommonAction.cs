@@ -1,71 +1,74 @@
 using Assets.Behavior.Adapters;
 using UnityEngine;
 
-public abstract class CommonAction<T> : IAction where T : Object
+namespace Assets.Behavior.Util.Undoable
 {
-    protected T TypedTarget { get; }
-    public string TargetName { get; }
-    public CommonAction(T c)
+    public abstract class CommonAction<T> : IAction where T : Object
     {
-        TypedTarget = c;
-        TargetName = c.NiceName();
-    }
-
-    public Object Target => TypedTarget;
-
-    public bool TargetIsGone => !TypedTarget;
-    private bool HaveLoggedGone { get; set; }
-
-    protected bool RequireTarget()
-    {
-        if (TargetIsGone)
+        protected T TypedTarget { get; }
+        public string TargetName { get; }
+        public CommonAction(T c)
         {
-            if (!HaveLoggedGone)
-            {
-                using (var log = Log.New())
-                    log.Warn(
-                        $"Cannot execute {GetType().Name} operation on {TargetName}: target is gone");
-                HaveLoggedGone = true;
-            }
-            return false;
+            TypedTarget = c;
+            TargetName = c.NiceName();
         }
-        return true;
-    }
-    public bool Do()
-    {
-        if (TargetIsGone)
+
+        public Object Target => TypedTarget;
+
+        public bool TargetIsGone => !TypedTarget;
+        private bool HaveLoggedGone { get; set; }
+
+        protected bool RequireTarget()
         {
-            if (!HaveLoggedGone)
+            if (TargetIsGone)
             {
-                using (var log = Log.New())
-                    log.Warn($"Cannot execute operation {GetType().Name}.Do() on {TargetName}: target is gone");
-                HaveLoggedGone = true;
+                if (!HaveLoggedGone)
+                {
+                    using (var log = Log.New())
+                        log.Warn(
+                            $"Cannot execute {GetType().Name} operation on {TargetName}: target is gone");
+                    HaveLoggedGone = true;
+                }
+                return false;
             }
-            return false;
+            return true;
         }
-        return ClientDo();
-    }
-
-    protected abstract bool ClientDo();
-    protected abstract void ClientUndo();
-
-    public void Undo()
-    {
-        if (TargetIsGone)
+        public bool Do()
         {
-            if (!HaveLoggedGone)
+            if (TargetIsGone)
             {
-                using (var log = Log.New())
-                    log.Warn($"Cannot execute operation {GetType().Name}.Undo() on {TargetName}: target is gone");
-                HaveLoggedGone = true;
+                if (!HaveLoggedGone)
+                {
+                    using (var log = Log.New())
+                        log.Warn($"Cannot execute operation {GetType().Name}.Do() on {TargetName}: target is gone");
+                    HaveLoggedGone = true;
+                }
+                return false;
             }
-            return;
+            return ClientDo();
         }
-        ClientUndo();
-    }
 
-    public bool Equals(IAction other)
-        => other is CommonAction<T> c
-        && c.GetType() == this.GetType()
-        && c.TargetName == this.TargetName;
+        protected abstract bool ClientDo();
+        protected abstract void ClientUndo();
+
+        public void Undo()
+        {
+            if (TargetIsGone)
+            {
+                if (!HaveLoggedGone)
+                {
+                    using (var log = Log.New())
+                        log.Warn($"Cannot execute operation {GetType().Name}.Undo() on {TargetName}: target is gone");
+                    HaveLoggedGone = true;
+                }
+                return;
+            }
+            ClientUndo();
+        }
+
+        public bool Equals(IAction other)
+            => other is CommonAction<T> c
+            && c.GetType() == this.GetType()
+            && c.TargetName == this.TargetName;
+    }
 }

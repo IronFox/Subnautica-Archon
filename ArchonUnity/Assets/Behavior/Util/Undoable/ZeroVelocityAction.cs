@@ -1,26 +1,29 @@
 ﻿using Assets.Behavior.Adapters;
 using UnityEngine;
 
-internal class ZeroVelocityAction : CommonAction<Rigidbody>
+namespace Assets.Behavior.Util.Undoable
 {
-    public ZeroVelocityAction(Rigidbody c) : base(c)
-    { }
-
-    protected override bool ClientDo()
+    internal class ZeroVelocityAction : CommonAction<Rigidbody>
     {
-        if (TypedTarget.velocity.sqrMagnitude > 0)
+        public ZeroVelocityAction(Rigidbody c) : base(c)
+        { }
+
+        protected override bool ClientDo()
         {
-            using (var log = Log.New())
+            if (TypedTarget.velocity.sqrMagnitude > 0)
             {
-                log.Write($"Clearing velocity of {TypedTarget.NiceName()}");
+                using (var log = Log.New())
+                {
+                    log.Write($"Clearing velocity of {TypedTarget.NiceName()}");
 
-                TypedTarget.velocity = Vector3.zero;
-                return true;
+                    TypedTarget.velocity = Vector3.zero;
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
-    }
 
-    protected override void ClientUndo()
-    { }
+        protected override void ClientUndo()
+        { }
+    }
 }

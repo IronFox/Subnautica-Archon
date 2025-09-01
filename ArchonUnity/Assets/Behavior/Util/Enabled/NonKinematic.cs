@@ -1,30 +1,36 @@
-﻿using UnityEditor;
-using UnityEngine;
+﻿using UnityEngine;
 
-internal class NonKinematic : IEnabled
+namespace Assets.Behavior.Util.Enabled
 {
-    public NonKinematic(Rigidbody c)
+    /// <summary>
+    /// An IEnabled that is true when a Rigidbody is non-kinematic.
+    /// </summary>
+    [System.Diagnostics.DebuggerDisplay("NonKinematic: {RB.NiceName()}")]
+    internal class NonKinematic : IEnabled
     {
-        RB = c;
+        public NonKinematic(Rigidbody c)
+        {
+            RB = c;
+        }
+
+        public Rigidbody RB { get; }
+
+        public Object Target => RB;
+
+        public bool IsEnabled => !RB.isKinematic;
+
+        public bool LogChange => false;
+
+        public string PropertyName => "!isKinematic";
+
+        public void SetEnabled(bool enabled)
+        {
+            if (enabled)
+                RB.UnsetKinematic();
+            else
+                RB.SetKinematic();
+        }
+        public bool Equals(IEnabled other) => other is NonKinematic r && r.RB == RB;
+
     }
-
-    public Rigidbody RB { get; }
-
-    public Object Target => RB;
-
-    public bool IsEnabled => !RB.isKinematic;
-
-    public bool LogChange => false;
-
-    public string PropertyName => "!isKinematic";
-
-    public void SetEnabled(bool enabled)
-    {
-        if (enabled)
-            RB.UnsetKinematic();
-        else
-            RB.SetKinematic();
-    }
-    public bool Equals(IEnabled other) => other is NonKinematic r && r.RB == RB;
-
 }

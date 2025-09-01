@@ -1,4 +1,5 @@
-﻿using AVS.Interfaces;
+﻿using Assets.Behavior.Adapters;
+using AVS.Interfaces;
 using UnityEngine;
 
 namespace Subnautica_Archon.Adapters
@@ -19,7 +20,7 @@ namespace Subnautica_Archon.Adapters
                 return false;
             if (!Mathf.Approximately(cfg.MinDistance, Config.MinDistance))
                 return false;
-            
+
             AvsSound.ApplyLiveChanges(new(Volume: cfg.Volume, Pitch: cfg.Pitch));
             return true;
         }

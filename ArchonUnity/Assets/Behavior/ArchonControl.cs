@@ -1,13 +1,19 @@
 ﻿using Assets.Behavior.Adapters;
+using Assets.Behavior.Components;
+using Assets.Behavior.Components.Animations;
+using Assets.Behavior.Components.Docking;
+using Assets.Behavior.Components.Other;
 using Assets.Behavior.Interfaces;
 using Assets.Behavior.TransferTypes;
 using Assets.Behavior.Util;
+using Assets.Behavior.Util.Undoable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-#pragma warning disable IDE0090
+
+
 
 public class ArchonControl : MonoBehaviour
 {
@@ -84,7 +90,7 @@ public class ArchonControl : MonoBehaviour
     private bool boardedLeave;
     private PlayerReference boardedBy,
                     controlledBy;
-    private readonly Undoable controlUndo = new Undoable();
+    private readonly UndoableActions controlUndo = new UndoableActions();
     private readonly FloatTimeFrame energyHistory = new FloatTimeFrame(TimeSpan.FromSeconds(2));
 
     public bool CameraIsInVehicle { get; private set; }

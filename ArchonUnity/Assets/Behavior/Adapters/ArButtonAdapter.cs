@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Behavior.Debugging;
+using System;
 
 namespace Assets.Behavior.Adapters
 {
