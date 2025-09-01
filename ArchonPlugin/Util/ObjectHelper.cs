@@ -22,25 +22,7 @@ namespace Subnautica_Archon.Util
             }
         }
 
-        public static string GetPath(this Transform? t)
-        {
-            if (t.IsNull())
-                return "<null>";
-            var parts = new List<string>();
-            try
-            {
-                while (t != null)
-                {
-                    parts.Add($"{t.name}[{t.GetInstanceID()}]");
-                    t = t.parent;
-                }
-            }
-            catch (UnityException)  //odd, but okay, don't care
-            { }
-            parts.Reverse();
-            return string.Join("/", parts);
-
-        }
+        public static string GetPath(this Transform? t) => t.PathToString();
         public static string GetPath(this Component c, Transform? root = null) => c.PathToString(root);
 
         public static IReadOnlyList<Type> GetHierarchyOf(Type? t)
