@@ -157,7 +157,7 @@ namespace Assets.Behavior.Util
             var parts = new List<string>();
             try
             {
-                while (t != terminator)
+                while (t && t != terminator)
                 {
                     var s = t.name;
                     int at = s.IndexOf('(');
