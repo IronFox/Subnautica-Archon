@@ -145,6 +145,8 @@ namespace Subnautica_Archon
                 var autoAdd = EmergencyTeleportationModule.Register(this, teleportNode);
                 TeleportationModuleA.RegisterAll(this, teleportNode);
 
+                RepairModule.RegisterAll(this);
+
                 var dockingNode = Node.Create("ArchonDockingGroup", Language.main.Get("Modules.Group.Docking"), SpriteHelper.RequireImage(this, "images/DockingModuleMk1.png").Sprite);
                 new DockingModule(this).Register(dockingNode); log.Write("Archon modules registered");
 
