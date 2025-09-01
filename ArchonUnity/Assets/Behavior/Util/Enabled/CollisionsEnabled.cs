@@ -22,9 +22,12 @@ namespace Assets.Behavior.Util.Enabled
 
         public string PropertyName => "detectCollisions";
 
-        public void SetEnabled(bool enabled)
+        public bool SetEnabled(bool enabled)
         {
+            if (c.detectCollisions == enabled)
+                return false;
             c.detectCollisions = enabled;
+            return true;
         }
         public bool Equals(IEnabled other) => other is CollisionsEnabled r && r.c == c;
 

@@ -49,6 +49,7 @@ namespace Assets.Behavior.Components.Docking
         private Util.Undoable.UndoableActions UndoTugging { get; } = new Util.Undoable.UndoableActions();
         private Util.Undoable.UndoableActions ParticleSystems { get; } = new Util.Undoable.UndoableActions();
         private Util.Undoable.UndoableActions Renderers { get; } = new Util.Undoable.UndoableActions();
+        private Util.Undoable.UndoableActions Canvases { get; } = new Util.Undoable.UndoableActions();
         private Util.Undoable.UndoableActions Lights { get; } = new Util.Undoable.UndoableActions();
         private Util.Undoable.UndoableActions DisabledBehavioursOnBayDoorCloseWait { get; } = new Util.Undoable.UndoableActions();
         public Location AnimationStart { get; private set; }
@@ -133,7 +134,7 @@ namespace Assets.Behavior.Components.Docking
                         Do(fit.Dockable.RestoreDockedStateFromSaveGame, $"Dockable.RestoreDockedStateFromSaveGame()", verifyIntegrity: false);
                         ChangeActiveState(false);
                         Fit.Dockable.ForceDisableAllRenderers(Renderers);
-                        Fit.Dockable.DisableAllEnabledCanvases(Renderers);
+                        Fit.Dockable.DisableAllEnabledCanvases(Canvases);
                         Fit.Dockable.DisableAllEnabledLights(Lights);
                         Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
                         ReDisable = 100;
@@ -163,6 +164,7 @@ namespace Assets.Behavior.Components.Docking
                         if (Fit.Dockable.ShouldUnfreezeImmediately)
                             DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
                         Renderers.UndoAndClear();
+                        Canvases.UndoAndClear();
                         Lights.UndoAndClear();
 
                         AnimationStart = DockedLocation;
@@ -201,6 +203,7 @@ namespace Assets.Behavior.Components.Docking
 
                 UndoTugging.UndoAndClear();
                 Renderers.UndoAndClear();
+                Canvases.UndoAndClear();
                 Lights.UndoAndClear();
                 ParticleSystems.UndoAndClear();
                 DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
@@ -262,8 +265,8 @@ namespace Assets.Behavior.Components.Docking
                 ChangeActiveState(false);
 
 
-                Fit.Dockable.DisableAllEnabledRenderers(Renderers);
-                Fit.Dockable.DisableAllEnabledCanvases(Renderers);
+                Fit.Dockable.ForceDisableAllRenderers(Renderers);
+                Fit.Dockable.DisableAllEnabledCanvases(Canvases);
                 Fit.Dockable.DisableAllEnabledLights(Lights);
                 Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
 
@@ -310,6 +313,7 @@ namespace Assets.Behavior.Components.Docking
                 DisabledBehavioursOnBayDoorCloseWait.UndoAndClear();
                 ParticleSystems.UndoAndClear();
                 Renderers.UndoAndClear();
+                Canvases.UndoAndClear();
                 Lights.UndoAndClear();
 
 
@@ -385,7 +389,8 @@ namespace Assets.Behavior.Components.Docking
                 DisabledBehavioursOnBayDoorCloseWait.UndoAll();
                 UndoTugging.UndoAll();
                 ParticleSystems.UndoAll();
-                //Renderers.UndoAll();
+                Canvases.UndoAll();
+                //Renderers.UndoAll();  //keep these disabled. we use force disable, so that's not persisted anyway
                 Lights.UndoAll();
                 //Fit.Dockable.Tag(Tag);
                 Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
@@ -415,6 +420,7 @@ namespace Assets.Behavior.Components.Docking
                             UndoTugging.RedoAll();
                             ParticleSystems.RedoAll();
                             Renderers.RedoAll();
+                            Canvases.RedoAll();
                             Lights.RedoAll();
                             Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
                             //Fit.Dockable.Untag(Tag);
@@ -443,8 +449,8 @@ namespace Assets.Behavior.Components.Docking
                             if (--ReDisable > 0)
                             {
                                 ChangeActiveState(false);
-                                Fit.Dockable.DisableAllEnabledRenderers(Renderers);
-                                Fit.Dockable.DisableAllEnabledCanvases(Renderers);
+                                Fit.Dockable.ForceDisableAllRenderers(Renderers);
+                                Fit.Dockable.DisableAllEnabledCanvases(Canvases);
                                 Fit.Dockable.DisableAllEnabledLights(Lights);
                                 Fit.Dockable.DisableAllActiveParticleEmitters(ParticleSystems);
                                 ParkLocation.ApplyTo(Fit.GameObject.transform);

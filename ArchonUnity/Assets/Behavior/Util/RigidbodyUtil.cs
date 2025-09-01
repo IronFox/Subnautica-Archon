@@ -8,45 +8,47 @@ namespace Assets.Behavior.Util
     /// </summary>
     public static class RigidbodyUtil
     {
-        public static void SetKinematic(this Rigidbody rb)
+        public static bool SetKinematic(this Rigidbody rb)
         {
             if (rb && rb.isKinematic)
-                return;
-            using (var log = Log.New())
+                return false;
+            using (var log = Log.NewLazy())
             {
                 if (!rb)
                 {
                     log.Error("Rigidbody is null, cannot set kinematic state.");
-                    return;
+                    return false;
                 }
 
-                log.Write($"Setting [{rb.NiceName()}].isKinematic := true");
+                log.Debug($"Setting [{rb.NiceName()}].isKinematic := true");
                 rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
                 rb.interpolation = RigidbodyInterpolation.None;
                 rb.isKinematic = true;
                 rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
                 //rb.interpolation = RigidbodyInterpolation.None;
+                return true;
             }
         }
 
-        public static void UnsetKinematic(this Rigidbody rb)
+        public static bool UnsetKinematic(this Rigidbody rb)
         {
             if (rb && !rb.isKinematic)
-                return;
-            using (var log = Log.New())
+                return false;
+            using (var log = Log.NewLazy())
             {
                 if (!rb)
                 {
                     log.Error("Rigidbody is null, cannot unset kinematic state.");
-                    return;
+                    return false;
                 }
 
-                log.Write($"Setting [{rb.NiceName()}].isKinematic := false");
+                log.Debug($"Setting [{rb.NiceName()}].isKinematic := false");
                 rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
                 rb.interpolation = RigidbodyInterpolation.None;
                 rb.isKinematic = false;
                 rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
                 rb.interpolation = RigidbodyInterpolation.Extrapolate;
+                return true;
             }
         }
 

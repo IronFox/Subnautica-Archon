@@ -36,7 +36,7 @@ namespace Assets.Behavior.Util.Undoable
                 {
                     if (Enabled.LogChange)
                     {
-                        log.Write($"Setting {Enabled.PropertyName} := {ToEnabled} on {TargetName}");
+                        log.Debug($"Setting {Enabled.PropertyName} := {ToEnabled} on {TargetName}");
                     }
 
                     Enabled.SetEnabled(ToEnabled);
@@ -66,7 +66,7 @@ namespace Assets.Behavior.Util.Undoable
                 {
                     if (Enabled.LogChange)
                     {
-                        log.Write($"Resetting {Enabled.PropertyName} := {!ToEnabled} on {TargetName}");
+                        log.Debug($"Resetting {Enabled.PropertyName} := {!ToEnabled} on {TargetName}");
                     }
 
                     Enabled.SetEnabled(!ToEnabled);

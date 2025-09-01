@@ -23,12 +23,12 @@ namespace Assets.Behavior.Util.Enabled
 
         public string PropertyName => "!isKinematic";
 
-        public void SetEnabled(bool enabled)
+        public bool SetEnabled(bool enabled)
         {
             if (enabled)
-                RB.UnsetKinematic();
+                return RB.UnsetKinematic();
             else
-                RB.SetKinematic();
+                return RB.SetKinematic();
         }
         public bool Equals(IEnabled other) => other is NonKinematic r && r.RB == RB;
 

@@ -19,15 +19,18 @@ namespace Assets.Behavior.Util.Enabled
 
         public bool IsEnabled => x.forceRenderingOff;
 
-        public bool LogChange => false;
+        public bool LogChange => true;
 
         public string PropertyName => "forceRenderingOff";
 
         public bool Equals(IEnabled other) => other is ForceRenderingOff r && r.x == x;
 
-        public void SetEnabled(bool enabled)
+        public bool SetEnabled(bool enabled)
         {
+            if (x.forceRenderingOff == enabled)
+                return false;
             x.forceRenderingOff = enabled;
+            return true;
         }
     }
 }

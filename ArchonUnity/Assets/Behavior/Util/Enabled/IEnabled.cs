@@ -9,7 +9,12 @@ namespace Assets.Behavior.Util.Enabled
     {
         UnityEngine.Object Target { get; }
         bool IsEnabled { get; }
-        void SetEnabled(bool enabled);
+        /// <summary>
+        /// Changes the enabled state.
+        /// </summary>
+        /// <param name="enabled">New value to set to</param>
+        /// <returns>True if the enable state was different and changed, false otherwise</returns>
+        bool SetEnabled(bool enabled);
         bool LogChange { get; }
 
         string PropertyName { get; }

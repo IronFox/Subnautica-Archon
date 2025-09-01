@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Behavior.Util;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -13,18 +14,22 @@ namespace Assets.Behavior.Adapters
     }
     public static class Log
     {
-        public static ILogAdapter New(params string[] tags)
+        public static ILogAdapter New(IReadOnlyList<string> tags = null)
         {
             return AdapterFactory((false, tags));
         }
-        public static ILogAdapter NewLazy(params string[] tags)
+        public static ILogAdapter NewLazy(IReadOnlyList<string> tags = null)
         {
             return AdapterFactory((true, tags));
         }
+        public static ILogAdapter NewLazy(string tag)
+        {
+            return AdapterFactory((true, SingleElementList.Create(tag)));
+        }
 
-        private static Func<(bool ForceLazy, string[] Tags), ILogAdapter> adapterFactory
+        private static Func<(bool ForceLazy, IReadOnlyList<string> Tags), ILogAdapter> adapterFactory
             = (p) => new UnityLogAdapter(p.Tags);
-        public static Func<(bool ForceLazy, string[] Tags), ILogAdapter> AdapterFactory
+        public static Func<(bool ForceLazy, IReadOnlyList<string> Tags), ILogAdapter> AdapterFactory
         {
             get => adapterFactory;
             set
@@ -43,12 +48,12 @@ namespace Assets.Behavior.Adapters
 
     internal class UnityLogAdapter : ILogAdapter
     {
-        public UnityLogAdapter(string[] tags)
+        public UnityLogAdapter(IReadOnlyList<string> tags)
         {
-            Tags = tags;
+            Tags = tags ?? Array.Empty<string>();
         }
 
-        public string[] Tags { get; }
+        public IReadOnlyList<string> Tags { get; }
 
         private string MakeMessage(string msg, IEnumerable<string> tags)
         {
@@ -92,7 +97,7 @@ namespace Assets.Behavior.Adapters
 
     public interface ILogAdapter : IDisposable
     {
-        string[] Tags { get; }
+        IReadOnlyList<string> Tags { get; }
         void Write(string message);
         void Debug(string message);
         void Warn(string message);

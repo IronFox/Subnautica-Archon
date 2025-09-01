@@ -1,3 +1,4 @@
+using Assets.Behavior.Adapters;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -155,10 +156,54 @@ namespace Assets.Behavior.Util.Undoable
                 return (Batch)Sequence[slot];
         }
 
+
         public void UndoAndClear()
         {
             UndoAll();
             Clear();
+        }
+
+        /// <summary>
+        /// Selectively purges and undoes batches whose target matches the given predicate.
+        /// </summary>
+        /// <param name="predicate">
+        /// Predicate to match targets of batches to be undone and removed.
+        /// </param>
+        public void UndoAndClearBatches(Func<UnityEngine.Object, bool> predicate)
+        {
+            using (var log = Log.NewLazy())
+            {
+                List<int> toRemove = new List<int>();
+                for (int i = 0; i < Sequence.Count; i++)
+                {
+                    var a = Sequence[i];
+                    if (a is Batch b && predicate(b.Target))
+                        try
+                        {
+                            a.Undo();
+                            toRemove.Add(i);
+                            log.Write($"Undid and removed batch for {b.Target.NiceName()} @{i}/{Sequence.Count}");
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogException(e);
+                        }
+                }
+                for (int i = toRemove.Count - 1; i >= 0; i--)
+                {
+                    var idx = toRemove[i];
+                    var a = Sequence[idx];
+                    var key = new ObjectReference(a.Target);
+                    Sequence.RemoveAt(idx);
+                    Map.Remove(key);
+                }
+                for (int i = 0; i < Sequence.Count; i++)
+                {
+                    var a = Sequence[i];
+                    var key = new ObjectReference(a.Target);
+                    Map[key] = i;
+                }
+            }
         }
 
         public void UndoAll()

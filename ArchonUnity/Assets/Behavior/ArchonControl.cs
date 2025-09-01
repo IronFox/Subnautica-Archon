@@ -3,6 +3,7 @@ using Assets.Behavior.Components;
 using Assets.Behavior.Components.Animations;
 using Assets.Behavior.Components.Docking;
 using Assets.Behavior.Components.Other;
+using Assets.Behavior.Components.Watchdog;
 using Assets.Behavior.Interfaces;
 using Assets.Behavior.TransferTypes;
 using Assets.Behavior.Util;
@@ -151,6 +152,7 @@ public class ArchonControl : MonoBehaviour
     private bool cameraIsInTrailspace;
 
     private ColliderWatchdog colliderWatchdog;
+    private RigidbodyWatchdog rigidbodyWatchdog;
 
     private bool wasEverBoarded;
 
@@ -248,7 +250,7 @@ public class ArchonControl : MonoBehaviour
 
     private void SetCollidersEnabled(IEnumerable<Collider> colliders, bool enable)
     {
-        colliderWatchdog.SetCollidersEnabled(colliders, enable);
+        colliderWatchdog.Include(colliders, enable);
     }
 
     private void UpdateInteriorCollidersAndLights(bool enable)
@@ -629,6 +631,7 @@ public class ArchonControl : MonoBehaviour
     private void Awake()
     {
         colliderWatchdog = GetComponent<ColliderWatchdog>();
+        rigidbodyWatchdog = GetComponent<RigidbodyWatchdog>();
         hullLightController = GetComponentInChildren<HullLightController>();
         evacuateIntruders = GetComponentInChildren<EvacuateIntruders>();
         drag = GetComponentInChildren<DirectionalDrag>();
@@ -1300,6 +1303,7 @@ public class ArchonControl : MonoBehaviour
 
             if (lastLightColor == setLightColor && effectiveInteriorLightPriority == minimumInteriorLightPriority)
                 return;
+            lastLightColor = setLightColor;
             effectiveInteriorLightPriority = minimumInteriorLightPriority;
             ILightListener[] listeners = GetComponentsInChildren<ILightListener>(true);
             listeners.ForEach(

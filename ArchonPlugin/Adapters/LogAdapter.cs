@@ -1,17 +1,18 @@
 ﻿using AVS.Log;
 using System;
+using System.Collections.Generic;
 
 namespace Subnautica_Archon.Adapters
 {
     internal class LogAdapter : Assets.Behavior.Adapters.ILogAdapter
     {
-        public LogAdapter(ArchonModController amc, bool forceLazy, string[] tags)
+        public LogAdapter(ArchonModController amc, bool forceLazy, IReadOnlyList<string>? tags)
         {
             Tags = tags;
-            Writer = new SmartLog(amc, domain: "Uty", frameDelta: 3, tags: tags, forceLazy: forceLazy);
+            Writer = new SmartLog(amc, Domain.Unity, frameDelta: 3, tags: tags, forceLazy: forceLazy);
         }
         public SmartLog Writer { get; }
-        public string[] Tags { get; }
+        public IReadOnlyList<string>? Tags { get; }
 
         public void Debug(string message)
         {

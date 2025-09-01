@@ -22,9 +22,12 @@ namespace Assets.Behavior.Util.Enabled
 
         public string PropertyName => "enabled";
 
-        public void SetEnabled(bool enabled)
+        public bool SetEnabled(bool enabled)
         {
+            if (x.enabled == enabled)
+                return false;
             x.enabled = enabled;
+            return true;
         }
 
         public bool Equals(IEnabled other) => other is ColliderEnabled r && r.x == x;

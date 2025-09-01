@@ -22,10 +22,13 @@ namespace Assets.Behavior.Util.Enabled
 
         public string PropertyName => "enabled";
 
-        public void SetEnabled(bool enabled)
+        public bool SetEnabled(bool enabled)
         {
             var em = x.emission;
+            if (em.enabled == enabled)
+                return false;
             em.enabled = enabled;
+            return true;
         }
         public bool Equals(IEnabled other) => other is EmissionEnabled r && r.x == x;
     }
