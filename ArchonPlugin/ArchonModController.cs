@@ -88,7 +88,7 @@ namespace Subnautica_Archon
 
                 ArButtonAdapter.Instrument = (archon, arButton) =>
                 {
-                    using var log = new SmartLog(this, Domain.Mod, 0, parameters: [archon, arButton], nameOverride: "ArButtonAdapter.Instrument");
+                    using var log = new SmartLog(this, Domain.Mod, 0, parameters: Params.Of(archon, arButton), nameOverride: "ArButtonAdapter.Instrument");
                     log.Write($"Instrumenting AR button {arButton.GetPath(archon.transform)}");
                     var helper = arButton.gameObject.EnsureComponent<ArchonArButton>();
                     helper.arButton = arButton;
