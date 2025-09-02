@@ -37,7 +37,17 @@ namespace Assets.Behavior.Components.Watchdog
                     return;
                 }
                 var c = enumerator.Current;
-
+                if (!c.transform.IsChildOf(transform))
+                {
+                    // The collider is no longer a child of this transform, so we should stop monitoring it.
+                    if (currentlyInDisabled)
+                        Disabled.Remove(c);
+                    else
+                        Enabled.Remove(c);
+                    enumerator = null;
+                    log.Warn($"{nameof(ColliderWatchdog)}: Stopped monitoring {c.ComponentToString(transform)} as it is no longer a child of {transform.NiceName()}");
+                    return;
+                }
                 if (currentlyInDisabled)
                 {
                     if (ChangeEnabled(c, false))
@@ -76,28 +86,36 @@ namespace Assets.Behavior.Components.Watchdog
                 {
                     if (c)
                     {
+                        if (!c.transform.IsChildOf(transform))
+                        {
+                            log.Warn($"{nameof(ColliderWatchdog)}: Cannot monitor {c.ComponentToString(transform)} as it is not a child of {transform.NiceName()}");
+                            continue;
+                        }
                         if (enable)
                         {
                             //if (!EnabledColliders.Contains(c) && !DisabledColliders.Contains(c))
                             //  log.Write($"Registering new as enabled: {c.ComponentToString(transform)}");
-                            Enabled.Add(c);
-                            Disabled.Remove(c);
-                            enumerator = null;
-                            ChangeEnabled(c, true);
-                            log.Debug($"Enabling {c.ComponentToString(transform)}");
+                            if (Enabled.Add(c))
+                            {
+                                Disabled.Remove(c);
+                                ChangeEnabled(c, true);
+                                log.Debug($"Enabling {c.ComponentToString(transform)}");
+                            }
                         }
                         else
                         {
                             //if (!EnabledColliders.Contains(c) && !DisabledColliders.Contains(c))
                             //  log.Write($"Registering new as disabled: {c.ComponentToString(transform)}");
-                            Disabled.Add(c);
-                            Enabled.Remove(c);
-                            enumerator = null;
-                            ChangeEnabled(c, false);
-                            log.Debug($"Disabling {c.ComponentToString(transform)}");
+                            if (Disabled.Add(c))
+                            {
+                                Enabled.Remove(c);
+                                ChangeEnabled(c, false);
+                                log.Debug($"Disabling {c.ComponentToString(transform)}");
+                            }
                         }
                     }
                 }
+                enumerator = null;
 
                 log.Write($"Changes applied. Enabled now {Enabled.Count()}, disabled now {Disabled.Count()}");
             }
