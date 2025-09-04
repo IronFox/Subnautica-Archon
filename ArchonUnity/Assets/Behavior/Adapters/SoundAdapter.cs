@@ -26,8 +26,11 @@ namespace Assets.Behavior.Adapters
         public float pitch = 1f;
         public bool loop = false;
 
-        private int DeadForFrames { get; set; } = 0;
+        private bool lastPlay = false;
+        private AudioClip lastClip = null;
 
+        private int DeadForFrames { get; set; } = 0;
+        private int ReinstiatedCount { get; set; }
 
         void Start()
         {
@@ -43,6 +46,14 @@ namespace Assets.Behavior.Adapters
         // Update is called once per frame
         void Update()
         {
+            if (clip != lastClip || play != lastPlay)
+            {
+                using (var log = Log.NewLazy())
+                    log.Debug($"Clip changed from {lastClip.NiceName()}/{lastPlay} to {clip.NiceName()}/{play} on {this.NiceName()}");
+                lastClip = clip;
+                lastPlay = play;
+                ReinstiatedCount = 0;
+            }
             if (clip != null && play)
             {
                 var cfg = GetCurrentConfig();
@@ -52,8 +63,14 @@ namespace Assets.Behavior.Adapters
                     using (var log = Log.New())
                         log.Write($"Reinstantiating sound {this.NiceName()} for clip {clip.name}");
                     Sound?.Dispose();
-                    Sound = SoundCreator.Instantiate(cfg);
-                    DeadForFrames = 0;
+                    if (loop || ReinstiatedCount < 3)
+                    {
+                        Sound = SoundCreator.Instantiate(cfg);
+                        DeadForFrames = 0;
+                        ReinstiatedCount++;
+                    }
+                    else
+                        Sound = null;
                 }
             }
             else if (Sound != null)
@@ -70,6 +87,7 @@ namespace Assets.Behavior.Adapters
 
         public void Play()
         {
+            ReinstiatedCount = 0;
             if (clip != null)
             {
                 var cfg = GetCurrentConfig();
