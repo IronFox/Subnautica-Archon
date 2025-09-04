@@ -132,14 +132,21 @@ namespace Assets.Behavior.Util
         public static bool DisableRigidbodies(this IDockable dockable, Undoable.UndoableActions undo, bool forced = false)
             => dockable.GetAllComponents<Rigidbody>().Disable(undo, forced);
 
+
+        public static string Clean(this string s)
+        {
+            if (s == null)
+                return "<null>";
+            int at = s.IndexOf('(');
+            if (at >= 0)
+                s = s.Substring(0, at);
+            return s;
+        }
         public static string NiceName(this UnityEngine.Object o)
         {
             if (!o)
                 return $"<null>";
-            var s = o.name;
-            int at = s.IndexOf('(');
-            if (at >= 0)
-                s = s.Substring(0, at);
+            var s = o.name.Clean();
             return $"<{o.GetType().Name}> '{s}' [{o.GetInstanceID()}]";
         }
 

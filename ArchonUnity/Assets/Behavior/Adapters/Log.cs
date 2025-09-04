@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace Assets.Behavior.Adapters
 {
@@ -16,31 +17,23 @@ namespace Assets.Behavior.Adapters
     {
         public static ILogAdapter New(IReadOnlyList<string> tags = null)
         {
-            return AdapterFactory((false, tags));
+            return AdapterFactory(tags);
         }
-        public static ILogAdapter NewLazy(IReadOnlyList<string> tags = null)
+        public static ILogAdapter NewLazy(IReadOnlyList<string> tags = null, [CallerFilePath] string callerFilePath = "", [CallerMemberName] string memberName = "")
         {
-            return AdapterFactory((true, tags));
+            return LazyAdapterFactory((CallerFilePath: callerFilePath, MemberName: memberName, Tags: tags));
         }
-        public static ILogAdapter NewLazy(string tag)
+        public static ILogAdapter NewLazy(string tag, [CallerFilePath] string callerFilePath = "", [CallerMemberName] string memberName = "")
         {
-            return AdapterFactory((true, SingleElementList.Create(tag)));
+            return LazyAdapterFactory((CallerFilePath: callerFilePath, MemberName: memberName, Tags: tag is null ? null : SingleElementList.Create(tag)));
         }
 
         private static Func<(bool ForceLazy, IReadOnlyList<string> Tags), ILogAdapter> adapterFactory
             = (p) => new UnityLogAdapter(p.Tags);
-        public static Func<(bool ForceLazy, IReadOnlyList<string> Tags), ILogAdapter> AdapterFactory
-        {
-            get => adapterFactory;
-            set
-            {
-                if (value == null)
-                {
-                    throw new ArgumentNullException(nameof(value), "AdapterFactory cannot be null");
-                }
-                adapterFactory = value;
-            }
-        }
+        public static Func<IReadOnlyList<string>, ILogAdapter> AdapterFactory { get; set; }
+            = p => new UnityLogAdapter(p);
+        public static Func<(string CallerFilePath, string MemberName, IReadOnlyList<string> Tags), ILogAdapter> LazyAdapterFactory { get; set; }
+            = p => new UnityLogAdapter(p.Tags);
 
 
 
