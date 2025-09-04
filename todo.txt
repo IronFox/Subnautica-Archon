@@ -1,6 +1,5 @@
 batch:
 
-* test XBox controller, maybe clamp inputs
 
 batch done:
 
@@ -9,6 +8,7 @@ batch done:
 * fixed undiscovered egg loading in water park and bioreactor
 * smoothed bioreactor sound volume and interior light strip color when charging
 * no longer reinstantiating non-looping, repeatedly failing sounds indefinitely
+* test XBox controller, maybe clamp inputs. Works, no clamping necessary
 
 
 
