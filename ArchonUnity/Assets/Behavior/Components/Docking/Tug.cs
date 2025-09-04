@@ -91,13 +91,13 @@ namespace Assets.Behavior.Components.Docking
             try
             {
                 if (logAction)
-                    using (var log = Log.New())
+                    using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                         log.Write(actionDesc);
                 action();
             }
             catch (Exception ex)
             {
-                using (var log = Log.New())
+                using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                     log.Error(actionDesc, ex);
             }
             if (verifyIntegrity)
@@ -108,12 +108,12 @@ namespace Assets.Behavior.Components.Docking
         private Location ParkLocation => Fit.CorrectDocked(Location.FromLocal(Owner.parkPostion));
         private int ReDisable { get; set; }
 
-        //private ILogAdapter NewLog() =>
-        //   Log.New($"Tug#{GetInstanceID()}", fit.GameObject.NiceName());
+        private ILogAdapter NewLog() =>
+           Log.NewLazy(fit.GameObject.NiceName());
 
         internal void Bind(BayControl bayControl, DockingFit fit, TugStatus status)
         {
-            using (var log = Log.New())
+            using (var log = Log.NewLazy(fit.GameObject.NiceName()))
             {
                 log.Write($"Binding with status {status} and bounds {fit.Bounds}");
                 Owner = bayControl;
@@ -193,7 +193,7 @@ namespace Assets.Behavior.Components.Docking
         {
             if (Status != TugStatus.Undocking)
                 throw new InvalidOperationException($"Cannot transition to free from {Status}");
-            using (var log = Log.New())
+            using (var log = Log.NewLazy(fit.GameObject.NiceName()))
             {
                 log.Write($"Free");
                 Status = TugStatus.UndockedWaitingForTriggerExit;
@@ -235,7 +235,7 @@ namespace Assets.Behavior.Components.Docking
                 {
                     if (Fit.GameObject.transform.parent != Owner.dockedSubRoot)
                     {
-                        using (var log = Log.New())
+                        using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                             log.Error($"Dockable resides in wrong parent ({Fit.GameObject.transform.parent.PathToString()}). Moving to {Owner.dockedSubRoot}");
                         Fit.GameObject.transform.SetParent(Owner.dockedSubRoot);
                     }
@@ -244,7 +244,7 @@ namespace Assets.Behavior.Components.Docking
                 {
                     if (Fit.GameObject.transform.IsChildOf(Owner.dockedSubRoot))
                     {
-                        using (var log = Log.New())
+                        using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                             log.Error($"{Fit} is still a child of {this}. Offloading");
                         Fit.GameObject.transform.SetParent(Owner.archon.transform.parent);
                     }
@@ -257,7 +257,7 @@ namespace Assets.Behavior.Components.Docking
 
         private void TransitionToDocked()
         {
-            using (var log = Log.New())
+            using (var log = Log.NewLazy(fit.GameObject.NiceName()))
             {
 
                 log.Write($"Docked");
@@ -282,7 +282,7 @@ namespace Assets.Behavior.Components.Docking
 
         private void TransitionToWaitingForBayDoorClose()
         {
-            using (var log = Log.New())
+            using (var log = Log.NewLazy(fit.GameObject.NiceName()))
             {
 
                 log.Write($"WaitingForBayDoorClose");
@@ -304,7 +304,7 @@ namespace Assets.Behavior.Components.Docking
 
         private void BeginUndocking()
         {
-            using (var log = Log.New())
+            using (var log = Log.NewLazy(fit.GameObject.NiceName()))
             {
                 log.Write($"Undocking");
 
@@ -368,7 +368,7 @@ namespace Assets.Behavior.Components.Docking
 
         public void PrepareForSaving()
         {
-            using (var log = Log.New())
+            using (var log = Log.NewLazy(fit.GameObject.NiceName()))
             {
                 log.Write(nameof(PrepareForSaving));
                 IsSaving = true;
@@ -399,7 +399,7 @@ namespace Assets.Behavior.Components.Docking
                 {
                     if (Time.deltaTime != 0)
                     {
-                        using (var log = Log.New())
+                        using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                         {
                             log.Write($"Saving assumed done. Reintegrating");
 
@@ -453,7 +453,7 @@ namespace Assets.Behavior.Components.Docking
                             WaitSeconds += Time.deltaTime;
                             if (WaitSeconds > 1 && !Owner.dockingTrigger.IsTracked(Fit.GameObject))
                             {
-                                using (var log = Log.New())
+                                using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                                 {
                                     log.Write("No longer in trigger zone. Releasing");
 
@@ -477,7 +477,7 @@ namespace Assets.Behavior.Components.Docking
                         case TugStatus.DockingWaitingForBayDoorClose:
                             if (Owner.DoorsAreClosed)
                             {
-                                using (var log = Log.New())
+                                using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                                 {
                                     Owner.ReleaseActive(this);
                                     log.Write("Doors closed. Concluding");
@@ -494,7 +494,7 @@ namespace Assets.Behavior.Components.Docking
                         case TugStatus.UndockingWaitingForBayDoorOpen:
                             if (Owner.DoorsAreSufficientlyOpen)
                             {
-                                using (var log = Log.New())
+                                using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                                 {
                                     log.Write($"Doors open wide enough. Undocking");
                                     BeginUndocking();
@@ -522,7 +522,7 @@ namespace Assets.Behavior.Components.Docking
                             }
                             else
                             {
-                                using (var log = Log.New())
+                                using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                                 {
                                     log.Write($"Animation end reached");
                                     Local(AnimationEnd())
@@ -546,7 +546,7 @@ namespace Assets.Behavior.Components.Docking
                 }
                 catch (Exception e)
                 {
-                    using (var log = Log.New())
+                    using (var log = Log.NewLazy(fit.GameObject.NiceName()))
                         log.Error($"Caught exception", e);
                 }
             }

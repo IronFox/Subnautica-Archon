@@ -1492,6 +1492,7 @@ public class ArchonControl : MonoBehaviour
             }
             int idx = docked.IndexOf(selectedDockable);
             selectedDockable = idx < 0 ? docked.FirstOrDefault() : docked[(idx - 1 + docked.Count) % docked.Count];
+            log.Write($"Selected {selectedDockable?.Name}");
             SignalDockableSelectedOrChanged();
         }
     }
@@ -1517,6 +1518,7 @@ public class ArchonControl : MonoBehaviour
             }
             int idx = docked.IndexOf(selectedDockable);
             selectedDockable = idx < 0 ? docked.FirstOrDefault() : docked[(idx + 1) % docked.Count];
+            log.Write($"Selected {selectedDockable?.Name}");
             SignalDockableSelectedOrChanged();
         }
     }
@@ -1530,19 +1532,34 @@ public class ArchonControl : MonoBehaviour
                 );
         }
     }
-    public void SignalDockedChange()
+
+    internal void SignalDocked(IDockable dockable)
     {
-        if (selectedDockable == null)
+        using (var log = Log.New())
         {
-            selectedDockable = bayControl.Docked.FirstOrDefault();
+            selectedDockable = dockable;
+            log.Write($"Selected {selectedDockable?.Name}");
             SignalDockableSelectedOrChanged();
         }
-        else
+    }
+    public void SignalDockedChange()
+    {
+        using (var log = Log.NewLazy())
         {
-            if (!bayControl.Docked.Contains(selectedDockable))
+            if (selectedDockable == null)
             {
                 selectedDockable = bayControl.Docked.FirstOrDefault();
+                log.Write($"Selected {selectedDockable?.Name}");
                 SignalDockableSelectedOrChanged();
+            }
+            else
+            {
+                if (!bayControl.Docked.Contains(selectedDockable))
+                {
+                    selectedDockable = bayControl.Docked.FirstOrDefault();
+                    log.Write($"Selected {selectedDockable?.Name}");
+                    SignalDockableSelectedOrChanged();
+                }
             }
         }
     }
