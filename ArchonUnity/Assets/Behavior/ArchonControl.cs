@@ -7,6 +7,7 @@ using Assets.Behavior.Components.Watchdog;
 using Assets.Behavior.Interfaces;
 using Assets.Behavior.TransferTypes;
 using Assets.Behavior.Util;
+using Assets.Behavior.Util.Lighting;
 using Assets.Behavior.Util.Undoable;
 using System;
 using System.Collections.Generic;
@@ -1239,7 +1240,7 @@ public class ArchonControl : MonoBehaviour
         {
             if (bioreactor)
             {
-                bioreactor.isCharging = reactorIsCharging;
+                bioreactor.isCharging = OneSecondAccumulator.Average.IsCharging;
                 bioreactor.powerOff = batteryDead || powerOff;
             }
         }
@@ -1258,9 +1259,12 @@ public class ArchonControl : MonoBehaviour
         hudTeleportationAnimation.progress = teleportationProgress;
     }
 
-    private InteriorLightColor setLightColor, interpolatingFrom, lastLightColor;
-    private InteriorLightState lastLightState;
+    //private InteriorLightColor setLightColor, interpolatingFrom, lastLightColor;
 
+
+
+    private InteriorLightColor lastLight;
+    private LightStateAccumulator OneSecondAccumulator { get; } = new LightStateAccumulator();
     private void UpdateLighting()
     {
         try
@@ -1268,51 +1272,27 @@ public class ArchonControl : MonoBehaviour
             hullLightController.lightsEnabled = floodLights;
             hullLightController.shadows = CameraIsInVehicle ? LightShadows.None : floodLightShadows;
 
-
-            InteriorLightState lightState = new InteriorLightState(
+            if (!OneSecondAccumulator.Add(new CapturedLightState(
                 interiorLightsEnabled,
                 interiorLightScale,
-                batteryDead || powerOff);
-            if (lastLightState != lightState)
-            {
-                lastLightState = lightState;
-                interpolatingFrom = setLightColor;
-            }
-
-            Color lightColor = M.Gray(interiorLightScale);
-            Color stripColor = lightColor;
-            if (batteryDead || powerOff)
-            {
-                lightColor = stripColor = new Color(
-                    interiorLightScale * (0.3f + (0.3f * Mathf.Sin(Time.time * 3f))),
-                    0,
-                    0);
-            }
-            else if (interiorLightsEnabled && reactorIsCharging)
-            {
-                stripColor = Color.Lerp(stripColor, new Color(0.6f, 0.6f, 1.2f, 1f), 0.5f + (0.5f * Mathf.Sin(Time.time * 3)));
-            }
-            else if (!interiorLightsEnabled)
-            {
-                stripColor = lightColor = Color.black;
-            }
-
-            InteriorLightColor newColor = new InteriorLightColor(stripColor, lightColor);
-
-            setLightColor = InteriorLightColor.Lerp(
-                interpolatingFrom,
-                newColor,
-                Mathf.Clamp01((Time.time - interpolatingFrom.Recorded) / 0.9f));
-
-            if (lastLightColor == setLightColor && effectiveInteriorLightPriority == minimumInteriorLightPriority)
+                batteryDead,
+                reactorIsCharging)))
                 return;
-            lastLightColor = setLightColor;
+
+            var avg = OneSecondAccumulator.Average;
+
+            InteriorLightColor newColor = InteriorLightBuilder.Build(avg);
+
+            if (newColor == lastLight && effectiveInteriorLightPriority == minimumInteriorLightPriority)
+                return;
+
+            lastLight = newColor;
             effectiveInteriorLightPriority = minimumInteriorLightPriority;
             ILightListener[] listeners = GetComponentsInChildren<ILightListener>(true);
             listeners.ForEach(
                 listener =>
                 {
-                    listener.SetInteriorLight(lightColor: setLightColor.LightColor, stripColor: setLightColor.StripColor, minimumInteriorLightPriority: effectiveInteriorLightPriority);
+                    listener.SetInteriorLight(lightColor: newColor.LightColor, stripColor: newColor.StripColor, minimumInteriorLightPriority: effectiveInteriorLightPriority);
                 }
                 );
 
