@@ -207,7 +207,7 @@ namespace Assets.Behavior.Components.Docking
                 throw new InvalidOperationException($"Tug {tug.NiceName()} already added");
             }
             NumDockedVehicles++;
-            archon.SignalDockedChange();
+            archon.SignalDocked(tug.Fit.Dockable);
         }
 
         private void DecNumDockedVehicles(Tug tug)
@@ -399,15 +399,14 @@ namespace Assets.Behavior.Components.Docking
         // Update is called once per frame
         void Update()
         {
-            DockedTugs.Update((id, tug) =>
+            using (var log = Log.NewLazy())
             {
-                using (var log = Log.New())
+                DockedTugs.Update((id, tug) =>
+                {
                     log.Error($"Lost tug [{id}]");
-                NumDockedVehicles--;
-            });
-            if (isLoading)
-            {
-                using (var log = Log.New())
+                    NumDockedVehicles--;
+                });
+                if (isLoading)
                 {
                     if (Time.deltaTime == 0)
                     {
@@ -418,145 +417,144 @@ namespace Assets.Behavior.Components.Docking
                     log.Write($"Loading assumed done. Redetecting docked vehicles");
                     RedetectDocked();
                 }
-            }
 
-            var open = false;
-            if (!active)
-            {
-                var tugGosActive = dockedSubRoot
-                    .GetChildren()
-                    .Select(x => x.GetComponent<Tug>())
-                    .Where(x => x)
-                    .Select(x => x.Fit.GameObject.GetInstanceID())
-                    .ToHashSet();
-
-
-                var candidate = dockingTrigger.ClosestEnabledNonKinematic(c =>
+                var open = false;
+                if (!active)
                 {
-                    var go = ObjectUtil.GetGameObject(c);
-                    if (tugGosActive.Contains(go.GetInstanceID()))//being tugged (in or out) or docked
+                    var tugGosActive = dockedSubRoot
+                        .GetChildren()
+                        .Select(x => x.GetComponent<Tug>())
+                        .Where(x => x)
+                        .Select(x => x.Fit.GameObject.GetInstanceID())
+                        .ToHashSet();
+
+
+                    var candidate = dockingTrigger.ClosestEnabledNonKinematic(c =>
                     {
-                        //Log.Write($"{go} is already being tugged");
+                        var go = ObjectUtil.GetGameObject(c);
+                        if (tugGosActive.Contains(go.GetInstanceID()))//being tugged (in or out) or docked
+                        {
+                            //Log.Write($"{go} is already being tugged");
+                            return null;
+                        }
+                        var d = DockingAdapter.ToDockable(go, archon, DockingAdapter.Filter.CurrentlyDockable);
+                        if (d == null)
+                        {
+                            //
+                            //Log.Write($"Failed to convert {go} into dockable");
+                            return null;
+                        }
+
+                        if (go.GetComponent<Tug>())
+                        {
+                            return null;
+                        }
+
+                        var fit = FindBestFit(d);
+                        if (fit is null)
+                        {
+                            OnDockingFailedTooLarge?.Invoke(archon, d);
+                            return null;
+                        }
+                        //Log.Write($"Docking fit {fit.Value.Bounds} {fit.Value.Rotation} {permittedBounds}");
+
+                        if (NumDockedVehicles < maxDockedVehicles)
+                            return fit;
+                        //Log.Write($"Cannot dock {d}: Docking bay is full");
+                        OnDockingFailedFull?.Invoke(archon, d);
                         return null;
-                    }
-                    var d = DockingAdapter.ToDockable(go, archon, DockingAdapter.Filter.CurrentlyDockable);
-                    if (d == null)
+                    });
+                    open = candidate != null;
+
+                    if (open && DoorsAreSufficientlyOpen)
                     {
-                        //
-                        //Log.Write($"Failed to convert {go} into dockable");
-                        return null;
-                    }
+                        //move ahead
+                        if (candidate is null || candidate.Value.Dockable is null)
+                            throw new InvalidOperationException($"Dockable not expected to be invalid here");
 
-                    if (go.GetComponent<Tug>())
+                        var tug = Tug.GetOrAdd(candidate.Value.GameObject);
+                        //Location.LocalIdentity.ApplyTo(tugObj);
+                        //                var tug = tugObj.GetComponent<Tug>();
+                        tug.Bind(this, candidate.Value, TugStatus.Docking);
+                        active = tug;
+                        //log.Debug(nameof(Update) + $": Docking {candidate.Value.Dockable} via {tug}. Incrementing number of docked vehicles");
+                        IncNumDockedVehicles(tug);
+                    }
+                    else if (open)
                     {
-                        return null;
+                        //Log.Write($"Waiting for doors to open further before docking {candidate}");
+
                     }
-
-                    var fit = FindBestFit(d);
-                    if (fit is null)
-                    {
-                        OnDockingFailedTooLarge?.Invoke(archon, d);
-                        return null;
-                    }
-                    //Log.Write($"Docking fit {fit.Value.Bounds} {fit.Value.Rotation} {permittedBounds}");
-
-                    if (NumDockedVehicles < maxDockedVehicles)
-                        return fit;
-                    //Log.Write($"Cannot dock {d}: Docking bay is full");
-                    OnDockingFailedFull?.Invoke(archon, d);
-                    return null;
-                });
-                open = candidate != null;
-
-                if (open && DoorsAreSufficientlyOpen)
-                {
-                    //move ahead
-                    if (candidate is null || candidate.Value.Dockable is null)
-                        throw new InvalidOperationException($"Dockable not expected to be invalid here");
-
-                    var tug = Tug.GetOrAdd(candidate.Value.GameObject);
-                    //Location.LocalIdentity.ApplyTo(tugObj);
-                    //                var tug = tugObj.GetComponent<Tug>();
-                    tug.Bind(this, candidate.Value, TugStatus.Docking);
-                    active = tug;
-                    IncNumDockedVehicles(tug);
                 }
-                else if (open)
+                else
                 {
-                    //Log.Write($"Waiting for doors to open further before docking {candidate}");
-
+                    ObjectUtil.RequireActive(active, archon.transform);
+                    open = active.WantsDoorsOpen;
                 }
-            }
-            else
-            {
-                ObjectUtil.RequireActive(active, archon.transform);
-                open = active.WantsDoorsOpen;
-            }
 
 
 
-            float soundPreSeconds = 0.5f;
+                float soundPreSeconds = 0.5f;
 
-            float totalSeconds = soundPreSeconds + secondsToOpen;
+                float totalSeconds = soundPreSeconds + secondsToOpen;
 
-            var wasClosed = progress <= 0;
-            var preProgress = progress;
-            if (open)
-                progress = Math.Min(1, progress + Time.deltaTime / totalSeconds);
-            else
-                progress = Math.Max(0, progress - Time.deltaTime / totalSeconds);
+                var wasClosed = progress <= 0;
+                var preProgress = progress;
+                if (open)
+                    progress = Math.Min(1, progress + Time.deltaTime / totalSeconds);
+                else
+                    progress = Math.Max(0, progress - Time.deltaTime / totalSeconds);
 
 
-            //progress = M.Saturate(progress);
-            var nowClosed = !open && progress <= 0;
+                //progress = M.Saturate(progress);
+                var nowClosed = !open && progress <= 0;
 
-            if (wasClosed && nowClosed)
-            {
-                openAnimation.Stop();
-                if (bayDoorSlideSound != null)
-                    bayDoorSlideSound.volume = 0;
-                //bayDoorSound.play = false;
-                progress = 0;
-                return;
-            }
-            if (wasClosed != nowClosed)
-            {
-                SetBayVisible(!nowClosed);
-            }
+                if (wasClosed && nowClosed)
+                {
+                    openAnimation.Stop();
+                    if (bayDoorSlideSound != null)
+                        bayDoorSlideSound.volume = 0;
+                    //bayDoorSound.play = false;
+                    progress = 0;
+                    return;
+                }
+                if (wasClosed != nowClosed)
+                {
+                    SetBayVisible(!nowClosed);
+                }
 
-            if (wasClosed && !nowClosed)
-            {
-                using (var log = Log.New())
+                if (wasClosed && !nowClosed)
+                {
                     log.Write(nameof(Update) + $": Opening (wasClosed={wasClosed}, nowClosed={nowClosed}, progress={progress}, open={open}) Bay doors opening. Playing lock sound");
-                //progress = -0.5f / secondsToOpen;
-                bayDoorUnlockSound.Play();
-            }
-            else if (preProgress > soundPreSeconds / totalSeconds && progress <= soundPreSeconds / totalSeconds)
-            {
-                using (var log = Log.New())
+                    //progress = -0.5f / secondsToOpen;
+                    bayDoorUnlockSound.Play();
+                }
+                else if (preProgress > soundPreSeconds / totalSeconds && progress <= soundPreSeconds / totalSeconds)
+                {
                     log.Write(nameof(Update) + $": Closing (wasClosed={wasClosed}, nowClosed={nowClosed}, preProgress={preProgress}, progress={progress}, open={open}) Bay doors closing. Playing lock sound");
 
-                bayDoorLockSound.Play();
-            }
+                    bayDoorLockSound.Play();
+                }
 
 
-            if (bayDoorSlideSound != null)
-            {
-                if (!bayDoorSlideSound.play)
-                    bayDoorSlideSound.volume = 0;
-                else
-                    bayDoorSlideSound.volume = (1f - M.Sqr((progress - 0.5f) * 2f)) * initialBayDoorSlideSoundVolume;
-                bayDoorSlideSound.play = true;
+                if (bayDoorSlideSound != null)
+                {
+                    if (!bayDoorSlideSound.play)
+                        bayDoorSlideSound.volume = 0;
+                    else
+                        bayDoorSlideSound.volume = (1f - M.Sqr((progress - 0.5f) * 2f)) * initialBayDoorSlideSoundVolume;
+                    bayDoorSlideSound.play = true;
 
-            }
+                }
 
 
-            if (!openAnimation.isPlaying)
-                openAnimation.Play();
-            float animationProgress = M.Saturate((progress - soundPreSeconds / totalSeconds) / (secondsToOpen / totalSeconds));
-            foreach (AnimationState state in openAnimation)
-            {
-                state.normalizedTime = M.Saturate(animationProgress);
+                if (!openAnimation.isPlaying)
+                    openAnimation.Play();
+                float animationProgress = M.Saturate((progress - soundPreSeconds / totalSeconds) / (secondsToOpen / totalSeconds));
+                foreach (AnimationState state in openAnimation)
+                {
+                    state.normalizedTime = M.Saturate(animationProgress);
+                }
             }
         }
 

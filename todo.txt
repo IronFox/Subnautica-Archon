@@ -1,17 +1,15 @@
 batch:
 
-* use Renderer.forceRenderingOff on docked subs instead of Renderer.enabled
-	- keep on during undock for save
-* re-enable forced positioning on undock for save if docked sub has completed docking
-* when disembarking, disable and watch rigid bodies on the archon 
-	- excluding those in the docking bay
-	- including those on otherwise excluded hierarchies
-
-* test innate storage access on VF vehicles
-
-* silence UpdateVisualsPostfix
 
 batch done:
+
+* selecting last docked craft on archon
+* fixed sound exception blowing the log file out of all bounds
+* fixed undiscovered egg loading in water park and bioreactor
+* smoothed bioreactor sound volume and interior light strip color when charging
+* no longer reinstantiating non-looping, repeatedly failing sounds indefinitely
+* test XBox controller, maybe clamp inputs. Works, no clamping necessary
+
 
 
 no:
@@ -30,6 +28,7 @@ maybe:
 
 later:
 
+* fix haze near ocean surface
 * control help on the HUD, potentially fading after a while
 * allow map resource selection for visualization
 * revise healing light repetition
@@ -75,6 +74,11 @@ later:
 
 done:
 
+* test innate storage access on VF vehicles (works)
+* use Renderer.forceRenderingOff on docked subs instead of Renderer.enabled
+	- keep on during undock for save
+* re-enable forced positioning on undock for save if docked sub has completed docking
+* when disembarking, maintain kinematic state
 * overhauled logging infrastructure
 * fixed undocking edge cases
 * fixed bioreactor name when opening storage

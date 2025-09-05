@@ -70,7 +70,8 @@ namespace Subnautica_Archon
             try
             {
                 Assets.Behavior.Adapters.Log.AdapterFactory =
-                    p => new LogAdapter(this, p.ForceLazy, p.Tags);
+                    p => new LogAdapter(this, p);
+                Log.LazyAdapterFactory = (p) => new LazyLogAdapter(this, p.Tags, p.CallerFilePath, p.MemberName);
                 AudioPatcher.Patcher = (source) => FreezeTimePatcher.Register(source);
 
                 PlayerAdapter.Player = () => Player.mainObject;
