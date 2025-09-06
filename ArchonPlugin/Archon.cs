@@ -1586,11 +1586,15 @@ namespace Subnautica_Archon
                 var content = waterTank.Find("Content").OrRequired(() => waterTank);
 
                 mwps.Add(new MobileWaterPark(
-                    displayName: AVS.Localization.Text.Translated("Component.WaterTank"),
-                    root: waterTank.gameObject,
-                    contentContainer: content,
-                    height: 8,
-                    width: 8
+                    DisplayName: AVS.Localization.Text.Translated("Component.WaterTank"),
+                    Root: waterTank.gameObject,
+                    ContentContainer: content,
+                    Height: 8,
+                    Width: 8,
+                    AllowReproduction: true,
+                    HatchEggs: true,
+                    WallLayerMask: 1 << 29,
+                    CollidersAreLive: () => Control.IsBoardedButNotControlled
                 ));
             }
             else
