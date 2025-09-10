@@ -1594,6 +1594,9 @@ namespace Subnautica_Archon
                     AllowReproduction: true,
                     HatchEggs: true,
                     WallLayerMask: 1 << 29,
+                    BottomMargin: 0.2f,
+                    TopMargin: 0.3f,
+                    HorizontalMargin: -0.2f,
                     CollidersAreLive: () => Control.IsBoardedButNotControlled
                 ));
             }
