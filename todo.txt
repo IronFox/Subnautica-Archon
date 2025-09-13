@@ -2,18 +2,20 @@ batch:
 
 
 * rename fish/water tank
-* check/fix egg breeding
-* WaterPark.UpdateInfectionSpreading
-* on rare occassions, peepers still can spawn as heroes
-* fish tend to aggregate at the center of the tank, particularly when sleeping
 
 batch done:
 
+* check/fix egg breeding
+* fish tend to aggregate at the center of the tank, particularly when sleeping
+* reduce breeding rate back to normal
 * fixed: peepers occassionally spawn infected even if hero
 * fixed: fix low frequency animation (it's one of those disabled behaviors)
 * better glass proximity detection
 	- avoid glass collisions altogether
-
+* WaterPark.UpdateInfectionSpreading
+	- on rare occassions, peepers still can breed-spawn as heroes
+	- on very rare occassions, new peepers spontaneously develop infections
+	
 
 no:
 
@@ -29,6 +31,7 @@ no:
 maybe:
 * add AVS fabricator to pre-built mesh (every spot is potentially bad, some spots near upgrade panel can't normally be built at)
 
+
 next:
 
 * disable BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
@@ -36,6 +39,8 @@ next:
 
 later:
 
+* add display for species in the fish tank and breeding progress
+* add display for bioreactor to show consumption progress (grid? max consumed entry?)
 * player-teleportation to archon (maybe as a separate mod?)
 * fix haze near ocean surface
 * control help on the HUD, potentially fading after a while
