@@ -431,7 +431,7 @@ namespace Subnautica_Archon
         //}
 
 
-        private Coroutine? autoLevelRoutine;
+        private ICoroutineHandle? autoLevelRoutine;
         public override void DeselectSlots()
         {
             using var log = NewModLog();
@@ -451,12 +451,12 @@ namespace Subnautica_Archon
 
         public bool AbortAutoLeveling()
         {
-            if (autoLevelRoutine != null)
+            if (autoLevelRoutine.IsNotNullAndRunning())
             {
                 using var log = NewModLog();
 
                 log.Write("Exit loop in progress. Aborting");
-                StopCoroutine(autoLevelRoutine);
+                autoLevelRoutine.Stop();
                 autoLevelRoutine = null;
                 Logger.PDANote($"Auto-leveling aborted");
                 Control.doAutoLevel = false;
