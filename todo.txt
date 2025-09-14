@@ -1,7 +1,6 @@
 batch:
 
 
-* rename fish/water tank
 
 batch done:
 
@@ -15,6 +14,8 @@ batch done:
 * WaterPark.UpdateInfectionSpreading
 	- on rare occassions, peepers still can breed-spawn as heroes
 	- on very rare occassions, new peepers spontaneously develop infections
+* rename fish/water tank
+* increased tank width to 9
 	
 
 no:

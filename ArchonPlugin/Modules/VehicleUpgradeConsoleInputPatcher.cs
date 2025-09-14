@@ -1,5 +1,6 @@
 using AVS.Log;
 using AVS.Util;
+using AVS.Util.CoroutineHandling;
 using HarmonyLib;
 using Subnautica_Archon.Util;
 using System.Collections;

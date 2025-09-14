@@ -8,6 +8,7 @@ using AVS.Interfaces;
 using AVS.Log;
 using AVS.SaveLoad;
 using AVS.Util;
+using AVS.Util.CoroutineHandling;
 using AVS.VehicleBuilding;
 using AVS.VehicleComponents;
 using AVS.VehicleTypes;
@@ -1590,7 +1591,7 @@ namespace Subnautica_Archon
                     Root: waterTank.gameObject,
                     ContentContainer: content,
                     Height: 8,
-                    Width: 8,
+                    Width: 9,
                     AllowReproduction: true,
                     HatchEggs: true,
                     WallLayerMask: 1 << 29,
