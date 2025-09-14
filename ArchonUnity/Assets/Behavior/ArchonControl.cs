@@ -458,7 +458,13 @@ public class ArchonControl : MonoBehaviour
             log.Write(
                 $"Setting camera is in vehicle: {isInVehicle}, withCollidersAndLights = {withCollidersAndLights}");
             CameraIsInVehicle = isInVehicle;
-            interior.gameObject.SetActive(isInVehicle);
+
+            interior.GetAll<Renderer>(PlayerAdapter.Player()).ForEach(r =>
+            {
+                r.enabled = isInVehicle;
+            });
+
+            //interior.gameObject.SetActive(isInVehicle);
             UpdateInteriorCollidersAndLights(isInVehicle && withCollidersAndLights);
 
             exteriorInteriorShadowCaster.enabled = isInVehicle;

@@ -1,5 +1,6 @@
 using AVS.Log;
 using AVS.Util;
+using AVS.Util.CoroutineHandling;
 using HarmonyLib;
 using Subnautica_Archon.Util;
 using System.Collections;
@@ -14,7 +15,7 @@ namespace Subnautica_Archon
     {
         const float openDuration = 0.5f;
         static float timeUntilClose = 0f;
-        static Coroutine? closeDoorCor = null;
+        static ICoroutineHandle? closeDoorCor = null;
         public static IEnumerator closeDoorSoon(SmartLog log, Archon archon)
         {
             while (timeUntilClose > 0)
@@ -24,7 +25,6 @@ namespace Subnautica_Archon
             }
             log.Warn($"VehicleUpgradeConsoleInputPatcher.closeDoorSoon: Timeout passed. Closing");
             archon.Control.openUpgradeCover = false;
-            closeDoorCor = null;
         }
         [HarmonyPostfix]
         [HarmonyPatch(nameof(VehicleUpgradeConsoleInput.OnHandHover))]
@@ -38,7 +38,7 @@ namespace Subnautica_Archon
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOnHandHoverPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
                 arc.Control.openUpgradeCover = true;
                 timeUntilClose = openDuration;
-                if (closeDoorCor.IsNull())
+                if (closeDoorCor.IsNullOrStopped())
                 {
                     closeDoorCor = arc.Owner.StartModCoroutine(nameof(VehicleUpgradeConsoleInputPatcher) + '.' + nameof(closeDoorSoon), log => closeDoorSoon(log, arc));
                 }
@@ -55,8 +55,7 @@ namespace Subnautica_Archon
             if (arc.IsNotNull() && arc.upgradesInput == __instance)
             {
                 //Log.Write($"VehicleUpgradeConsoleInputPatcher.VehicleUpgradeConsoleInputOpenPDAPostfix: {__instance.GetComponentInParent<ArchonControl>().NiceName()}");
-                if (closeDoorCor.IsNotNull())
-                    arc.Owner.StopCoroutine(closeDoorCor);
+                closeDoorCor?.Stop();
             }
         }
 

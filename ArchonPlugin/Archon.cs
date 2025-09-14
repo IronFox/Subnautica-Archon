@@ -8,6 +8,7 @@ using AVS.Interfaces;
 using AVS.Log;
 using AVS.SaveLoad;
 using AVS.Util;
+using AVS.Util.CoroutineHandling;
 using AVS.VehicleBuilding;
 using AVS.VehicleComponents;
 using AVS.VehicleTypes;
@@ -431,7 +432,7 @@ namespace Subnautica_Archon
         //}
 
 
-        private Coroutine? autoLevelRoutine;
+        private ICoroutineHandle? autoLevelRoutine;
         public override void DeselectSlots()
         {
             using var log = NewModLog();
@@ -451,12 +452,12 @@ namespace Subnautica_Archon
 
         public bool AbortAutoLeveling()
         {
-            if (autoLevelRoutine != null)
+            if (autoLevelRoutine.IsNotNullAndRunning())
             {
                 using var log = NewModLog();
 
                 log.Write("Exit loop in progress. Aborting");
-                StopCoroutine(autoLevelRoutine);
+                autoLevelRoutine.Stop();
                 autoLevelRoutine = null;
                 Logger.PDANote($"Auto-leveling aborted");
                 Control.doAutoLevel = false;
@@ -1586,11 +1587,18 @@ namespace Subnautica_Archon
                 var content = waterTank.Find("Content").OrRequired(() => waterTank);
 
                 mwps.Add(new MobileWaterPark(
-                    displayName: AVS.Localization.Text.Translated("Component.WaterTank"),
-                    root: waterTank.gameObject,
-                    contentContainer: content,
-                    height: 8,
-                    width: 8
+                    DisplayName: AVS.Localization.Text.Translated("Component.WaterTank"),
+                    Root: waterTank.gameObject,
+                    ContentContainer: content,
+                    Height: 8,
+                    Width: 9,
+                    AllowReproduction: true,
+                    HatchEggs: true,
+                    WallLayerMask: 1 << 29,
+                    BottomMargin: 0.2f,
+                    TopMargin: 0.3f,
+                    HorizontalMargin: -0.2f,
+                    CollidersAreLive: () => Control.IsBoardedButNotControlled
                 ));
             }
             else

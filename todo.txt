@@ -1,16 +1,22 @@
 batch:
 
 
+
 batch done:
 
-* selecting last docked craft on archon
-* fixed sound exception blowing the log file out of all bounds
-* fixed undiscovered egg loading in water park and bioreactor
-* smoothed bioreactor sound volume and interior light strip color when charging
-* no longer reinstantiating non-looping, repeatedly failing sounds indefinitely
-* test XBox controller, maybe clamp inputs. Works, no clamping necessary
-
-
+* check/fix egg breeding
+* fish tend to aggregate at the center of the tank, particularly when sleeping
+* reduce breeding rate back to normal
+* fixed: peepers occassionally spawn infected even if hero
+* fixed: fix low frequency animation (it's one of those disabled behaviors)
+* better glass proximity detection
+	- avoid glass collisions altogether
+* WaterPark.UpdateInfectionSpreading
+	- on rare occassions, peepers still can breed-spawn as heroes
+	- on very rare occassions, new peepers spontaneously develop infections
+* rename fish/water tank
+* increased tank width to 9
+	
 
 no:
 
@@ -26,8 +32,17 @@ no:
 maybe:
 * add AVS fabricator to pre-built mesh (every spot is potentially bad, some spots near upgrade panel can't normally be built at)
 
+
+next:
+
+* disable BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
+* replace pilot seat orange trims with gold ones
+
 later:
 
+* add display for species in the fish tank and breeding progress
+* add display for bioreactor to show consumption progress (grid? max consumed entry?)
+* player-teleportation to archon (maybe as a separate mod?)
 * fix haze near ocean surface
 * control help on the HUD, potentially fading after a while
 * allow map resource selection for visualization
@@ -74,6 +89,12 @@ later:
 
 done:
 
+* selecting last docked craft on archon
+* fixed sound exception blowing the log file out of all bounds
+* fixed undiscovered egg loading in water park and bioreactor
+* smoothed bioreactor sound volume and interior light strip color when charging
+* no longer reinstantiating non-looping, repeatedly failing sounds indefinitely
+* test XBox controller, maybe clamp inputs. Works, no clamping necessary
 * test innate storage access on VF vehicles (works)
 * use Renderer.forceRenderingOff on docked subs instead of Renderer.enabled
 	- keep on during undock for save
