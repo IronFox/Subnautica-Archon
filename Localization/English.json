@@ -100,7 +100,7 @@
 	"Component.ModularStorage": "Modular Storage",
 
 	"General.Description": "Submarine mothership",
-	"General.Encyclopedia": "The Archon is a luxurious, extremely resilient mobile command center with an integrated hangar for smaller craft. You can craft it at any Mobile Vehicle Bay.\n\nFeatures:\n- Expandable hangar for multiple smaller craft\n- Holographic sensor reconstruction\n- Bioreactor\n- Fish tank\n- Environment map\n\nRatings:\n- Top Speed: 26m/s\n- Crush Depth: 300m\n- Max Crush Depth (upgraded): 1700m\n- Upgrade slots: 8\n- Dimensions: 26.8m x 15.9m x 79.8m",
+	"General.Encyclopedia": "The Archon is a luxurious, extremely resilient mobile command center with an integrated hangar for smaller craft. You can craft it at any Mobile Vehicle Bay.\n\nFeatures:\n- Expandable hangar for multiple smaller craft\n- Holographic sensor reconstruction\n- Bioreactor\n- Alien Containment Unit\n- Environment map\n\nRatings:\n- Top Speed: 26m/s\n- Crush Depth: 300m\n- Max Crush Depth (upgraded): 1700m\n- Upgrade slots: 8\n- Dimensions: 26.8m x 15.9m x 79.8m",
 
 
 	"Dockable.Text.HealthUnknown": "Integrity: Unknown",

@@ -61,7 +61,7 @@
 
 	"AVS.Error_MobileWaterPark_CannotAdd_FishIsDead": "Kann toten Fisch {0} nicht zu {1} hinzufügen",
 	"AVS.Error_MobileWaterPark_CannotAdd_EggIsHatched": "Kann aufgebrauchtes Ei {0} nicht zu {1} hinzufügen",
-	"AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "Kann {0} nicht zu {1} hinzufügen. Nur lebende Fische und Eier können zum Fischtank hinzugefügt werden",
+	"AVS.Error_MobileWaterPark_CannotAdd_Incompatible": "Kann {0} nicht zu {1} hinzufügen. Nur lebende Fische und Eier können zu {1} hinzugefügt werden",
 	"AVS.Error_MobileWaterPark_CannotRemove_HatchingEgg": "Kann {0} nicht von {1} entfernen. Das Ei inkubiert bereits",
 
 	"Error.EmergencyTeleportationModule.CannotRemoveLast": "Die Archon benötigt stets ein installiertes Notfall-Teleportationsmodul",
@@ -100,7 +100,7 @@
 	"Component.ModularStorage": "Modulares Frachtmodul",
 
 	"General.Description": "Ubootmutterschiff",
-	"General.Encyclopedia": "Die Archon ist eine luxuriöse, extrem robuste, mobile Kommandozentrale mit integriertem Hangar für Kleinfahrzeuge. Kann an jeder mobilen Fahrzeugstation gebaut werden.\n\nEigenschaften:\n- Erweiterbarer Hangar für mehrere Kleinfahrzeuge\n- Virtuelle Sensorrekonstruktion\n- Bioreaktor\n- Fischtank\n- Dynamische Umgebungskarte\n\nMetriken:\n- Maximalgeschwindigkeit: 26 m/s\n- Initiale Tauchtiefe: 300m\n- Maximale Tauchtiefe: 1700m\n- Erweiterungsmodule: 8\n- Größe: 26.8m x 15.9m x 79.8m",
+	"General.Encyclopedia": "Die Archon ist eine luxuriöse, extrem robuste, mobile Kommandozentrale mit integriertem Hangar für Kleinfahrzeuge. Kann an jeder mobilen Fahrzeugstation gebaut werden.\n\nEigenschaften:\n- Erweiterbarer Hangar für mehrere Kleinfahrzeuge\n- Virtuelle Sensorrekonstruktion\n- Bioreaktor\n- Lebensform-Zuchtbehälter\n- Dynamische Umgebungskarte\n\nMetriken:\n- Maximalgeschwindigkeit: 26 m/s\n- Initiale Tauchtiefe: 300m\n- Maximale Tauchtiefe: 1700m\n- Erweiterungsmodule: 8\n- Größe: 26.8m x 15.9m x 79.8m",
 
 
 	"Dockable.Text.HealthUnknown": "Integrität: Unbekannt",
