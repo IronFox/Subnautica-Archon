@@ -1,22 +1,18 @@
 batch:
 
-
+* check cuddlefish hatching. Supposedly they reproduce with just one and ignore the glass wall
+* disable map when taking helm, powered off, or battery dead (it was previously disabled in 3rd person, now no longer is, causing visual glitches)
+* disable BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
+* replace pilot seat orange trims with gold ones
+* add hud speed display + GPS + map
+* increase interior shadow caster triangle resolution
+* add vertical submarine shadow to map
 
 batch done:
 
-* check/fix egg breeding
-* fish tend to aggregate at the center of the tank, particularly when sleeping
-* reduce breeding rate back to normal
-* fixed: peepers occassionally spawn infected even if hero
-* fixed: fix low frequency animation (it's one of those disabled behaviors)
-* better glass proximity detection
-	- avoid glass collisions altogether
-* WaterPark.UpdateInfectionSpreading
-	- on rare occassions, peepers still can breed-spawn as heroes
-	- on very rare occassions, new peepers spontaneously develop infections
-* rename fish/water tank
-* increased tank width to 9
-	
+* fix water park self-sanitization code
+
+
 
 no:
 
@@ -35,15 +31,16 @@ maybe:
 
 next:
 
-* disable BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
-* replace pilot seat orange trims with gold ones
-
 later:
 
+* the archon has been observed trying to assume a vertical position when supposed to level out
+	- no log messages hinted at the problem
+	- should add leveling out status to F7 debug screen
 * add display for species in the fish tank and breeding progress
 * add display for bioreactor to show consumption progress (grid? max consumed entry?)
 * player-teleportation to archon (maybe as a separate mod?)
 * fix haze near ocean surface
+	- record cyclops while on sub and while off, then build delta of the jsons
 * control help on the HUD, potentially fading after a while
 * allow map resource selection for visualization
 * revise healing light repetition
@@ -53,17 +50,34 @@ later:
 * turn off emission of external light source materials when lights are off
 * tune external material emissions when power is off
 * tune ceiling glass curvature in nose section (seems to be very curved as to produce reflections)
-* preserve camera distance in save file
+* preserve camera distance and vertical position in save file
 * fix teleporting out of alien ruin area causes perma-out-of-water further up
 * add name label on out- and insides. Add coloring panel
 * add status label on front walls above airlock
-* disable map when taking helm, powered off, or battery dead
 * change power cell slot bright color to highlight status. Show status on panel AR
 * velocity upgrades
-* increase interior shadow caster triangle resolution
 * fix horizontal rotation control sluggish when not leaning near ocean surface or at low speed
-* add vertical submarine shadow to map
-* add hud speed display + GPS + map
+* torpedo launchers
+	- on the sides, autotargeting whatever is close
+	- echelon mechanic
+	- strong trail visualization
+	- LOTS of the torpedoes
+	- autofire?
+* flight module	
+	- How would you safely disembark?
+		+ Maybe some sort of walkway around the outer airlocks?
+	- What should happen if you fell down and the Archon stayed in the sky?
+		+ Maybe a player item that teleports the Archon near the player?
+* fear module (makes creatures run away from it)
+	- introduce fear creature action in all creatures in the vicinity
+* water filtration module
+	- where would we place this?
+	- a buildable structure with a custom snap-to-mechanic?
+* a module that causes Echelon's to auto patrol around the Archon, attack targets
+	- alternatively, a special unmanned drone that is auto-released
+
+done:
+
 * implement fish tank
 	+ for reference: 
 		WaterPark.GetBreedingPartner
@@ -77,18 +91,18 @@ later:
 		Creature.ScanCreatureActions()
 		SwimRandom:CreatureAction
 		CreatureAction.swimBehaviour (SwimBehaviour)
-
-* Torpedo launchers
-* Flight module	
-	- How would you safely disembark?
-		+ Maybe some sort of walkway around the outer airlocks?
-	- What should happen if you fell down and the Archon stayed in the sky?
-		+ Maybe a player item that teleports the Archon near the player?
-* Fear module (makes creatures run away from it)
-* Water filtration module
-
-done:
-
+* check/fix egg breeding
+* fish tend to aggregate at the center of the tank, particularly when sleeping
+* reduce breeding rate back to normal
+* fixed: peepers occassionally spawn infected even if hero
+* fixed: fix low frequency animation (it's one of those disabled behaviors)
+* better glass proximity detection
+	- avoid glass collisions altogether
+* WaterPark.UpdateInfectionSpreading
+	- on rare occassions, peepers still can breed-spawn as heroes
+	- on very rare occassions, new peepers spontaneously develop infections
+* rename fish/water tank
+* increased tank width to 9
 * selecting last docked craft on archon
 * fixed sound exception blowing the log file out of all bounds
 * fixed undiscovered egg loading in water park and bioreactor
