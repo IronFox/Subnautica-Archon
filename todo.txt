@@ -1,25 +1,22 @@
 batch:
 
-* check cuddlefish hatching. Supposedly they reproduce with just one and ignore the glass wall
+
 * disable map when taking helm, powered off, or battery dead (it was previously disabled in 3rd person, now no longer is, causing visual glitches)
 * disable BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
 * replace pilot seat orange trims with gold ones
+
 * add hud speed display + GPS + map
 * increase interior shadow caster triangle resolution
 * add vertical submarine shadow to map
 
 batch done:
 
-* fix water park self-sanitization code
-
-
-
 no:
 
 * ability to exit craft if autoleveling could not be established (use emergency teleport)
 * chargeable modules for teleportation not useful afterall because we are not informed of the charge status even if it otherwise would work	
 * zoom 3rd person camera along top length of sub. Last point should circle almost around nose before entering cockpit. not gonna work
-* evacuate fish ( seems to no longer happen)
+* evacuate fish (seems to now happen rarely enough)
 * register external flood lights as AVS head lights (the volumetric light visualization does not appear to heed the light's angle)
 * merge AVS into the main dll using https://github.com/Fody/Costura?tab=readme-ov-file (does not work, other libraries do but cause access conflicts. also not sure that even solves the problem)
 * battery dead sound. there already is a sound for that
@@ -33,6 +30,11 @@ next:
 
 later:
 
+* disabled creature in ACU (except CrabSnake)
+* checking other ACU and mobile ACU to not remove their fish
+* fixed/improved water park self-sanitization code
+* checked cuddlefish hatching. Supposedly they reproduce with just one and ignore the glass wall. They don't
+* prevented crash fish from exploding 20 seconds after hatching
 * the archon has been observed trying to assume a vertical position when supposed to level out
 	- no log messages hinted at the problem
 	- should add leveling out status to F7 debug screen
