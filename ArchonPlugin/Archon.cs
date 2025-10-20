@@ -1292,6 +1292,7 @@ namespace Subnautica_Archon
 
                 Control.floodLightShadows = ArchonModController.PluginConfig.floodLightShadows;
                 Control.engineSoundVolume = ArchonModController.PluginConfig.engineSoundVolume * 0.01f;
+                Control.bioreactorSoundVolume = ArchonModController.PluginConfig.bioreactorSoundVolume * 0.01f;
 
                 ProcessEnergyRecharge();
                 ProcessRegeneration();

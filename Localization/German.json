@@ -142,6 +142,7 @@
 	"Option.DefaultToFirstPerson": "Kamera initial im Cockpit",
 	"Option.LookSensitivity": "Kamerasensibilität",
 	"Option.EngineSoundVolume": "Antriebs-Lautstärke",
+	"Option.BioreactorSoundVolume": "Bioreaktor Lautstärke",
 	"Option.LogVerbosity": "Log-Level",
 	"Option.LogVerbosity.Verbose": "Alles",
 	"Option.LogVerbosity.Regular": "Regulär",

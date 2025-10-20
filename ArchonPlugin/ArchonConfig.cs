@@ -60,6 +60,9 @@ public class ArchonConfig : ConfigFile
     [Slider(DefaultValue = 100f, Format = "{0:F0}%", Label = "Engine Sound Volume", LabelLanguageId = "Option.EngineSoundVolume", Min = 0f, Max = 100f, Step = 5f)]
     public float engineSoundVolume = 100f;
 
+    [Slider(DefaultValue = 100f, Format = "{0:F0}%", Label = "Bioreactor Sound Volume", LabelLanguageId = "Option.BioreactorSoundVolume", Min = 0f, Max = 100f, Step = 5f)]
+    public float bioreactorSoundVolume = 100f;
+
     [Choice("Log Level",
         "Option.LogVerbosity.Verbose",
         "Option.LogVerbosity.Regular",

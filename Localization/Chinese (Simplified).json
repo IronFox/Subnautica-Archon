@@ -141,6 +141,7 @@
   "Option.DefaultToFirstPerson": "默认使用座舱视角",
   "Option.LookSensitivity": "视角灵敏度",
   "Option.EngineSoundVolume": "引擎音量",
+  "Option.BioreactorSoundVolume": "生物反应堆音量",
   "Option.LogVerbosity": "日志详细程度",
   "Option.LogVerbosity.Verbose": "详细日志",
   "Option.LogVerbosity.Regular": "常规日志",

@@ -8,6 +8,7 @@ namespace Assets.Behavior.Components.Animations
     {
         internal float isCharging;
         internal bool powerOff;
+        internal float soundVolume = 1;
         public SoundAdapter soundAdapter;
 
         // Start is called before the first frame update
@@ -19,7 +20,7 @@ namespace Assets.Behavior.Components.Animations
         // Update is called once per frame
         void Update()
         {
-            soundAdapter.volume = powerOff ? 0 : (isCharging * 0.8f + 0.2f);
+            soundAdapter.volume = (powerOff ? 0 : (isCharging * 0.8f + 0.2f) * soundVolume);
         }
     }
 

@@ -143,6 +143,7 @@
 	"Option.DefaultToFirstPerson": "Default to Cockpit Camera",
 	"Option.LookSensitivity": "Look Sensitivity",
 	"Option.EngineSoundVolume": "Engine Sound Volume",
+	"Option.BioreactorSoundVolume": "Bioreactor Sound Volume",
 	"Option.LogVerbosity": "Logging Verbosity",
 	"Option.LogVerbosity.Verbose": "Detailed logging",
 	"Option.LogVerbosity.Regular": "Regular logging",

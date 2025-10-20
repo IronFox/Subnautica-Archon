@@ -140,6 +140,7 @@
 	"Option.DefaultToFirstPerson": "Caméra du cockpit par défaut",
 	"Option.LookSensitivity": "Sensibilité de la caméra",
 	"Option.EngineSoundVolume": "Volume du son du moteur",
+	"Option.BioreactorSoundVolume": "Volume du son du bioréacteur",
 	"Option.LogVerbosity": "Niveau de journalisation",
 	"Option.LogVerbosity.Verbose": "Journalisation détaillée",
 	"Option.LogVerbosity.Regular": "Journalisation normale",

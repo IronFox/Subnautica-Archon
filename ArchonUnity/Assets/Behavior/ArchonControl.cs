@@ -34,6 +34,7 @@ public class ArchonControl : MonoBehaviour
     public float currentHealth = 0.5f;
     public bool doAutoLevel;
     public float engineSoundVolume = 1;
+    public float bioreactorSoundVolume = 1;
     public float environmentalLeanIntensity = 1;
     public bool flipFreeHorizontalRotationInReverse = true;
     public bool flipFreeVerticalRotationInReverse = false;
@@ -1248,6 +1249,7 @@ public class ArchonControl : MonoBehaviour
             {
                 bioreactor.isCharging = OneSecondAccumulator.Average.IsCharging;
                 bioreactor.powerOff = batteryDead || powerOff;
+                bioreactor.soundVolume = bioreactorSoundVolume;
             }
         }
         catch (Exception ex)
