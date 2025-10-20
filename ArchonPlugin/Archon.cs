@@ -1310,8 +1310,8 @@ namespace Subnautica_Archon
                 {
                     Control.zoomAxis = -Input.GetAxis("Mouse ScrollWheel")
                         +
-                        ((GameInput.GetButtonDown(ArchonModController.PluginConfig.btnAltZoomOut) ? 1f : 0f)
-                        - (GameInput.GetButtonDown(ArchonModController.PluginConfig.btnAltZoomIn) ? 1f : 0f)) * 0.02f
+                        ((GameInput.GetButtonHeld(ArchonModController.PluginConfig.btnAltZoomOut) ? 1f : 0f)
+                        - (GameInput.GetButtonHeld(ArchonModController.PluginConfig.btnAltZoomIn) ? 1f : 0f)) * Time.deltaTime
                         ;
                 }
 
