@@ -30,8 +30,8 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
 
         private Ternary<MethodAdapter<Vehicle, Vector3>> _onVehicleDocked0;
         private Ternary<MethodAdapter<Vector3>> _onVehicleDocked1;
-        private readonly FieldAdapter<PingInstance> pingInstance = FieldAdapter.Of<PingInstance>(rmc, vehicle, "pingInstance");
-        private readonly FieldAdapter<bool> _isScuttled = FieldAdapter.Of<bool>(rmc, vehicle, "isScuttled");
+        //private readonly FieldAdapter<PingInstance> pingInstance = FieldAdapter.Of<PingInstance>(rmc, vehicle, "pingInstance");
+        private readonly FieldAdapter<bool> _isScuttled = FieldAdapter.Of<bool>(rmc, vehicle, ["isScuttled", "_isScuttled"]);
         private PropertyAdapter<bool> _isUnderCommand;
 
 
@@ -101,7 +101,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         {
             get
             {
-                var pi = pingInstance.Value;
+                var pi = Vehicle.GetComponent<PingInstance>();
                 if (pi.IsNull())
                     return Vehicle.subName.pingInstance;
                 return pi;
@@ -111,7 +111,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         public bool HudIconIsEnabled()
         {
             using var log = SmartLog.LazyFor(RMC);
-            var pi = pingInstance.Value;
+            var pi = Vehicle.GetComponent<PingInstance>();
             if (pi.IsNull())
             {
                 log.Error("pingInstance not set on " + Vehicle.NiceName());
@@ -123,7 +123,7 @@ namespace Subnautica_Archon.Adapters.VehicleAbstraction
         public void SetHudIcon(bool visible)
         {
             using var log = SmartLog.LazyFor(RMC);
-            var pi = pingInstance.Value;
+            var pi = Vehicle.GetComponent<PingInstance>();
             if (pi.IsNull())
             {
                 log.Error("pingInstance not set on " + Vehicle.NiceName());

@@ -59,6 +59,21 @@ namespace Subnautica_Archon.Util
                 return default;
             return Of<T>(rmc, (object)target, name);
         }
+
+        public static FieldAdapter<T> Of<T>(RootModController rmc, UnityEngine.Object target, string[] names)
+        {
+            if (!target)
+                return default;
+            using var log = SmartLog.LazyFor(rmc);
+            foreach (var name in names)
+            {
+                var f = target.GetType().GetField(name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                if (f.IsNotNull())
+                    return new FieldAdapter<T>(f, target);
+            }
+            log.Error($"Unable to find fields '{string.Join("','",names)}' on <{target.GetType()}> '{target}'");
+            return new FieldAdapter<T>(null, target);
+        }
     }
 
     public readonly record struct FieldAdapter<T>
