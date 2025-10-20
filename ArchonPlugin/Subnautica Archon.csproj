@@ -51,6 +51,10 @@
     <Reference Include="UnityEngine.InputLegacyModule">
       <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.ParticleSystemModule">
       <HintPath>$(SUBNAUTICA_PATH)\Subnautica_Data\Managed\UnityEngine.ParticleSystemModule.dll</HintPath>
     </Reference>

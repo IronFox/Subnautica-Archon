@@ -1310,19 +1310,19 @@ namespace Subnautica_Archon
                 {
                     Control.zoomAxis = -Input.GetAxis("Mouse ScrollWheel")
                         +
-                        ((Input.GetKey(ArchonModController.PluginConfig.btnAltZoomOut) ? 1f : 0f)
-                        - (Input.GetKey(ArchonModController.PluginConfig.btnAltZoomIn) ? 1f : 0f)) * 0.02f
+                        ((GameInput.GetButtonDown(ArchonModController.PluginConfig.btnAltZoomOut) ? 1f : 0f)
+                        - (GameInput.GetButtonDown(ArchonModController.PluginConfig.btnAltZoomIn) ? 1f : 0f)) * 0.02f
                         ;
                 }
 
                 if (Control.IsBeingControlled
-                    && Input.GetKeyDown(ArchonModController.PluginConfig.toggleFreeCamera)
+                    && GameInput.GetButtonDown(ArchonModController.PluginConfig.toggleFreeCamera)
                     && engine != null)
                 {
                     Control.ToggleCurrentFreeCamera();
                     engine.freeCamera = Control.UseFreeCamera;
                 }
-                if (Input.GetKeyDown(ArchonModController.PluginConfig.btnChangeExternalCameraHeight))
+                if (GameInput.GetButtonDown(ArchonModController.PluginConfig.btnChangeExternalCameraHeight))
                 {
                     Control.positionCameraBelowSub = !Control.positionCameraBelowSub;
                 }

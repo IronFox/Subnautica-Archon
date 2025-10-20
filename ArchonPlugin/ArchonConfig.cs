@@ -1,6 +1,9 @@
+using AVS.Configuration;
 using AVS.Log;
+using Nautilus.Handlers;
 using Nautilus.Json;
 using Nautilus.Options.Attributes;
+using Newtonsoft.Json;
 using Subnautica_Archon;
 using Subnautica_Archon.Util;
 using UnityEngine;
@@ -22,14 +25,18 @@ public class ArchonConfig : ConfigFile
         LabelLanguageId = "Option.FloodLightShadows"
     )]
     public LightShadows floodLightShadows = LightShadows.Hard;
-    [Keybind("Toggle Free Camera", LabelLanguageId = "Option.Button.ToggleFreeCamera")]
-    public KeyCode toggleFreeCamera = KeyCode.F;
-    [Keybind("Change 3rd Person Camera Height", LabelLanguageId = "Option.Button.ChangeExternalCameraHeight")]
-    public KeyCode btnChangeExternalCameraHeight = KeyCode.V;
-    [Keybind("Reduce the 3rd Person Camera", LabelLanguageId = "Option.Button.AltZoomIn")]
-    public KeyCode btnAltZoomIn = KeyCode.None;
-    [Keybind("Increase the 3rd Person Camera", LabelLanguageId = "Option.Button.AltZoomOut")]
-    public KeyCode btnAltZoomOut = KeyCode.None;
+    [JsonIgnore]
+    [BindableButton("Toggle Free Camera", LabelLocalizationKey = "Option.Button.ToggleFreeCamera", KeyboardDefault = GameInputHandler.Paths.Keyboard.F)]
+    public GameInput.Button toggleFreeCamera;
+    [JsonIgnore]
+    [BindableButton("Change 3rd Person Camera Height", LabelLocalizationKey = "Option.Button.ChangeExternalCameraHeight", KeyboardDefault = GameInputHandler.Paths.Keyboard.V)]
+    public GameInput.Button btnChangeExternalCameraHeight;
+    [JsonIgnore]
+    [BindableButton("Reduce the 3rd Person Camera", LabelLocalizationKey = "Option.Button.AltZoomIn")]
+    public GameInput.Button btnAltZoomIn;
+    [JsonIgnore]
+    [BindableButton("Increase the 3rd Person Camera", LabelLocalizationKey = "Option.Button.AltZoomOut")]
+    public GameInput.Button btnAltZoomOut;
     [Toggle("Flip Free Horizontal Rotation in Reverse", LabelLanguageId = "Option.FlipFreeHorizontalRotationInReverse")]
     public bool flipFreeHorizontalRotationInReverse = true;
     [Toggle("Flip Free Vertical Rotation in Reverse", LabelLanguageId = "Option.FlipFreeVerticalRotationInReverse")]
@@ -60,8 +67,5 @@ public class ArchonConfig : ConfigFile
         LabelLanguageId = "Option.LogVerbosity"
     )]
     public Verbosity logLevel = Verbosity.Regular;
-
-    //[Toggle("Hold Sprint to Boost")]
-    //public bool holdToBoost = false;
 
 }

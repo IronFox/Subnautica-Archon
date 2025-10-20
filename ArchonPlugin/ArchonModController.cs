@@ -25,14 +25,12 @@ namespace Subnautica_Archon
 
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     [BepInDependency(Nautilus.PluginInfo.PLUGIN_GUID, Nautilus.PluginInfo.PLUGIN_VERSION)]
-    public class ArchonModController : RootModController
+    public class ArchonModController : ConfigurableModController<ArchonConfig>
     {
         private static StaticImages? staticImages;
         public static StaticImages StaticImages => staticImages ?? throw new NullReferenceException("StaticImages not initialized");
 
 
-        private static ArchonConfig? config;
-        internal static ArchonConfig PluginConfig => config ?? throw new NullReferenceException("ArchonConfig not initialized");
         internal const string WorkBenchTab = "Storage";
         internal static string RootFolder { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         internal static string ImagesFolder { get; } = Path.Combine(RootFolder, "images");
@@ -41,7 +39,7 @@ namespace Subnautica_Archon
 
         public override string ModName => "Archon";
 
-        public override Verbosity LogVerbosity => config?.logLevel ?? Verbosity.Verbose;
+        public override Verbosity LogVerbosity => TryGetConfig()?.logLevel ?? Verbosity.Verbose;
 
         public override void Awake()
         {
@@ -168,8 +166,7 @@ namespace Subnautica_Archon
             {
                 base.Start();
                 log.Write("ArchonModController.Start()");
-                LanguageHandler.RegisterLocalizationFolder();
-                config = OptionsPanelHandler.RegisterModOptions<ArchonConfig>();
+                LoadLanguagesAndConfig();
                 var harmony = new Harmony(PluginInfo.PLUGIN_GUID);
                 harmony.PatchAll();
 
