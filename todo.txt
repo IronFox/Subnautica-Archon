@@ -80,6 +80,7 @@ later:
 
 done:
 
+* use new input system. Fix zoom keys
 * implement fish tank
 	+ for reference: 
 		WaterPark.GetBreedingPartner
