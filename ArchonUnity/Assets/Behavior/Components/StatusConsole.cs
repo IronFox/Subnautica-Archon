@@ -80,11 +80,11 @@ public class StatusConsole : CommonBoardingListener
     {
         float w = parentCanvas.rect.width / 2 * 0.9f;
         float h = parentCanvas.rect.height * 0.9f;
-        statusText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, w);
-        statusText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, h);
+        //statusText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Horizontal, w);
+        //statusText.rectTransform.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, h);
 
-        statusText.rectTransform.localPosition =
-            M.V3(-w + w / 2, 0, 0);
+        //statusText.rectTransform.localPosition =
+        //    M.V3(-w + w / 2, 0, 0);
 
 
         StringBuilder b = new StringBuilder();

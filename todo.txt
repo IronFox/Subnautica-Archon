@@ -4,6 +4,7 @@ batch:
 * disable map when taking helm, powered off, or battery dead (it was previously disabled in 3rd person, now no longer is, causing visual glitches)
 * disable BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
 * replace pilot seat orange trims with gold ones
+* add sand surface to ACU
 
 * add hud speed display + GPS + map
 * increase interior shadow caster triangle resolution
@@ -30,11 +31,6 @@ next:
 
 later:
 
-* disabled creature in ACU (except CrabSnake)
-* checking other ACU and mobile ACU to not remove their fish
-* fixed/improved water park self-sanitization code
-* checked cuddlefish hatching. Supposedly they reproduce with just one and ignore the glass wall. They don't
-* prevented crash fish from exploding 20 seconds after hatching
 * the archon has been observed trying to assume a vertical position when supposed to level out
 	- no log messages hinted at the problem
 	- should add leveling out status to F7 debug screen
@@ -81,6 +77,11 @@ later:
 done:
 
 * use new input system. Fix zoom keys
+* prevented crash fish from exploding 20 seconds after hatching
+* fixed/improved water park self-sanitization code
+* checked cuddlefish hatching. Supposedly they reproduce with just one and ignore the glass wall. They don't
+* checking other ACU and mobile ACU to not remove their fish
+* disabled creature in ACU (except CrabSnake)
 * implement fish tank
 	+ for reference: 
 		WaterPark.GetBreedingPartner

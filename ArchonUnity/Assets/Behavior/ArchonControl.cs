@@ -58,6 +58,7 @@ public class ArchonControl : MonoBehaviour
     public bool reactorIsCharging;
     public float rotationDegreesPerSecond = 20;
     public float secondsToTeleport = 100;
+    public bool showHudMap = true;
     public TeleportationType teleportationType = TeleportationType.None;
     public float teleportationProgress = 0;
     public bool outOfWater;
@@ -85,7 +86,8 @@ public class ArchonControl : MonoBehaviour
     public Transform interior;
     public Renderer interiorExteriorShadowCaster;
     public Transform interiorLights;
-    public Material mapHologramMaterial;
+    public MapControl mapHud;
+    public MapControl mapTable;
     public AnimationController powerCellAnimation;
     public PlayerDetector powerCellPlayerDetector;
     public StatusConsole statusConsole;
@@ -392,6 +394,9 @@ public class ArchonControl : MonoBehaviour
             checkFloatingCharacterForSeconds = 1;
             boardedBy = player;
             boardedLeave = false;
+            //mapTable.gameObject.SetActive(true);
+            //mapHud.gameObject.SetActive(false);
+
             helmSeatController.AnimateToParkPosition();
             SetCameraIsInVehicle(true, true);
         }
@@ -504,6 +509,9 @@ public class ArchonControl : MonoBehaviour
                 //RigidbodyUtil.UnsetKinematic(rb);
                 //shouldBeKinematic = false;
             }
+            //mapTable.gameObject.SetActive(false);
+            //mapHud.gameObject.SetActive(false);
+
 
             helmSeatController.MoveToControlPosition();
         }
@@ -541,6 +549,8 @@ public class ArchonControl : MonoBehaviour
                 log.Write($"Setting {cameraRoot} as cameraRoot");
                 CameraUtil.primaryFallbackCameraTransform = cameraRoot;
                 cameraParentageBeforeControl = Parentage.FromLocal(cameraRoot);
+                //mapTable.gameObject.SetActive(false);
+                //mapHud.gameObject.SetActive(showHudMap);
 
                 helmSeatController.MoveToControlPosition();
                 preBoardedPlayer = helmSeatController.SeatPlayer(player);

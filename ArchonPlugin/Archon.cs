@@ -362,24 +362,27 @@ namespace Subnautica_Archon
                 log.Error("Unable to find Interior child");
 
 
-
-            var mapWorld = transform.Find("Interior/Map Table/Display/World");
-            if (mapWorld != null)
+            var maps = GetComponentsInChildren<MapControl>(true);
+            foreach (var map in maps)
             {
-                log.Write($"Found map world {mapWorld.NiceName()}. Trying to build mini-world");
-                try
+                var mapWorld = map.displayWorld;
+                if (mapWorld.IsNotNull())
                 {
-                    SpawnMiniWorld(mapWorld, Control.mapHologramMaterial, 500);
-                    log.Write($"Map instantiated");
+                    log.Write($"Found map world {mapWorld.NiceName()}. Trying to build mini-world");
+                    try
+                    {
+                        SpawnMiniWorld(mapWorld.transform, map.worldMaterial, Mathf.RoundToInt(map.WorldRadius*1.2f));
+                        log.Write($"Map instantiated with r={map.WorldRadius}");
+                    }
+                    catch (Exception ex)
+                    {
+                        log.Error($"Error instantiating map", ex);
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    log.Error($"Error instantiating map", ex);
+                    log.Write($"Interior/Map Table/Display/World not found");
                 }
-            }
-            else
-            {
-                log.Write($"Interior/Map Table/Display/World not found");
             }
 
 

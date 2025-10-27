@@ -14,7 +14,7 @@ public class PositionCamera : MonoBehaviour
     public bool positionBelowTarget;
     public Collider shipCollider;
     public ArchonControl archon;
-
+    public MapControl hudMap;
 
     //private float firstPersonRadius = 3.15f;
     public bool isFirstPerson = false;
@@ -175,6 +175,7 @@ public class PositionCamera : MonoBehaviour
 
             transform.position = targetPosition;
         }
+        hudMap.LateUpdate();
     }
 
 }

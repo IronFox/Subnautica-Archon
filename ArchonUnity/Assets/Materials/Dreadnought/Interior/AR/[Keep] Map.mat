@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Map
+  m_Name: '[Keep] Map'
   m_Shader: {fileID: 4800000, guid: f26b66e6c12263e4ca4fe5a67cca2c7c, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 4
@@ -59,10 +59,14 @@ Material:
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
+    - _DisplayScale: 1
+    - _DownClip: -2.02
     - _DstBlend: 0
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 1
+    - _InverseDisplayScale: 100
+    - _MapSize: 4.09
     - _Metallic: 1
     - _Mode: 0
     - _OcclusionStrength: 1
@@ -71,13 +75,15 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
+    - _UpClip: 0.253
     - _ZWrite: 1
     m_Colors:
+    - _ArchonCenterWorldPos: {r: 0, g: 0, b: 0, a: 1}
     - _BaseColor: {r: 0.4433962, g: 0.4433962, b: 0.4433962, a: 1}
     - _CameraCenter: {r: 0, g: 0, b: 0, a: 1}
     - _Color: {r: 0.764151, g: 0.764151, b: 0.764151, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _FresnelColor: {r: 0.8, g: 0.8, b: 0.9, a: 1}
-    - _LineColor: {r: 0.8, g: 0.8, b: 0.9, a: 1}
+    - _LineColor: {r: 0.5131719, g: 0.5131719, b: 0.5849056, a: 1}
     - _MapCenter: {r: 0, g: 0, b: 0, a: 1}
-    - _MapCenterWorldPos: {r: 0, g: 5.32, b: 0.2716026, a: 1}
+    - _MapCenterWorldPos: {r: 0, g: 5.32, b: 0.271603, a: 0}

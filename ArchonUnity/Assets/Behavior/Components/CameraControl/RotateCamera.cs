@@ -6,6 +6,7 @@ public class RotateCamera : MonoBehaviour
     public float rotationAxisY;
     public float maxDegreesPerSecond = 800;
     public float transitionSpeedMultiplier = 2;
+    public MapControl hudMap;
 
     public LockedEuler Current => current;
     private LockedEuler current;
@@ -38,7 +39,46 @@ public class RotateCamera : MonoBehaviour
 
             interpolated.ApplyTo(transform);
         }
+        if (hudMap)
+        {
+            hudMap.transform.localRotation =
+                Quaternion.Euler(0, 0, 40) *
+                Quaternion.Euler(-50, 0, 0) *
+                Quaternion.Euler(0, -transform.rotation.eulerAngles.y, 0)
+                ;
+
+            //    rotation = Quaternion.identity;
+
+            hudMap.displayShip.transform.localRotation = archon.transform.rotation;
+
+            //hudMap.display.transform.rotation = Quaternion.LookRotation(new Vector3(transform.forward.x, 0, transform.forward.z), Vector3.up);
+            //hudMap.upClip = 1f;
+            //hudMap.downClip = -1f;
+
+            //float delta = transform.rotation.eulerAngles.x - 343f;
+            //if (delta > 180f)
+            //    delta -= 360f;
+            //if (delta < -180f)
+            //    delta += 360f;
+
+            //if (Mathf.Abs(delta) < 20f)
+            //{
+            //    hudMap.upClip = 0.25f;
+            //    hudMap.downClip = -0.25f;
+            //}
+            //else if (delta > 0)
+            //{
+            //    hudMap.upClip = 0.01f;
+            //    hudMap.downClip = -0.25f;
+            //}
+            //else
+            //{
+            //    hudMap.upClip = 0.25f;
+            //    hudMap.downClip = -0.01f;
+            //}
+        }
     }
+
 
 
     public bool IsTransitionDone => transitionProgress >= 1;

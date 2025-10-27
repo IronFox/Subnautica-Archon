@@ -1,4 +1,6 @@
-﻿Shader "Custom/Map"
+﻿// Upgrade NOTE: replaced '_World2Object' with 'unity_WorldToObject'
+
+Shader "Custom/Map"
 {
     Properties
     {
@@ -6,10 +8,14 @@
         _BaseColor ("Base Color", Color) = (0.1,0.1,0.1,1)
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
-        _MapCenterWorldPos ("Map Center", Vector) = (0,0,0,1)
+        _ArchonCenterWorldPos ("Archon Center", Vector) = (0,0,0,1)
         _FresnelColor ("Fresnel Color", Color) = (0.8,0.8,0.9,1)
         _LineColor ("Line Color", Color) = (0.8,0.8,0.9,1)
         _BumpMap ("Normal Map", 2D) = "bump" {}
+        _MapSize ("Map Size", Float) = 4.09
+        _DisplayScale ("Display Scale", Float) = 0.01
+        _DownClip ("Down Clip", Float) = -2.02
+        _UpClip ("Up Clip", Float) = 0.253
 
     }
     SubShader
@@ -20,13 +26,15 @@
 
         CGPROGRAM
         // Physically based Standard lighting model, and enable shadows on all light types
-        #pragma surface surf Standard fullforwardshadows
+        #pragma surface surf Standard fullforwardshadows vertex:vert
 
         // Use shader model 3.0 target, to get nicer looking lighting
         #pragma target 3.0
 
         struct Input
         {
+            float3 local;
+            float3 object;
             float2 uv_BumpMap;
             float Face:VFACE;
             float3 viewDir;
@@ -45,7 +53,23 @@
         fixed4 _BaseColor;
         fixed4 _FresnelColor;
         fixed4 _LineColor;
-        float3 _MapCenterWorldPos;
+        float3 _ArchonCenterWorldPos;
+        float _MapSize;
+        float _DownClip;
+        float _UpClip;
+        float _DisplayScale;
+        float4x4 _ObjectToDisplay;
+        float4x4 _LocalObject;
+
+
+        void vert (inout appdata_full v, out Input ip) {
+
+            ip = (Input)0;
+            UNITY_INITIALIZE_OUTPUT(Input, ip);
+            ip.object = mul(_LocalObject, float4(v.vertex.xyz, 1.0)).xyz;
+            ip.local =  mul(_ObjectToDisplay, float4(v.vertex.xyz,1.0)).xyz;
+
+        }
 
         float lineOpacity(float r, float minR, float maxR)
         {
@@ -73,9 +97,21 @@
             else
                 o.Normal = UnpackNormal(tex2D(_BumpMap, IN.uv_BumpMap));
 
-            float3 relative = IN.worldPos - _MapCenterWorldPos;
+                
+
+            float3 relative = IN.local;
+            //0.0 - totally with
+            //0.52 - with
+            //0.53 - with
+            //0.6 - with
+            //0.8 - with
+            //0.85 - with
+            //0.87 - with
+            //0.9 - against
+            //1.0 - against
+            float3 realWorld = (IN.object + _ArchonCenterWorldPos * 0.88);
+            relative *= _DisplayScale;
             float r = length(relative.xz);
-            float3 realWorld = (relative)*100.0 + _MapCenterWorldPos;
 
             float lineEvery = 10;
             float3 mod = fmod(realWorld + 10000 + lineEvery /2, lineEvery) / lineEvery;
@@ -91,15 +127,17 @@
             float fresnel = saturate(1+dot(view, normal) / length(view));
             fresnel = pow(fresnel, 2.0);
 
-            //tex2D (_MainTex, IN.uv_MainTex) * _Color;
+            //o.Emission = clamp(IN.local*0.01,0,1);/ max(_MapSize,0.01);
+
             if (frontFace)
                 o.Emission = fresnel*_FresnelColor.rgb;
 
             o.Emission += max(lo.y,0.5 * max(lo.x, lo.z))*_LineColor.rgb * (!frontFace ? 0.25 : 1);
-            o.Emission += lineOpacity(r,4.07,4.1);
-            o.Emission += lineOpacity(relative.y,0.25,0.254);
-            o.Emission += lineOpacity(relative.y,-2.03,-2);
-            if (r > 4.09 || relative.y > 0.253 || relative.y < -2.02)
+            o.Emission += lineOpacity(r,_MapSize*0.993,_MapSize*1.002);
+            float vClipWidth = max(abs(_UpClip), abs(_DownClip)) * 0.005;
+            o.Emission += lineOpacity(relative.y,_UpClip - vClipWidth,_UpClip + vClipWidth * 2);
+            o.Emission += lineOpacity(relative.y,_DownClip - vClipWidth,_DownClip +vClipWidth * 2);
+            if (r > _MapSize || relative.y > _UpClip || relative.y < _DownClip)
                 clip(-1);
 
             o.Albedo = _BaseColor.rgb;
