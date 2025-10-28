@@ -470,6 +470,11 @@ public class ArchonControl : MonoBehaviour
                 r.enabled = isInVehicle;
             });
 
+            interior.GetAll<PowerCellRoot>(PlayerAdapter.Player()).ForEach(r =>
+            {
+                r.gameObject.SetActive(isInVehicle);
+            });
+
             //interior.gameObject.SetActive(isInVehicle);
             UpdateInteriorCollidersAndLights(isInVehicle && withCollidersAndLights);
 
