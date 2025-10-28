@@ -476,6 +476,7 @@ public class ArchonControl : MonoBehaviour
             interior.GetAll<PowerCellRoot>(PlayerAdapter.Player()).ForEach(r =>
             {
                 r.gameObject.SetActive(isInVehicle);
+                log.Debug($"Setting power cell root {r.NiceName()} active = {isInVehicle}");
             });
 
             //interior.gameObject.SetActive(isInVehicle);

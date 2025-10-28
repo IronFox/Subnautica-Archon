@@ -146,6 +146,7 @@
   "Option.LogVerbosity.Verbose": "详细日志",
   "Option.LogVerbosity.Regular": "常规日志",
   "Option.LogVerbosity.WarningsAndErrorsOnly": "最少日志",
+  "Option.ShowHudMap": "HUD 小地图",
 
   "Subtitle.Voice.Welcome": "欢迎登船",
   "Subtitle.Voice.Depth.Dangerous": "深度警告",

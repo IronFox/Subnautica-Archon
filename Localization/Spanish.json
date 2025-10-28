@@ -145,6 +145,7 @@
 	"Option.LogVerbosity.Verbose": "Registro detallado",
 	"Option.LogVerbosity.Regular": "Registro normal",
 	"Option.LogVerbosity.WarningsAndErrorsOnly": "Registro mínimo",
+	"Option.ShowHudMap": "Minimapa del HUD",
 
 	"Subtitle.Voice.Welcome": "Bienvenido a bordo",
 	"Subtitle.Voice.Depth.Dangerous": "Advertencia de profundidad",

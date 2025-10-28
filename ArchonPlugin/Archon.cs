@@ -1208,6 +1208,8 @@ namespace Subnautica_Archon
 
                 }
 
+                Control.showHudMap = ArchonModController.PluginConfig.showHudMap;
+
                 Control.flipFreeHorizontalRotationInReverse = ArchonModController.PluginConfig.flipFreeHorizontalRotationInReverse;
                 Control.flipFreeVerticalRotationInReverse = ArchonModController.PluginConfig.flipFreeVerticalRotationInReverse;
 

@@ -145,6 +145,7 @@
 	"Option.LogVerbosity.Verbose": "Подробное журналирование",
 	"Option.LogVerbosity.Regular": "Обычное журналирование",
 	"Option.LogVerbosity.WarningsAndErrorsOnly": "Минимальное журналирование",
+	"Option.ShowHudMap": "Показать миникарту HUD",
 
 	"Subtitle.Voice.Welcome": "Добро пожаловать на борт",
 	"Subtitle.Voice.Depth.Dangerous": "Предупреждение о глубине",

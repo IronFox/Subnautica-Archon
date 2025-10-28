@@ -148,7 +148,7 @@
 	"Option.LogVerbosity.Verbose": "Detailed logging",
 	"Option.LogVerbosity.Regular": "Regular logging",
 	"Option.LogVerbosity.WarningsAndErrorsOnly": "Minimal logging",
-
+	"Option.ShowHudMap": "HUD Minimap",
 
 	"Subtitle.Voice.Welcome": "Welcome Aboard",
 	"Subtitle.Voice.Depth.Dangerous": "Depth Warning",

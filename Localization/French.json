@@ -145,7 +145,7 @@
 	"Option.LogVerbosity.Verbose": "Journalisation détaillée",
 	"Option.LogVerbosity.Regular": "Journalisation normale",
 	"Option.LogVerbosity.WarningsAndErrorsOnly": "Journalisation minimale",
-
+	"Option.ShowHudMap": "Mini-carte du HUD",
 
 	"Subtitle.Voice.Welcome": "Bienvenue à bord",
 	"Subtitle.Voice.Depth.Dangerous": "Avertissement de profondeur",

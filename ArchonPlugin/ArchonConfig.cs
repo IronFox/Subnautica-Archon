@@ -71,4 +71,7 @@ public class ArchonConfig : ConfigFile
     )]
     public Verbosity logLevel = Verbosity.Regular;
 
+    [Toggle("Show HUD Map", LabelLanguageId = "Option.ShowHudMap")]
+    public bool showHudMap = true;
+
 }

@@ -147,7 +147,7 @@
 	"Option.LogVerbosity.Verbose": "Alles",
 	"Option.LogVerbosity.Regular": "Regulär",
 	"Option.LogVerbosity.WarningsAndErrorsOnly": "Minimal",
-
+	"Option.ShowHudMap": "HUD-Minikarte",
 
 	"Subtitle.Voice.Welcome": "Willkommen an Bord",
 	"Subtitle.Voice.Depth.Dangerous": "Achtung: Maximale Tiefe erreicht",
