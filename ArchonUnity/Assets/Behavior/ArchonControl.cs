@@ -86,7 +86,6 @@ public class ArchonControl : MonoBehaviour
     public Transform interior;
     public Renderer interiorExteriorShadowCaster;
     public Transform interiorLights;
-    public MapControl mapHud;
     public MapControl mapTable;
     public AnimationController powerCellAnimation;
     public PlayerDetector powerCellPlayerDetector;
@@ -399,6 +398,7 @@ public class ArchonControl : MonoBehaviour
 
             helmSeatController.AnimateToParkPosition();
             SetCameraIsInVehicle(true, true);
+            mapTable.gameObject.SetActive(true);
         }
         //evacuateIntruders.enabled = true;
     }
@@ -514,6 +514,7 @@ public class ArchonControl : MonoBehaviour
 
 
             helmSeatController.MoveToControlPosition();
+            mapTable.gameObject.SetActive(false);
         }
     }
 
@@ -535,6 +536,8 @@ public class ArchonControl : MonoBehaviour
 
                 controlledBy = player;
                 Exit();
+                mapTable.gameObject.SetActive(true);
+
 
                 BoardingListeners listeners = BoardingListeners.Of(this, trailSpace);
 
@@ -680,6 +683,7 @@ public class ArchonControl : MonoBehaviour
 
             evacuateIntruders.enabled = IsBoardedButNotControlled;
             SetCameraIsInVehicle(false, false);
+            mapTable.gameObject.SetActive(false);
         }
     }
 
