@@ -103,10 +103,6 @@ public class StatusConsole : CommonBoardingListener
 public enum StatusProperty
 {
     Target,
-    LeftLauncherTarget,
-    RightLauncherTarget,
-    LeftLauncherProgress,
-    RightLauncherProgress,
     EnergyLevel,
     EnergyCapacity,
     BatteryDead,
@@ -125,7 +121,6 @@ public enum StatusProperty
     FreeCamera,
     TimeDelta,
     FixedTimeDelta,
-    TargetScanTime,
     Health,
     MaxHealth,
     IsHealing,
@@ -136,5 +131,7 @@ public enum StatusProperty
     Lights,
     NumDockedVehicles,
     MaxDockedVehicles,
+    HudMapEnabled,
+    AutoLeveling,
 }
 

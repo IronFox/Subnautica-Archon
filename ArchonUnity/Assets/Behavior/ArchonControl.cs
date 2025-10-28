@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 
@@ -86,6 +87,8 @@ public class ArchonControl : MonoBehaviour
     public Transform interior;
     public Renderer interiorExteriorShadowCaster;
     public Transform interiorLights;
+    public Camera mapCamera;
+    public RawImage mapImage;
     public MapControl mapTable;
     public AnimationController powerCellAnimation;
     public PlayerDetector powerCellPlayerDetector;
@@ -804,14 +807,12 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.RightAxis, rightAxis);
             statusConsole.Set(StatusProperty.UpAxis, upAxis);
             statusConsole.Set(StatusProperty.ReactorIsCharging, reactorIsCharging);
-            //statusConsole.Set(StatusProperty.OverdriveActive, overdriveActive);
             statusConsole.Set(StatusProperty.CameraDistance, positionCamera.DistanceToTarget);
             statusConsole.Set(StatusProperty.PositionCameraBelowSub, positionCamera.positionBelowTarget);
             statusConsole.Set(StatusProperty.Velocity, rb.velocity.magnitude);
             statusConsole.Set(StatusProperty.FreeCamera, UseFreeCamera);
             statusConsole.Set(StatusProperty.TimeDelta, Time.deltaTime);
             statusConsole.Set(StatusProperty.FixedTimeDelta, Time.fixedDeltaTime);
-            //statusConsole.Set(StatusProperty.TargetScanTime, scanner.lastScanTime);
             statusConsole.Set(StatusProperty.Health, currentHealth);
             statusConsole.Set(StatusProperty.MaxHealth, maxHealth);
             statusConsole.Set(StatusProperty.IsHealing, isHealing);
@@ -821,6 +822,8 @@ public class ArchonControl : MonoBehaviour
             statusConsole.Set(StatusProperty.Lights, floodLights);
             statusConsole.Set(StatusProperty.MaxDockedVehicles, maxDockedVehicles);
             statusConsole.Set(StatusProperty.NumDockedVehicles, bayControl.NumDockedVehicles);
+            statusConsole.Set(StatusProperty.HudMapEnabled, showHudMap);
+            statusConsole.Set(StatusProperty.AutoLeveling, doAutoLevel);
         }
         catch (Exception ex)
         {
@@ -1252,11 +1255,30 @@ public class ArchonControl : MonoBehaviour
             UpdateTeleportation();
 
             UpdateBioreactor();
+
+            UpdateHudMap();
         }
         catch (Exception ex)
         {
             using (var log = Log.New())
                 log.Error(nameof(ArchonControl) + "." + nameof(Update), ex);
+        }
+    }
+
+    private void UpdateHudMap()
+    {
+        try
+        {
+            bool showHudMap = IsBeingControlled && this.showHudMap;
+            if (mapCamera)
+                mapCamera.enabled = showHudMap;
+            if (mapImage)
+                mapImage.enabled = showHudMap;
+        }
+        catch (Exception ex)
+        {
+            using (var log = Log.New())
+                log.Error(nameof(UpdateHudMap), ex);
         }
     }
 
