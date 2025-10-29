@@ -1,16 +1,23 @@
 batch:
 
-
-* disable map when taking helm, powered off, or battery dead (it was previously disabled in 3rd person, now no longer is, causing visual glitches)
 * disable BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
-* replace pilot seat orange trims with gold ones
-* add sand surface to ACU
 
-* add hud speed display + GPS + map
+* add speed modules
+
 * increase interior shadow caster triangle resolution
 * add vertical submarine shadow to map
 
 batch done:
+
+* added bioreactor sound volume slider
+* disabled regular shadow on map
+* added leveling out and map status to F7 debug screen
+* checked visual glitch with VF 2025 loaded after construction (blue box on screen). couldn't see
+* fixed batteries visibile from outside after sub construction
+* added hud map
+* added sand surface to ACU
+* replaced pilot seat orange trims with gold ones
+* keeping map always on, record off-screen for HUD projection
 
 no:
 
@@ -25,12 +32,14 @@ no:
 
 maybe:
 * add AVS fabricator to pre-built mesh (every spot is potentially bad, some spots near upgrade panel can't normally be built at)
+* add hud speed display + GPS
 
 
 next:
 
 later:
 
+* align minimap with archon up-down rotation to that it shows the horizontal space available at its inclination
 * the archon has been observed trying to assume a vertical position when supposed to level out
 	- no log messages hinted at the problem
 	- should add leveling out status to F7 debug screen
