@@ -2,6 +2,7 @@
 using Assets.Behavior.Components.Motion;
 using AVS;
 using AVS.Assets;
+using AVS.Attributes;
 using AVS.Composition;
 using AVS.Configuration;
 using AVS.Interfaces;
@@ -31,7 +32,7 @@ namespace Subnautica_Archon
 {
 
 
-
+    [ImmobileWhenNotControlled]
     public class Archon : Submarine, IPowerListener, IAutopilotEventListener
     {
         public static GameObject? staticModel;
