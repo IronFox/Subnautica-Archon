@@ -99,7 +99,8 @@ public class ArchonControl : MonoBehaviour
     public AnimationController upgradeCoverAnimation;
 
 
-
+    public const int VisibleMapLayer = 8;
+    public const int InvisibleMapLayer = 27;
 
 
     public const int OuterShellLayer = 30;
@@ -402,6 +403,10 @@ public class ArchonControl : MonoBehaviour
             helmSeatController.AnimateToParkPosition();
             SetCameraIsInVehicle(true, true);
             mapTable.gameObject.SetActive(true);
+            mapTable.mapLayer = VisibleMapLayer;
+            mapTable.upClip = 0.253f;
+            mapTable.downClip = -2.02f;
+
         }
         //evacuateIntruders.enabled = true;
     }
@@ -545,7 +550,11 @@ public class ArchonControl : MonoBehaviour
 
                 controlledBy = player;
                 Exit();
+
                 mapTable.gameObject.SetActive(true);
+                mapTable.mapLayer = InvisibleMapLayer;
+                mapTable.upClip = 0.2f;
+                mapTable.downClip = -5f;
 
 
                 BoardingListeners listeners = BoardingListeners.Of(this, trailSpace);

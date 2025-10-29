@@ -13,12 +13,13 @@ public class MapControl : MonoBehaviour
     public Material worldMaterial;
     public float upClip = 0.253f;
     public float downClip = -2.02f;
-
+    public bool alignToShip = true;
+    public int mapLayer = 8;
     public enum OrientationMode
     {
         Unchanged,
         AsMap,
-        AsMapPointNorth
+        AsMapPointNorth,
     }
 
     public OrientationMode worldOrientation = OrientationMode.AsMapPointNorth;
@@ -63,13 +64,19 @@ public class MapControl : MonoBehaviour
             {
                 cameraSpace.localRotation = Quaternion.Euler(0, cameraOrientation.transform.rotation.eulerAngles.y - transform.rotation.eulerAngles.y, 0);
             }
-            displayShip.localRotation = Quaternion.Euler(transform.eulerAngles.x, 0, transform.eulerAngles.z);
+            if (alignToShip)
+            {
+                displayWorld.localRotation = Quaternion.Euler(-transform.eulerAngles.x, 0, 0) * displayWorld.localRotation;
+                displayShip.localRotation = Quaternion.Euler(0, 0, transform.eulerAngles.z);
+            }
+            else
+                displayShip.localRotation = Quaternion.Euler(transform.eulerAngles.x, 0, transform.eulerAngles.z);
 
             RedetectRenderers();
             foreach (var renderer in mapRenderers)
             {
                 var materials = renderer.materials;
-                renderer.gameObject.layer = 8;
+                renderer.gameObject.layer = mapLayer;
                 //renderer.renderingLayerMask = 27;
                 var matrix = display.worldToLocalMatrix * renderer.localToWorldMatrix;
                 var localMatrix = renderer.transform.ToLocalMatrix();
