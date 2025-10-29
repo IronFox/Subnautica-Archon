@@ -68,6 +68,8 @@ public class PositionCamera : MonoBehaviour
 
     void LateUpdate()
     {
+        if (!archon.IsBeingControlled)
+            return;
         target = referenceBoundingBox.transform.TransformPoint(referenceBoundingBox.center);
 
         if (isFirstPerson)
@@ -76,7 +78,7 @@ public class PositionCamera : MonoBehaviour
             {
                 using (var log = Log.NewLazy())
                 {
-                    if (archon.zoomedInIsCockpit && archon.IsBeingControlled)
+                    if (archon.zoomedInIsCockpit)
                         archon.ChangeCameraIsInVehicle(true);
                 }
             }
@@ -117,7 +119,7 @@ public class PositionCamera : MonoBehaviour
                 distanceToTarget = minDistanceToTarget;
                 using (var log = Log.NewLazy())
                 {
-                    if (archon.zoomedInIsCockpit && archon.IsBeingControlled)
+                    if (archon.zoomedInIsCockpit)
                         archon.ChangeCameraIsInVehicle(false);
                 }
             }
