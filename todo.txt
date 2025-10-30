@@ -1,7 +1,5 @@
 batch:
 
-* disable BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
-
 * add speed modules
 
 * increase interior shadow caster triangle resolution
@@ -9,15 +7,7 @@ batch:
 
 batch done:
 
-* added bioreactor sound volume slider
-* disabled regular shadow on map
-* added leveling out and map status to F7 debug screen
-* checked visual glitch with VF 2025 loaded after construction (blue box on screen). couldn't see
-* fixed batteries visibile from outside after sub construction
-* added hud map
-* added sand surface to ACU
-* replaced pilot seat orange trims with gold ones
-* keeping map always on, record off-screen for HUD projection
+
 
 no:
 
@@ -85,7 +75,16 @@ later:
 
 done:
 
-* use new input system. Fix zoom keys
+* disabled BedPatcher for the Archon (may cause Archon immobility and isn't necessary)
+* added bioreactor sound volume slider
+* disabled regular shadow on map
+* added leveling out and map status to F7 debug screen
+* checked visual glitch with VF 2025 loaded after construction (blue box on screen). couldn't see
+* fixed batteries visibile from outside after sub construction
+* added hud map
+* added sand surface to ACU
+* replaced pilot seat orange trims with gold ones
+* keeping map always on, record off-screen for HUD projection* use new input system. Fix zoom keys
 * prevented crash fish from exploding 20 seconds after hatching
 * fixed/improved water park self-sanitization code
 * checked cuddlefish hatching. Supposedly they reproduce with just one and ignore the glass wall. They don't
