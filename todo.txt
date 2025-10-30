@@ -29,7 +29,6 @@ next:
 
 later:
 
-* align minimap with archon up-down rotation to that it shows the horizontal space available at its inclination
 * the archon has been observed trying to assume a vertical position when supposed to level out
 	- no log messages hinted at the problem
 	- should add leveling out status to F7 debug screen
@@ -52,7 +51,6 @@ later:
 * add name label on out- and insides. Add coloring panel
 * add status label on front walls above airlock
 * change power cell slot bright color to highlight status. Show status on panel AR
-* velocity upgrades
 * fix horizontal rotation control sluggish when not leaning near ocean surface or at low speed
 * torpedo launchers
 	- on the sides, autotargeting whatever is close
@@ -70,7 +68,7 @@ later:
 * water filtration module
 	- where would we place this?
 	- a buildable structure with a custom snap-to-mechanic?
-* a module that causes Echelon's to auto patrol around the Archon, attack targets
+* a module that causes Echelons to auto patrol around the Archon, attack targets
 	- alternatively, a special unmanned drone that is auto-released
 
 done:
