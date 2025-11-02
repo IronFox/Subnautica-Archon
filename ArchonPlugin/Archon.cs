@@ -372,7 +372,7 @@ namespace Subnautica_Archon
                     log.Write($"Found map world {mapWorld.NiceName()}. Trying to build mini-world");
                     try
                     {
-                        SpawnMiniWorld(mapWorld.transform, map.worldMaterial, Mathf.RoundToInt(map.WorldRadius*1.2f));
+                        SpawnMiniWorld(mapWorld.transform, map.worldMaterial, Mathf.RoundToInt(map.WorldRadius * 1.2f));
                         log.Write($"Map instantiated with r={map.WorldRadius}");
                     }
                     catch (Exception ex)
@@ -1593,6 +1593,28 @@ namespace Subnautica_Archon
             {
                 var content = waterTank.Find("Content").OrRequired(() => waterTank);
 
+                List<WaterParkPlant> plantList = [];
+
+                foreach (var c in waterTank.Find("Plants").SafeGetChildren().ToList())
+                {
+                    if (!c.gameObject.activeSelf)
+                        continue;
+                    if (Enum.TryParse<TechType>(c.name, out var tt))
+                    {
+                        plantList.Add(new WaterParkPlant(
+                            PlantType: tt,
+                            PlantRoot: c
+                            ));
+                    }
+                    else
+                    {
+                        log.Warn($"Unable to parse plant tech type from {c.name} in water tank. Removing instance");
+                        Destroy(c.gameObject);
+                    }
+                }
+
+                log.Debug($"Water tank found with {plantList.Count} plant(s)");
+
                 mwps.Add(new MobileWaterPark(
                     DisplayName: AVS.Localization.Text.Translated("Component.WaterTank"),
                     Root: waterTank.gameObject,
@@ -1605,7 +1627,8 @@ namespace Subnautica_Archon
                     BottomMargin: 0.2f,
                     TopMargin: 0.3f,
                     HorizontalMargin: -0.2f,
-                    CollidersAreLive: () => Control.IsBoardedButNotControlled
+                    CollidersAreLive: () => Control.IsBoardedButNotControlled,
+                    Plants: plantList
                 ));
             }
             else
