@@ -1,4 +1,6 @@
-﻿namespace Subnautica_Archon.Adapters.VehicleAbstraction
+﻿using AVS.Log;
+
+namespace Subnautica_Archon.Adapters.VehicleAbstraction
 {
     internal class VFVehicleAbstraction : IVehicleAbstraction
     {
@@ -26,6 +28,7 @@
 
         public void UndockVehicle(bool boardPlayer)
         {
+            using var log = SmartLog.LazyFor(VfVehicle.RMC, parameters: Params.Of(boardPlayer));
             if (boardPlayer)
                 VfVehicle.OnVehicleUndocked();
             else
