@@ -1599,7 +1599,9 @@ namespace Subnautica_Archon
                 {
                     if (!c.gameObject.activeSelf)
                         continue;
-                    if (Enum.TryParse<TechType>(c.name, out var tt))
+                    var name = c.name.SanitizeObjectName();
+
+                    if (Enum.TryParse<TechType>(name, out var tt))
                     {
                         plantList.Add(new WaterParkPlant(
                             PlantType: tt,
