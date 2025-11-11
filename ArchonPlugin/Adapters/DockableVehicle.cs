@@ -618,29 +618,58 @@ namespace Subnautica_Archon.Adapters
         public void EndUndocking()
         {
             using var log = NewLog();
-            Vehicle.liveMixin.shielded = false;
-            Vehicle.crushDamage.enabled = true;
-            Vehicle.docked = false;
-
-
-            Abstraction.UndockVehicle(boardPlayer: !IsDrone);
-            Abstraction.PingInstance.SetHudIcon(log, true);
-
-            if (!Vehicle.subName.pingInstance.isActiveAndEnabled ||
-                !Vehicle.subName.pingInstance.gameObject.activeInHierarchy || !Vehicle.subName.pingInstance.visible)
-                log.Warn($"There appears to be an issue with the ping instance: {Vehicle.subName.pingInstance.isActiveAndEnabled}, {Vehicle.subName.pingInstance.gameObject.activeInHierarchy}, {Vehicle.subName.pingInstance.visible}");
-            var ef = Vehicle.GetComponent<EnergyInterface>();
-            if (ef.IsNotNull() && !ef.enabled || !ef.gameObject.activeInHierarchy)
-                log.Warn($"There appears to be an issue with the energy interface: {ef.enabled}, {ef.gameObject.activeInHierarchy}");
-
-
-            if (Drone.Access(RMC, Vehicle, out var d))
+            if (Vehicle.liveMixin.IsNull())
             {
-                log.Write($"Undocking craft is drone. Setting isAsleep to false");
-                d.IsAsleep = false;
+                log.Warn($"Vehicle liveMixin is null during undocking end");
             }
             else
-                Helper.ChangeAvatarInput(log, true);
+                Vehicle.liveMixin.shielded = false;
+            if (Vehicle.crushDamage.IsNull())
+            {
+                log.Warn($"Vehicle crushDamage is null during undocking end");
+            }
+            else
+                Vehicle.crushDamage.enabled = true;
+            Vehicle.docked = false;
+
+            log.Debug($"Abstraction.UndockVehicle({!IsDrone})");
+            Abstraction.UndockVehicle(boardPlayer: !IsDrone);
+            log.Debug($"Setting ping instance hud icon to true");
+            var pingInstance = Abstraction.PingInstance;
+            pingInstance.SetHudIcon(log, true);
+            log.Debug($"Perform sanity checks");
+
+            try
+            {
+                if (pingInstance != Vehicle.subName.pingInstance)
+                    log.Warn($"Ping instance mismatch: {pingInstance.NiceName()}(abstraction) vs {Vehicle.subName.pingInstance.NiceName()}(subName)");
+
+                if (!pingInstance.isActiveAndEnabled ||
+                    !pingInstance.gameObject.activeInHierarchy ||
+                    !pingInstance.visible)
+                    log.Warn($"There appears to be an issue with the ping instance: {pingInstance.isActiveAndEnabled}, {pingInstance.gameObject.activeInHierarchy}, {pingInstance.visible}");
+                var ef = Vehicle.GetComponent<EnergyInterface>();
+                if (ef.IsNotNull() && !ef.enabled || !ef.gameObject.activeInHierarchy)
+                    log.Warn($"There appears to be an issue with the energy interface: {ef.enabled}, {ef.gameObject.activeInHierarchy}");
+
+                log.Debug($"Sanity checks done");
+
+                if (Drone.Access(RMC, Vehicle, out var d))
+                {
+                    log.Write($"Undocking craft is drone. Setting isAsleep to false");
+                    d.IsAsleep = false;
+                }
+                else
+                {
+                    log.Debug($"Reactivating player input");
+
+                    Helper.ChangeAvatarInput(log, true);
+                }
+            }
+            finally
+            {
+                log.Debug($"Undocking end complete");
+            }
         }
 
         public void OnUndockingDone()
